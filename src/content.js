@@ -1557,31 +1557,26 @@
         const onRadio = sw.querySelector('input[value="moon"], input[value="1"]');
         const offRadio = sw.querySelector('input[value="sun"], input[value="0"]');
         if (!onRadio || !offRadio) continue;
+        if (onRadio.value === 'moon') {
+          const darkRow = sw.closest('.ani-setting-item, .setting-item, .dark-mode-setting, li, div');
+          if (darkRow && darkRow !== tb) darkRow.classList.add('ani-tb-hidden-darkmode');
+          continue;
+        }
         sw.classList.add('ani-toolbox-pill-switch');
-        const isDarkThemeSw = onRadio.value === 'moon';
-        const syncSw = (userTriggered = false) => {
-          sw.classList.toggle('is-on', !!onRadio.checked);
-          if (isDarkThemeSw && userTriggered) {
-            const isLight = !!offRadio.checked;
-            document.documentElement.classList.toggle('ani-light-mode', isLight);
-            document.body?.classList.toggle('ani-light-mode', isLight);
-            try { localStorage.setItem('aniLightMode', isLight ? '1' : '0'); } catch {}
-            globalThis.AniLensSwitch?.mount({ initialLight: isLight });
-          }
-        };
-        syncSw(false);
+        const syncSw = () => sw.classList.toggle('is-on', !!onRadio.checked);
+        syncSw();
         if (!sw.dataset.aniSwBound) {
           sw.dataset.aniSwBound = 'true';
-          onRadio.addEventListener('change', () => syncSw(true));
-          offRadio.addEventListener('change', () => syncSw(true));
+          onRadio.addEventListener('change', syncSw);
+          offRadio.addEventListener('change', syncSw);
           sw.addEventListener('click', (ev) => {
             if (ev.target?.tagName === 'INPUT' || ev.target?.tagName === 'LABEL') {
-              setTimeout(() => syncSw(true), 20);
+              setTimeout(syncSw, 20);
               return;
             }
             ev.preventDefault();
             (onRadio.checked ? offRadio : onRadio).click();
-            setTimeout(() => syncSw(true), 20);
+            setTimeout(syncSw, 20);
           });
         }
       }
@@ -1808,18 +1803,37 @@
       if (!/本動畫共\s*[\d,]+\s*筆彈幕/.test(txt)) continue;
       if ([...el.children].some(c => /本動畫共/.test(c.textContent || ''))) continue;
       const tipHost = el.closest('.anime-tip, .danmu-tip, .sub-list-tip') || el.parentElement;
-      if (tipHost && !tipHost.dataset.aniDanmuCountHost) {
-        tipHost.dataset.aniDanmuCountHost = 'true';
-        tipHost.classList.add('ani-danmu-count-box');
-        for (const icon of tipHost.querySelectorAll('i, svg, img, .material-icons, .material-icons-round, .qa-icon')) {
-          if (!icon.classList.contains('ani-danmu-count-icon')) {
-            icon.style.setProperty('display', 'none', 'important');
-          }
+      if (!tipHost) continue;
+      tipHost.classList.add('ani-danmu-count-box');
+      for (const icon of tipHost.querySelectorAll('i, svg, img, .material-icons, .material-icons-round, .qa-icon')) {
+        if (!icon.classList.contains('ani-danmu-count-icon') && !icon.closest('.ani-danmu-count-icon')) {
+          icon.classList.add('ani-danmu-hidden-info');
+          icon.style.setProperty('display', 'none', 'important');
         }
-        const host = el.tagName === 'DIV' || el.tagName === 'LI' ? el : tipHost;
-        if (!host.querySelector('.ani-danmu-count-icon')) {
-          host.classList.add('ani-danmu-count-wrap');
-          host.insertAdjacentHTML('afterbegin', '<svg class="ani-danmu-count-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4.5" width="19" height="15" rx="3.2"/><path d="M6.5 9.5h5M13.5 9.5h4M6.5 14h3.5M12 14h5.5"/></svg>');
+      }
+      if (!tipHost.querySelector(':scope > .ani-danmu-count-icon')) {
+        tipHost.insertAdjacentHTML('afterbegin', '<svg class="ani-danmu-count-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4.5" width="19" height="15" rx="3.2"/><path d="M6.5 9.5h5M13.5 9.5h4M6.5 14h3.5M12 14h5.5"/></svg>');
+      }
+      let linesBox = tipHost.querySelector(':scope > .ani-danmu-count-lines');
+      if (!linesBox) {
+        linesBox = document.createElement('div');
+        linesBox.className = 'ani-danmu-count-lines';
+        tipHost.append(linesBox);
+      }
+      for (const node of [...tipHost.childNodes]) {
+        if (node === linesBox || (node.nodeType === 1 && (node.classList.contains('ani-danmu-count-icon') || node.classList.contains('ani-danmu-hidden-info')))) continue;
+        if (node.nodeType === 3 && !node.nodeValue.trim()) continue;
+        if (node.nodeType === 3) {
+          const sp = document.createElement('span');
+          sp.textContent = node.nodeValue.trim();
+          if (/^(?:本動畫共|動畫瘋[·.]Plus)/.test(sp.textContent)) sp.className = 'ani-danmu-count-short';
+          linesBox.append(sp);
+          node.remove();
+        } else {
+          if (/^(?:本動畫共|動畫瘋[·.]Plus)/.test((node.textContent || '').trim()) && (node.textContent || '').trim().length <= 26) {
+            node.classList.add('ani-danmu-count-short');
+          }
+          linesBox.append(node);
         }
       }
     }
@@ -3803,10 +3817,6 @@
           document.documentElement.classList.toggle('ani-light-mode', isLight);
           document.body?.classList.toggle('ani-light-mode', isLight);
           try { localStorage.setItem('aniLightMode', isLight ? '1' : '0'); } catch {}
-          const targetRadio = isLight
-            ? document.querySelector('.user-setting-toolbox input[value="sun"]')
-            : document.querySelector('.user-setting-toolbox input[value="moon"]');
-          if (targetRadio && !targetRadio.checked) targetRadio.click();
         },
       });
     }

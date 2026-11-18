@@ -4294,7 +4294,29 @@ body.ani-ambientlight-page.ani-ambientlight-ui #ani_video.ani-mini-pip .ani-ambi
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .subtitle :is(.ani-danmu-count-box, .ani-danmu-count-wrap) {
   display: flex !important;
   align-items: center !important;
-  gap: 10px !important;
+  gap: 12px !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .subtitle .ani-danmu-count-box::before,
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .subtitle .ani-danmu-count-box::after,
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .subtitle .ani-danmu-hidden-info {
+  display: none !important;
+  content: none !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .subtitle .ani-danmu-count-lines {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  font-size: 13px !important;
+  line-height: 1.45 !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .subtitle .ani-danmu-count-lines > * {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .subtitle .ani-danmu-count-lines > .ani-danmu-count-short {
+  white-space: nowrap !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .subtitle .ani-danmu-count-icon {
   width: 30px !important;
@@ -6832,6 +6854,22 @@ html body.ani-ambientlight-ui .user-setting-toolbox .user-info :is(a, p, span, d
 html body.ani-ambientlight-ui .user-setting-toolbox .user-info :is(p:last-child, small, .user-id) {
   color: rgba(206, 222, 238, 0.72) !important;
 }
+html body.ani-ambientlight-ui .user-setting-toolbox :is(.ani-tb-hidden-darkmode, .dark-mode-setting, hr),
+html body.ani-ambientlight-ui .user-setting-toolbox .setting-section > div:has(input[value='moon']),
+html body.ani-ambientlight-ui .user-setting-toolbox .setting-section > div:empty {
+  display: none !important;
+}
+html body.ani-ambientlight-ui .user-setting-toolbox > *:not(.setting-section),
+html body.ani-ambientlight-ui .user-setting-toolbox > *:not(.setting-section) > * {
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+}
+html body.ani-ambientlight-ui .user-setting-toolbox > *:not(.setting-section)::before,
+html body.ani-ambientlight-ui .user-setting-toolbox > *:not(.setting-section)::after {
+  content: none !important;
+  display: none !important;
+}
 html body.ani-ambientlight-ui .user-setting-toolbox .user-section {
   border-bottom: 0 !important;
   margin-bottom: 0 !important;
@@ -6841,9 +6879,6 @@ html body.ani-ambientlight-ui .user-setting-toolbox .other-section {
   border-top: 0 !important;
   margin-top: 0 !important;
   padding-top: 0 !important;
-}
-html body.ani-ambientlight-ui .user-setting-toolbox hr {
-  display: none !important;
 }
 html body.ani-ambientlight-ui .user-setting-toolbox .setting-section {
   display: flex !important;
@@ -7357,7 +7392,8 @@ body.ani-ambientlight-ui .top_sky .user-setting-toolbox > :not(.ani-btn-glass) {
   align-items: center;
   justify-content: center;
   flex: none;
-  z-index: 30;
+  z-index: 60 !important;
+  pointer-events: auto !important;
   user-select: none;
 }
 .ani-lens-theme-wrap .stage {
@@ -7367,7 +7403,12 @@ body.ani-ambientlight-ui .top_sky .user-setting-toolbox > :not(.ani-btn-glass) {
   overflow: visible;
   perspective: var(--perspective);
   outline: none;
-  cursor: pointer;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  z-index: 61 !important;
+}
+.ani-lens-theme-wrap .stage > * {
+  pointer-events: none !important;
 }
 .ani-lens-theme-wrap .stage:focus-visible { --focus-style: solid; }
 .ani-lens-theme-wrap .halo {

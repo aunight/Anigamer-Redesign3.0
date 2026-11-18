@@ -220,21 +220,12 @@
       if (!silent && typeof onToggle === 'function') onToggle(target === 1);
     };
 
-    let ignoreNextClick = false;
     stage.addEventListener('pointerdown', (e) => {
-      if (e.button === 0) {
-        e.preventDefault();
-        ignoreNextClick = true;
-        setTimeout(() => { ignoreNextClick = false; }, 400);
-        setOn(s.on ? 0 : 1, false);
-      }
+      if (e.button === 0) e.preventDefault();
     });
     stage.addEventListener('click', (e) => {
-      if (ignoreNextClick) {
-        ignoreNextClick = false;
-        return;
-      }
       e.preventDefault();
+      e.stopPropagation();
       setOn(s.on ? 0 : 1, false);
     });
     stage.addEventListener('keydown', (e) => {
