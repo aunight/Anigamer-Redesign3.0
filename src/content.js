@@ -1509,16 +1509,31 @@
     }, 1800);
   }
   function enhancePlayerControls() {
-    for (const dlgTitle of document.querySelectorAll('.dialogify:not([data-ani-share]) .dialogify_title:not([data-ani-title-icon])')) {
-      dlgTitle.dataset.aniTitleIcon = 'true';
-      dlgTitle.querySelectorAll('img').forEach(n => { n.style.display = 'none'; });
-      const text = dlgTitle.textContent.trim();
-      const iconSvg = /消音|靜音/.test(text)
-        ? '<svg class="ani-dlg-title-icon" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path d="M301.1 34.8C312.6 40 320 51.4 320 64l0 384c0 12.6-7.4 24-18.9 29.2s-25 3.1-34.4-5.3L131.8 352 64 352c-35.3 0-64-28.7-64-64l0-64c0-35.3 28.7-64 64-64l67.8 0L266.7 40.1c9.4-8.4 22.9-10.4 34.4-5.3zM425 167l55 55 55-55c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-55 55 55 55c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-55-55-55 55c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l55-55-55-55c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0z"/></svg>'
-        : /檢舉/.test(text)
-        ? '<svg class="ani-dlg-title-icon" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M64 32C64 14.3 49.7 0 32 0S0 14.3 0 32L0 64 0 368 0 480c0 17.7 14.3 32 32 32s32-14.3 32-32l0-128 64.3-16.1c41.1-10.3 84.6-5.5 122.5 13.4c44.2 22.1 95.5 24.8 141.7 7.4l34.7-13c12.5-4.7 20.8-16.6 20.8-30l0-247.7c0-23-24.2-38-44.8-27.7l-9.6 4.8c-46.3 23.2-100.8 23.2-147.1 0c-35.1-17.6-75.4-22-113.5-12.5L64 48l0-16z"/></svg>'
-        : '<svg class="ani-dlg-title-icon" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM216 336l24 0 0-64-24 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l48 0c13.3 0 24 10.7 24 24l0 88 8 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-80 0c-13.3 0-24-10.7-24-24s10.7-24 24-24zm40-208a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"/></svg>';
-      dlgTitle.insertAdjacentHTML('afterbegin', iconSvg);
+    const dlgMuteSvg = '<svg class="ani-dlg-title-icon" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path d="M301.1 34.8C312.6 40 320 51.4 320 64l0 384c0 12.6-7.4 24-18.9 29.2s-25 3.1-34.4-5.3L131.8 352 64 352c-35.3 0-64-28.7-64-64l0-64c0-35.3 28.7-64 64-64l67.8 0L266.7 40.1c9.4-8.4 22.9-10.4 34.4-5.3zM425 167l55 55 55-55c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-55 55 55 55c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-55-55-55 55c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l55-55-55-55c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0z"/></svg>';
+    const dlgFlagSvg = '<svg class="ani-dlg-title-icon" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M64 32C64 14.3 49.7 0 32 0S0 14.3 0 32L0 64 0 368 0 480c0 17.7 14.3 32 32 32s32-14.3 32-32l0-128 64.3-16.1c41.1-10.3 84.6-5.5 122.5 13.4c44.2 22.1 95.5 24.8 141.7 7.4l34.7-13c12.5-4.7 20.8-16.6 20.8-30l0-247.7c0-23-24.2-38-44.8-27.7l-9.6 4.8c-46.3 23.2-100.8 23.2-147.1 0c-35.1-17.6-75.4-22-113.5-12.5L64 48l0-16z"/></svg>';
+    const dlgInfoSvg = '<svg class="ani-dlg-title-icon" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM216 336l24 0 0-64-24 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l48 0c13.3 0 24 10.7 24 24l0 88 8 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-80 0c-13.3 0-24-10.7-24-24s10.7-24 24-24zm40-208a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"/></svg>';
+    for (const dlg of document.querySelectorAll('.dialogify:not([data-ani-share])')) {
+      if (dlg.querySelector('#share-url-text, .ani-share-card')) continue;
+      dlg.querySelectorAll('.dialogify__close').forEach((c) => { c.style.setProperty('display', 'none', 'important'); });
+      const dlgTitle = dlg.querySelector('.dialogify_title');
+      if (dlgTitle && !dlgTitle.dataset.aniTitleIcon) {
+        dlgTitle.dataset.aniTitleIcon = 'true';
+        dlgTitle.querySelectorAll('img').forEach(n => { n.style.display = 'none'; });
+        const text = dlgTitle.textContent.trim();
+        const iconSvg = /消音|靜音/.test(text) ? dlgMuteSvg : /檢舉/.test(text) ? dlgFlagSvg : dlgInfoSvg;
+        dlgTitle.insertAdjacentHTML('afterbegin', iconSvg);
+      } else if (!dlgTitle && !dlg.querySelector('.ani-dlg-title-icon')) {
+        const bodyEl = dlg.querySelector('.dialogify__body');
+        const msgTarget = bodyEl?.querySelector(':scope > p, :scope > div:not(.dialogify__footer):not(.btn-box)') || bodyEl;
+        const txt = (msgTarget?.textContent || '').trim();
+        if (msgTarget && txt) {
+          const iconSvg = /檢舉/.test(txt) ? dlgFlagSvg : /消音|靜音/.test(txt) ? dlgMuteSvg : '';
+          if (iconSvg) {
+            msgTarget.classList.add('ani-dlg-inline-row');
+            msgTarget.insertAdjacentHTML('afterbegin', iconSvg);
+          }
+        }
+      }
     }
     const shareUrl=document.querySelector('#share-url-text');
     const shareBody=shareUrl?.closest('.dialogify__body'),shareCard=shareUrl?.closest('.dialogify__content');
@@ -1647,8 +1662,47 @@
         const on=/關閉彈幕/.test(hint);
         toggle.setAttribute('aria-pressed',String(on));
       };
+      const dismissDanmuMenu=()=>{
+        toggle.dataset.aniMenuDismissed='true';
+        toggle.classList.remove('vjs-lock-showing','vjs-hover','open');
+        const m=toggle.querySelector(':scope > .vjs-menu');
+        if(m)m.classList.remove('vjs-lock-showing','open');
+        if(document.activeElement&&toggle.contains(document.activeElement)&&typeof document.activeElement.blur==='function'){
+          document.activeElement.blur();
+        }
+      };
+      const allowDanmuHover=()=>{
+        delete toggle.dataset.aniMenuDismissed;
+      };
+      toggle.addEventListener('pointerenter',allowDanmuHover);
+      toggle.addEventListener('mouseenter',allowDanmuHover);
+      toggle.addEventListener('pointerleave',()=>{
+        dismissDanmuMenu();
+        delete toggle.dataset.aniMenuDismissed;
+      });
+      toggle.addEventListener('mouseleave',()=>{
+        dismissDanmuMenu();
+        delete toggle.dataset.aniMenuDismissed;
+      });
+      toggle.addEventListener('click',(ev)=>{
+        if(!ev.target?.closest?.('.vjs-menu'))dismissDanmuMenu();
+        setTimeout(sync,40);
+      });
+      if(!window.__aniDanmuDocDismissBound){
+        window.__aniDanmuDocDismissBound=true;
+        document.addEventListener('pointerdown',(ev)=>{
+          const dt=document.querySelector('#danmuToggle');
+          if(!dt||dt.contains(ev.target))return;
+          dt.dataset.aniMenuDismissed='true';
+          dt.classList.remove('vjs-lock-showing','vjs-hover','open');
+          const m=dt.querySelector(':scope > .vjs-menu');
+          if(m)m.classList.remove('vjs-lock-showing','open');
+          if(document.activeElement&&dt.contains(document.activeElement)&&typeof document.activeElement.blur==='function'){
+            document.activeElement.blur();
+          }
+        },true);
+      }
       new MutationObserver(sync).observe(toggle,{attributes:true,subtree:true,attributeFilter:['title','data-ani-tip','aria-label','class']});
-      toggle.addEventListener('click',()=>setTimeout(sync,40));
       sync();
     }
     
@@ -1699,7 +1753,7 @@
                       .map((j) => {
                         const cleanSong = (j.title || '').replace(/^[「『]|[」』]$/g, '');
                         const q = encodeURIComponent(`${cleanSong} ${j.singer || ''}`.trim());
-                        return `<div>${j.type || '主題曲'}${j.title || ''}</div><div>${j.singer || '-'}</div><a href="https://www.youtube.com/results?search_query=${q}" target="_blank" rel="noopener noreferrer"><svg class="ani-yt-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.5 6.2a3.01 3.01 0 0 0-2.12-2.13C19.5 3.55 12 3.55 12 3.55s-7.5 0-9.38.52A3.01 3.01 0 0 0 .5 6.2 31.4 31.4 0 0 0 0 12a31.4 31.4 0 0 0 .5 5.8 3.01 3.01 0 0 0 2.12 2.13c1.88.52 9.38.52 9.38.52s7.5 0 9.38-.52a3.01 3.01 0 0 0 2.12-2.13A31.4 31.4 0 0 0 24 12a31.4 31.4 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.3 3.6-6.3 3.6Z"/></svg>YouTube</a>`;
+                        return `<div>${j.type || '主題曲'}${j.title || ''}</div><div>${j.singer || '-'}</div><a href="https://www.youtube.com/results?search_query=${q}" target="_blank" rel="noopener noreferrer" aria-label="在 YouTube 搜尋" title="在 YouTube 搜尋"><svg class="ani-yt-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.5 6.2a3.01 3.01 0 0 0-2.12-2.13C19.5 3.55 12 3.55 12 3.55s-7.5 0-9.38.52A3.01 3.01 0 0 0 .5 6.2 31.4 31.4 0 0 0 0 12a31.4 31.4 0 0 0 .5 5.8 3.01 3.01 0 0 0 2.12 2.13c1.88.52 9.38.52 9.38.52s7.5 0 9.38-.52a3.01 3.01 0 0 0 2.12-2.13A31.4 31.4 0 0 0 24 12a31.4 31.4 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.3 3.6-6.3 3.6Z"/></svg></a>`;
                       })
                       .join('')
                   : '';
@@ -1740,33 +1794,45 @@
       }
 
     
-    for (const pill of document.querySelectorAll('#BH_background #ani-info .data_type li > span')) {
-      if (pill.querySelector('.ani-info-pill-svg')) continue;
-      const t = (pill.textContent || '').trim();
-      if (/^CAST$/i.test(t)) {
-        pill.classList.add('ani-infoplus-badge');
-        pill.insertAdjacentHTML('afterbegin', '<svg class="ani-info-pill-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Zm5-3a1 1 0 1 0-2 0 3 3 0 0 1-6 0 1 1 0 1 0-2 0 5 5 0 0 0 4 4.9V19H8.5a1 1 0 1 0 0 2h7a1 1 0 1 0 0-2H13v-3.1A5 5 0 0 0 17 11Z"/></svg>');
-      } else if (/^主題曲$/.test(t)) {
-        pill.classList.add('ani-infoplus-badge');
-        pill.insertAdjacentHTML('afterbegin', '<svg class="ani-info-pill-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6Z"/></svg>');
-      } else if (/^aniInfo\+$/i.test(t)) {
-        pill.classList.add('ani-infoplus-badge');
-        pill.insertAdjacentHTML('afterbegin', '<svg class="ani-info-pill-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2Zm1 15h-2v-6h2v6Zm0-8h-2V7h2v2Z"/></svg>');
+    const iconifyInfoLinks = (root) => {
+      if (!root) return;
+      for (const pill of root.querySelectorAll('.data_type li > span')) {
+        if (pill.querySelector('.ani-info-pill-svg')) continue;
+        const t = (pill.textContent || '').trim();
+        if (/^CAST$/i.test(t) || /^聲優$/.test(t)) {
+          pill.classList.add('ani-infoplus-badge');
+          pill.textContent = '聲優';
+          pill.insertAdjacentHTML('afterbegin', '<svg class="ani-info-pill-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Zm5-3a1 1 0 1 0-2 0 3 3 0 0 1-6 0 1 1 0 1 0-2 0 5 5 0 0 0 4 4.9V19H8.5a1 1 0 1 0 0 2h7a1 1 0 1 0 0-2H13v-3.1A5 5 0 0 0 17 11Z"/></svg>');
+        } else if (/主題曲/.test(t)) {
+          pill.classList.add('ani-infoplus-badge');
+          pill.textContent = '主題曲';
+          pill.insertAdjacentHTML('afterbegin', '<svg class="ani-info-pill-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6Z"/></svg>');
+        } else if (/^aniInfo\+$/i.test(t)) {
+          pill.classList.add('ani-infoplus-badge');
+          pill.insertAdjacentHTML('afterbegin', '<svg class="ani-info-pill-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2Zm1 15h-2v-6h2v6Zm0-8h-2V7h2v2Z"/></svg>');
+        }
       }
-    }
-    for (const a of document.querySelectorAll('#BH_background #ani-info a[href*="wikipedia.org"]')) {
-      if (!a.querySelector('.ani-wiki-svg')) {
-        a.classList.add('ani-wiki-link');
-        a.title = a.textContent.replace(/🔗/g, '').trim() || 'Wikipedia';
-        a.innerHTML = '<svg class="ani-wiki-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.09 13.119c-.936 1.932-2.217 4.548-2.853 5.728-.616 1.074-1.127.931-1.532.029-1.406-3.321-4.293-9.144-5.651-12.409-.251-.601-.441-.987-.619-1.139-.181-.15-.554-.24-1.122-.271C.103 5.033 0 4.982 0 4.898v-.455l.052-.045c.924-.005 5.401 0 5.401 0l.051.045v.434c0 .119-.075.176-.225.176l.564.031c.485.029.727.164.727.436 0 .135-.053.33-.166.601 1.082 2.646 4.818 10.521 4.818 10.521l.136.046 2.411-4.81-.482-1.067-1.658-3.264s-.318-.654-.428-.872c-.728-1.443-.712-1.518-1.447-1.617-.207-.023-.313-.05-.313-.149v-.468l.06-.045h4.292l.113.037v.451c0 .105-.076.15-.227.15l-.308.047c-.792.061-.661.381-.136 1.422l1.582 3.252 1.758-3.504c.293-.64.233-.801-.416-.872-.231-.027-.346-.063-.346-.184v-.434l.044-.053h4.294l.06.045v.434c0 .119-.089.176-.268.176l-.657.031c-.629.051-.846.235-1.262 1.007-1.06 1.981-2.094 4.027-2.094 4.027l2.536 5.261 4.212-9.512c.259-.61.186-.86-.508-.903l-.671-.031c-.163 0-.244-.046-.244-.15v-.451l.06-.053 4.041.008.045.045v.434c0 .119-.067.176-.202.176l-.491.031c-.792.049-1.158.299-1.564 1.196-.93 2.025-3.953 8.859-5.059 11.494-.39.873-.905 1.029-1.48.03-.758-1.387-1.751-3.361-2.345-4.576l-.189-.39-2.587 4.961c-.616 1.106-1.127.959-1.532.029z"/></svg>';
+      for (const a of root.querySelectorAll('a[href*="wikipedia.org"]')) {
+        if (!a.querySelector('.ani-wiki-svg') || /[🔗]|\bWiki/i.test(a.textContent || '')) {
+          a.classList.add('ani-wiki-link');
+          const cleanLabel = (a.title || a.textContent || '').replace(/[🔗🔎]/g, '').trim() || 'Wikipedia';
+          a.title = cleanLabel;
+          a.setAttribute('aria-label', cleanLabel);
+          a.innerHTML = '<svg class="ani-wiki-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.09 13.119c-.936 1.932-2.217 4.548-2.853 5.728-.616 1.074-1.127.931-1.532.029-1.406-3.321-4.293-9.144-5.651-12.409-.251-.601-.441-.987-.619-1.139-.181-.15-.554-.24-1.122-.271C.103 5.033 0 4.982 0 4.898v-.455l.052-.045c.924-.005 5.401 0 5.401 0l.051.045v.434c0 .119-.075.176-.225.176l.564.031c.485.029.727.164.727.436 0 .135-.053.33-.166.601 1.082 2.646 4.818 10.521 4.818 10.521l.136.046 2.411-4.81-.482-1.067-1.658-3.264s-.318-.654-.428-.872c-.728-1.443-.712-1.518-1.447-1.617-.207-.023-.313-.05-.313-.149v-.468l.06-.045h4.292l.113.037v.451c0 .105-.076.15-.227.15l-.308.047c-.792.061-.661.381-.136 1.422l1.582 3.252 1.758-3.504c.293-.64.233-.801-.416-.872-.231-.027-.346-.063-.346-.184v-.434l.044-.053h4.294l.06.045v.434c0 .119-.089.176-.268.176l-.657.031c-.629.051-.846.235-1.262 1.007-1.06 1.981-2.094 4.027-2.094 4.027l2.536 5.261 4.212-9.512c.259-.61.186-.86-.508-.903l-.671-.031c-.163 0-.244-.046-.244-.15v-.451l.06-.053 4.041.008.045.045v.434c0 .119-.067.176-.202.176l-.491.031c-.792.049-1.158.299-1.564 1.196-.93 2.025-3.953 8.859-5.059 11.494-.39.873-.905 1.029-1.48.03-.758-1.387-1.751-3.361-2.345-4.576l-.189-.39-2.587 4.961c-.616 1.106-1.127.959-1.532.029z"/></svg>';
+        }
       }
-    }
-    for (const a of document.querySelectorAll('#BH_background #ani-info a[href*="youtube.com"]')) {
-      if (!a.querySelector('.ani-yt-svg')) {
-        a.classList.add('ani-yt-link');
-        a.innerHTML = '<svg class="ani-yt-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.5 6.2a3.01 3.01 0 0 0-2.12-2.13C19.5 3.55 12 3.55 12 3.55s-7.5 0-9.38.52A3.01 3.01 0 0 0 .5 6.2 31.4 31.4 0 0 0 0 12a31.4 31.4 0 0 0 .5 5.8 3.01 3.01 0 0 0 2.12 2.13c1.88.52 9.38.52 9.38.52s7.5 0 9.38-.52a3.01 3.01 0 0 0 2.12-2.13A31.4 31.4 0 0 0 24 12a31.4 31.4 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.3 3.6-6.3 3.6Z"/></svg>YouTube';
+      for (const a of root.querySelectorAll('a[href*="youtube.com"]')) {
+        if (!a.querySelector('.ani-yt-svg') || (a.textContent || '').trim().length > 0) {
+          a.classList.add('ani-yt-link');
+          a.title = a.title || '在 YouTube 搜尋';
+          a.setAttribute('aria-label', '在 YouTube 搜尋');
+          a.innerHTML = '<svg class="ani-yt-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.5 6.2a3.01 3.01 0 0 0-2.12-2.13C19.5 3.55 12 3.55 12 3.55s-7.5 0-9.38.52A3.01 3.01 0 0 0 .5 6.2 31.4 31.4 0 0 0 0 12a31.4 31.4 0 0 0 .5 5.8 3.01 3.01 0 0 0 2.12 2.13c1.88.52 9.38.52 9.38.52s7.5 0 9.38-.52a3.01 3.01 0 0 0 2.12-2.13A31.4 31.4 0 0 0 24 12a31.4 31.4 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.3 3.6-6.3 3.6Z"/></svg>';
+        }
       }
-    }
+    };
+    window.__aniIconifyInfoLinks = iconifyInfoLinks;
+    iconifyInfoLinks(document.querySelector('#BH_background #ani-info'));
+    iconifyInfoLinks(document.querySelector('#ani-tab-content-intro'));
 
     for(const badge of document.querySelectorAll('#BH_background span, #BH_background div, #BH_background a, #BH_background button')){
       if(!badge.children.length&&/^\s*aniInfo\+\s*$/i.test(badge.textContent||'')){
@@ -2461,8 +2527,125 @@
           cap.append(dur);
         }
       }
-      const fallbackTips={'.vjs-pre-button':'上一集','.vjs-next-button':'下一集','.vjs-res-button':'畫質','.vjs-playback-rate':'播放速度','.ani-ambientlight-toggle':'環境光'};
-      for(const btn of controlBar.querySelectorAll('.vjs-play-control,.vjs-mute-control,.vjs-pre-button,.vjs-next-button,.vjs-danmu-button,.vjs-res-button,.vjs-playback-rate,.vjs-indent-button,.plus_picture_in_picture_icon,.vjs-fullscreen-control,.ani-ambientlight-toggle')){
+      // Episode picker icon right next to Ambient Light toggle (works in Normal, Theater, and Fullscreen)
+      const rightGrp = controlBar.querySelector('.control-bar-rightbtn');
+      const seasonRoot = document.querySelector('.season');
+      if (rightGrp && seasonRoot && seasonRoot.querySelector('.season ul li a, ul li a') && !rightGrp.querySelector('.ani-episodes-control')) {
+        const epBtn = document.createElement('button');
+        epBtn.type = 'button';
+        epBtn.className = 'vjs-control vjs-button ani-episodes-control';
+        epBtn.setAttribute('aria-label', '選集');
+        epBtn.dataset.aniTip = '選集';
+        epBtn.innerHTML = '<svg class="ani-player-glyph" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3.5" y="4" width="7" height="7" rx="1.6"/><rect x="13.5" y="4" width="7" height="7" rx="1.6"/><rect x="3.5" y="13" width="7" height="7" rx="1.6"/><rect x="13.5" y="13" width="7" height="7" rx="1.6"/></svg>';
+        const ambBtn = rightGrp.querySelector('.ani-ambientlight-toggle');
+        if (ambBtn) ambBtn.after(epBtn);
+        else rightGrp.prepend(epBtn);
+
+        let epDrawer = playerEl.querySelector('.ani-player-episodes-drawer');
+        if (!epDrawer) {
+          epDrawer = document.createElement('div');
+          epDrawer.className = 'ani-player-episodes-drawer';
+          epDrawer.setAttribute('aria-hidden', 'true');
+          epDrawer.innerHTML = '<div class="ani-ep-drawer-backdrop"></div><aside class="ani-ep-drawer-panel" aria-label="集數選擇"><div class="ani-ep-drawer-tabs" role="tablist"></div><div class="ani-ep-drawer-body"></div></aside>';
+          playerEl.append(epDrawer);
+          const stopEvt = (ev) => ev.stopPropagation();
+          epDrawer.addEventListener('dblclick', stopEvt);
+          epDrawer.addEventListener('keydown', (ev) => {
+            if (ev.key === 'Escape') {
+              epDrawer.classList.remove('is-open');
+              epDrawer.setAttribute('aria-hidden', 'true');
+              epBtn.setAttribute('aria-expanded', 'false');
+            }
+            ev.stopPropagation();
+          });
+          epDrawer.querySelector('.ani-ep-drawer-backdrop')?.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            epDrawer.classList.remove('is-open');
+            epDrawer.setAttribute('aria-hidden', 'true');
+            epBtn.setAttribute('aria-expanded', 'false');
+          });
+        }
+        const renderEpDrawer = () => {
+          const tabsEl = epDrawer.querySelector('.ani-ep-drawer-tabs');
+          const bodyEl = epDrawer.querySelector('.ani-ep-drawer-body');
+          if (!tabsEl || !bodyEl) return;
+          const sections = [];
+          let pendingTitle = '';
+          for (const child of seasonRoot.children) {
+            if (/^(P|H[1-6]|DIV|SPAN)$/i.test(child.tagName) && !child.querySelector('ul')) {
+              const t = child.textContent.replace(/[:：\s]+$/g, '').trim();
+              if (t) pendingTitle = t;
+            } else if (child.tagName === 'UL' || child.querySelector('ul')) {
+              const ulEl = child.tagName === 'UL' ? child : child.querySelector('ul');
+              const items = [...ulEl.querySelectorAll('li a')];
+              if (items.length) {
+                sections.push({ title: pendingTitle || (sections.length === 0 ? '本篇' : '特別篇'), items });
+                pendingTitle = '';
+              }
+            }
+          }
+          if (!sections.length) {
+            const allItems = [...seasonRoot.querySelectorAll('ul li a')];
+            if (allItems.length) sections.push({ title: '本篇', items: allItems });
+          }
+          let activeIdx = sections.findIndex((s) => s.items.some((a) => a.closest('li')?.classList.contains('playing')));
+          if (activeIdx < 0) activeIdx = 0;
+
+          const showSection = (idx) => {
+            for (const [i, tabBtn] of [...tabsEl.querySelectorAll('.ani-ep-drawer-tab')].entries()) {
+              const act = i === idx;
+              tabBtn.classList.toggle('is-active', act);
+              tabBtn.setAttribute('aria-selected', String(act));
+            }
+            bodyEl.innerHTML = '';
+            const grid = document.createElement('div');
+            grid.className = 'ani-ep-drawer-grid';
+            const sec = sections[idx];
+            if (sec) {
+              for (const srcLink of sec.items) {
+                const epBtnItem = document.createElement('button');
+                epBtnItem.type = 'button';
+                const isPlaying = !!srcLink.closest('li')?.classList.contains('playing');
+                epBtnItem.className = `ani-ep-drawer-btn${isPlaying ? ' is-playing' : ''}`;
+                epBtnItem.textContent = srcLink.textContent.trim();
+                epBtnItem.title = `第 ${srcLink.textContent.trim()} 集`;
+                epBtnItem.addEventListener('click', (ev) => {
+                  ev.stopPropagation();
+                  srcLink.click();
+                });
+                grid.append(epBtnItem);
+              }
+            }
+            bodyEl.append(grid);
+          };
+
+          tabsEl.innerHTML = '';
+          sections.forEach((sec, idx) => {
+            const tabBtn = document.createElement('button');
+            tabBtn.type = 'button';
+            tabBtn.role = 'tab';
+            tabBtn.className = 'ani-ep-drawer-tab';
+            tabBtn.textContent = sec.title;
+            tabBtn.addEventListener('click', (ev) => {
+              ev.stopPropagation();
+              showSection(idx);
+            });
+            tabsEl.append(tabBtn);
+          });
+          showSection(activeIdx);
+        };
+        epBtn.setAttribute('aria-expanded', 'false');
+        epBtn.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          const opening = !epDrawer.classList.contains('is-open');
+          if (opening) renderEpDrawer();
+          epDrawer.classList.toggle('is-open', opening);
+          epDrawer.setAttribute('aria-hidden', String(!opening));
+          epBtn.setAttribute('aria-expanded', String(opening));
+        });
+      }
+      const fallbackTips={'.vjs-pre-button':'上一集','.vjs-next-button':'下一集','.vjs-res-button':'畫質','.vjs-playback-rate':'播放速度','.ani-ambientlight-toggle':'環境光','.ani-episodes-control':'選集'};
+      for(const btn of controlBar.querySelectorAll('.vjs-play-control,.vjs-mute-control,.vjs-pre-button,.vjs-next-button,.vjs-danmu-button,.vjs-res-button,.vjs-playback-rate,.vjs-indent-button,.plus_picture_in_picture_icon,.vjs-fullscreen-control,.ani-ambientlight-toggle,.ani-episodes-control')){
         if(btn.dataset.aniTipBound)continue;
         btn.dataset.aniTipBound='true';
         const syncTip=()=>{
@@ -3286,6 +3469,12 @@
         if (boxEl && boxEl.querySelector('.data_type li > span:not(:has(.ani-info-pill-svg))')) {
           enhancePlayerControls();
         }
+        const orphanBgm = document.querySelector('#bgmtv:not(.ani-title-actions #bgmtv)');
+        const plusToolbar = document.querySelector('.plus_imagetool_box');
+        const floatingToggle = document.querySelector('.ani-player-settings-toggle');
+        if (orphanBgm || (plusToolbar && floatingToggle && !plusToolbar.contains(floatingToggle))) {
+          enhancePlayerControls();
+        }
         if (msgEl && boxEl && !boxEl.dataset.aniInfoRescued && /無法取得資料|查無資料|搜尋失敗/.test(msgEl.textContent || '')) {
           enhancePlayerControls();
         }
@@ -3834,7 +4023,7 @@
       const danmuTab = tabs.querySelector('.ani-tabs-link[href="#ani-tab-content-1"]');
       const settingsPanelNative = document.getElementById('ani-tab-content-2');
 
-      // 1. Dual-button collapsible drawer right below .anime-title (進階設定 + 動畫瘋·Plus)
+      // 1. Unified toolbar integration + collapsible drawer body below .anime-title
       let drawer = document.querySelector('.ani-player-settings-drawer');
       if (!drawer) {
         const animeTitle = document.querySelector('#BH_background .container-player > .anime-title');
@@ -3850,33 +4039,50 @@
           animeTitle.after(drawer);
         }
       }
+      const syncToolbarHost = () => {
+        if (!drawer) return;
+        const bar = drawer.querySelector('.ani-drawer-toggles');
+        const plusBox = document.querySelector('#BH_background .plus_imagetool_box');
+        if (bar && plusBox) {
+          for (const toggleBtn of [...bar.querySelectorAll('.ani-player-settings-toggle')]) {
+            toggleBtn.classList.add('ani-in-toolbar');
+            plusBox.append(toggleBtn);
+          }
+          drawer.classList.add('has-toolbar-host');
+        }
+      };
 
-      const mountIntoDrawer = (key, label, iconMarkup, panelEl) => {
+      const mountIntoDrawer = (key, label, iconMarkup, panelEl, sourceLink = null) => {
         if (!drawer || !panelEl) return;
         const bar = drawer.querySelector('.ani-drawer-toggles');
         const bodyWrap = drawer.querySelector('.ani-player-settings-body');
         if (!bar || !bodyWrap) return;
-        if (bar.querySelector(`[data-ani-drawer-key="${key}"]`)) return;
+        if (document.querySelector(`.ani-player-settings-toggle[data-ani-drawer-key="${key}"]`)) return;
 
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'ani-player-settings-toggle';
         btn.dataset.aniDrawerKey = key;
         btn.setAttribute('aria-expanded', 'false');
-        btn.innerHTML = `<span class="ani-ps-label">${iconMarkup}${label}</span><svg class="ani-ps-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+        btn.setAttribute('aria-label', label);
+        btn.title = label;
+        btn.innerHTML = `<span class="ani-ps-icon">${iconMarkup}</span><span class="ani-ps-text">${label}</span><svg class="ani-ps-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
         const slot = document.createElement('div');
         slot.className = 'ani-drawer-slot';
         slot.dataset.aniDrawerKey = key;
         slot.hidden = true;
-        panelEl.removeAttribute('style');
+        panelEl.style.removeProperty('display');
         delete panelEl.dataset.aniTabActive;
         slot.append(panelEl);
         bodyWrap.append(slot);
 
         btn.addEventListener('click', () => {
           const opening = slot.hidden;
-          for (const b of bar.querySelectorAll('.ani-player-settings-toggle')) {
+          if (opening && sourceLink && panelEl.children.length === 0 && !panelEl.textContent.trim()) {
+            try { sourceLink.click(); } catch {}
+          }
+          for (const b of document.querySelectorAll('.ani-player-settings-toggle')) {
             b.setAttribute('aria-expanded', String(opening && b === btn));
             b.classList.toggle('is-open', opening && b === btn);
           }
@@ -3886,7 +4092,14 @@
           bodyWrap.hidden = !opening;
           drawer.classList.toggle('is-open', opening);
         });
-        bar.append(btn);
+        const plusBox = document.querySelector('#BH_background .plus_imagetool_box');
+        if (plusBox) {
+          btn.classList.add('ani-in-toolbar');
+          plusBox.append(btn);
+          drawer.classList.add('has-toolbar-host');
+        } else {
+          bar.append(btn);
+        }
       };
 
       if (settingsPanelNative) {
@@ -3915,7 +4128,8 @@
                 'ext-' + id,
                 titleText,
                 '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.4 7.4h7.6l-6.1 4.4 2.3 7.4L12 16.8l-6.2 4.4 2.3-7.4L2 9.4h7.6L12 2z"/></svg>',
-                targetPane
+                targetPane,
+                link
               );
             }
           }
@@ -3963,7 +4177,10 @@
         const typeItems = document.querySelectorAll('#BH_background section.data .type-list > li.type');
 
         const sig = `${typeItems.length}|${descText.length}|${castGrid?.children.length || 0}|${songGrid?.children.length || 0}`;
-        if (sig === lastIntroSig) return;
+        if (sig === lastIntroSig) {
+          window.__aniIconifyInfoLinks?.(introPane);
+          return;
+        }
         lastIntroSig = sig;
 
         const types = [];
@@ -3978,7 +4195,8 @@
         if (types.length) {
           html += '<div class="ani-side-meta-grid">';
           for (const item of types) {
-            html += `<div class="ani-side-meta-item"><span class="ani-side-pill">${item.title}</span><span class="ani-side-meta-val">${item.val}</span></div>`;
+            const isWide = types.length === 1 || /分類/.test(item.title) || item.val.length > 12;
+            html += `<div class="ani-side-meta-item${isWide ? ' is-wide' : ''}"><span class="ani-side-pill">${item.title}</span><span class="ani-side-meta-val">${item.val}</span></div>`;
           }
           html += '</div>';
         }
@@ -3995,17 +4213,18 @@
           if (castGrid && castGrid.children.length) {
             const sec = document.createElement('div');
             sec.className = 'ani-side-extra-block';
-            sec.innerHTML = '<div class="ani-side-section-head"><span class="ani-side-pill"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Zm5-3a1 1 0 1 0-2 0 3 3 0 0 1-6 0 1 1 0 1 0-2 0 5 5 0 0 0 4 4.9V19H8.5a1 1 0 1 0 0 2h7a1 1 0 1 0 0-2H13v-3.1A5 5 0 0 0 17 11Z"/></svg>聲優 CAST</span></div>';
+            sec.innerHTML = '<div class="ani-side-section-head"><span class="ani-side-pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Zm5-3a1 1 0 1 0-2 0 3 3 0 0 1-6 0 1 1 0 1 0-2 0 5 5 0 0 0 4 4.9V19H8.5a1 1 0 1 0 0 2h7a1 1 0 1 0 0-2H13v-3.1A5 5 0 0 0 17 11Z"/></svg>聲優</span></div>';
             sec.append(castGrid.cloneNode(true));
             mount.append(sec);
           }
           if (songGrid && songGrid.children.length) {
             const sec = document.createElement('div');
             sec.className = 'ani-side-extra-block';
-            sec.innerHTML = '<div class="ani-side-section-head"><span class="ani-side-pill"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6Z"/></svg>歌曲 主題曲</span></div>';
+            sec.innerHTML = '<div class="ani-side-section-head"><span class="ani-side-pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6Z"/></svg>主題曲</span></div>';
             sec.append(songGrid.cloneNode(true));
             mount.append(sec);
           }
+          window.__aniIconifyInfoLinks?.(mount);
         }
         const newScrollEl = introPane.querySelector('.ani-sidebar-scroll');
         if (newScrollEl && prevScroll) newScrollEl.scrollTop = prevScroll;
@@ -4020,12 +4239,87 @@
       }
 
       let lastRatingSig = '';
+      let cachedUserStars = 0;
+      const getNativeStarNodes = () => {
+        if (!acgReviewEl) return [];
+        const direct = [...acgReviewEl.querySelectorAll('.user-star-block > *')].filter(
+          (el) => !/del|remove|trash|clear/i.test(`${el.className || ''} ${el.title || ''} ${el.getAttribute('aria-label') || ''}`)
+        );
+        const list =
+          direct.length >= 5
+            ? direct.slice(0, 5)
+            : [...acgReviewEl.querySelectorAll('.user-star-block :is(button, a, i, span, img)')]
+                .filter((el) => !/del|remove|trash|clear/i.test(`${el.className || ''} ${el.title || ''}`))
+                .slice(0, 5);
+        return list;
+      };
+      const isWarmFilledColor = (str) => {
+        if (!str) return false;
+        const m = String(str).match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+        if (m) return Number(m[1]) > 180 && Number(m[2]) > 110 && Number(m[3]) < 130;
+        return /gold|orange|amber|#f5a|#fb|#f9|#ff[bcde0-9]/i.test(str);
+      };
+      const readUserRatedStars = () => {
+        if (!acgReviewEl) return cachedUserStars;
+        const nodes = getNativeStarNodes();
+        let count = 0;
+        for (let idx = 0; idx < nodes.length; idx++) {
+          const el = nodes[idx];
+          const cls = `${el.className || ''} ${[...el.querySelectorAll('*')].map((c) => c.className || '').join(' ')}`;
+          const img = el.matches('img') ? el : el.querySelector('img');
+          const src = img?.getAttribute('src') || '';
+          const svgEl = el.matches('svg') ? el : el.querySelector('svg');
+          let filled = false;
+          if (/\b(off|empty|outline|unselect|star-off|star_off|star-empty|far)\b/i.test(cls)) {
+            filled = false;
+          } else if (/\b(on|active|full|filled|is-active|is-filled|selected|checked|star-on|star_on|star-full|fas)\b/i.test(cls)) {
+            filled = true;
+          } else if (src) {
+            if (/(off|empty|gray|grey|none|0\.)/i.test(src)) filled = false;
+            else if (/star/i.test(src)) filled = true;
+          } else if (
+            el.getAttribute('aria-checked') === 'true' ||
+            el.getAttribute('aria-pressed') === 'true' ||
+            el.dataset.active === 'true'
+          ) {
+            filled = true;
+          } else {
+            const st = getComputedStyle(el);
+            const svgFill = svgEl ? getComputedStyle(svgEl).fill : '';
+            if (isWarmFilledColor(st.color) || isWarmFilledColor(svgFill)) filled = true;
+          }
+          if (filled) count = idx + 1;
+        }
+        if (count > 0) {
+          cachedUserStars = count;
+          return count;
+        }
+        const tipText = (acgReviewEl.querySelector('.user-scored-tip')?.textContent || '').trim();
+        const attrScore = Number(
+          acgReviewEl.dataset?.userScore ||
+            acgReviewEl.querySelector('.user-star-block')?.dataset?.score ||
+            acgReviewEl.querySelector('[data-score]')?.dataset?.score ||
+            0
+        );
+        if (attrScore >= 1 && attrScore <= 5) {
+          cachedUserStars = attrScore;
+          return attrScore;
+        }
+        const tipNum = tipText.match(/([1-5])\s*星/);
+        if (tipNum) {
+          cachedUserStars = Number(tipNum[1]);
+          return cachedUserStars;
+        }
+        if (!/已評價/.test(tipText) && nodes.length >= 5) cachedUserStars = 0;
+        return cachedUserStars;
+      };
       const populateRatingPane = () => {
         if (!ratingPane || !acgReviewEl) return;
         const scoreNumStr = (acgReviewEl.querySelector('.score-overall-number')?.textContent || '0').trim();
         const peopleText = (acgReviewEl.querySelector('.score-overall-people')?.textContent || '').replace(/評價$/, '').trim();
         const scoredTip = (acgReviewEl.querySelector('.user-scored-tip')?.textContent || '').trim();
-        const rSig = `${scoreNumStr}|${peopleText}|${scoredTip}`;
+        const userStars = readUserRatedStars();
+        const rSig = `${scoreNumStr}|${peopleText}|${scoredTip}|${userStars}`;
         if (rSig === lastRatingSig) return;
         lastRatingSig = rSig;
 
@@ -4040,6 +4334,15 @@
           dist.push({ stars, pctNum: Math.round(parseFloat(pctStr) || 0) });
         }
 
+        const nativeDelBtn = acgReviewEl.querySelector('.user-star-block :is([class*="del"], [class*="remove"], [class*="trash"]), .btn-delete-score, [onclick*="del" i]');
+        const statusLabel = scoredTip
+          ? userStars > 0 && !/[1-5]/.test(scoredTip)
+            ? `${scoredTip}（${userStars} 星）`
+            : scoredTip
+          : userStars > 0
+          ? `已評價 ${userStars} 星`
+          : '';
+
         let html = '<div class="ani-sidebar-scroll ani-rating-scroll">';
         html += '<div class="ani-rating-hero">';
         html += `<div class="ani-rating-ring-wrap"><svg viewBox="0 0 116 116" class="ani-rating-ring-svg"><circle class="ani-ring-bg" cx="58" cy="58" r="${r}"/><circle class="ani-ring-fg" cx="58" cy="58" r="${r}" stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${dashOffset.toFixed(1)}"/></svg><div class="ani-ring-center"><strong>${scoreNum ? scoreNum.toFixed(1) : '-'}</strong><span>${peopleText || ''}</span></div></div>`;
@@ -4051,9 +4354,18 @@
         html += '<div class="ani-side-divider"></div>';
         html += '<div class="ani-my-rating"><div class="ani-my-rating-label">我的評價</div><div class="ani-my-rating-arrow">▼</div><div class="ani-my-stars" role="group" aria-label="我的評價">';
         for (let i = 1; i <= 5; i++) {
-          html += `<button type="button" class="ani-my-star-btn" data-star="${i}" aria-label="給予 ${i} 星評價"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.4l2.92 5.92 6.53.95-4.72 4.6 1.11 6.5L12 17.3l-5.84 3.07 1.11-6.5-4.72-4.6 6.53-.95L12 2.4z"/></svg></button>`;
+          const isFilled = i <= userStars;
+          html += `<button type="button" class="ani-my-star-btn${isFilled ? ' is-filled' : ''}" data-star="${i}" aria-pressed="${isFilled}" aria-label="給予 ${i} 星評價"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.4l2.92 5.92 6.53.95-4.72 4.6 1.11 6.5L12 17.3l-5.84 3.07 1.11-6.5-4.72-4.6 6.53-.95L12 2.4z"/></svg></button>`;
         }
-        html += `</div>${scoredTip ? `<div class="ani-my-rating-status">${scoredTip}</div>` : ''}</div>`;
+        html += '</div>';
+        if (statusLabel) {
+          html += `<div class="ani-my-rating-status-row"><span class="ani-my-rating-status">${statusLabel}</span>${
+            nativeDelBtn
+              ? '<button type="button" class="ani-my-rating-clear" title="清除評價" aria-label="清除評價"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 10v6M14 10v6"/></svg></button>'
+              : ''
+          }</div>`;
+        }
+        html += '</div>';
         if (acgReviewEl.querySelector('.user-score-more')) {
           html += '<button type="button" class="ani-rating-more-btn">查看所有評價</button>';
         }
@@ -4061,15 +4373,34 @@
 
         ratingPane.innerHTML = html;
         ratingPane.querySelector('.ani-rating-more-btn')?.addEventListener('click', () => acgReviewEl.querySelector('.user-score-more')?.click());
+        ratingPane.querySelector('.ani-my-rating-clear')?.addEventListener('click', () => {
+          cachedUserStars = 0;
+          nativeDelBtn?.click();
+          setTimeout(populateRatingPane, 120);
+        });
         const starBtns = [...ratingPane.querySelectorAll('.ani-my-star-btn')];
         starBtns.forEach((btn, idx) => {
           btn.addEventListener('click', () => {
-            const targetStar = acgReviewEl.querySelectorAll('.user-star-block > *, .user-star-block img, .user-star-block button')[idx];
+            cachedUserStars = idx + 1;
+            const targetStar = getNativeStarNodes()[idx];
             if (targetStar) targetStar.click();
-            starBtns.forEach((b, j) => b.classList.toggle('is-filled', j <= idx));
+            starBtns.forEach((b, j) => {
+              const fill = j <= idx;
+              b.classList.toggle('is-filled', fill);
+              b.setAttribute('aria-pressed', String(fill));
+            });
+            setTimeout(populateRatingPane, 150);
           });
         });
       };
+      if (acgReviewEl && !acgReviewEl.dataset.aniRatingObserved) {
+        acgReviewEl.dataset.aniRatingObserved = 'true';
+        new MutationObserver(() => populateRatingPane()).observe(acgReviewEl, {
+          childList: true,
+          subtree: true,
+          attributes: true,
+        });
+      }
 
       const addCustomTab = (id, label, svgMarkup) => {
         if (tabs.querySelector(`.ani-tabs-link[href="#${id}"]`)) return;
@@ -4145,8 +4476,10 @@
       }
 
       syncTabs();
+      syncToolbarHost();
       // Poll gently via global reference instead of recursive DOM MutationObserver
       window.__aniSyncSidebarIntro = () => {
+        syncToolbarHost();
         relocateExtraTabs();
         populateIntroPane();
       };
@@ -4156,6 +4489,9 @@
       });
       tabObserver.observe(tabs, { childList: true });
       tabContent.dataset.aniTabsReady = 'true';
+    }
+    if (document.querySelector('.subtitle .ani-tab-content[data-ani-tabs-ready="true"]')) {
+      window.__aniSyncSidebarIntro?.();
     }
     if (settings.themeEnabled && imageObserver) {
       for (const image of document.querySelectorAll(

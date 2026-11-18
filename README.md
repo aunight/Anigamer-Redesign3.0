@@ -40,8 +40,12 @@
 - **付費方案與序號兌換**：專屬漸層會員背景卡片、非同步載入方案保留原生操作與自訂兌換彈窗。
 
 ### 5. 第三方腳本／擴充功能深度相容
-- **動畫瘋+（AniGamer Plus）**：將左側工具列、截圖按鈕抽屜整合為統一暗色玻璃風格；截圖預覽卡片 4 顆操作鈕重製為 **30px 深藍圓底搭配純白向量圖示**。
-- **動畫瘋資訊+（aniInfo+）自動備援**：當 Syoboi 日曆因連線限流回傳非 JSON 或查無資料時，透過 Background Service Worker（`hero-cache-worker.js`）自動改以 **AniList GraphQL** 與 **Wikipedia API** 補齊日文聲優 CAST 與維基百科連結，並保留原站作品連結與標籤供腳本讀取。
+- [**動畫瘋·Plus**](https://greasyfork.org/zh-TW/scripts/369990-%E5%8B%95%E7%95%AB%E7%98%8B-plus)：將左側／上方工具列與進階設定抽屜整合為統一暗色玻璃風格，支援 hover 展開文字與全螢幕／劇院模式快速選集；截圖預覽卡片 4 顆操作鈕重製為 **30px 深藍圓底搭配純白向量圖示**。
+- [**動畫瘋資訊+（aniInfo+）**](https://greasyfork.org/zh-TW/scripts/448708-%E5%8B%95%E7%95%AB%E7%98%8B%E8%B3%87%E8%A8%8A)：將日文聲優與 OP／ED 主題曲整合進右側邊欄分頁並將 Wiki／YouTube 改為向量圖示按鈕；當 Syoboi 日曆因連線限流回傳非 JSON 或查無資料時，透過 Background Service Worker（`hero-cache-worker.js`）自動改以 **AniList GraphQL**、**MyAnimeList (Jikan)** 與 **Wikipedia API** 補齊。
+- **追番／評分／截圖常用油猴腳本**：
+  - 追番點格子：[**動畫瘋連結 BGM.TV 點格子**](https://greasyfork.org/zh-TW/scripts/567535-%E5%8B%95%E7%95%AB%E7%98%8B%E9%80%A3%E7%B5%90-bgm-tv-%E9%BB%9E%E6%A0%BC%E5%AD%90)、[**Bangumi 自動更新觀看進度**](https://greasyfork.org/zh-TW/scripts/567536-bangumi-%E8%87%AA%E5%8B%95%E6%9B%B4%E6%96%B0%E8%A7%80%E7%9C%8B%E9%80%B2%E5%BA%A6)（自動偵測並整合至標題動作列）
+  - 評分顯示與圖表：[**動畫瘋評分顯示**](https://greasyfork.org/zh-TW/scripts/470517-%E5%8B%95%E7%95%AB%E7%98%8B%E8%A9%95%E5%88%86%E9%A1%AF%E7%A4%BA)、[**[動漫瘋] StarMap - 評分星圖**](https://greasyfork.org/zh-TW/scripts/584454-%E5%8B%95%E6%BC%AB%E7%98%8B-starmap-%E8%A9%95%E5%88%86%E6%98%9F%E5%9C%96)
+  - 畫面截圖工具：[**動畫瘋 - 截圖工具**](https://greasyfork.org/zh-TW/scripts/388826-%E5%8B%95%E7%95%AB%E7%98%8B-%E6%88%AA%E5%9C%96%E5%B7%A5%E5%85%B7)、[**巴哈姆特動畫瘋影片擷圖小工具**](https://greasyfork.org/zh-TW/scripts/420561-%E5%B7%B4%E5%93%88%E5%A7%86%E7%89%B9%E5%8B%95%E7%95%AB%E7%98%8B%E5%BD%B1%E7%89%87%E6%93%B7%E5%9C%96%E5%B0%8F%E5%B7%A5%E5%85%B7)
 
 ---
 
