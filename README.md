@@ -2,7 +2,7 @@
 
 ![動畫瘋重製版 3.0 首頁預覽](docs/preview-home.jpg)
 
-由 [aunight](https://github.com/aunight/Anigamer-Redesign3.0) 主導的 **動畫瘋重製版 3.0** —— 以現代化磨砂玻璃（Frosted Glass）、高對比電影級排版與全頁視覺一致性為核心，重製動畫瘋首頁、播放頁、播放器控制列、片庫目錄與第三方輔助腳本整合體驗。
+由 [秋夜](https://www.aunight.pw) 主導的 **動畫瘋重製版 3.0** —— 以現代化磨砂玻璃（Frosted Glass）、高對比電影級排版與全頁視覺一致性為核心，重製動畫瘋首頁、播放頁、播放器控制列、片庫目錄與第三方輔助腳本整合體驗。
 
 > [!NOTE]
 > 本版本還在測試修改當中，有任何問題歡迎至 [Issues](https://github.com/aunight/Anigamer-Redesign3.0/issues) 提 Issue 回報。
