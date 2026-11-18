@@ -7,8 +7,11 @@
     uiEffectsEnabled: true,
     themeEnabled: true,
     appearance: 'dark',
+    pageBackgroundMode: 'random',
+    pageBackgroundStyle: 'mesh',
+    pageBackgroundImage: '',
     fontFamily: 'sans',
-    method: 'project',
+    method: 'diffuse',
     intensity: 95,
     radius: 80,
     blur: 20,
@@ -37,7 +40,7 @@
     contourStrength: 50,
     swirlAmount: 35,
     reflectCompression: 50,
-    diffusionDepth: 50,
+    diffusionDepth: 100,
     bandWidth: 50,
     stretchDepth: 50,
     customWatchWidth: false,
@@ -51,19 +54,21 @@
     commentsLayout: true,
     colorTheme: 'slate',
     customPalette: false,
-    customBase: '#14161a',
-    customSurface: '#1b1e24',
-    customSoft: '#252931',
+    customBase: '#0f1621',
+    customSurface: '#172332',
+    customSoft: '#1d2a3d',
     customText: '#d5d7dd',
     customMuted: '#9aa0ac',
-    customAccent: '#89b8e6',
+    customAccent: '#3dafb6',
     footerGlow: true,
+    cardGlowEnabled: true,
+    cardGlowIntensity: 15,
     textSize: 16,
     textLeading: 175,
     cornerRadius: 12,
     sectionSpacing: 28,
-    accentHue: 210,
-    accentStrength: 65,
+    accentHue: 185,
+    accentStrength: 50,
     showInfo: true,
     showRelated: true,
     showNews: true,
@@ -110,6 +115,9 @@
       ],
     ],
     ['customFontName', '自訂字體名稱', 'text'],
+    ['pageBackgroundMode', '背景模式', 'select', [['random','隨機'],['fixed','固定'],['image','圖片'],['off','關閉']]],
+    ['pageBackgroundStyle', '背景樣式', 'select', [['silk','絲緞'],['mist','煙霞'],['firefly','流螢'],['sand','流沙'],['rays','天光'],['diffuse','彌散'],['aurora','極光'],['cloud','絲絹'],['mesh','網格漸層'],['grain','顆粒'],['ice','冰藍'],['flow','流光'],['dots','星幕']]],
+    ['pageBackgroundImage', '背景圖片網址（HTTPS）', 'text'],
     ['customFontGoogle', '從 Google Fonts 載入自訂字體', 'boolean'],
     ['danmuFontEnabled', '也套用到播放器文字彈幕', 'boolean'],
     ['settingsOpacity', '選單不透明度', 0, 100, 5, '%'],
@@ -139,6 +147,8 @@
     ['customMuted', '次要文字色', 'color'],
     ['customAccent', '重點色', 'color'],
     ['footerGlow', '頁尾透出光暈', 'boolean'],
+    ['cardGlowEnabled', '卡片光暈', 'boolean'],
+    ['cardGlowIntensity', '卡片光暈強度', 0, 100, 5, '%'],
   ];
   const layoutFields = [
     ['watchLayout', '重排播放頁區塊', 'boolean'],
@@ -410,13 +420,15 @@
       description: '深淺色、中文字體與閱讀大小',
       keys: [
         'appearance',
+        'pageBackgroundMode',
+        'pageBackgroundStyle',
+        'pageBackgroundImage',
         'fontFamily',
         'customFontName',
         'customFontGoogle',
         'danmuFontEnabled',
         'textSize',
         'textLeading',
-        'settingsOpacity',
       ],
     },
     {
@@ -425,7 +437,10 @@
       description: '調整背景濃淡，讓光暈透出',
       keys: [
         'controlStyle',
+        'settingsOpacity',
         'footerGlow',
+        'cardGlowEnabled',
+        'cardGlowIntensity',
         'buttonOpacity',
         'headerOpacity',
         'headerTint',
@@ -560,13 +575,13 @@
   const themePresets = {
     cinema: {
       label: '沉浸墨藍',
-      description: '墨藍底色，天藍按鈕與連結',
-      swatches: ['#14161a', '#252931', '#89b8e6'],
+      description: '墨藍底色，青藍按鈕與連結',
+      swatches: ['#0f1621', '#1d2a3d', '#3dafb6'],
       values: {
         appearance: 'dark',
         colorTheme: 'slate',
-        accentHue: 210,
-        accentStrength: 65,
+        accentHue: 185,
+        accentStrength: 50,
         headerOpacity: 0,
         headerTint: 0,
         panelOpacity: 0,
@@ -718,6 +733,8 @@
               .map((c) => c + c)
               .join('')
               .toLowerCase();
+      } else if (key === 'pageBackgroundImage' && typeof value === 'string') {
+        try { const url = new URL(value); result[key] = url.protocol === 'https:' ? url.href.slice(0,2048) : ''; } catch { result[key] = ''; }
       } else if (field?.[2] === 'text' && typeof value === 'string') {
         result[key] = value
           .slice(0, 80)
@@ -739,6 +756,18 @@
   // ── 四、共用選單：userscript 和擴充功能使用同一份控制項 ──
   const resetIcon =
     '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10a8 8 0 1 1 2 9M4 4v6h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const categoryIcons = {
+    themes: '<path d="M12 3a9 9 0 1 0 0 18h2a2 2 0 0 0 1-4c-1-1 0-2 1-2h2a3 3 0 0 0 3-3 9 9 0 0 0-9-9Z"/><circle cx="7" cy="10" r="1"/><circle cx="10" cy="6" r="1"/><circle cx="15" cy="7" r="1"/>',
+    light: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1 1m12 12 1 1M5 19l1-1M18 6l1-1"/>',
+    appearance: '<path d="M3 19 9 5l6 14M5 15h8m3-5h6m-3 0v9"/>',
+    surfaces: '<path d="m12 3 10 5-10 5L2 8Zm-10 9 10 5 10-5M2 16l10 5 10-5"/>',
+    layout: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 9v12"/>',
+    content: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
+    performance: '<path d="M4 19a9 9 0 1 1 16 0M12 13l5-5"/><circle cx="12" cy="13" r="2"/>',
+    bars: '<path d="M7 3v14h14M3 7h14v14"/>',
+    general: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18m-12 4h6m-9-9V3m12 2V3"/>',
+  };
+  const categoryIcon = id => `<svg class="ani-settings-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${categoryIcons[id] || categoryIcons.general}</svg>`;
   // 依延伸邏輯分組，避免方法增加後變成難掃讀的單一清單。
   const methodGroups = [
     {
@@ -768,6 +797,8 @@
   function controlsHTML() {
     const fieldControlHTML = (field) => {
       const [key, label, type] = field;
+      if (key === 'pageBackgroundStyle') return `<fieldset class="ani-background-picker"><legend>${label}</legend>${field[3].map(([value,name]) => `<button type="button" data-background-choice="${value}" aria-pressed="false"><span class="ani-background-swatch" data-bg-style="${value}"></span><span>${name}</span></button>`).join('')}</fieldset>`;
+      if (key === 'pageBackgroundImage') return `<label class="ani-settings-select">${label}<input type="text" maxlength="2048" data-setting="${key}" placeholder="https://…"></label>`;
       if (type === 'color')
         return `<label class="ani-settings-color">${label}<span><input type="color" data-color-picker="${key}" aria-label="挑選${label}"><input type="text" maxlength="7" data-setting="${key}" aria-label="${label}色碼" placeholder="#112233" spellcheck="false"></span></label>`;
       if (type === 'text')
@@ -863,7 +894,7 @@
       categories
         .map(
           (c) =>
-            `<button type="button" data-category-shortcut="${c.id}">${c.name}</button>`,
+            `<button type="button" data-category-shortcut="${c.id}">${categoryIcon(c.id)}<span>${c.name}</span></button>`,
         )
         .join('') +
       '</nav><div class="ani-settings-breadcrumb"><button type="button" data-settings-back aria-label="返回設定分類">' +
@@ -893,6 +924,7 @@
         'aria-pressed',
         String(button.dataset.methodChoice === values.method),
       );
+    for (const button of root.querySelectorAll('[data-background-choice]')) button.setAttribute('aria-pressed', String(button.dataset.backgroundChoice === values.pageBackgroundStyle));
     const methodKeys = {
       project: 'projectionDepth',
       radial: 'radialRoundness',
@@ -1021,6 +1053,8 @@
       ).scrollTop = 0;
       status.textContent = '';
     };
+    navigate('light');
+    root.addEventListener('ani-settings-open', () => navigate('light'));
     root.addEventListener('click', (event) => {
       if (event.target.closest('[data-reset-category]')) {
         const category = categories.find((c) => c.id === current);
@@ -1037,6 +1071,8 @@
         }
       }
       const effect = event.target.closest('[data-effect-choice]');
+      const background = event.target.closest('[data-background-choice]');
+      if (background) { update(normalize({pageBackgroundStyle:background.dataset.backgroundChoice,pageBackgroundMode:'fixed'},getValues())); return; }
       if (effect) {
         const select = root.querySelector('[data-preset]');
         select.value = effect.dataset.effectChoice;

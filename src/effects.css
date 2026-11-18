@@ -1,13 +1,13 @@
 /* Colors are independent of the replacement layout. Native player controls,
    icons, account forms and navigation handlers keep their original behavior. */
 body.ani-ambientlight-ui {
-  --ani-surface-rgb: 27, 30, 36;
-  --ani-base: #14161a;
-  --ani-soft: #252931;
+  --ani-surface-rgb: 22, 32, 48;
+  --ani-base: #0f1621;
+  --ani-soft: #1d2a3d;
   --ani-panel: rgba(var(--ani-surface-rgb), var(--ani-panel-opacity, 0.82));
   --ani-text: #d5d7dd;
   --ani-muted: #9aa0ac;
-  --ani-accent: #89b8e6;
+  --ani-accent: #3dafb6;
   --ani-line: #a3afbf30;
   color: var(--ani-text);
   color-scheme: dark;
@@ -27,16 +27,15 @@ body.ani-ambientlight-ui.ani-theme-light {
 body.ani-ambientlight-ui {
   --ani-panel-soft: var(--ani-soft);
 }
-body.ani-ambientlight-ui .mainmenu > .container-player > ul {
-  background: transparent !important;
+@media (max-width: 900px) {
+  body.ani-ambientlight-ui .mainmenu > .container-player > ul {
+    background: transparent !important;
+  }
 }
-body.ani-ambientlight-ui :is(.top_sky, .sky, .mainmenu) {
-  background:
-    linear-gradient(
-      rgba(var(--ani-scene-rgb, 110, 125, 145), var(--ani-header-tint)),
-      rgba(var(--ani-scene-rgb, 110, 125, 145), var(--ani-header-tint))
-    ),
-    rgba(var(--ani-surface-rgb), var(--ani-header-opacity)) !important;
+body.ani-ambientlight-ui .top_sky {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 body.ani-ambientlight-ui .top_sky :is(.sky, .mainmenu) {
   background: transparent !important;
@@ -152,13 +151,7 @@ body.ani-ambientlight-active #BH_background {
   background: transparent !important;
 }
 body.ani-ambientlight-ui:not(.ani-ambientlight-page) {
-  background:
-    radial-gradient(
-      ellipse at 50% 0,
-      rgba(var(--ani-scene-rgb, 110, 125, 145), 0.13),
-      transparent 65%
-    ),
-    var(--ani-base) !important;
+  background: var(--ani-base, #0f1621) !important;
 }
 body.ani-ambientlight-ui:not(.ani-ambientlight-page)
   :is(.top_sky, .sky, .mainmenu) {
@@ -460,7 +453,7 @@ body.ani-hide-comments #BH_background :is(.commend-title, #w-post-box) {
 body.ani-layout-nav .sky .member {
   display: flex !important;
   align-items: center !important;
-  gap: 6px !important;
+  gap: 10px !important;
 }
 body.ani-layout-nav .sky .member > li {
   height: 40px !important;
@@ -485,16 +478,18 @@ body.ani-layout-nav
   .sky
   .member
   > :is(.top_btn_notice, .top_btn_subscription, .top_btn_recommend)
-  > a::after {
-  display: block !important;
-  line-height: 22px !important;
-  margin: 0 !important;
+  > a::after,
+body.ani-layout-nav
+  .sky
+  .member
+  > :is(.top_btn_notice, .top_btn_subscription, .top_btn_recommend)
+  > a::before {
+  display: none !important;
+  content: none !important;
+  background-image: none !important;
 }
 body.ani-layout-nav .sky .member > .head > .material-icons {
-  position: absolute !important;
-  right: 0 !important;
-  bottom: 1px !important;
-  margin: 0 !important;
+  display: none !important;
 }
 body.ani-layout-nav .top_sky {
   height: auto !important;
@@ -741,40 +736,13 @@ body.ani-custom-font
 body.ani-ambientlight-ui .sky .member > li {
   position: relative !important;
 }
-body.ani-ambientlight-ui .sky .member > li > .tooltip {
-  position: absolute !important;
-  top: calc(100% + 10px) !important;
-  bottom: auto !important;
-  left: 50% !important;
-  right: auto !important;
-  transform: translateX(-50%) !important;
-  width: max-content !important;
-  max-width: 180px;
-  height: auto !important;
-  padding: 6px 10px !important;
-  border: 0 !important;
-  border-radius: 6px !important;
-  background: var(--ani-base) !important;
-  color: var(--ani-text) !important;
-  line-height: 1.5 !important;
-  font-size: 12px !important;
-  pointer-events: none;
-  box-shadow: 0 4px 12px #0004;
-  z-index: 120;
-}
-body.ani-ambientlight-ui .sky .member > li > .tooltip::before,
-body.ani-ambientlight-ui .sky .member > li > .tooltip::after {
-  display: none !important;
-}
+body.ani-ambientlight-ui .sky .member > li > .tooltip,
+body.ani-ambientlight-ui .sky .member > li:hover > .tooltip,
 body.ani-ambientlight-ui .sky .member > li:focus-within > .tooltip {
-  display: block !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-body.ani-ambientlight-ui .sky .member > li:last-child > .tooltip {
-  left: auto !important;
-  right: 0 !important;
-  transform: none !important;
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
 }
 /* Remove the decorative player shell, retaining keyboard focus on controls. */
 body.ani-ambientlight-active
@@ -1735,18 +1703,40 @@ body.ani-focus-mode #BH_background .ani-watch-tools:is(:hover, :focus-within) {
 @media (min-width: 901px) {
   body.ani-layout-nav
     .top_sky
-    :is(.logo, .anime_search, .member, .ani-view-settings, .mainmenu ul) {
+    :is(.logo, .anime_search, .member, .ani-view-settings) {
     align-self: center !important;
     margin-block: 0 !important;
   }
-  body.ani-layout-nav .top_sky :is(.logo, .member, .mainmenu ul) {
+  body.ani-layout-nav .top_sky .mainmenu > .container-player > ul {
+    position: fixed !important;
+    inset: 0 auto 0 0 !important;
+    width: 84px !important;
+    height: 100dvh !important;
+    align-self: stretch !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    gap: 4px !important;
+    padding: 68px 0 12px !important;
+    margin: 0 !important;
+    overflow-y: auto !important;
+    scrollbar-width: none !important;
+  }
+  body.ani-layout-nav .top_sky :is(.logo, .member) {
     display: flex !important;
     align-items: center !important;
+    justify-content: center !important;
+  }
+  body.ani-layout-nav .top_sky .logo a {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100%;
+    height: 100%;
   }
   body.ani-layout-nav .top_sky .logo img {
     display: block;
-    max-height: 34px;
-    margin: 0 !important;
+    max-height: 30px;
+    margin: 0 auto !important;
   }
   body.ani-layout-nav .top_sky .member {
     height: 44px !important;
@@ -1770,13 +1760,13 @@ body.ani-focus-mode #BH_background .ani-watch-tools:is(:hover, :focus-within) {
   body.ani-layout-nav .top_sky .mainmenu ul li {
     display: flex;
     align-items: center;
-    height: 44px;
+    height: auto !important;
   }
-  body.ani-layout-nav .top_sky .mainmenu ul li > a {
+  body.ani-layout-nav .top_sky .mainmenu ul li > a:not(.ani-nav-icon-link) {
     display: inline-flex !important;
     align-items: center !important;
     gap: 4px;
-    height: 44px;
+    height: auto !important;
     line-height: 1.5 !important;
   }
   body.ani-layout-nav .top_sky .mainmenu ul li > a img {

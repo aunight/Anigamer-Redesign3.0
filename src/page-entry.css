@@ -1,0 +1,55 @@
+html[data-ani-booting='true'] { background:#111c2b !important; }
+html[data-ani-booting='true'] > body { opacity:0 !important; }
+#ani_video:not(.video-js):not(.ani-has-consent):not(:has(.ani-age-screen)) > *,
+#ani_video:not(.ani-has-consent):not(:has(.ani-age-screen)) .R18 { opacity:0 !important; visibility:hidden !important; }
+.ani-home-intro { position:fixed;inset:0;z-index:2147483000;background:#111c2b;opacity:1;pointer-events:none;transition:opacity 160ms ease-out; }
+.ani-home-intro.ani-intro-reveal { opacity:0; }
+@media(prefers-reduced-motion:reduce) { .ani-home-intro { transition:none; } }
+
+.ani-home-intro { display:grid;place-items:center; }
+.ani-intro-plate { display:flex;flex-direction:column;align-items:center;gap:18px;animation:aniIntroLogo 320ms ease-out both; }
+.ani-intro-plate img { width:154px;height:auto; }
+.ani-intro-caption { color:#b9d3df;font:500 15px/1.4 system-ui,sans-serif;letter-spacing:2px; }
+@keyframes aniIntroLogo { from { opacity:0;transform:translateY(6px); } to { opacity:1;transform:translateY(0); } }
+@media(prefers-reduced-motion:reduce) { .ani-intro-plate { animation:none; } }
+.ani-home-intro { --ani-intro-ease:cubic-bezier(.23,1,.32,1);transition:opacity 180ms var(--ani-intro-ease); }
+.ani-intro-plate { gap:16px;animation:none;max-width:calc(100vw - 40px);text-align:center; }
+.ani-intro-plate img { width:170px;animation:aniIntroLogo 250ms var(--ani-intro-ease) both; }
+.ani-intro-caption { color:#e8f4fa;font:600 clamp(28px,4vw,44px)/1.2 var(--ani-font,system-ui,sans-serif);letter-spacing:.02em;animation:aniIntroLogo 250ms var(--ani-intro-ease) 50ms both; }
+.ani-intro-credit { color:#9fb9c9;font:400 13px/1.6 var(--ani-font,system-ui,sans-serif);letter-spacing:.03em;animation:aniIntroLogo 250ms var(--ani-intro-ease) 100ms both; }
+@media(prefers-reduced-motion:reduce) { .ani-intro-plate :is(img,span,small) { animation:none; }.ani-home-intro { transition:none; } }
+.ani-home-intro { overflow:hidden;isolation:isolate;contain:layout style;backdrop-filter:none;-webkit-backdrop-filter:none;will-change:opacity; }
+.ani-home-intro::before { content:'';position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse 65% 55% at 25% 30%,#43809545,transparent 65%),radial-gradient(ellipse 65% 55% at 72% 65%,#675a9a3b,transparent 68%),#111c2b;filter:none; }
+.ani-intro-plate img { animation:aniIntroLogo 400ms var(--ani-intro-ease) both; }
+.ani-intro-caption { animation:aniIntroLogo 400ms var(--ani-intro-ease) 80ms both; }
+.ani-intro-credit { animation:aniIntroLogo 400ms var(--ani-intro-ease) 150ms both; }
+@media(prefers-reduced-motion:reduce) { .ani-intro-plate :is(img,span,small) { animation:none !important; } }
+
+/* Animate the original SVG's three word blocks, retaining every source path. */
+.ani-intro-logo { width:220px;max-width:65vw;will-change:transform; }
+.ani-intro-logo > svg { display:block;width:100%;height:auto;overflow:visible; }
+.ani-logo-letter { transform-box:fill-box;transform-origin:center;animation:aniLogoBlock 280ms var(--ani-intro-ease) both; }
+.ani-logo-letter-2 { animation-delay:70ms; }
+.ani-logo-letter-3 { animation-delay:140ms; }
+.ani-logo-ink { animation:aniLogoInk 250ms var(--ani-intro-ease) 120ms both; }
+.ani-logo-letter-2 .ani-logo-ink { animation-delay:190ms; }
+.ani-logo-letter-3 .ani-logo-ink { animation-delay:260ms; }
+@keyframes aniLogoBlock { from { opacity:0;transform:translateY(12px) rotate(-3deg) scale(.97); } to { opacity:1;transform:translateY(0) rotate(0) scale(1); } }
+@keyframes aniLogoInk { from { opacity:0; } to { opacity:.95; } }
+@media(prefers-reduced-motion:reduce) { .ani-logo-letter,.ani-logo-ink { animation:none !important; } }
+
+/* Show configured type only after it is available, never swap visible text. */
+.ani-intro-plate :is(.ani-intro-caption,.ani-intro-credit) { visibility:hidden;animation:none; }
+.ani-intro-font-ready .ani-intro-plate :is(.ani-intro-caption,.ani-intro-credit) { visibility:visible;animation:aniIntroLogo 250ms var(--ani-intro-ease) both; }
+.ani-logo-letter { animation:aniLogoHop 1100ms cubic-bezier(.4,0,.2,1) infinite; }
+.ani-logo-letter-2 { animation-delay:140ms; }
+.ani-logo-letter-3 { animation-delay:280ms; }
+.ani-logo-ink { animation:none;opacity:.95; }
+@keyframes aniLogoHop { 0%,65%,100% { transform:translateY(0) rotate(0); } 24% { transform:translateY(-48px) rotate(-4deg); } 42% { transform:translateY(5px) rotate(2deg); } 52% { transform:translateY(-8px) rotate(0); } }
+@media(prefers-reduced-motion:reduce) { .ani-logo-letter,.ani-intro-font-ready .ani-intro-plate :is(.ani-intro-caption,.ani-intro-credit) { animation:none !important; } }
+
+.ani-logo-letter { animation:aniLogoHop 1000ms cubic-bezier(.45,0,.3,1) infinite;will-change:transform; }
+.ani-logo-letter-2 { animation-delay:100ms; }
+.ani-logo-letter-3 { animation-delay:200ms; }
+@keyframes aniLogoHop { 0%,100% { transform:translateY(0) rotate(0); } 20% { transform:translateY(-34px) rotate(-2deg); } 40% { transform:translateY(0) rotate(0); } 55% { transform:translateY(-18px) rotate(1deg); } 70% { transform:translateY(0) rotate(0); } 82% { transform:translateY(-7px); } 94% { transform:translateY(0); } }
+@media(prefers-reduced-motion:reduce) { .ani-logo-letter { animation:none !important; } }

@@ -236,7 +236,21 @@ body .ani-view-settings-panel section[data-settings-page] {
   transform: none;
 }
 .ani-settings-rail {
+  --ani-settings-icon-size: 20px;
   display: none;
+}
+.ani-settings-rail [data-category-shortcut] {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ani-settings-nav-icon {
+  display: block;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  color: inherit;
+  pointer-events: none;
 }
 :is(
   .ani-settings-category,
@@ -268,6 +282,10 @@ body .ani-view-settings-panel section[data-settings-page] {
 }
 .ani-setting-row:has(.ani-settings-range) {
   align-items: end;
+}
+.ani-setting-row:has(select) > .ani-setting-reset {
+  align-self: end;
+  margin-bottom: 0;
 }
 .ani-setting-row > label {
   min-width: 0;
@@ -981,3 +999,12 @@ body .ani-view-settings-panel .ani-method-list button[aria-pressed='true'],
     transform: none !important;
   }
 }
+
+/* Align reset controls to the input, not to the label-plus-input block. */
+.ani-setting-row:has(> .ani-settings-select) > .ani-setting-reset,
+.ani-setting-row:has(> .ani-settings-color) > .ani-setting-reset,
+.ani-setting-row:has(> .ani-settings-range) > .ani-setting-reset { align-self: end; margin: 0 !important; }
+.ani-setting-row > .ani-settings-select { display: grid; gap: 8px; }
+.ani-setting-row > .ani-settings-select > :is(select,input) { margin: 0 !important; }
+.ani-setting-row:has(> .ani-background-picker) { align-items: start; }
+.ani-setting-row:has(> .ani-background-picker) > .ani-setting-reset { align-self: start; margin-top: 36px !important; }

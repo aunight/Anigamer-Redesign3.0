@@ -8,15 +8,24 @@ const out = path.join(root, 'dist');
 const version = JSON.parse(
   fs.readFileSync(path.join(source, 'manifest.json'), 'utf8'),
 ).version;
-const css = ['content.css', 'effects.css', 'settings-ui.css']
+const animateRoot = path.join(root,'node_modules','animate.css');
+const animateLicense = fs.readFileSync(path.join(animateRoot,'LICENSE'),'utf8');
+const motionCss = `/*! Animate.css 4.1.1 | https://animate.style/\n${animateLicense.replaceAll('*/','* /')}*/\n` +
+  ['_vars.css','_base.css','fading_entrances/fadeIn.css','fading_exits/fadeOut.css']
+    .map(file=>fs.readFileSync(path.join(animateRoot,'source',file),'utf8').replace(/\.([a-z][\w-]*)/g,'.animate__$1')).join('\n');
+fs.writeFileSync(path.join(source,'motion.css'),motionCss);
+const css = ['content.css', 'effects.css', 'settings-ui.css', 'hero-banner.css', 'ui-repairs.css']
   .map((file) => fs.readFileSync(path.join(source, file), 'utf8'))
   .join('\n');
 const blackBars = fs.readFileSync(path.join(source, 'black-bars.js'), 'utf8');
+const entryCss = motionCss + '\n' + fs.readFileSync(path.join(source, 'page-entry.css'), 'utf8');
+const entryScript = fs.readFileSync(path.join(source, 'page-entry.js'), 'utf8');
 const renderer = fs.readFileSync(
   path.join(source, 'ambient-renderer.js'),
   'utf8',
 );
-const core = fs.readFileSync(path.join(source, 'content.js'), 'utf8');
+const core = fs.readFileSync(path.join(source, 'hero-banner.js'), 'utf8') + '\n' + fs.readFileSync(path.join(source, 'content.js'), 'utf8');
+const membershipBackground='data:image/png;base64,'+fs.readFileSync(path.join(source,'membership-background.png')).toString('base64');
 const settingsModule = fs.readFileSync(
   path.join(source, 'settings.js'),
   'utf8',
@@ -56,10 +65,14 @@ const metadata = `// ==UserScript==
 // @grant        GM_setValue
 // @grant        GM_addValueChangeListener
 // @grant        GM_registerMenuCommand
+// @grant        GM_xmlhttpRequest
+// @connect      truth.bahamut.com.tw
+// @connect      p2.bahamut.com.tw
+// @connect      i2.bahamut.com.tw
 // @grant        GM_addStyle
 // ==/UserScript==
 `;
-const license = fs.readFileSync(path.join(source, 'LICENSE'), 'utf8');
+const license = fs.readFileSync(path.join(source, 'LICENSE'), 'utf8') + '\n' + fs.readFileSync(path.join(source, 'FONT-AWESOME-NOTICE.txt'), 'utf8');
 // 保留多行 CSS，讓安裝後的完整腳本也能閱讀與修改。
 const styleLiteral =
   '`' +
@@ -70,7 +83,7 @@ const styleLiteral =
 const legacyGuard = `const reserve=()=>{if(!document.documentElement)return false;const marker=document.createElement('meta');marker.name='anigamer-ambilight-userscript';marker.dataset.aniPreview='installed';marker.dataset.aniV1='installed';document.documentElement.append(marker);return true;};if(!reserve()){const observer=new MutationObserver(()=>{if(reserve())observer.disconnect();});observer.observe(document,{childList:true,subtree:true});}`;
 const bundled =
   metadata +
-  `\n/* Inspired by WesselKroos/youtube-ambilight and iceorange-dev/bilibili-ambilight.\nhttps://github.com/WesselKroos/youtube-ambilight\nhttps://github.com/iceorange-dev/bilibili-ambilight\n${license}\n*/\n(()=>{\n'use strict';\n// 一、避免與舊版開發預覽重複執行\n${legacyGuard}\nconst start=()=>{\n// 二、使用者設定儲存\n${bridge}\n// 三、主題與設定介面樣式\nGM_addStyle(${styleLiteral});\n// 四、設定定義與表單\n${settingsModule}\n// 五、黑條辨識\n${blackBars}\n// 六、光暈渲染\n${renderer}\n// 七、頁面整合與生命週期\n${core}\nGM_registerMenuCommand('觀影設定',()=>document.querySelector('.ani-view-settings')?.click());\n};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();\n})();\n`;
+  `\n/* Inspired by WesselKroos/youtube-ambilight and iceorange-dev/bilibili-ambilight.\nhttps://github.com/WesselKroos/youtube-ambilight\nhttps://github.com/iceorange-dev/bilibili-ambilight\n${license}\n*/\n(()=>{\n'use strict';\n// 一、避免與舊版開發預覽重複執行\n${legacyGuard}\nGM_addStyle(${JSON.stringify(entryCss)});\n${entryScript}\nconst start=()=>{\n// 二、使用者設定儲存\n${bridge}\n// 三、主題與設定介面樣式\nGM_addStyle(${styleLiteral});\n// 四、設定定義與表單\n${settingsModule}\n// 五、黑條辨識\n${blackBars}\n// 六、光暈渲染\n${renderer}\n// 七、頁面整合與生命週期\n${core.replaceAll('__ANI_MEMBERSHIP_BACKGROUND__',membershipBackground)}\nGM_registerMenuCommand('觀影設定',()=>document.querySelector('.ani-view-settings')?.click());\n};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();\n})();\n`;
 fs.writeFileSync(
   path.join(out, 'ani-ambilight.user.js'),
   await format(bundled, {
@@ -83,17 +96,27 @@ fs.writeFileSync(
 const extension = path.join(out, 'extension');
 fs.mkdirSync(extension, { recursive: true });
 for (const file of [
+  'motion.css',
+  'page-entry.js',
+  'page-entry.css',
   'manifest.json',
   'settings.js',
   'black-bars.js',
   'ambient-renderer.js',
   'content.js',
+  'topbar-bridge.js',
+  'hero-banner.js',
+  'hero-banner.css',
+  'ui-repairs.css',
+  'hero-cache-worker.js',
   'content.css',
   'effects.css',
   'settings-ui.css',
   'popup.html',
   'popup.js',
   'popup.css',
+  'membership-background.png',
+  'FONT-AWESOME-NOTICE.txt',
   'LICENSE.youtube-ambilight',
   'LICENSE.bilibili-ambilight',
   'LICENSE',
@@ -107,6 +130,7 @@ const firefoxManifest = JSON.parse(
 );
 delete firefoxManifest.minimum_chrome_version;
 delete firefoxManifest.version_name;
+firefoxManifest.background = { scripts: ['hero-cache-worker.js'] };
 firefoxManifest.browser_specific_settings = {
   gecko: {
     id: 'anigamer-ambilight@hinataragi',

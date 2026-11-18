@@ -1,21 +1,23 @@
 :root {
-  --ani-base: #09131c;
-  --ani-panel: #13232d;
-  --ani-panel-soft: #182d38;
+  --ani-base: #0f1621;
+  --ani-panel: #172332;
+  --ani-card-bg: #172332;
+  --ani-panel-soft: #1e2d40;
   --ani-text: #f1f7f8;
   --ani-muted: #b6cbd2;
-  --ani-accent: #95c4f3;
+  --ani-accent: #3dafb6;
   --ani-line: rgba(146, 195, 207, 0.24);
 }
 body.ani-ambientlight-page {
   font-family: var(--ani-font, system-ui, 'Microsoft JhengHei', sans-serif) !important;
   line-height: 1.55;
 }
+html:has(body.ani-ambientlight-ui) {
+  background: var(--ani-base, #0f1621) !important;
+}
 body.ani-ambientlight-ui {
   --ani-scene-rgb: 110, 125, 145;
-  background:
-    radial-gradient(ellipse 78% 38% at 50% 18%, rgba(var(--ani-scene-rgb), 0.16), transparent 76%),
-    var(--ani-base) !important;
+  background: var(--ani-base, #0f1621) !important;
   color: var(--ani-text) !important;
   color-scheme: dark;
 }
@@ -68,41 +70,249 @@ body.ani-ambientlight-ui :is(.sky, .mainmenu) {
   color: var(--ani-text) !important;
 }
 body.ani-layout-nav .top_sky {
+  position: sticky !important;
+  top: 0 !important;
   z-index: 100 !important;
   box-sizing: border-box;
-  border-bottom: 1px solid var(--ani-line) !important;
+  border-bottom: 0 !important;
+  pointer-events: none;
+}
+body.ani-layout-nav .top_sky :is(.logo, .anime_search, .member, .ani-view-settings, .ani-nav-more-menu, .mainmenu, .menu_btn, [id^='topBarMsg_'], .TOP-msg, .user-setting-toolbox) {
+  pointer-events: auto;
 }
 body.ani-ambientlight-ui .top_sky {
-  background:
-    linear-gradient(
-      110deg,
-      rgba(var(--ani-scene-left-rgb, 110, 125, 145), calc(var(--ani-header-tint, 0.35) * 0.5)),
-      rgba(var(--ani-scene-top-rgb, 110, 125, 145), calc(var(--ani-header-tint, 0.35) * 0.3)) 50%,
-      rgba(var(--ani-scene-right-rgb, 110, 125, 145), calc(var(--ani-header-tint, 0.35) * 0.5))
-    ),
-    rgba(var(--ani-surface-rgb, 20, 25, 33), var(--ani-header-opacity, 0.8)) !important;
+  background: transparent !important;
 }
 body.ani-layout-nav .mainmenu {
   position: relative;
   z-index: 30;
   border-bottom: 0 !important;
 }
-body.ani-layout-nav .mainmenu ul {
+body.ani-layout-nav .mainmenu > .container-player > ul {
   display: flex !important;
   align-items: center;
-  gap: clamp(8px, 1.3vw, 22px);
+  gap: clamp(6px, 1vw, 14px);
 }
-body.ani-ambientlight-ui .mainmenu ul {
+body.ani-ambientlight-ui .mainmenu > .container-player > ul {
   background: transparent !important;
 }
 body.ani-layout-nav .mainmenu li a {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   min-height: 44px;
   padding: 0 4px !important;
   font-weight: 550;
   text-decoration: none;
   white-space: nowrap;
+}
+body.ani-layout-nav .mainmenu li a.ani-nav-icon-link {
+  position: relative;
+  gap: 8px;
+}
+body.ani-layout-nav .mainmenu .ani-nav-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+body.ani-layout-nav .mainmenu .ani-nav-icon svg {
+  width: 26px;
+  height: 26px;
+  display: block;
+}
+@media (min-width: 901px) {
+  body.ani-layout-nav #BH_background,
+  body.ani-layout-nav .footer {
+    padding-left: 84px !important;
+    box-sizing: border-box;
+  }
+  body.ani-layout-nav.fullscreen #BH_background,
+  body.ani-layout-nav.fullscreen .footer,
+  body.ani-layout-nav:has(:fullscreen, .vjs-fullwindow, .vjs-fullscreen, .fullwindow) #BH_background,
+  body.ani-layout-nav:has(:fullscreen, .vjs-fullwindow, .vjs-fullscreen, .fullwindow) .footer,
+  :fullscreen #BH_background,
+  :-webkit-full-screen #BH_background {
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+  }
+  body.ani-layout-nav.fullscreen :is(.top_sky, .mainmenu > .container-player > ul),
+  body.ani-layout-nav:has(:fullscreen, .vjs-fullwindow, .vjs-fullscreen, .fullwindow) :is(.top_sky, .mainmenu > .container-player > ul) {
+    display: none !important;
+  }
+}
+body.ani-layout-watch.fullscreen #BH_background > .container-player:has(> section.player),
+body.ani-layout-watch.fullscreen #BH_background section.player.ani-ambientlight-stage,
+body.ani-layout-watch:has(:fullscreen, .vjs-fullwindow, .vjs-fullscreen, .fullwindow) #BH_background > .container-player:has(> section.player),
+body.ani-layout-watch:has(:fullscreen, .vjs-fullwindow, .vjs-fullscreen, .fullwindow) #BH_background section.player.ani-ambientlight-stage {
+  margin: 0 !important;
+  padding: 0 !important;
+  max-width: none !important;
+}
+body.ani-layout-watch :is(.videoframe.vjs-fullwindow, .videoframe.fullwindow, .videoframe:has(.vjs-fullscreen, .fullwindow)) {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100dvh !important;
+  max-width: none !important;
+  max-height: 100dvh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  z-index: 9999 !important;
+}
+/* Video.js 8 mounts a custom <video-js> element. Give it a real box so
+   absolute controls share the video bounds, including native fullscreen. */
+body.ani-layout-watch :where(#BH_background) #ani_video {
+  display: block !important;
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+}
+body.ani-layout-watch :is(#ani_video, .video-js, .video, #video-container, .videoframe):is(:fullscreen, :-webkit-full-screen, .vjs-fullscreen, .vjs-fullwindow, .fullwindow),
+body.ani-layout-watch :is(:fullscreen, :-webkit-full-screen, .vjs-fullscreen, .vjs-fullwindow, .fullwindow) :is(#ani_video, .video-js, .video, #video-container) {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100vh !important;
+  max-width: none !important;
+  max-height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+}
+body.ani-layout-watch :is(:fullscreen, :-webkit-full-screen, .vjs-fullscreen, .vjs-fullwindow, .fullwindow) .vjs-control-bar {
+  position: absolute !important;
+  bottom: 0 !important;
+  transform: none !important;
+  margin: 0 !important;
+}
+@media (min-width: 901px) {
+  body.ani-layout-nav .top_sky .mainmenu > .container-player > ul {
+    background: var(--ani-card-bg, #172332) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
+    gap: 4px !important;
+    padding: 68px 0 12px !important;
+    overflow-y: auto !important;
+    scrollbar-width: none !important;
+    contain: layout style;
+  }
+  body.ani-layout-nav .top_sky .mainmenu > .container-player > ul::-webkit-scrollbar {
+    display: none;
+  }
+  body.ani-layout-nav .mainmenu > .container-player > ul > li,
+  body.ani-layout-nav .mainmenu > .container-player > ul > li:hover,
+  body.ani-layout-nav .mainmenu > .container-player > ul > li.is-active {
+    background: transparent !important;
+    box-shadow: none !important;
+    height: auto !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+  }
+  body.ani-layout-nav .mainmenu > .container-player > ul > li[hidden] {
+    display: none !important;
+  }
+  body.ani-layout-nav .top_sky .mainmenu li a.ani-nav-icon-link,
+  body.ani-layout-nav .top_sky .mainmenu .ani-nav-more > button {
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    gap: 0px !important;
+    width: 68px !important;
+    height: 48px !important;
+    min-height: 0 !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    transition:
+      height 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 0.16s ease,
+      color 0.16s ease !important;
+  }
+  body.ani-layout-nav .top_sky .mainmenu li a.ani-nav-icon-link .ani-nav-icon,
+  body.ani-layout-nav .top_sky .mainmenu .ani-nav-more > button .ani-nav-icon {
+    transform: translateY(0);
+    transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1) !important;
+  }
+  body.ani-layout-nav .top_sky .mainmenu li a.ani-nav-icon-link .ani-nav-short,
+  body.ani-layout-nav .top_sky .mainmenu .ani-nav-more > button .ani-nav-short {
+    position: absolute !important;
+    left: 2px !important;
+    right: 2px !important;
+    bottom: 9px !important;
+    display: block !important;
+    height: 16px !important;
+    line-height: 16px !important;
+    margin: 0 !important;
+    text-align: center !important;
+    opacity: 0 !important;
+    transform: translateY(6px);
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    font-size: 12px;
+    font-weight: 600;
+    pointer-events: none;
+    transition:
+      opacity 0.16s ease,
+      transform 0.2s cubic-bezier(0.22, 1, 0.36, 1) !important;
+  }
+  body.ani-layout-nav .top_sky .mainmenu li.is-active a.ani-nav-icon-link,
+  body.ani-layout-nav .top_sky .mainmenu li a.ani-nav-icon-link:hover,
+  body.ani-layout-nav .top_sky .mainmenu .ani-nav-more > button:hover,
+  body.ani-layout-nav .top_sky .mainmenu .ani-nav-more:hover > button {
+    gap: 0px !important;
+    width: 68px !important;
+    height: 72px !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    border-radius: 12px !important;
+    background: rgba(11, 162, 154, 0.3) !important;
+    color: #0fe0d4 !important;
+  }
+  body.ani-layout-nav .top_sky .mainmenu li.is-active a.ani-nav-icon-link .ani-nav-icon,
+  body.ani-layout-nav .top_sky .mainmenu li a.ani-nav-icon-link:hover .ani-nav-icon,
+  body.ani-layout-nav .top_sky .mainmenu .ani-nav-more > button:hover .ani-nav-icon,
+  body.ani-layout-nav .top_sky .mainmenu .ani-nav-more:hover > button .ani-nav-icon {
+    transform: translateY(-10px);
+  }
+  body.ani-layout-nav .top_sky .mainmenu li.is-active a.ani-nav-icon-link .ani-nav-short,
+  body.ani-layout-nav .top_sky .mainmenu li a.ani-nav-icon-link:hover .ani-nav-short,
+  body.ani-layout-nav .top_sky .mainmenu .ani-nav-more > button:hover .ani-nav-short,
+  body.ani-layout-nav .top_sky .mainmenu .ani-nav-more:hover > button .ani-nav-short {
+    opacity: 1 !important;
+    transform: translateY(0);
+    color: #0fe0d4 !important;
+  }
+  body.ani-layout-nav .top_sky .mainmenu li.is-active a.ani-nav-icon-link.ani-nav-payment-link,
+  body.ani-layout-nav .top_sky .mainmenu li a.ani-nav-icon-link.ani-nav-payment-link:hover {
+    background: rgba(235, 157, 61, 0.24) !important;
+    color: #EB9D3D !important;
+  }
+  body.ani-layout-nav .top_sky .mainmenu li.is-active a.ani-nav-icon-link.ani-nav-payment-link .ani-nav-short,
+  body.ani-layout-nav .top_sky .mainmenu li a.ani-nav-icon-link.ani-nav-payment-link:hover .ani-nav-short {
+    color: #EB9D3D !important;
+  }
+  body.ani-layout-nav .top_sky .mainmenu > .container-player > ul > li.ani-nav-bottom-start {
+    margin-top: auto !important;
+  }
+  body.ani-layout-nav .mainmenu li a.ani-nav-icon-link .ani-nav-label {
+    display: none !important;
+  }
+  body.ani-layout-nav .mainmenu .ani-nav-more-menu {
+    top: 0 !important;
+    left: calc(100% + 10px) !important;
+    right: auto !important;
+  }
 }
 body.ani-ambientlight-ui .mainmenu li a {
   color: var(--ani-muted) !important;
@@ -120,21 +330,19 @@ body.ani-layout-nav .anime_search form {
 }
 body.ani-layout-nav .anime_search-input {
   display: grid !important;
-  grid-template-columns: minmax(0, 1fr) 40px;
+  grid-template-columns: minmax(0, 1fr) 44px;
   width: 100% !important;
   height: 40px !important;
   box-sizing: border-box;
-  border-radius: 10px !important;
+  border-radius: 999px !important;
   overflow: hidden;
-  border: 1px solid var(--ani-line) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 body.ani-ambientlight-ui .anime_search-input {
-  background:
-    linear-gradient(
-      rgba(var(--ani-scene-top-rgb, 110, 125, 145), 0.14),
-      rgba(var(--ani-scene-top-rgb, 110, 125, 145), 0.14)
-    ),
-    #0b1723b8 !important;
+  background: rgba(23, 35, 50, 0.78) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 18px rgb(0 0 0 / 0.25);
 }
 body.ani-ambientlight-ui .anime_search-input:focus-within {
   border-color: var(--ani-accent) !important;
@@ -180,7 +388,7 @@ body.ani-layout-nav .anime_search-content {
   box-sizing: border-box;
 }
 body.ani-ambientlight-ui .anime_search-content {
-  background: var(--ani-panel) !important;
+  background: var(--ani-card-bg, #172332) !important;
   color: var(--ani-text) !important;
   border-color: var(--ani-line) !important;
 }
@@ -199,25 +407,38 @@ body.ani-ambientlight-ui .mainmenu .menu-payment {
   box-shadow: none !important;
 }
 body.ani-layout-nav .mainmenu .menu-payment > a {
-  border-radius: 0 !important;
+  border-radius: 12px !important;
 }
 body.ani-ambientlight-ui .mainmenu .menu-payment > a {
   background: transparent !important;
-  color: var(--ani-accent) !important;
+  color: #EB9D3D !important;
+}
+body.ani-ambientlight-ui .mainmenu .menu-payment > a:hover {
+  background: rgba(235, 157, 61, 0.18) !important;
+  color: #EB9D3D !important;
 }
 body.ani-layout-nav .mainmenu .ani-nav-more {
   position: relative !important;
 }
 body.ani-layout-nav .ani-nav-more > button {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 4px;
-  min-height: 36px;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  min-height: 38px;
   padding: 0;
   border: 0;
+  border-radius: 10px;
   font: inherit;
   font-size: 13px;
   cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+body.ani-layout-nav .ani-nav-more > button:hover {
+  background: color-mix(in srgb, var(--ani-accent) 16%, transparent);
+  color: var(--ani-text);
 }
 body.ani-ambientlight-ui .ani-nav-more > button {
   background: transparent;
@@ -233,35 +454,72 @@ body.ani-layout-nav .mainmenu .ani-nav-more-menu {
   top: calc(100% + 8px);
   right: 0;
   left: auto !important;
-  display: grid !important;
-  gap: 0 !important;
-  width: 190px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 2px !important;
+  width: 180px !important;
   margin: 0 !important;
-  padding: 8px !important;
+  padding: 6px !important;
   border-radius: 12px;
+  border: 1px solid var(--ani-line) !important;
 }
 body.ani-ambientlight-ui .mainmenu .ani-nav-more-menu {
-  background: rgba(var(--ani-surface-rgb), 0.98) !important;
-  box-shadow: 0 12px 32px #0005;
+  background: var(--ani-card-bg, #172332) !important;
+  box-shadow: 0 12px 32px #0008;
 }
 body.ani-layout-nav .mainmenu .ani-nav-more-menu[hidden] {
   display: none !important;
 }
-body.ani-layout-nav .mainmenu .ani-nav-more-menu li {
+@media (min-width: 901px) {
+  body.ani-layout-nav .mainmenu .ani-nav-more:hover > .ani-nav-more-menu,
+  body.ani-layout-nav .mainmenu .ani-nav-more:focus-within > .ani-nav-more-menu {
+    display: flex !important;
+  }
+}
+body.ani-layout-nav .mainmenu .ani-nav-more-menu li[hidden] {
+  display: none !important;
+}
+body.ani-layout-nav .mainmenu .ani-nav-more-menu li,
+body.ani-layout-nav .mainmenu .ani-nav-more-menu li:hover {
   display: block;
   float: none !important;
   width: 100%;
   margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
 }
-body.ani-layout-nav .mainmenu .ani-nav-more-menu li > a {
+body.ani-layout-nav .mainmenu .ani-nav-more-menu li > :is(a, .btn-title) {
   display: flex !important;
-  align-items: center;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
   min-height: 40px !important;
-  padding: 8px 10px !important;
-  border-radius: 6px;
+  padding: 8px 12px !important;
+  border-radius: 8px !important;
+  text-align: left !important;
+  color: #eef1f6 !important;
+  transition: background-color 0.12s ease, color 0.12s ease;
 }
-body.ani-ambientlight-ui .mainmenu .ani-nav-more-menu li > a:hover {
-  background: var(--ani-panel-soft) !important;
+body.ani-layout-nav .mainmenu .ani-nav-more-menu .ani-more-icon,
+body.ani-layout-nav .mainmenu .ani-nav-more-menu li > :is(a, .btn-title) > svg {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+body.ani-layout-nav .mainmenu .ani-nav-more-menu .ani-more-icon svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+body.ani-ambientlight-ui .mainmenu .ani-nav-more-menu li > :is(a, .btn-title):hover {
+  background: rgba(61, 175, 182, 0.2) !important;
+  color: var(--ani-accent, #3dafb6) !important;
 }
 body.ani-ambientlight-ui .big_banner {
   mask-image: linear-gradient(#000 72%, transparent 100%);
@@ -306,7 +564,7 @@ body.ani-ambientlight-page .dialogify__content {
   border-radius: 14px !important;
 }
 body.ani-ambientlight-ui .dialogify__content {
-  background: var(--ani-panel) !important;
+  background: var(--ani-card-bg, #172332) !important;
   color: var(--ani-text) !important;
 }
 body.ani-ambientlight-ui .dialogify__content :is(h1, h2, h3, h4, p, span, label) {
@@ -314,7 +572,7 @@ body.ani-ambientlight-ui .dialogify__content :is(h1, h2, h3, h4, p, span, label)
 }
 body.ani-ambientlight-ui :is(input[type='text'], input[type='search'], textarea, select) {
   color: var(--ani-text) !important;
-  background: var(--ani-panel) !important;
+  background: var(--ani-card-bg, #172332) !important;
   border-color: var(--ani-line) !important;
 }
 
@@ -338,40 +596,227 @@ body.ani-ambientlight-ui #blockVideoInSeason {
 }
 body.ani-ambientlight-page #blockVideoInSeason .newanime-nav {
   display: flex !important;
-  align-items: end;
-  justify-content: space-between;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  padding: 0 8px !important;
+  box-sizing: border-box !important;
   margin-bottom: 22px !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .newanime-nav .filter-nav {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
 }
 body.ani-ambientlight-ui #blockVideoInSeason .newanime-nav {
   color: var(--ani-text) !important;
 }
+body.ani-ambientlight-page #blockVideoInSeason .nav-segment-control-block {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 28px !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .nav-segment-control-block > :not(.nav-segment-control) {
+  display: none !important;
+}
 body.ani-ambientlight-page #blockVideoInSeason .nav-segment-control {
-  font-size: clamp(21px, 1.9vw, 28px) !important;
-  font-weight: 650 !important;
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 0 0 12px 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  font-size: clamp(22px, 2vw, 28px) !important;
+  font-weight: 700 !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .nav-segment-control::before,
+body.ani-ambientlight-page #blockVideoInSeason .nav-segment-control::after {
+  display: none !important;
+  content: none !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .nav-segment-control .ani-segment-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+}
+body.ani-ambientlight-page #blockVideoInSeason .nav-segment-control .ani-segment-icon svg {
+  width: 28px;
+  height: 28px;
+  display: block;
+}
+body.ani-ambientlight-page #blockVideoInSeason .nav-segment-control .ani-segment-bar {
+  display: none;
+  position: absolute;
+  left: 50%;
+  width: 56%;
+  transform: translateX(-50%);
+  bottom: 0;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--ani-accent, #3dafb6);
 }
 body.ani-ambientlight-ui #blockVideoInSeason .nav-segment-control {
   color: var(--ani-muted) !important;
 }
+body.ani-ambientlight-page #blockVideoInSeason .segment-hover-line {
+  display: none !important;
+}
 body.ani-ambientlight-ui #blockVideoInSeason .nav-choose-segment {
-  color: var(--ani-text) !important;
+  color: #ffffff !important;
+}
+body.ani-ambientlight-ui #blockVideoInSeason .nav-choose-segment .ani-segment-bar {
+  display: block !important;
 }
 body.ani-ambientlight-ui #blockVideoInSeason .nav-segment-control p {
   color: inherit !important;
+  margin: 0 !important;
 }
-body.ani-ambientlight-ui #blockVideoInSeason .btn-newanime-filter :is(p, .newanime-filter-icon) {
-  color: var(--ani-muted) !important;
+body.ani-ambientlight-page #blockVideoInSeason .btn-newanime-filter .filter-items {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
+body.ani-ambientlight-ui #blockVideoInSeason .btn-newanime-filter {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  height: 32px !important;
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  background: var(--ani-accent, #3dafb6) !important;
+  color: #0f1621 !important;
+  border-radius: 6px !important;
+  padding: 0 11px !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  border: 0 !important;
+  cursor: pointer;
+}
+body.ani-ambientlight-ui #blockVideoInSeason .btn-newanime-filter .ani-filter-update-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: #0f1621 !important;
+}
+body.ani-ambientlight-ui #blockVideoInSeason .btn-newanime-filter .ani-filter-update-icon svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+body.ani-ambientlight-ui #blockVideoInSeason .btn-newanime-filter :is(p, span, .newanime-filter-text) {
+  color: #0f1621 !important;
+  margin: 0 !important;
+}
+body.ani-ambientlight-ui #blockVideoInSeason .btn-newanime-filter .newanime-filter-icon {
+  display: none !important;
+}
+body.ani-ambientlight-ui #BH_background section.index_new .title .gossip {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 6px 16px !important;
+  border-radius: 999px !important;
+  background: rgba(23, 35, 50, 0.62) !important;
+  backdrop-filter: blur(10px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(140%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.24) !important;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.32), 0 4px 14px rgba(0, 0, 0, 0.22) !important;
+  color: #f1f5f9 !important;
 }
 body.ani-ambientlight-page #blockVideoInSeason .newanime-wrap {
   height: auto !important;
   overflow: visible !important;
 }
+body.ani-ambientlight-page #blockVideoInSeason .newanime-wrap:not(.ani-expanded) .newanime-block > :is(.newanime-date-area, .premium-block):nth-of-type(n + 19) {
+  display: none !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .newanime-wrap.ani-expanded .anime-btn-show-more .material-icons-round {
+  transform: rotate(180deg) !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .anime-btn-show-more {
+  position: relative !important;
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 18px auto 4px !important;
+  padding: 0 !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .anime-btn-show-more > .before {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: min(100%, 760px) !important;
+  z-index: 0 !important;
+  pointer-events: none !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .anime-btn-show-more .btn-show-more {
+  position: relative !important;
+  z-index: 1 !important;
+  background: rgba(23, 35, 50, 0.72) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  color: #cbd5e1 !important;
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .anime-btn-show-more:hover .btn-show-more {
+  background: var(--ani-accent, #3dafb6) !important;
+  border-color: var(--ani-accent, #3dafb6) !important;
+  color: #0f1621 !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .anime-btn-show-more:hover .btn-show-more .material-icons-round {
+  color: #0f1621 !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .anime-btn-show-more .material-icons-round {
+  transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1), color 0.18s ease !important;
+}
 body.ani-ambientlight-page #blockVideoInSeason .newanime-wrap .newanime-block {
   display: grid !important;
   grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-  gap: 24px 16px;
+  gap: 22px 0 !important;
   width: 100% !important;
   height: auto !important;
   overflow: visible !important;
+}
+@media (min-width: 1100px) {
+  body.ani-ambientlight-page #blockVideoInSeason .newanime-wrap .newanime-block {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  }
+}
+body.ani-ambientlight-page #blockVideoInSeason .newanime-wrap .anime-blocker,
+body.ani-ambientlight-page #blockVideoInSeason .newanime-wrap .anime-blocker > img {
+  transition: none !important;
+  animation: none !important;
+}
+body.ani-ambientlight-page #BH_background #blockVideoInSeason .newanime-wrap .newanime-date-area :is(.newanime-date-area, .anime-content-block, .anime-block, .anime-card-block, .anime-blocker, .anime-detail-block, .anime-name-block)::before,
+body.ani-ambientlight-page #BH_background #blockVideoInSeason .newanime-wrap .newanime-date-area :is(.newanime-date-area, .anime-content-block, .anime-block, .anime-card-block, .anime-blocker, .anime-detail-block, .anime-name-block)::after,
+body.ani-ambientlight-page #BH_background #blockVideoInSeason .newanime-wrap .newanime-date-area:hover :is(.newanime-date-area, .anime-content-block, .anime-block, .anime-card-block, .anime-blocker, .anime-detail-block, .anime-name-block)::before,
+body.ani-ambientlight-page #BH_background #blockVideoInSeason .newanime-wrap .newanime-date-area:hover :is(.newanime-date-area, .anime-content-block, .anime-block, .anime-card-block, .anime-blocker, .anime-detail-block, .anime-name-block)::after {
+  display: none !important;
+  content: none !important;
+  background: none !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  opacity: 0 !important;
+}
+body.ani-ambientlight-page #BH_background #blockVideoInSeason .newanime-wrap .newanime-date-area :is(.anime-content-block, .anime-block, .anime-blocker, .anime-name-block, .anime-watch-number),
+body.ani-ambientlight-page #BH_background #blockVideoInSeason .newanime-wrap .newanime-date-area:hover :is(.anime-content-block, .anime-block, .anime-blocker, .anime-name-block, .anime-watch-number) {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  filter: none !important;
 }
 body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area {
   display: flex !important;
@@ -393,8 +838,98 @@ body.ani-ambientlight-page #blockVideoInSeason .anime-detail-block::after {
   display: none !important;
   content: none !important;
 }
+body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area:hover {
+  z-index: auto !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area:hover .anime-block {
+  position: relative !important;
+  z-index: 40 !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area .anime-date-info {
+  z-index: 25 !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area .date-block .double-circle,
+body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area .date-block .pic-continue {
+  z-index: 20 !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area .date-block .double-circle > .circle {
+  fill: #ffffff !important;
+}
 body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area .date-block {
+  order: 0;
+  width: 100% !important;
+  margin-bottom: 0 !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area .date-block :is(.date-block-border, .border-changecolor) {
+  height: 3px !important;
+  top: -1px !important;
+  border-radius: 999px !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area:not(:first-of-type):not(.have-selected-border) .date-block .border-changecolor,
+body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area:not(:first-of-type):not(.have-selected-border):hover .date-block :is(.date-block-border, .border-changecolor) {
+  background-color: var(--ani-accent, #3dafb6) !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area:not(:first-of-type):not(.have-selected-border):hover .anime-date-info :is(.anime-date-info_is-active, .anime-date-info_not-active, svg path),
+body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area:not(:first-of-type):not(.have-selected-border) .anime-date-info .anime-date-info_is-active {
+  fill: var(--ani-accent, #3dafb6) !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area:not(:first-of-type):not(.have-selected-border) .date-block .circle-active > .circle,
+body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area:not(:first-of-type):not(.have-selected-border):hover .date-block .double-circle > .circle {
+  stroke: var(--ani-accent, #3dafb6) !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area:not(:first-of-type):not(.have-selected-border) .date-block .pic-selected-continue,
+body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area:not(:first-of-type):not(.have-selected-border):hover .date-block :is(.pic-continue, .pic-selected-continue) {
+  background-color: var(--ani-accent, #3dafb6) !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area .date-block .pic-continue {
   display: none !important;
+  border-radius: 999px !important;
+}
+@media (min-width: 1100px) {
+  body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area:nth-of-type(6n) .date-block .pic-continue {
+    display: flex !important;
+    right: -8px !important;
+    left: auto !important;
+  }
+}
+body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area:first-of-type .date-block :is(.date-block-border, .border-changecolor) {
+  left: 16px !important;
+  width: calc(100% - 16px) !important;
+  background-color: #eb9d3d !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area:first-of-type .anime-date-info,
+body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area:first-of-type .anime-date-info-block-arrow {
+  visibility: visible !important;
+  left: 8px !important;
+  border-radius: 8px !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area:first-of-type .anime-date-info-block-rectangle {
+  visibility: hidden !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area:first-of-type .anime-date-info :is(.anime-date-info_is-active, .anime-date-info_not-active, svg path),
+body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area.have-selected-border .anime-date-info :is(.anime-date-info_is-active, .anime-date-info_not-active, svg path) {
+  fill: #eb9d3d !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area.have-selected-border .date-block :is(.date-block-border, .border-changecolor) {
+  background-color: #eb9d3d !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area:first-of-type .date-block :is(.pic-continue, .pic-selected-continue),
+body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area.have-selected-border .date-block :is(.pic-continue, .pic-selected-continue) {
+  background-color: #eb9d3d !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area:first-of-type .date-block .double-circle > .circle,
+body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area.have-selected-border .date-block .double-circle > .circle {
+  stroke: #eb9d3d !important;
+  fill: var(--ani-base, #0f1621) !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area .anime-date-info {
+  border-radius: 8px !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area :is(.anime-content-block, .anime-block),
+body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area:hover :is(.anime-content-block, .anime-block) {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
 }
 body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area .anime-content-block {
   order: 1;
@@ -407,44 +942,32 @@ body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area .anime-block 
   width: 100% !important;
   height: auto !important;
   margin: 0 !important;
-  padding: 0 !important;
+  padding: 12px 8px 0 8px !important;
+  box-sizing: border-box !important;
   float: none !important;
 }
 body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area .anime-date-info-block-arrow {
   order: 0;
-  position: static !important;
-  display: block !important;
-  visibility: visible !important;
-  width: auto !important;
-  height: auto !important;
-  margin: 0 0 7px !important;
-  padding: 0 !important;
   font-size: 12px !important;
   font-weight: 600 !important;
 }
-body.ani-ambientlight-ui #blockVideoInSeason .newanime-date-area .anime-date-info-block-arrow {
-  background: transparent !important;
-  color: var(--ani-muted) !important;
-}
-body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area .anime-date-info-block-arrow svg,
-body.ani-ambientlight-page
-  #blockVideoInSeason
-  .newanime-date-area
-  .anime-date-info-block-rectangle {
-  display: none !important;
-}
 body.ani-ambientlight-page #blockVideoInSeason .anime-card-block {
+  position: relative !important;
   display: block !important;
   width: 100% !important;
   height: auto !important;
   margin: 0 !important;
-  padding: 0 !important;
+  padding: 0 0 38px 0 !important;
+  box-sizing: border-box !important;
+  border-radius: 10px !important;
+  border: 0 !important;
   text-decoration: none;
   overflow: visible !important;
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1) !important;
 }
 body.ani-ambientlight-ui #blockVideoInSeason .anime-card-block {
   background: transparent !important;
-  color: var(--ani-text) !important;
+  color: #eef1f6 !important;
   box-shadow: none !important;
 }
 body.ani-ambientlight-page #blockVideoInSeason .anime-card-block::after {
@@ -452,57 +975,412 @@ body.ani-ambientlight-page #blockVideoInSeason .anime-card-block::after {
   content: none !important;
 }
 body.ani-ambientlight-page #blockVideoInSeason .anime-pic-block {
+  position: relative !important;
   width: 100% !important;
   height: auto !important;
   aspect-ratio: 16/9;
   overflow: hidden;
-  border-radius: 10px !important;
+  border-radius: 10px 10px 0 0 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-bottom: 0 !important;
+  box-sizing: border-box !important;
+  transition: border-color 0.2s ease !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .anime-pic-block::after {
+  content: '' !important;
+  display: block !important;
+  position: absolute !important;
+  inset: auto 0 0 0 !important;
+  height: 44% !important;
+  background: linear-gradient(to top, rgba(15, 22, 33, 0.58) 0%, transparent 100%) !important;
+  pointer-events: none !important;
+  z-index: 2 !important;
 }
 body.ani-ambientlight-ui #blockVideoInSeason .anime-pic-block {
   background: var(--ani-soft);
 }
+body.ani-ambientlight-page #blockVideoInSeason .anime-pic-block .ani-score-badge-top-left {
+  position: absolute !important;
+  inset: 0 auto auto 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  width: fit-content !important;
+  max-width: calc(100% - 56px) !important;
+  height: 28px !important;
+  padding: 0 10px !important;
+  border-radius: 5px 0 8px 0 !important;
+  background: linear-gradient(135deg, rgba(235, 157, 61, 0.74) 0%, rgba(217, 134, 38, 0.62) 100%) !important;
+  backdrop-filter: blur(8px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(8px) saturate(140%) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.34) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.34) !important;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.38), 0 2px 6px rgba(0, 0, 0, 0.18) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  float: none !important;
+  z-index: 10 !important;
+  margin: 0 !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .anime-pic-block .ani-score-badge-top-left * {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .anime-pic-block .btn-card-block {
+  position: absolute !important;
+  top: 6px !important;
+  right: 6px !important;
+  left: auto !important;
+  bottom: auto !important;
+  z-index: 10 !important;
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: 999px !important;
+  background: linear-gradient(135deg, rgba(64, 78, 98, 0.5) 0%, rgba(36, 46, 62, 0.42) 100%) !important;
+  background-image: linear-gradient(135deg, rgba(64, 78, 98, 0.5) 0%, rgba(36, 46, 62, 0.42) 100%) !important;
+  backdrop-filter: blur(8px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(8px) saturate(140%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), 0 2px 6px rgba(0, 0, 0, 0.22) !important;
+  display: grid !important;
+  place-items: center !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .anime-pic-block .btn-card-block svg {
+  width: 16px !important;
+  height: 14px !important;
+  display: block !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .anime-pic-block .btn-card-block:not(.btn-is-active) svg path {
+  fill: transparent !important;
+  stroke: #d88294 !important;
+  stroke-width: 1.6 !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .anime-pic-block .btn-card-block.btn-is-active svg path,
+body.ani-ambientlight-page #blockVideoInSeason .anime-pic-block .btn-card-block:hover svg path {
+  fill: #d88294 !important;
+  stroke: #d88294 !important;
+  stroke-width: 1 !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .anime-pic-block .anime-hours-block {
+  position: absolute !important;
+  left: 6px !important;
+  bottom: 6px !important;
+  top: auto !important;
+  right: auto !important;
+  z-index: 10 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  height: 22px !important;
+  margin: 0 !important;
+  padding: 0 8px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(135deg, rgba(56, 108, 138, 0.52) 0%, rgba(38, 76, 100, 0.42) 100%) !important;
+  backdrop-filter: blur(8px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(8px) saturate(140%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.36), 0 2px 6px rgba(0, 0, 0, 0.18) !important;
+  color: #ffffff !important;
+  font-size: 11.5px !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+  letter-spacing: 0.01em !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .anime-pic-block .anime-hours-block .anime-clock-img {
+  width: 11px !important;
+  height: 11px !important;
+  margin: 0 !important;
+  flex-shrink: 0 !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .anime-pic-block .anime-hours-block .anime-hours {
+  font-size: 11.5px !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .anime-pic-block .anime-hours-block * {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .anime-pic-block .anime-episode {
+  position: absolute !important;
+  right: 6px !important;
+  bottom: 6px !important;
+  left: auto !important;
+  top: auto !important;
+  z-index: 10 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  height: 22px !important;
+  margin: 0 !important;
+  padding: 0 8px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(135deg, rgba(56, 108, 138, 0.52) 0%, rgba(38, 76, 100, 0.42) 100%) !important;
+  backdrop-filter: blur(8px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(8px) saturate(140%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.36), 0 2px 6px rgba(0, 0, 0, 0.18) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  font-size: 10.5px !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+  letter-spacing: 0.02em !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .anime-pic-block .anime-episode svg {
+  width: 10px !important;
+  height: 10px !important;
+  flex-shrink: 0 !important;
+  display: block !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .anime-pic-block .anime-episode :is(p, span, i) {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  margin: 0 !important;
+  font-size: 10.5px !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+  letter-spacing: 0.02em !important;
+}
 body.ani-ambientlight-page #blockVideoInSeason .anime-blocker,
-body.ani-ambientlight-page #blockVideoInSeason .anime-blocker img {
+body.ani-ambientlight-page #blockVideoInSeason .anime-card-block:hover .anime-pic-block .anime-blocker {
+  width: 100% !important;
+  height: 100% !important;
+  padding-bottom: 0 !important;
+  transition: none !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .anime-blocker > img,
+body.ani-ambientlight-page #blockVideoInSeason .anime-card-block:hover .anime-pic-block .anime-blocker > img {
   width: 100% !important;
   height: 100% !important;
   object-fit: cover;
+  transform: none !important;
+  transition: none !important;
 }
 body.ani-ambientlight-page #blockVideoInSeason .anime-blocker img[src^='data:image/gif'] {
   opacity: 0 !important;
 }
+body.ani-ambientlight-page #blockVideoInSeason .anime-detail-block > .anime-detail-info-block {
+  height: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  overflow: visible !important;
+}
 body.ani-ambientlight-page #blockVideoInSeason .anime-detail-block {
-  position: static !important;
-  display: block !important;
+  position: absolute !important;
+  top: calc(100% - 38px) !important;
+  bottom: auto !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 6 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: center !important;
+  gap: 0 !important;
   width: 100% !important;
   height: auto !important;
-  padding-top: 5px !important;
+  min-height: 38px !important;
+  max-height: 38px !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  padding: 9px 8px !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-top: 0 !important;
+  border-radius: 0 0 10px 10px !important;
+  background: rgba(23, 35, 50, 0.94) !important;
+  backdrop-filter: blur(14px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(140%) !important;
+  transition:
+    max-height 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.22s ease,
+    border-color 0.22s ease,
+    box-shadow 0.22s ease !important;
 }
 body.ani-ambientlight-ui #blockVideoInSeason .anime-detail-block {
-  background: transparent !important;
-  color: var(--ani-text) !important;
+  background: rgba(23, 35, 50, 0.94) !important;
+  color: #f1f5f9 !important;
 }
 body.ani-ambientlight-page #blockVideoInSeason .anime-name-block {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 4px !important;
   width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  max-height: none !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .anime-card-block:hover .anime-detail-block .anime-name-block {
+  align-items: flex-start !important;
+  max-height: none !important;
 }
 body.ani-ambientlight-ui #blockVideoInSeason .anime-name-block {
   background: transparent !important;
-  color: var(--ani-text) !important;
+  color: #f1f5f9 !important;
+}
+@keyframes aniTitleMarquee {
+  0%, 14% {
+    transform: translate3d(0, 0, 0);
+  }
+  50%, 64% {
+    transform: translate3d(var(--ani-marquee-dist, -40px), 0, 0);
+  }
+  88%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
 }
 body.ani-ambientlight-page #blockVideoInSeason .anime-name {
-  font-weight: 650 !important;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  display: block !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  width: auto !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  line-height: 1.4 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: clip !important;
+  mask-image: none !important;
+  -webkit-mask-image: none !important;
+  min-height: 0 !important;
+  margin: 0 !important;
 }
-body.ani-ambientlight-ui #blockVideoInSeason .anime-name {
-  color: var(--ani-text) !important;
+body.ani-ambientlight-page #blockVideoInSeason .anime-name[data-ani-marquee='true'] {
+  margin-left: -6px !important;
+  padding-left: 6px !important;
+  mask-image: linear-gradient(to right, transparent 0%, #000 10px, #000 calc(100% - 18px), transparent 100%) !important;
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 10px, #000 calc(100% - 18px), transparent 100%) !important;
 }
+body.ani-ambientlight-page #blockVideoInSeason .anime-name[data-ani-marquee='true'] .ani-marquee-track {
+  display: inline-block !important;
+  will-change: transform;
+  animation: aniTitleMarquee var(--ani-marquee-dur, 7s) ease-in-out infinite !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .anime-card-block:hover .anime-detail-block .anime-name-block .anime-name {
+  width: 100% !important;
+  display: block !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  -webkit-line-clamp: unset !important;
+  max-height: none !important;
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+  mask-image: none !important;
+  -webkit-mask-image: none !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .anime-card-block:hover .anime-name .ani-marquee-track {
+  display: inline !important;
+  animation: none !important;
+  transform: none !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .anime-card-block:is(:link, :visited) :is(.anime-name, .anime-name *),
+body.ani-ambientlight-ui #blockVideoInSeason .anime-name,
+body.ani-ambientlight-ui #blockVideoInSeason .anime-name * {
+  color: #f1f5f9 !important;
+  -webkit-text-fill-color: #f1f5f9 !important;
+  opacity: 1 !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .anime-watch-number {
+  position: static !important;
+  flex: 0 0 auto !important;
+  align-self: center !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 2px !important;
+  font-size: 11.5px !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .anime-watch-number .ani-paid-badge {
+  display: none !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .anime-card-block:hover .anime-watch-number:has(.ani-paid-badge) {
+  display: grid !important;
+  grid-template-columns: auto auto !important;
+  align-items: center !important;
+  justify-items: end !important;
+  align-self: flex-start !important;
+  column-gap: 2px !important;
+  row-gap: 5px !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .anime-card-block:hover .anime-watch-number .ani-paid-badge {
+  grid-column: 1 / -1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 3px 6px !important;
+  border-radius: 5px !important;
+  background: rgba(235, 157, 61, 0.2) !important;
+  border: 1px solid rgba(235, 157, 61, 0.55) !important;
+  color: #fbbf24 !important;
+  -webkit-text-fill-color: #fbbf24 !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .anime-card-block:is(:link, :visited) :is(.anime-watch-number, .anime-watch-number *),
 body.ani-ambientlight-ui #blockVideoInSeason .anime-watch-number,
-body.ani-ambientlight-ui #blockVideoInSeason .anime-watch-number p {
-  color: var(--ani-muted) !important;
+body.ani-ambientlight-ui #blockVideoInSeason .anime-watch-number * {
+  color: #94a6ba !important;
+  -webkit-text-fill-color: #94a6ba !important;
+  opacity: 1 !important;
 }
-body.ani-ambientlight-ui #blockVideoInSeason .anime-card-block:hover .anime-pic-block {
-  box-shadow: 0 10px 24px #0008;
+body.ani-ambientlight-ui #blockVideoInSeason .newanime-wrap .newanime-date-area .anime-card-block:hover {
+  position: relative !important;
+  z-index: 30 !important;
+  width: 100% !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 0 38px 0 !important;
+  transform: translateY(-3px) !important;
+  background: transparent !important;
+}
+body.ani-ambientlight-ui #blockVideoInSeason .newanime-wrap .newanime-date-area .anime-card-block:hover .anime-pic-block {
+  position: relative !important;
+  width: 100% !important;
+  height: auto !important;
+  transform: none !important;
+  border-color: var(--ani-accent, #3dafb6) !important;
+}
+body.ani-ambientlight-ui #blockVideoInSeason .newanime-wrap .newanime-date-area .anime-card-block:hover .anime-detail-block {
+  position: absolute !important;
+  top: calc(100% - 38px) !important;
+  bottom: auto !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 6 !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 38px !important;
+  max-height: 150px !important;
+  background: rgba(23, 35, 50, 0.82) !important;
+  backdrop-filter: blur(14px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(140%) !important;
+  border-color: var(--ani-accent, #3dafb6) !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.42) !important;
+  transform: none !important;
 }
 
 /* Home collections are scrollable editorial shelves, not stacked boxes. */
@@ -569,8 +1447,23 @@ body.ani-ambientlight-ui
   > .container
   > .animate-theme-list:not(:has(.filter-section))
   .theme-list-main {
-  background: transparent !important;
+  background: var(--ani-card-bg, #172332) !important;
+  border: 1px solid var(--ani-line) !important;
+  border-radius: var(--ani-radius, 12px) !important;
+  padding: 8px !important;
+  box-sizing: border-box !important;
   color: var(--ani-text) !important;
+  transition:
+    transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.18s ease !important;
+}
+body.ani-ambientlight-ui
+  #BH_background:has(#blockVideoInSeason)
+  > .container
+  > .animate-theme-list:not(:has(.filter-section))
+  .theme-list-main:hover {
+  transform: translateY(-3px);
+  border-color: var(--ani-accent) !important;
 }
 body.ani-layout-related
   #BH_background:has(#blockVideoInSeason)
@@ -761,7 +1654,22 @@ body.ani-ambientlight-ui
   > .animate-theme-list:has(> .filter-section)
   .theme-list-main {
   color: var(--ani-text) !important;
-  background: transparent !important;
+  background: var(--ani-card-bg, #172332) !important;
+  border: 1px solid var(--ani-line) !important;
+  border-radius: var(--ani-radius, 12px) !important;
+  padding: 8px !important;
+  box-sizing: border-box !important;
+  transition:
+    transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.18s ease !important;
+}
+body.ani-ambientlight-ui
+  #BH_background
+  > .container
+  > .animate-theme-list:has(> .filter-section)
+  .theme-list-main:hover {
+  transform: translateY(-3px);
+  border-color: var(--ani-accent) !important;
 }
 body.ani-layout-related
   #BH_background
@@ -804,7 +1712,7 @@ body.ani-ambientlight-ui
   > .container
   > .animate-theme-list:has(> .filter-section)
   .theme-info-block {
-  background: var(--ani-panel) !important;
+  background: var(--ani-card-bg, #172332) !important;
   color: var(--ani-text) !important;
 }
 body.ani-ambientlight-ui
@@ -918,7 +1826,7 @@ body.ani-layout-episodes #BH_background .anime-title .season li a {
   font-variant-numeric: tabular-nums;
 }
 body.ani-ambientlight-ui #BH_background .anime-title .season li a {
-  background: var(--ani-panel) !important;
+  background: var(--ani-card-bg, #172332) !important;
   color: var(--ani-text) !important;
 }
 body.ani-ambientlight-ui #BH_background .anime-title .season li.playing a {
@@ -1162,7 +2070,7 @@ body.ani-layout-info #BH_background section.data .ACG-rbox3 {
   padding: 14px !important;
 }
 body.ani-ambientlight-ui #BH_background section.data .ACG-rbox3 {
-  background: var(--ani-panel) !important;
+  background: var(--ani-card-bg, #172332) !important;
   color: var(--ani-text) !important;
 }
 body.ani-ambientlight-ui #BH_background section.data .ACG-rbox3 :is(p, span, div) {
@@ -1204,7 +2112,7 @@ body.ani-ambientlight-ui #BH_background .old_list .theme-list-main :is(p, span, 
   color: var(--ani-text) !important;
 }
 body.ani-ambientlight-ui #BH_background .old_list .theme-info-block {
-  background: var(--ani-panel) !important;
+  background: var(--ani-card-bg, #172332) !important;
   color: var(--ani-text) !important;
 }
 body.ani-layout-news #BH_background .old_list .theme-number {
@@ -1221,7 +2129,7 @@ body.ani-layout-news #BH_background .animate-theme-list .extend-card {
   overflow: hidden;
 }
 body.ani-ambientlight-ui #BH_background .animate-theme-list .extend-card {
-  background: var(--ani-panel) !important;
+  background: var(--ani-card-bg, #172332) !important;
   color: var(--ani-text) !important;
 }
 body.ani-ambientlight-ui #BH_background .animate-theme-list .extend-card :is(p, span, div) {
@@ -1284,7 +2192,7 @@ body.ani-ambientlight-ui #BH_background .commendlist-wrapper :is(p, span, a, div
   color: var(--ani-text) !important;
 }
 body.ani-ambientlight-ui #BH_background .commendlist-wrapper :is(textarea, input) {
-  background: var(--ani-panel) !important;
+  background: var(--ani-card-bg, #172332) !important;
   color: var(--ani-text) !important;
   border-color: var(--ani-line) !important;
 }
@@ -1306,7 +2214,7 @@ body.ani-layout-comments #w-post-box .c-reply__editor {
   border-radius: 12px !important;
 }
 body.ani-ambientlight-ui #w-post-box .c-reply__editor {
-  background: var(--ani-panel) !important;
+  background: var(--ani-card-bg, #172332) !important;
 }
 body.ani-layout-comments #w-post-box .reply-content {
   min-width: 0;
@@ -1545,14 +2453,14 @@ body.ani-ambientlight-ui .ani-ambientlight-floating-toggle {
 
 /* One consistent composition: quiet navigation, art-led browsing, a broad stage. */
 body.ani-ambientlight-page {
-  --ani-base: #0d1117;
-  --ani-surface-rgb: 20, 25, 33;
+  --ani-base: #0f1621;
+  --ani-surface-rgb: 22, 32, 48;
   --ani-panel: rgba(var(--ani-surface-rgb), var(--ani-panel-opacity, 0.82));
-  --ani-panel-soft: #222a36;
+  --ani-panel-soft: #1d2a3d;
   --ani-line: rgba(183, 206, 220, 0.19);
   --ani-muted: #a3afbf;
   --ani-text: #eef1f6;
-  --ani-accent: #95c4f3;
+  --ani-accent: #3dafb6;
   caret-color: var(--ani-accent);
 }
 body.ani-ambientlight-page :is(a, button) {
@@ -1563,8 +2471,9 @@ body.ani-ambientlight-page :is(input, select, textarea, button):disabled {
   cursor: not-allowed;
 }
 body.ani-layout-nav .top_sky {
-  position: relative !important;
-  top: 0;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 100 !important;
   height: auto !important;
   isolation: isolate;
 }
@@ -1595,9 +2504,12 @@ body.ani-layout-nav .filter-items {
 body.ani-ambientlight-ui .anime_search-content,
 body.ani-ambientlight-ui .user-setting-toolbox,
 body.ani-ambientlight-ui .filter-items {
-  background: var(--ani-panel) !important;
+  background: rgba(20, 32, 48, 0.78) !important;
+  backdrop-filter: blur(18px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(150%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
   color: var(--ani-text) !important;
-  box-shadow: 0 12px 32px #0005;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.48) !important;
 }
 body.ani-ambientlight-ui .anime_search-content :is(p, a, .search-hint, .search-tag),
 body.ani-ambientlight-ui .filter-items li {
@@ -1614,9 +2526,11 @@ body.ani-ambientlight-ui .anime_search-content .btn-filter {
   color: var(--ani-accent) !important;
   background: transparent !important;
 }
-body.ani-ambientlight-ui .filter-nav .newanime-filter-text,
-body.ani-ambientlight-ui .btn-newanime-filter .newanime-filter-text {
+body.ani-ambientlight-ui .filter-nav .newanime-filter-text {
   color: var(--ani-muted) !important;
+}
+body.ani-ambientlight-ui #blockVideoInSeason .btn-newanime-filter .newanime-filter-text {
+  color: #0f1621 !important;
 }
 body.ani-ambientlight-ui .filter-items li.is-active {
   color: var(--ani-accent) !important;
@@ -1626,27 +2540,6 @@ body.ani-ambientlight-page #blockVideoInSeason .anime-date-info-block-arrow {
   text-align: left !important;
   font-variant-numeric: tabular-nums;
 }
-body.ani-ambientlight-page #blockVideoInSeason .anime-name-block {
-  display: block !important;
-}
-body.ani-ambientlight-page #blockVideoInSeason .anime-name {
-  display: -webkit-box !important;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  white-space: normal !important;
-  width: 100% !important;
-  min-height: 40px;
-  line-height: 1.45 !important;
-  margin: 5px 0 !important;
-  font-size: 14px !important;
-}
-body.ani-ambientlight-page #blockVideoInSeason .anime-watch-number {
-  float: none !important;
-  width: auto !important;
-  justify-content: flex-start !important;
-  margin: 0 !important;
-  font-size: 12px !important;
-}
 body.ani-ambientlight-page #blockVideoInSeason .anime-watch-number .material-icons {
   font-size: 14px !important;
 }
@@ -1654,8 +2547,8 @@ body.ani-ambientlight-ui #blockVideoInSeason .anime-watch-number .material-icons
   color: var(--ani-muted) !important;
 }
 body.ani-ambientlight-page #blockVideoInSeason .btn-card-block {
-  min-width: 40px;
-  min-height: 40px;
+  min-width: 28px;
+  min-height: 28px;
 }
 body.ani-ambientlight-ui #BH_background .theme-name {
   color: var(--ani-text) !important;
@@ -1793,13 +2686,16 @@ body.ani-layout-comments #w-post-box .webview_commendlist {
   z-index: 5;
   display: grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   padding: 0;
-  border: 0;
-  border-radius: 8px;
-  background: #222a36;
-  color: #d8edf3;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 999px;
+  background: rgba(23, 35, 50, 0.78) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 18px rgb(0 0 0 / 0.25);
+  color: #eef1f6 !important;
   cursor: pointer;
 }
 .ani-view-settings svg,
@@ -1812,8 +2708,9 @@ body.ani-layout-comments #w-post-box .webview_commendlist {
 }
 .ani-view-settings:hover,
 .ani-view-settings[aria-expanded='true'] {
-  background: #2f4653;
-  color: #fff;
+  background: rgba(23, 35, 50, 0.78) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: var(--ani-accent, #3dafb6) !important;
 }
 .ani-view-settings-panel {
   position: fixed;
@@ -1887,14 +2784,14 @@ body.ani-layout-comments #w-post-box .webview_commendlist {
   color: #e2eaf1;
 }
 .ani-settings-ranges output {
-  color: #95c4f3;
+  color: #3dafb6;
   font-variant-numeric: tabular-nums;
 }
 .ani-settings-ranges input {
   grid-column: 1/-1;
   width: 100%;
   margin: 0;
-  accent-color: #95c4f3;
+  accent-color: #3dafb6;
   cursor: pointer;
 }
 .ani-settings-option {
@@ -1909,7 +2806,7 @@ body.ani-layout-comments #w-post-box .webview_commendlist {
   height: 18px;
   flex: 0 0 18px;
   margin: 0;
-  accent-color: #95c4f3;
+  accent-color: #3dafb6;
   cursor: pointer;
 }
 .ani-settings-tip {
@@ -1941,14 +2838,14 @@ body.ani-layout-comments #w-post-box .webview_commendlist {
   gap: 7px;
 }
 .ani-settings-range output {
-  color: #95c4f3;
+  color: #3dafb6;
   font-variant-numeric: tabular-nums;
 }
 .ani-settings-range input {
   grid-column: 1/-1;
   width: 100%;
   margin: 0;
-  accent-color: #95c4f3;
+  accent-color: #3dafb6;
 }
 .ani-settings-select {
   display: grid;
@@ -2000,17 +2897,17 @@ body.ani-ambientlight-ui .ani-view-settings-panel :is(select, button) {
 }
 .ani-view-settings-panel :focus-visible,
 .ani-view-settings:focus-visible {
-  outline: 2px solid #95c4f3;
+  outline: 2px solid #3dafb6;
   outline-offset: 3px;
 }
 @media (min-width: 1536px) {
   body.ani-layout-nav .top_sky {
     display: grid !important;
-    grid-template-columns: 96px minmax(0, 1fr) clamp(220px, 16vw, 300px) 204px 40px;
-    grid-template-rows: 72px;
+    grid-template-columns: auto minmax(260px, 460px) 1fr auto 42px;
+    grid-template-rows: 68px;
     align-items: center;
-    gap: 20px;
-    padding-inline: max(24px, calc((100% - 1720px) / 2));
+    gap: 14px;
+    padding: 0 24px 0 104px !important;
   }
   body.ani-layout-nav .sky,
   body.ani-layout-nav .sky > .container-player,
@@ -2023,17 +2920,26 @@ body.ani-ambientlight-ui .ani-view-settings-panel :is(select, button) {
     grid-row: 1;
     float: none !important;
     position: static !important;
-    width: 96px !important;
-    height: 34px !important;
+    display: flex !important;
+    align-items: center;
+    width: auto !important;
+    height: 42px !important;
     margin: 0 !important;
+    padding: 0 14px !important;
+    border-radius: 999px;
+    background: rgba(23, 35, 50, 0.78) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 18px rgb(0 0 0 / 0.25);
   }
   body.ani-layout-nav .sky .anime_search {
-    grid-column: 3;
+    grid-column: 2;
     grid-row: 1;
     float: none !important;
     position: relative !important;
     width: 100% !important;
-    height: 40px !important;
+    height: 42px !important;
     margin: 0 !important;
   }
   body.ani-layout-nav .sky .member {
@@ -2042,28 +2948,58 @@ body.ani-ambientlight-ui .ani-view-settings-panel :is(select, button) {
     position: relative !important;
     inset: auto !important;
     float: none !important;
+    display: flex !important;
+    align-items: center;
     justify-content: flex-end;
-    width: 204px !important;
+    width: auto !important;
+    height: 42px !important;
     margin: 0 !important;
-    padding: 0 !important;
-    gap: 4px;
+    padding: 0 12px !important;
+    gap: 6px;
+    border-radius: 999px;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
   }
-  body.ani-layout-nav .mainmenu ul {
-    grid-column: 2;
-    grid-row: 1;
-    width: 100% !important;
+  body.ani-layout-nav .sky .member::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: 999px;
+    background: rgba(23, 35, 50, 0.78);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 18px rgb(0 0 0 / 0.25);
+    pointer-events: none;
+  }
+  body.ani-layout-nav .mainmenu > .container-player > ul {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    z-index: 95;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    width: 84px !important;
     margin: 0 !important;
-    padding: 0 !important;
-    gap: 14px;
+    padding: 76px 0 16px !important;
+    gap: 10px !important;
+    background: var(--ani-base, #0f1621) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
     overflow: visible;
   }
-  body.ani-layout-nav .mainmenu ul li {
+  body.ani-layout-nav .mainmenu > .container-player > ul > li {
     float: none !important;
     margin: 0 !important;
     padding: 0 !important;
   }
-  body.ani-layout-nav .mainmenu ul li a {
-    min-height: 36px;
+  body.ani-layout-nav .mainmenu > .container-player > ul > li > a {
+    min-height: 42px;
     padding: 0 !important;
     font-size: 13px !important;
   }
@@ -2071,52 +3007,99 @@ body.ani-ambientlight-ui .ani-view-settings-panel :is(select, button) {
     position: static;
     grid-column: 5;
     grid-row: 1;
+    width: 42px;
+    height: 42px;
+    border-radius: 999px;
   }
 }
 @media (min-width: 901px) and (max-width: 1535px) {
   body.ani-layout-nav .sky {
-    height: 64px !important;
+    height: 68px !important;
   }
   body.ani-layout-nav .sky > .container-player {
     display: grid !important;
-    grid-template-columns: 96px minmax(180px, 1fr) 204px 40px;
-    gap: 20px;
+    grid-template-columns: auto minmax(200px, 1fr) auto 42px;
+    gap: 14px;
     align-items: center;
-    height: 64px;
+    height: 68px;
+    padding-left: 104px !important;
+    padding-right: 20px !important;
+    max-width: none !important;
   }
   body.ani-layout-nav .sky .logo {
     position: static !important;
     float: none !important;
-    width: 96px !important;
-    height: 34px !important;
+    display: flex !important;
+    align-items: center;
+    width: auto !important;
+    height: 42px !important;
     margin: 0 !important;
+    padding: 0 14px !important;
+    border-radius: 999px;
+    background: rgba(23, 35, 50, 0.78) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
   body.ani-layout-nav .sky .anime_search {
     position: relative !important;
     float: none !important;
-    justify-self: end;
-    width: min(100%, 320px) !important;
-    height: 40px !important;
+    justify-self: start;
+    width: min(100%, 380px) !important;
+    height: 42px !important;
     margin: 0 !important;
   }
   body.ani-layout-nav .sky .member {
     position: relative !important;
     inset: auto !important;
     float: none !important;
-    width: 204px !important;
+    display: flex !important;
+    align-items: center;
+    width: auto !important;
+    height: 42px !important;
     justify-content: flex-end;
-    gap: 4px;
+    gap: 6px;
     margin: 0 !important;
-    padding: 0 !important;
+    padding: 0 12px !important;
+    border-radius: 999px;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 0 !important;
+  }
+  body.ani-layout-nav .sky .member::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: 999px;
+    background: rgba(23, 35, 50, 0.78);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    pointer-events: none;
   }
   body.ani-ambientlight-page .ani-view-settings {
     position: static;
+    width: 42px;
+    height: 42px;
+    border-radius: 999px;
   }
-  body.ani-layout-nav .mainmenu ul {
-    justify-content: flex-start;
-    gap: 20px;
+  body.ani-layout-nav .mainmenu > .container-player > ul {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    z-index: 95;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    width: 84px !important;
     margin: 0 !important;
-    padding: 0 !important;
+    padding: 76px 0 16px !important;
+    gap: 10px !important;
+    background: var(--ani-base, #0f1621) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
   }
   body.ani-layout-nav .mainmenu ul li {
     float: none !important;
@@ -2243,35 +3226,193 @@ body.ani-layout-nav .sky .member > li {
 body.ani-layout-nav
   .sky
   .member
-  > :is(.top_btn_notice, .top_btn_subscription, .top_btn_recommend)
+  > li:not(.head):not(.bahago):not(.searchbtn)
   > a {
-  display: block;
-  width: 22px !important;
-  height: 22px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 24px !important;
+  height: 24px !important;
   margin: 0 !important;
+  color: #f1f5f9 !important;
+  transition: color 0.16s ease, transform 0.16s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+body.ani-layout-nav
+  .sky
+  .member
+  > li:not(.head):not(.bahago):not(.searchbtn):is(:hover, .is-active)
+  > a,
+body.ani-layout-nav
+  .sky
+  .member
+  > li:not(.head):not(.bahago):not(.searchbtn):is(:hover, .is-active)
+  > :is(button, span, svg, i) {
+  color: var(--ani-accent, #3dafb6) !important;
+}
+body.ani-layout-nav
+  .sky
+  .member
+  > li:not(.head):not(.bahago):not(.searchbtn)
+  :is(svg, svg path, svg polygon, svg circle, i.material-icons) {
+  color: inherit !important;
+  fill: currentColor !important;
+  transition: color 0.16s ease, fill 0.16s ease !important;
+}
+body.ani-layout-nav
+  .sky
+  .member
+  > li:not(.head):not(.bahago):not(.searchbtn):not(.top_btn_notice):not(.top_btn_subscription):not(.top_btn_recommend) {
+  color: #f1f5f9 !important;
+  cursor: pointer;
+}
+body.ani-layout-nav
+  .sky
+  .member
+  > li:not(.head):not(.bahago):not(.searchbtn):not(.top_btn_notice):not(.top_btn_subscription):not(.top_btn_recommend):hover {
+  color: var(--ani-accent, #3dafb6) !important;
+}
+body.ani-layout-nav
+  .sky
+  .member
+  > :is(.top_btn_notice, .top_btn_subscription, .top_btn_recommend)
+  > a::after,
+body.ani-layout-nav
+  .sky
+  .member
+  > :is(.top_btn_notice, .top_btn_subscription, .top_btn_recommend)
+  > a::before {
+  display: none !important;
+  content: none !important;
+  background-image: none !important;
+}
+body.ani-layout-nav .sky .member svg.ani-member-icon {
+  width: 20px !important;
+  height: 20px !important;
+  display: block !important;
 }
 body.ani-layout-nav .sky .member > .head {
-  flex-basis: 40px;
-  width: 40px !important;
+  flex-basis: 34px;
+  width: 34px !important;
+}
+body.ani-layout-nav .sky .member > .head > .material-icons {
+  display: none !important;
 }
 body.ani-layout-nav .sky .member > .head > a {
-  display: block;
-  width: 32px !important;
-  height: 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 28px !important;
+  height: 28px !important;
   margin: 0 !important;
 }
 body.ani-layout-nav .sky .member > .head > a img {
-  width: 32px !important;
-  height: 32px !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.45) !important;
   object-fit: cover;
 }
 body.ani-layout-nav .sky .member > .bahago > a {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px !important;
-  height: 32px !important;
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 28px !important;
+  height: 28px !important;
   margin: 0 !important;
+  background: transparent !important;
+  overflow: visible !important;
+  transition: transform 0.16s cubic-bezier(0.22, 1, 0.36, 1), filter 0.16s ease !important;
+}
+body.ani-layout-nav .sky .member > .bahago:hover > a {
+  transform: scale(1.06);
+  filter: brightness(1.08);
+}
+body.ani-layout-nav .sky .member > .bahago > a .ani-bahago-icon {
+  width: 28px !important;
+  height: 28px !important;
+  object-fit: contain !important;
+  display: block !important;
+}
+body.ani-layout-nav .sky .member > li.head:hover ~ .user-setting-toolbox,
+body.ani-layout-nav .sky .member > .user-setting-toolbox:hover,
+body.ani-layout-nav .sky .member > li.head:focus-within ~ .user-setting-toolbox {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+body.ani-layout-nav .sky .member > .user-setting-toolbox::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -16px;
+  height: 16px;
+}
+body.ani-layout-nav .top_sky :is([id^='topBarMsg_'], .TOP-msg) {
+  pointer-events: auto !important;
+  z-index: 200 !important;
+  overflow: visible !important;
+}
+@media (min-width: 901px) {
+  body.ani-layout-nav .top_sky :is([id^='topBarMsg_'], .TOP-msg) {
+    position: absolute !important;
+    top: 62px !important;
+    right: 72px !important;
+    border-radius: 12px !important;
+  }
+}
+body.ani-layout-nav .top_sky :is([id^='topBarMsg_'], .TOP-msg)::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -20px;
+  height: 20px;
+}
+body.ani-ambientlight-ui .top_sky :is([id^='topBarMsg_'], .TOP-msg) {
+  background: rgba(20, 32, 48, 0.78) !important;
+  backdrop-filter: blur(18px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(150%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: var(--ani-text, #f1f5f9) !important;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.48) !important;
+}
+body.ani-ambientlight-ui .top_sky :is([id^='topBarMsg_'], .TOP-msg) > span {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 12px 12px 0 0 !important;
+  color: #f1f5f9 !important;
+}
+body.ani-ambientlight-ui .top_sky :is([id^='topBarMsg_'], .TOP-msg) .TOP-msglist {
+  background: transparent !important;
+}
+body.ani-ambientlight-ui .top_sky :is([id^='topBarMsg_'], .TOP-msg) .TOP-msglist > div {
+  background: transparent !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+  color: #e2e8f0 !important;
+}
+body.ani-ambientlight-ui .top_sky :is([id^='topBarMsg_'], .TOP-msg) :is(.TOP-msglist, .TOP-msglist a, .TOP-msgbtn, .TOP-msgbtn a) {
+  color: var(--ani-text, #f1f5f9) !important;
+}
+body.ani-ambientlight-ui .top_sky :is([id^='topBarMsg_'], .TOP-msg) .TOP-msglist > div:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+body.ani-ambientlight-ui .top_sky :is([id^='topBarMsg_'], .TOP-msg) .TOP-msglist > div.new {
+  background: rgba(61, 175, 182, 0.14) !important;
+}
+body.ani-ambientlight-ui .top_sky :is([id^='topBarMsg_'], .TOP-msg) .TOP-msgbtn {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 0 0 12px 12px !important;
+}
+body.ani-ambientlight-ui .top_sky :is([id^='topBarMsg_'], .TOP-msg) .TOP-msgbtn a {
+  background: transparent !important;
+}
+body.ani-ambientlight-ui .top_sky :is([id^='topBarMsg_'], .TOP-msg) .TOP-msgbtn a:hover {
+  background: rgba(61, 175, 182, 0.16) !important;
+  color: var(--ani-accent, #3dafb6) !important;
 }
 body.ani-layout-watch #BH_background > .container-player:has(> section.player) {
 }
@@ -2478,14 +3619,41 @@ body.ani-theater-layout #BH_background section.player .subtitle #sub_list .danmu
   min-height: 0 !important;
   height: 1px !important;
 }
-body.ani-layout-nav .sky .member > li .tooltip {
-  left: auto !important;
-  right: 0 !important;
-  transform: none !important;
-}
+body.ani-layout-nav .sky .member > li .tooltip,
 body.ani-ambientlight-ui .sky .member > li .tooltip {
-  background: var(--ani-panel) !important;
-  color: var(--ani-text) !important;
+  display: none !important;
+  position: absolute !important;
+  top: calc(100% + 6px) !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: translateX(-50%) !important;
+  padding: 4px 9px !important;
+  border-radius: 7px !important;
+  background: rgba(20, 32, 48, 0.88) !important;
+  backdrop-filter: blur(14px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(140%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  color: #f1f5f9 !important;
+  font-size: 12px !important;
+  line-height: 1.3 !important;
+  white-space: nowrap !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.36) !important;
+  pointer-events: none !important;
+  z-index: 210 !important;
+}
+body.ani-layout-nav .sky .member > li .tooltip::before,
+body.ani-layout-nav .sky .member > li .tooltip::after,
+body.ani-ambientlight-ui .sky .member > li .tooltip::before,
+body.ani-ambientlight-ui .sky .member > li .tooltip::after {
+  display: none !important;
+  content: none !important;
+}
+body.ani-layout-nav .sky .member > li:not(.is-active):not(.head):hover > .tooltip,
+body.ani-ambientlight-ui .sky .member > li:not(.is-active):not(.head):hover > .tooltip {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 body.ani-ambientlight-page #blockVideoInSeason .btn-newanime-filter .filter-items {
   left: auto !important;
@@ -2577,7 +3745,7 @@ body.ani-layout-episodes .ani-episode-shelf .season a {
   font-variant-numeric: tabular-nums;
 }
 body.ani-ambientlight-ui .ani-episode-shelf .season a {
-  background: var(--ani-panel) !important;
+  background: var(--ani-card-bg, #172332) !important;
   color: var(--ani-text) !important;
 }
 body.ani-ambientlight-ui .ani-episode-shelf .season a:hover {
@@ -3116,9 +4284,9 @@ body.ani-ambientlight-page .anime-card .history-list-triangle {
 }
 
 /* ── 九、我的動畫：卡片網格（海報為主，資訊在下，人氣疊在海報角落） ── */
-body.ani-ambientlight-ui
+body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
   #BH_background
-  .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason))
+  .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason)):not(:has(.ani-poster-card))
   .theme-list-block {
   display: grid !important;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 172px), 1fr));
@@ -3127,24 +4295,31 @@ body.ani-ambientlight-ui
   height: auto !important;
   padding: 4px 0 32px !important;
 }
-body.ani-ambientlight-ui
+body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
   #BH_background
-  .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason))
+  .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason)):not(:has(.ani-poster-card))
   .theme-list-main {
   display: grid !important;
   grid-template-rows: auto auto;
   width: 100% !important;
   height: auto !important;
   margin: 0 !important;
+  padding: 8px !important;
+  box-sizing: border-box !important;
+  border-radius: var(--ani-radius, 12px) !important;
+  border: 1px solid var(--ani-line) !important;
   float: none !important;
-  background: transparent !important;
-  box-shadow: none !important;
+  background: var(--ani-card-bg, #172332) !important;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 0.22) !important;
   color: var(--ani-text) !important;
   text-decoration: none;
+  transition:
+    transform 0.16s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.16s ease !important;
 }
-body.ani-ambientlight-ui
+body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
   #BH_background
-  .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason))
+  .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason)):not(:has(.ani-poster-card))
   .theme-img-block {
   grid-area: 1 / 1;
   position: relative;
@@ -3152,40 +4327,36 @@ body.ani-ambientlight-ui
   height: auto !important;
   aspect-ratio: 2 / 3;
   overflow: hidden;
-  border-radius: 12px !important;
+  border-radius: max(6px, calc(var(--ani-radius, 12px) - 4px)) !important;
   background: var(--ani-soft);
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+  transition: none !important;
 }
-body.ani-ambientlight-ui
+body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
   #BH_background
-  .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason))
+  .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason)):not(:has(.ani-poster-card))
   .theme-img-block
   img {
   width: 100% !important;
   height: 100% !important;
   object-fit: cover;
+  transition: none !important;
 }
-body.ani-ambientlight-ui
+body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
   #BH_background
-  .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason))
-  .theme-list-main:hover
-  .theme-img-block {
-  transform: translateY(-3px);
-  box-shadow:
-    0 0 0 2px var(--ani-accent),
-    0 10px 24px rgb(0 0 0 / 0.35);
+  .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason)):not(:has(.ani-poster-card))
+  .theme-list-main:hover {
+  transform: translateY(-2px);
+  border-color: var(--ani-accent, #3dafb6) !important;
 }
-body.ani-ambientlight-ui
+body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
   #BH_background
-  .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason))
+  .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason)):not(:has(.ani-poster-card))
   .anime-detail-block {
   display: contents;
 }
-body.ani-ambientlight-ui
+body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
   #BH_background
-  .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason))
+  .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason)):not(:has(.ani-poster-card))
   .anime-tag-row {
   grid-area: 1 / 1;
   align-self: end;
@@ -3195,9 +4366,9 @@ body.ani-ambientlight-ui
   margin: 0 8px 8px 0;
   pointer-events: none;
 }
-body.ani-ambientlight-ui
+body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
   #BH_background
-  .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason))
+  .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason)):not(:has(.ani-poster-card))
   .show-view-number {
   display: inline-flex;
   align-items: center;
@@ -3207,12 +4378,11 @@ body.ani-ambientlight-ui
   font-size: 12px;
   line-height: 16px;
   border-radius: 999px;
-  background: rgb(0 0 0 / 0.6);
-  backdrop-filter: blur(6px);
+  background: rgba(15, 22, 33, 0.8);
 }
-body.ani-ambientlight-ui
+body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
   #BH_background
-  .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason))
+  .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason)):not(:has(.ani-poster-card))
   .show-view-number
   p {
   color: #f4f6f8 !important;
@@ -3220,16 +4390,16 @@ body.ani-ambientlight-ui
   line-height: 16px;
   margin: 0;
 }
-body.ani-ambientlight-ui
+body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
   #BH_background
-  .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason))
+  .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason)):not(:has(.ani-poster-card))
   .theme-info-block {
   grid-area: 2 / 1;
   padding: 10px 2px 0;
 }
-body.ani-ambientlight-ui
+body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
   #BH_background
-  .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason))
+  .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason)):not(:has(.ani-poster-card))
   .theme-name {
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -3240,18 +4410,18 @@ body.ani-ambientlight-ui
   font-weight: 600;
   line-height: 1.4;
 }
-body.ani-ambientlight-ui
+body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
   #BH_background
-  .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason))
+  .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason)):not(:has(.ani-poster-card))
   .theme-detail-info-block {
   display: flex;
   flex-wrap: wrap;
   gap: 4px 10px;
   margin-top: 4px;
 }
-body.ani-ambientlight-ui
+body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
   #BH_background
-  .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason))
+  .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason)):not(:has(.ani-poster-card))
   :is(.theme-time, .theme-number) {
   background: none !important;
   padding: 0 !important;
@@ -3259,6 +4429,58 @@ body.ani-ambientlight-ui
   font-size: 13px;
 }
 
+body.ani-ambientlight-page:not(:has(#blockVideoInSeason)):not(.ani-catalog-page) #BH_background .theme-list-main :is(.anime-detail-block, .theme-info-block, .theme-detail-info-block) {
+  height: auto !important;
+  min-height: 0 !important;
+  position: static !important;
+}
+body.ani-ambientlight-page:not(:has(#blockVideoInSeason)):not(.ani-catalog-page) #BH_background .theme-list-main .theme-info-block {
+  padding: 10px 4px 4px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+}
+body.ani-ambientlight-page:not(:has(#blockVideoInSeason)):not(.ani-catalog-page) #BH_background .theme-list-main .theme-name {
+  display: block !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+}
+body.ani-ambientlight-page:not(:has(#blockVideoInSeason)):not(.ani-catalog-page) #BH_background .theme-list-main:hover .theme-name {
+  display: block !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  -webkit-line-clamp: unset !important;
+  max-height: none !important;
+}
+body.ani-ambientlight-page:not(:has(#blockVideoInSeason)):not(.ani-catalog-page) #BH_background .theme-list-main .theme-detail-info-block {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-wrap: nowrap !important;
+  gap: 8px !important;
+  margin: 0 !important;
+  width: 100% !important;
+}
+body.ani-ambientlight-page:not(:has(#blockVideoInSeason)):not(.ani-catalog-page) #BH_background .theme-list-main :is(.theme-time, .theme-number) {
+  position: static !important;
+  margin: 0 !important;
+  float: none !important;
+  font-size: 12px !important;
+}
+body.ani-ambientlight-ui:not(:has(#blockVideoInSeason)) #BH_background .theme-list-main .theme-number {
+  background: var(--ani-accent, #3dafb6) !important;
+  color: #0f1621 !important;
+  padding: 2px 7px !important;
+  border-radius: 4px !important;
+  font-weight: 700 !important;
+}
 /* ── 十一、站方通知對話框（dialogify）：卡片式、內距與按鈕統一 ── */
 body.ani-ambientlight-ui .anime_dialogify::backdrop {
   background: rgb(0 0 0 / 0.6);
@@ -3484,8 +4706,160 @@ body.ani-ambientlight-ui #blockVideoInSeason :is(.anime-episode, .anime-episode 
   color: var(--ani-muted) !important;
 }
 body.ani-ambientlight-ui #BH_background
-  :is(.theme-show-more-list, .theme-show-more-list i, .btn-next:has(> p), .btn-next:has(> p) :is(p, span)) {
+  :is(.theme-show-more-list, .theme-show-more-list i) {
   color: var(--ani-accent) !important;
+}
+body.ani-ambientlight-ui #BH_background .btn-next:has(> p) {
+  background: rgba(61, 175, 182, 0.14) !important;
+  backdrop-filter: blur(10px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(140%) !important;
+  border: 1px solid rgba(61, 175, 182, 0.34) !important;
+  border-radius: 7px !important;
+  color: var(--ani-accent) !important;
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease !important;
+}
+body.ani-ambientlight-ui #BH_background .btn-next:has(> p) :is(p, span, i) {
+  color: var(--ani-accent) !important;
+}
+body.ani-ambientlight-ui #BH_background .btn-next:has(> p):hover {
+  background: var(--ani-accent, #3dafb6) !important;
+  border-color: var(--ani-accent, #3dafb6) !important;
+  color: #0f1621 !important;
+}
+body.ani-ambientlight-ui #BH_background .btn-next:has(> p):hover :is(p, span, i) {
+  color: #0f1621 !important;
+}
+body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container {
+  display: flex !important;
+  flex-direction: column !important;
+}
+body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:has(.continue-watch-area, .btn-next) {
+  order: -10 !important;
+}
+body.ani-ambientlight-ui #BH_background .animate-theme-list:has(.continue-watch-area, .btn-next) > .theme-title-block {
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
+body.ani-ambientlight-ui #BH_background .ani-continue-heading {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+body.ani-ambientlight-ui #BH_background .ani-continue-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: inherit;
+  flex-shrink: 0;
+}
+body.ani-ambientlight-ui #BH_background .ani-continue-icon svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+body.ani-ambientlight-ui #BH_background .continue-watch-area .continue-watch-card {
+  background: var(--ani-card-bg, #172332) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+body.ani-ambientlight-ui #BH_background .continue-watch-area .continue-watch-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--ani-accent, #3dafb6) !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.42) !important;
+}
+body.ani-ambientlight-ui #BH_background .continue-watch-area .continue-watch-card .content-block {
+  padding: 0 !important;
+}
+body.ani-ambientlight-ui #BH_background .continue-watch-area .continue-watch-card .content-block > :not(.img-progress-block) {
+  padding: 8px 10px !important;
+}
+body.ani-ambientlight-ui #BH_background .continue-watch-area .continue-watch-card .img-progress-block {
+  height: auto !important;
+  gap: 6px !important;
+  padding: 6px 8px !important;
+  box-sizing: border-box !important;
+}
+body.ani-ambientlight-ui #BH_background .continue-watch-area .continue-watch-card .img-progress-block .info-row > * {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  height: 22px !important;
+  padding: 0 8px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(135deg, rgba(56, 108, 138, 0.52) 0%, rgba(38, 76, 100, 0.42) 100%) !important;
+  backdrop-filter: blur(8px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(8px) saturate(140%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.36), 0 2px 6px rgba(0, 0, 0, 0.18) !important;
+  color: #ffffff !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+}
+body.ani-ambientlight-ui #BH_background .continue-watch-area .progress-bar {
+  height: 4px !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-radius: 999px !important;
+}
+body.ani-ambientlight-ui #BH_background .continue-watch-area .progress-bar .progress {
+  background: var(--ani-accent, #3dafb6) !important;
+  border-radius: 999px !important;
+}
+body.ani-ambientlight-ui #toast-container > .toast {
+  position: relative !important;
+  border-radius: 999px !important;
+  padding: 11px 22px 11px 44px !important;
+  min-height: 0 !important;
+  backdrop-filter: blur(16px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(150%) !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.42) !important;
+  background-image: none !important;
+  color: #f1f5f9 !important;
+  opacity: 1 !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+}
+body.ani-ambientlight-ui #toast-container > .toast.toast-info {
+  background-color: rgba(20, 48, 72, 0.82) !important;
+  border: 1px solid rgba(61, 175, 182, 0.42) !important;
+}
+body.ani-ambientlight-ui #toast-container > .toast.toast-success {
+  background-color: rgba(22, 66, 48, 0.82) !important;
+  border: 1px solid rgba(74, 222, 128, 0.42) !important;
+}
+body.ani-ambientlight-ui #toast-container > .toast.toast-warning {
+  background-color: rgba(74, 52, 18, 0.84) !important;
+  border: 1px solid rgba(235, 157, 61, 0.48) !important;
+}
+body.ani-ambientlight-ui #toast-container > .toast.toast-error {
+  background-color: rgba(74, 24, 32, 0.84) !important;
+  border: 1px solid rgba(248, 113, 113, 0.45) !important;
+}
+body.ani-ambientlight-ui #toast-container > .toast::before {
+  content: '';
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  transform: translateY(-50%);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+body.ani-ambientlight-ui #toast-container > .toast.toast-info::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%233dafb6'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z'/%3E%3C/svg%3E");
+}
+body.ani-ambientlight-ui #toast-container > .toast.toast-success::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234ade80'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z'/%3E%3C/svg%3E");
+}
+body.ani-ambientlight-ui #toast-container > .toast.toast-warning::before,
+body.ani-ambientlight-ui #toast-container > .toast.toast-error::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23eb9d3d'%3E%3Cpath d='M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z'/%3E%3C/svg%3E");
 }
 body.ani-ambientlight-ui .premium-info {
   background: var(--ani-accent) !important;
@@ -3545,4 +4919,1905 @@ body.ani-layout-episodes .ani-episode-shelf .season a {
     display: block;
     line-height: 1 !important;
   }
+}
+
+/* Homepage headings and the account dropdown share the neutral foreground. */
+body.ani-ambientlight-ui #blockVideoInSeason .newanime-switch-page .nav-segment-control:not(.nav-choose-segment) {
+  color: var(--ani-muted) !important;
+}
+body.ani-ambientlight-ui #blockVideoInSeason .newanime-switch-page :is(p,.ani-segment-icon) {
+  color: inherit !important;
+}
+
+/* Keep the frosted surface on its own layer, including during menu transitions. */
+body.ani-ambientlight-ui .top_sky .user-setting-toolbox {
+  background: transparent !important;
+  isolation: isolate;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+body.ani-ambientlight-ui .top_sky .user-setting-toolbox::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: rgba(20, 32, 48, 0.88);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  pointer-events: none;
+}
+
+/* Let both divider halves grow from the button to the container edges. */
+body.ani-ambientlight-page #blockVideoInSeason .anime-btn-show-more {
+  gap: 14px !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .anime-btn-show-more > .before {
+  display: none !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .anime-btn-show-more::before,
+body.ani-ambientlight-page #blockVideoInSeason .anime-btn-show-more::after {
+  content: '';
+  position: static !important;
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto !important;
+  height: 1px !important;
+  background: var(--ani-line, #a3afbf30) !important;
+  transform: none !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .anime-btn-show-more .btn-show-more {
+  flex: 0 0 auto;
+  margin: 0 !important;
+}
+
+/* Continue watching: retain the site's links, slider and next-episode preview. */
+body.ani-ambientlight-ui #blockContinueWatch .continue-watch-card {
+  border-radius: 14px !important;
+  background: var(--ani-card-bg, #172332) !important;
+}
+body.ani-ambientlight-ui #blockContinueWatch .content {
+  display: flex !important;
+  align-items: center !important;
+  min-width: 0;
+  padding: 10px 12px !important;
+  height: 42px !important;
+  box-sizing: border-box;
+}
+body.ani-ambientlight-ui #blockContinueWatch .anime-name {
+  min-width: 0;
+  width: 100%;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  text-overflow: clip !important;
+  margin: 0 !important;
+  font-size: 13px !important;
+  line-height: 22px !important;
+}
+body.ani-ambientlight-ui #blockContinueWatch .ani-marquee-track {
+  display: inline-block;
+  white-space: nowrap;
+}
+body.ani-ambientlight-ui #blockContinueWatch .ani-continue-overflow {
+  mask-image: linear-gradient(to right, #000 calc(100% - 18px), transparent);
+}
+body.ani-ambientlight-ui #blockContinueWatch .ani-continue-overflow .ani-marquee-track {
+  animation: aniTitleMarquee var(--ani-marquee-dur, 8s) ease-in-out infinite;
+}
+body.ani-ambientlight-ui #blockContinueWatch .img-progress-block {
+  padding: 10px !important;
+  gap: 8px !important;
+}
+body.ani-ambientlight-ui #blockContinueWatch .info-row {
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center !important;
+  gap: 5px !important;
+}
+body.ani-ambientlight-ui #blockContinueWatch .info-row > * {
+  flex: 0 0 auto;
+  margin: 0 !important;
+  height: 24px !important;
+  padding: 0 8px !important;
+  border-radius: 999px !important;
+  background: rgba(20, 35, 51, .7) !important;
+  border: 1px solid rgba(255,255,255,.26) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 2px 8px #0003 !important;
+  backdrop-filter: blur(14px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(140%) !important;
+  color: #f1f5f9 !important;
+  font-size: 11px !important;
+  line-height: 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+body.ani-ambientlight-ui #blockContinueWatch .info-row p {
+  font-size: 11px !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+}
+body.ani-ambientlight-ui #blockContinueWatch .episode-block img {
+  width: 12px !important;
+  height: 12px !important;
+}
+body.ani-ambientlight-ui #blockContinueWatch .time-left:empty {
+  display: none !important;
+}
+body.ani-ambientlight-ui #blockContinueWatch .info-row > .ani-continue-position {
+  color: #c8e7f2 !important;
+  font-variant-numeric: tabular-nums;
+}
+body.ani-ambientlight-ui #blockContinueWatch .continue-watch-card:has(.btn-next:hover) .ani-continue-position {
+  display: none !important;
+}
+body.ani-ambientlight-ui #blockContinueWatch .continue-watch-card:has(.btn-next) .content {
+  padding-right: 88px !important;
+}
+body.ani-ambientlight-ui #blockContinueWatch :is(.slick-prev, .slick-next, .btn-next) {
+  background: linear-gradient(135deg, rgba(67,99,126,.68), rgba(21,37,55,.72)) !important;
+  color: #e4f3fc !important;
+  border: 1px solid rgba(192,223,244,.35) !important;
+  border-radius: 999px !important;
+  backdrop-filter: blur(18px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(150%) !important;
+  box-shadow: inset 0 1px 0 #ffffff38, 0 4px 14px #0004 !important;
+}
+body.ani-ambientlight-ui #blockContinueWatch :is(.slick-prev, .slick-next) {
+  width: 32px !important;
+  height: 60px !important;
+  top: 42% !important;
+  transform: translateY(-50%) !important;
+}
+body.ani-ambientlight-ui #blockContinueWatch .btn-next {
+  right: 7px !important;
+  bottom: 7px !important;
+  height: 28px !important;
+  padding: 0 9px !important;
+  font-size: 11px !important;
+  gap: 3px !important;
+}
+body.ani-ambientlight-ui #blockContinueWatch .btn-next :is(p, span) {
+  color: inherit !important;
+  font-size: 11px !important;
+  margin: 0 !important;
+}
+body.ani-ambientlight-ui #blockContinueWatch :is(.slick-prev, .slick-next, .btn-next):hover {
+  background: rgba(79,118,148,.85) !important;
+  border-color: #c4e1f5 !important;
+}
+body.ani-ambientlight-ui #blockContinueWatch .slick-disabled {
+  opacity: .3 !important;
+  cursor: default !important;
+}
+body.ani-ambientlight-ui #blockContinueWatch :is(a, .slick-arrow):focus-visible {
+  outline: 2px solid #b9dff5;
+  outline-offset: 3px;
+}
+body.ani-ambientlight-ui #blockVideoInSeason .newanime-nav {
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+body.ani-ambientlight-ui #blockVideoInSeason .btn-newanime-filter {
+  margin-left: auto !important;
+  flex-shrink: 0;
+  font-size: 12px !important;
+}
+body.ani-ambientlight-ui #blockVideoInSeason .btn-newanime-filter .newanime-filter-text {
+  font-size: 12px !important;
+  line-height: 1.3 !important;
+}
+body.ani-ambientlight-ui #blockVideoInSeason .btn-newanime-filter::after {
+  content: '⇄';
+  font-size: 15px;
+  margin-left: 3px;
+}
+body.ani-ambientlight-ui #blockVideoInSeason .anime-watch-number > .material-icons {
+  display: none !important;
+}
+body.ani-ambientlight-ui .ani-popularity-icon,
+body.ani-ambientlight-ui .ani-popularity-icon svg {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  vertical-align: -2px;
+}
+/* Native markup has BOTH .before and .after divider children. */
+body.ani-ambientlight-page #BH_background .anime-btn-show-more {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 14px !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 18px 0 4px !important;
+  padding: 0 !important;
+  box-sizing: border-box;
+  grid-column: 1 / -1 !important;
+}
+body.ani-ambientlight-page #BH_background .anime-btn-show-more > :is(.before, .after) {
+  display: none !important;
+}
+body.ani-ambientlight-page #BH_background .anime-btn-show-more::before,
+body.ani-ambientlight-page #BH_background .anime-btn-show-more::after {
+  content: '';
+  position: static !important;
+  width: 100% !important;
+  height: 1px !important;
+  background: var(--ani-line, #a3afbf30) !important;
+  transform: none !important;
+}
+body.ani-ambientlight-page #BH_background .anime-btn-show-more .btn-show-more {
+  position: static !important;
+  float: none !important;
+  inset: auto !important;
+  transform: none !important;
+  margin: 0 !important;
+  justify-self: center;
+}
+@media (prefers-reduced-motion: reduce) {
+  body.ani-ambientlight-ui #blockContinueWatch .ani-marquee-track {
+    animation: none !important;
+  }
+}
+
+/* Two explicit sorting choices; no duplicate mode or swap icons. */
+.ani-sort-options { display: none; }
+body.ani-ambientlight-ui #blockVideoInSeason .btn-newanime-filter {
+  display: none !important;
+}
+body.ani-ambientlight-ui #blockVideoInSeason .ani-sort-options {
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+  flex: 0 0 auto;
+  padding: 4px;
+  gap: 3px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #48658038, #182a3c99);
+  border: 1px solid #c6dff52e;
+  box-shadow: inset 0 1px 0 #ffffff21, 0 4px 16px #0002;
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+}
+body.ani-ambientlight-ui #blockVideoInSeason .ani-sort-options button {
+  appearance: none;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 999px;
+  color: var(--ani-muted, #9aa0ac);
+  font: 500 12px/1.3 var(--ani-font, system-ui, sans-serif);
+  padding: 8px 14px;
+  min-height: 32px;
+  cursor: pointer;
+  transition: background-color .18s, color .18s;
+}
+body.ani-ambientlight-ui #blockVideoInSeason .ani-sort-options button[aria-pressed='true'] {
+  color: #f1f5f9;
+  background: #a9d2ec26;
+  border-color: #c4e1f536;
+  box-shadow: inset 0 1px 0 #ffffff26, 0 2px 6px #0002;
+}
+body.ani-ambientlight-ui #blockVideoInSeason .ani-sort-options button:hover {
+  color: #f1f5f9;
+  background-color: #accce51a;
+}
+body.ani-ambientlight-ui #blockVideoInSeason .ani-sort-options button:focus-visible {
+  outline: 2px solid #b9dff5;
+  outline-offset: 2px;
+}
+body.ani-ambientlight-ui #blockVideoInSeason .anime-watch-number > .material-icons {
+  display: inline-block !important;
+}
+body.ani-ambientlight-ui #blockVideoInSeason .anime-watch-number > .ani-popularity-icon {
+  display: none !important;
+}
+body.ani-ambientlight-ui #blockContinueWatch .info-row > .time-left {
+  display: none !important;
+}
+body.ani-ambientlight-ui #blockContinueWatch .info-row {
+  justify-content: space-between !important;
+  gap: 8px !important;
+}
+body.ani-ambientlight-ui #blockContinueWatch .img-progress-block {
+  padding: 12px 14px 14px !important;
+  gap: 12px !important;
+}
+body.ani-ambientlight-ui #blockContinueWatch .content {
+  height: 56px !important;
+  padding: 14px !important;
+  align-items: center !important;
+}
+body.ani-ambientlight-ui #blockContinueWatch .anime-name {
+  line-height: 24px !important;
+  font-size: 13px !important;
+}
+body.ani-ambientlight-ui #blockContinueWatch .continue-watch-card:has(.btn-next) .content {
+  padding-right: 96px !important;
+}
+body.ani-ambientlight-ui #blockContinueWatch .btn-next {
+  bottom: 14px !important;
+  right: 12px !important;
+}
+body.ani-ambientlight-ui #blockContinueWatch .continue-watch-card {
+  position: relative !important;
+}
+body.ani-ambientlight-ui #blockContinueWatch .ani-score-badge-top-left {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 11px;
+  border-radius: 13px 0 13px 0;
+  color: white;
+  background: linear-gradient(135deg, #dba55dcc, #9f621fcc);
+  border: 1px solid #ffffff38;
+  backdrop-filter: blur(12px);
+  font-size: 12px;
+  font-weight: 600;
+  z-index: 3;
+}
+body.ani-ambientlight-ui #blockContinueWatch .ani-score-star svg {
+  width: 12px;
+  height: 12px;
+}
+body.ani-ambientlight-ui #blockContinueWatch .ani-continue-favorite {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #ffffff45;
+  border-radius: 50%;
+  background: #27344499;
+  backdrop-filter: blur(12px);
+  color: #e58ca4;
+  cursor: pointer;
+  z-index: 4;
+}
+body.ani-ambientlight-ui #blockContinueWatch .ani-continue-favorite svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+}
+body.ani-ambientlight-ui #blockContinueWatch .ani-continue-favorite.ordered svg {
+  fill: currentColor;
+}
+body.ani-ambientlight-ui #blockContinueWatch .btn-delete {
+  top: 48px !important;
+}
+body.ani-ambientlight-page #BH_background .anime-btn-show-more::before,
+body.ani-ambientlight-page #BH_background .anime-btn-show-more::after {
+  transition: background-color .2s ease, box-shadow .2s ease;
+}
+body.ani-ambientlight-page #BH_background .anime-btn-show-more:is(:hover, :focus-within)::before,
+body.ani-ambientlight-page #BH_background .anime-btn-show-more:is(:hover, :focus-within)::after {
+  background: var(--ani-accent, #3dafb6) !important;
+  box-shadow: 0 0 8px #3dafb64d;
+}
+
+@keyframes aniDividerBreath {
+  0%, 100% { opacity: .3; box-shadow: 0 0 0 transparent; }
+  50% { opacity: 1; box-shadow: 0 0 10px 1px #3dafb680; }
+}
+body.ani-ambientlight-page #BH_background .anime-btn-show-more::before,
+body.ani-ambientlight-page #BH_background .anime-btn-show-more::after {
+  animation: aniDividerBreath 3.6s ease-in-out infinite;
+  background: var(--ani-accent, #3dafb6) !important;
+}
+body.ani-ambientlight-page #BH_background :is(#blockVideoInSeason.ani-week-expanded, .newanime-wrap.ani-expanded) .anime-btn-show-more::before,
+body.ani-ambientlight-page #BH_background :is(#blockVideoInSeason.ani-week-expanded, .newanime-wrap.ani-expanded) .anime-btn-show-more::after,
+body.ani-ambientlight-page #BH_background .anime-btn-show-more[aria-expanded='true']::before,
+body.ani-ambientlight-page #BH_background .anime-btn-show-more[aria-expanded='true']::after {
+  animation: none !important;
+  box-shadow: none !important;
+  opacity: 0.45;
+}
+body.ani-ambientlight-page #BH_background .anime-btn-show-more:is(:hover, :focus-within)::before,
+body.ani-ambientlight-page #BH_background .anime-btn-show-more:is(:hover, :focus-within)::after {
+  animation: none;
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  body.ani-ambientlight-page #BH_background .anime-btn-show-more::before,
+  body.ani-ambientlight-page #BH_background .anime-btn-show-more::after {
+    animation: none;
+  }
+}
+
+body.ani-ambientlight-ui #blockVideoInSeason .ani-sort-options button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+body.ani-ambientlight-ui #blockVideoInSeason .ani-sort-icon,
+body.ani-ambientlight-ui #blockVideoInSeason .ani-sort-icon svg {
+  display: block;
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+body.ani-ambientlight-ui #blockVideoInSeason .anime-watch-number > .material-icons {
+  display: none !important;
+}
+body.ani-ambientlight-ui #blockVideoInSeason .anime-watch-number > .ani-popularity-icon {
+  display: inline-flex !important;
+  align-items: center;
+}
+
+/* Member-only titles retain the site pink in both glass metadata pills. */
+body.ani-ambientlight-ui #blockVideoInSeason .ani-member-anime .anime-pic-block :is(.anime-hours-block, .anime-episode) {
+  background: linear-gradient(135deg, rgba(220, 99, 126, .7), rgba(139, 55, 83, .62)) !important;
+  border-color: rgba(255, 181, 202, .58) !important;
+  box-shadow: inset 0 1px 1px #ffe1e955, 0 2px 8px #45102433 !important;
+  color: #fff !important;
+}
+
+/* Use real card height: the native zero-height padding layout clipped the title. */
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card {
+  height: auto !important;
+  padding-bottom: 0 !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .img-block {
+  height: auto !important;
+  aspect-ratio: 16 / 9;
+  padding: 0 !important;
+  flex: 0 0 auto;
+  border-radius: 13px 13px 0 0 !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .content-block {
+  position: relative !important;
+  inset: auto !important;
+  height: 56px !important;
+  min-height: 56px !important;
+  flex: 0 0 auto;
+  padding: 0 !important;
+  animation: none !important;
+  overflow: visible !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .img-progress-block {
+  position: absolute !important;
+  bottom: 100% !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: auto !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .content {
+  height: 56px !important;
+  padding-block: 16px !important;
+  align-items: center !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .anime-name {
+  display: block !important;
+  width: 100% !important;
+  margin: 0 !important;
+  line-height: 24px !important;
+  white-space: nowrap !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .info-row > .time-left {
+  display: none !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .ani-score-badge-top-left {
+  border-radius: 0 0 12px 0 !important;
+  border-top: 0 !important;
+  border-left: 0 !important;
+}
+
+/* Native counts represent views by update date, averages in popularity mode. */
+body.ani-ambientlight-ui #blockVideoInSeason[data-ani-sort-mode='updated'] .anime-watch-number > .material-icons {
+  display: inline-block !important;
+}
+body.ani-ambientlight-ui #blockVideoInSeason[data-ani-sort-mode='updated'] .anime-watch-number > .ani-popularity-icon {
+  display: none !important;
+}
+body.ani-ambientlight-ui #blockVideoInSeason .anime-pic-block .anime-hours-block,
+body.ani-ambientlight-ui #blockVideoInSeason .anime-pic-block .anime-hours-block .anime-hours {
+  font-size: 12.5px !important;
+}
+body.ani-ambientlight-ui #blockVideoInSeason .anime-pic-block .anime-episode,
+body.ani-ambientlight-ui #blockVideoInSeason .anime-pic-block .anime-episode :is(p, span) {
+  font-size: 11.5px !important;
+}
+
+/* Match the homepage metadata scale and keep hover titles fully readable. */
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .anime-name {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .info-row > *,
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .info-row p {
+  font-size: 12.5px !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .ani-score-value {
+  font-size: 13px !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card:is(:hover, :focus-within) .content-block,
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card:is(:hover, :focus-within) .content {
+  height: auto !important;
+  min-height: 56px !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card:is(:hover, :focus-within) .anime-name {
+  white-space: normal !important;
+  overflow: visible !important;
+  mask-image: none !important;
+  -webkit-mask-image: none !important;
+  overflow-wrap: anywhere;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card:is(:hover, :focus-within) .ani-marquee-track {
+  display: inline !important;
+  white-space: normal !important;
+  animation: none !important;
+  transform: none !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .btn-delete {
+  top: 10px !important;
+  right: 10px !important;
+  width: 30px !important;
+  height: 30px !important;
+  padding: 0 !important;
+  display: grid !important;
+  place-items: center;
+  border-radius: 50% !important;
+  border: 1px solid #ffffff52 !important;
+  background: linear-gradient(135deg, #7891a66b, #203044b3) !important;
+  backdrop-filter: blur(14px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(140%) !important;
+  box-shadow: inset 0 1px 0 #ffffff40, 0 3px 12px #0004;
+  color: #f1f5f9 !important;
+  font-size: 20px !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .btn-delete:hover {
+  background: #657e94c7 !important;
+  border-color: #ffffffa6 !important;
+}
+/* Use the site's paid badge marker directly, even if its text is hidden. */
+body.ani-ambientlight-ui #BH_background #blockVideoInSeason .newanime-date-area.ani-member-anime .anime-pic-block :is(.anime-hours-block, .anime-episode) {
+  background: linear-gradient(135deg, #dc637ecc, #a6466bb3) !important;
+  border-color: #ffb5caa6 !important;
+  box-shadow: inset 0 1px 1px #ffe1e966, 0 2px 8px #45102440 !important;
+  color: #fff !important;
+}
+
+body.ani-ambientlight-ui #blockVideoInSeason .anime-episode .ani-member-lock,
+body.ani-ambientlight-ui #blockVideoInSeason .anime-episode .ani-member-lock svg {
+  display: inline-flex;
+  width: 12px !important;
+  height: 12px !important;
+  flex-shrink: 0;
+}
+body.ani-ambientlight-ui #blockVideoInSeason .anime-episode:has(.ani-member-lock) > svg {
+  display: none !important;
+}
+
+/* Shared compact title inset; reserve the fade for the trailing edge only. */
+body.ani-ambientlight-page #BH_background #blockVideoInSeason .anime-detail-block {
+  padding-inline: 6px !important;
+}
+body.ani-ambientlight-page #BH_background #blockVideoInSeason .anime-name-block {
+  padding-inline: 0 !important;
+}
+body.ani-ambientlight-page #BH_background #blockVideoInSeason .anime-name[data-ani-marquee='true'] {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+  mask-image: linear-gradient(to right, #000 calc(100% - 14px), transparent) !important;
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 14px), transparent) !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .content {
+  padding-left: 6px !important;
+  padding-right: 6px !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card:has(.btn-next) .content {
+  padding-right: 88px !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .anime-name {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  letter-spacing: -.01em !important;
+  text-align: left !important;
+}
+body.ani-ambientlight-page #BH_background #blockVideoInSeason .anime-card-block:hover .anime-name[data-ani-marquee='true'] {
+  mask-image: none !important;
+  -webkit-mask-image: none !important;
+}
+
+.ani-continue-toggle { display: none; }
+body.ani-ambientlight-page #blockContinueWatch .ani-continue-header {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+body.ani-ambientlight-page #blockContinueWatch .ani-continue-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  margin-left: auto;
+  color: var(--ani-text, #f1f5f9);
+  background: linear-gradient(135deg, #58748b55, #20304499);
+  border: 1px solid #c4e1f538;
+  border-radius: 999px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: inset 0 1px 0 #ffffff24;
+  cursor: pointer;
+}
+body.ani-ambientlight-page #blockContinueWatch .ani-continue-toggle svg {
+  width: 18px;
+  height: 18px;
+  transition: transform .2s ease;
+  transform: rotate(180deg);
+}
+body.ani-ambientlight-page #blockContinueWatch .ani-continue-toggle[aria-expanded='false'] svg {
+  transform: rotate(0deg);
+}
+body.ani-ambientlight-page #blockContinueWatch .ani-continue-toggle:hover {
+  background-color: #58748b88;
+  border-color: #c4e1f580;
+}
+body.ani-ambientlight-page #blockContinueWatch .ani-continue-toggle:focus-visible {
+  outline: 2px solid var(--ani-accent, #3dafb6);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ani-continue-toggle svg { transition: none !important; }
+}
+
+/* Expand the title over the image, preserving the slider and page height. */
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card {
+  padding-bottom: 56px !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .content-block,
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card:is(:hover, :focus-within) .content-block {
+  position: absolute !important;
+  inset: auto 0 0 !important;
+  width: 100% !important;
+  height: 56px !important;
+  min-height: 56px !important;
+  z-index: 3;
+  box-sizing: border-box;
+  border-radius: 0 0 13px 13px;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card:is(:hover, :focus-within) .content-block {
+  height: auto !important;
+  background: rgba(23, 35, 50, .94) !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .btn-next {
+  z-index: 5;
+}
+
+/* Fade both ends while titles scroll; keep the compact shared left inset. */
+body.ani-ambientlight-page #BH_background #blockVideoInSeason .anime-name[data-ani-marquee='true'],
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .anime-name.ani-continue-overflow {
+  mask-image: linear-gradient(to right, transparent, #000 8px, #000 calc(100% - 14px), transparent) !important;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 8px, #000 calc(100% - 14px), transparent) !important;
+}
+body.ani-ambientlight-page #BH_background #blockVideoInSeason .anime-card-block:is(:hover, :focus-within) .anime-name[data-ani-marquee='true'],
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card:is(:hover, :focus-within) .anime-name.ani-continue-overflow {
+  mask-image: none !important;
+  -webkit-mask-image: none !important;
+}
+
+/* A wider, centered paid-ratio card with an emphatic numeric value. */
+body.ani-ambientlight-page #blockVideoInSeason .premium-block {
+  grid-column: span 2;
+  width: 100% !important;
+  padding: 0 !important;
+  box-sizing: border-box;
+}
+body.ani-ambientlight-page #blockVideoInSeason .premium-info {
+  width: 100% !important;
+  height: auto !important;
+  min-height: 180px;
+  aspect-ratio: 2.4 / 1;
+  padding-bottom: 0 !important;
+  border-radius: 10px;
+}
+body.ani-ambientlight-page #blockVideoInSeason .premium-info__title {
+  left: 50% !important;
+  width: 100%;
+  text-align: center !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .premium-info__title .heading {
+  text-align: center !important;
+  margin-left: 0 !important;
+}
+body.ani-ambientlight-page #blockVideoInSeason .premium-info__title .number {
+  font-weight: 750 !important;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+}
+body.ani-ambientlight-page #blockVideoInSeason .premium-info__title .number::after {
+  position: static !important;
+  margin-left: 4px;
+  font-weight: 600;
+}
+body.ani-ambientlight-page #blockVideoInSeason .premium-info--intro {
+  width: 100%;
+}
+body.ani-ambientlight-page #blockVideoInSeason .premium-info--intro p {
+  text-align: center;
+}
+@media (max-width: 600px) {
+  body.ani-ambientlight-page #blockVideoInSeason .premium-block {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Hot titles: cancel native percentage padding before applying poster ratios. */
+body.ani-layout-related #BH_background #blockHotAnime .theme-list-block {
+  align-items: start !important;
+  grid-auto-rows: auto !important;
+}
+body.ani-layout-related #BH_background #blockHotAnime .theme-list-main {
+  display: flex !important;
+  flex-direction: column !important;
+  align-self: start !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 8px !important;
+}
+body.ani-layout-related #BH_background #blockHotAnime .theme-list-main::after {
+  display: none !important;
+}
+body.ani-layout-related #BH_background #blockHotAnime .theme-img-block {
+  position: relative !important;
+  padding: 0 !important;
+  height: auto !important;
+  aspect-ratio: 2 / 3 !important;
+  flex: 0 0 auto !important;
+  width: 100% !important;
+  overflow: hidden !important;
+}
+body.ani-layout-related #BH_background #blockHotAnime .theme-img-block .theme-img {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+body.ani-layout-related #BH_background #blockHotAnime .anime-detail-block {
+  position: relative !important;
+  inset: auto !important;
+  display: block !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+}
+body.ani-layout-related #BH_background #blockHotAnime .theme-info-block {
+  position: relative !important;
+  inset: auto !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  padding: 10px 3px 4px !important;
+  box-sizing: border-box;
+}
+body.ani-layout-related #BH_background #blockHotAnime .theme-name {
+  margin: 0 0 7px !important;
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+}
+body.ani-layout-related #BH_background #blockHotAnime .theme-detail-info-block {
+  display: flex !important;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 11px !important;
+}
+body.ani-layout-related #BH_background #blockHotAnime :is(.theme-time, .theme-number) {
+  margin: 0 !important;
+  font-size: 11px !important;
+}
+body.ani-ambientlight-page #blockHotAnime .theme-title-block {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between;
+  gap: 16px;
+}
+body.ani-ambientlight-page #blockHotAnime .theme-title-block > :not(.theme-title),
+body.ani-ambientlight-page #blockHotAnime .theme-title-block label {
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+body.ani-ambientlight-page #blockHotAnime .theme-title-block input[type='checkbox'] {
+  appearance: auto !important;
+  width: 16px !important;
+  height: 16px !important;
+  margin: 0 6px 0 0 !important;
+  accent-color: var(--ani-accent, #3dafb6);
+  flex: 0 0 auto;
+}
+
+/* All homepage section actions share the content area's right edge. */
+body.ani-ambientlight-page #BH_background > .container > :is(.animate-theme-list, .continue-watch-area, .newanime-container) {
+  width: 100% !important;
+  min-width: 0;
+  box-sizing: border-box;
+}
+body.ani-ambientlight-page #BH_background > .container :is(.theme-title-block, .newanime-nav, .ani-continue-header) {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-wrap: nowrap;
+  width: 100% !important;
+  max-width: none !important;
+  box-sizing: border-box !important;
+  padding-inline: 8px !important;
+  gap: 16px;
+}
+body.ani-ambientlight-page #BH_background > .container .theme-title-block > .theme-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-right: auto !important;
+}
+body.ani-ambientlight-page #BH_background > .container :is(.ani-continue-toggle, .ani-sort-options, .filter-nav, .theme-show-more-list) {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  flex-shrink: 0;
+  float: none !important;
+}
+body.ani-ambientlight-page #BH_background > .container .newanime-nav > .nav-segment-control-block {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+body.ani-ambientlight-page #BH_background > .container .theme-title-block > :last-child:not(.theme-title) {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  flex-shrink: 0;
+}
+
+/* Paid ratio spans the full anime grid, aligned with the card edges. */
+body.ani-ambientlight-page #BH_background #blockVideoInSeason .newanime-block > .premium-block {
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+  margin-inline: 0 !important;
+  padding-inline: 8px !important;
+  box-sizing: border-box !important;
+}
+body.ani-ambientlight-page #BH_background #blockVideoInSeason .premium-info {
+  aspect-ratio: auto !important;
+  height: 180px !important;
+  min-height: 180px !important;
+}
+
+/* Full-width header rows with a single right-aligned action area. */
+body.ani-ambientlight-page #BH_background > .container :is(.theme-title-block, .newanime-nav, .ani-continue-header) {
+  padding-inline: 0 !important;
+  margin-inline: 0 !important;
+  width: 100% !important;
+  max-width: none !important;
+}
+body.ani-ambientlight-page #BH_background .ani-continue-header {
+  flex: 1 1 100% !important;
+}
+body.ani-ambientlight-page #BH_background .ani-section-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-left: auto !important;
+  flex: 0 0 auto;
+}
+body.ani-ambientlight-page #BH_background .ani-section-actions label {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px !important;
+  font: 500 12px/1.4 var(--ani-font, system-ui, sans-serif) !important;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #58748b40, #20304480);
+  border: 1px solid #c4e1f538;
+  color: var(--ani-text, #f1f5f9);
+  backdrop-filter: blur(14px);
+  cursor: pointer;
+}
+body.ani-ambientlight-page #BH_background .ani-section-actions input[type='checkbox'] {
+  appearance: auto !important;
+  width: 14px !important;
+  height: 14px !important;
+  margin: 0 !important;
+  accent-color: var(--ani-accent, #3dafb6);
+}
+/* Homepage poster rails are independent of the My Anime grid. */
+body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main {
+  display: flex !important;
+  flex-direction: column !important;
+  min-width: 0 !important;
+  align-self: start !important;
+}
+body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-img-block {
+  padding: 0 !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  height: auto !important;
+  aspect-ratio: 2 / 3 !important;
+  flex: 0 0 auto !important;
+}
+body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-img-block .theme-img {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main::after {
+  display: none !important;
+}
+body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .anime-detail-block {
+  position: relative !important;
+  inset: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+}
+body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-info-block {
+  height: auto !important;
+  min-height: 0 !important;
+  width: 100% !important;
+  padding: 10px 3px 4px !important;
+  box-sizing: border-box;
+}
+body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-block {
+  align-items: start !important;
+  grid-template-columns: none !important;
+  grid-auto-rows: auto !important;
+  margin-inline: 0 !important;
+}
+/* Brand mark and restrained surface detail keep the ratio as the focal point. */
+body.ani-ambientlight-ui #BH_background #blockVideoInSeason .premium-info {
+  container-type: inline-size;
+  background: radial-gradient(ellipse at 8% 50%, #ffffff26, transparent 35%), linear-gradient(115deg, #24858f, var(--ani-accent, #3dafb6) 55%, #399ca9) !important;
+  border: 1px solid #bbf6f538;
+  box-shadow: inset 0 1px 0 #ffffff38, inset 0 -1px 0 #064a5538;
+}
+body.ani-ambientlight-ui #BH_background #blockVideoInSeason .ani-premium-brand {
+  position: absolute;
+  left: clamp(20px, 5%, 80px);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 88px;
+  height: 88px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid #e5ffff70;
+  background: #e2ffff26 !important;
+  box-shadow: 0 0 0 12px #e2ffff0d, inset 0 1px 0 #ffffff52;
+  pointer-events: none;
+}
+body.ani-ambientlight-ui #BH_background #blockVideoInSeason .ani-premium-brand img {
+  width: 62px;
+  height: 62px;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 5px #09536140);
+}
+body.ani-ambientlight-ui #BH_background #blockVideoInSeason .premium-info:hover .ani-premium-brand {
+  opacity: .35;
+}
+@container (max-width: 460px) {
+  .ani-premium-brand { display: none !important; }
+}
+
+/* Animate intrinsic height, so expanding/collapsing remains smooth at any width. */
+body.ani-ambientlight-page #blockContinueWatch .ani-continue-body {
+  display: grid;
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transition: grid-template-rows .38s cubic-bezier(.22, 1, .36, 1), opacity .24s ease;
+}
+body.ani-ambientlight-page #blockContinueWatch .ani-continue-body-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+body.ani-ambientlight-page #blockContinueWatch[data-ani-collapsed='true'] .ani-continue-body {
+  grid-template-rows: 0fr;
+  opacity: 0;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  body.ani-ambientlight-page #blockContinueWatch .ani-continue-body { transition: none; }
+}
+
+/* Shared glass metadata and favorite controls on poster cards. */
+body.ani-ambientlight-ui #BH_background .animate-theme-list .ani-rating-source,
+body.ani-ambientlight-ui #BH_background .animate-theme-list .ani-custom-rating {
+  display: none !important;
+}
+body.ani-ambientlight-ui #BH_background .animate-theme-list .ani-poster-score,
+body.ani-ambientlight-ui #BH_background .animate-theme-list .show-view-number,
+body.ani-ambientlight-ui #BH_background .animate-theme-list .theme-number {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px 8px !important;
+  border: 1px solid #d4e9fc45 !important;
+  border-radius: 999px !important;
+  background: linear-gradient(135deg, #466a83b3, #20384bb3) !important;
+  box-shadow: inset 0 1px 0 #ffffff38, 0 2px 8px #0003;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #f1f5f9 !important;
+  font-size: 11.5px !important;
+  line-height: 1.2 !important;
+  white-space: nowrap;
+}
+body.ani-ambientlight-ui #BH_background .animate-theme-list .ani-poster-score {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 5;
+  background: linear-gradient(135deg, #dba55dcc, #9f621fcc) !important;
+  border-color: #ffe6bd66 !important;
+  font-weight: 700;
+}
+body.ani-ambientlight-ui #BH_background .animate-theme-list .show-view-number p {
+  margin: 0 !important;
+  font-size: inherit !important;
+}
+body.ani-ambientlight-ui #BH_background .animate-theme-list .btn-favorite {
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  width: 28px !important;
+  height: 28px !important;
+  display: grid !important;
+  place-items: center;
+  border: 1px solid #ffffff52 !important;
+  border-radius: 50% !important;
+  background: #26394c99 !important;
+  backdrop-filter: blur(12px);
+  color: #e58ca4 !important;
+  z-index: 6;
+}
+body.ani-ambientlight-ui #BH_background .animate-theme-list .btn-favorite::before,
+body.ani-ambientlight-ui #BH_background .animate-theme-list .btn-favorite::after {
+  display: none !important;
+}
+body.ani-ambientlight-ui #BH_background .animate-theme-list .btn-favorite svg {
+  width: 17px;
+  height: 17px;
+}
+body.ani-ambientlight-ui #BH_background .animate-theme-list .btn-favorite.btn-is-active svg {
+  fill: currentColor;
+}
+body.ani-ambientlight-page #BH_background .ani-poster-rail {
+  position: relative;
+  min-width: 0;
+  width: 100%;
+}
+body.ani-ambientlight-page #BH_background .ani-poster-rail::before,
+body.ani-ambientlight-page #BH_background .ani-poster-rail::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 12px;
+  width: 44px;
+  pointer-events: none;
+  z-index: 7;
+  opacity: 0;
+  transition: opacity .2s;
+}
+body.ani-ambientlight-page #BH_background .ani-poster-rail::before {
+  left: 0;
+  background: linear-gradient(to right, var(--ani-base, #0f1621), transparent);
+}
+body.ani-ambientlight-page #BH_background .ani-poster-rail::after {
+  right: 0;
+  background: linear-gradient(to left, var(--ani-base, #0f1621), transparent);
+}
+body.ani-ambientlight-page #BH_background .ani-poster-rail.ani-can-prev::before,
+body.ani-ambientlight-page #BH_background .ani-poster-rail.ani-can-next::after {
+  opacity: 1;
+}
+.ani-rail-arrow { display: none; }
+body.ani-ambientlight-page #BH_background .ani-rail-arrow {
+  display: grid;
+  place-items: center;
+  position: absolute;
+  top: 40%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 60px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid #c4e1f54d;
+  background: linear-gradient(135deg, #54738f99, #1b2f44cc);
+  backdrop-filter: blur(16px);
+  color: #eef7ff;
+  z-index: 8;
+  cursor: pointer;
+}
+body.ani-ambientlight-page #BH_background .ani-rail-prev { left: 0; }
+body.ani-ambientlight-page #BH_background .ani-rail-next { right: 0; }
+body.ani-ambientlight-page #BH_background .ani-rail-arrow svg { width: 20px; height: 20px; }
+body.ani-ambientlight-page #BH_background .ani-rail-arrow:disabled { opacity: .25; cursor: default; }
+body.ani-ambientlight-page #BH_background .ani-section-actions > label { display: none !important; }
+.ani-rating-sort { display: none; }
+body.ani-ambientlight-page #BH_background .ani-rating-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid #c4e1f538;
+  background: #23384c80;
+  backdrop-filter: blur(14px);
+  color: var(--ani-muted, #9aa0ac);
+  font: 500 12px/1.4 var(--ani-font, system-ui, sans-serif);
+  cursor: pointer;
+}
+body.ani-ambientlight-page #BH_background .ani-rating-sort[aria-pressed='true'] {
+  background: #7fabc540;
+  color: #edf7ff;
+  border-color: #c4e1f580;
+}
+body.ani-ambientlight-page #BH_background .ani-rating-sort svg { width: 16px; height: 16px; }
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .ani-score-badge-top-left {
+  top: 8px !important;
+  left: 8px !important;
+  padding: 4px 8px !important;
+  border-radius: 999px !important;
+  border: 1px solid #ffe6bd66 !important;
+}
+body.ani-ambientlight-page #blockContinueWatch #continueWatch {
+  padding: 0 !important;
+  margin-right: 0 !important;
+  max-width: 100%;
+}
+/* Explicit height animation is driven by the toggle's Web Animations call. */
+body.ani-ambientlight-page #blockContinueWatch .ani-continue-body {
+  display: block !important;
+  height: auto;
+  overflow: hidden;
+  transition: none !important;
+}
+body.ani-ambientlight-page #blockContinueWatch[data-ani-collapsed='true'] .ani-continue-body {
+  height: 0;
+}
+body.ani-ambientlight-page #blockContinueWatch .slick-list {
+  mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 12px), transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 12px), transparent);
+}
+/* Remove the badge disc: use the dragon as a quiet oversized watermark. */
+body.ani-ambientlight-ui #BH_background #blockVideoInSeason .ani-premium-brand {
+  width: 130px;
+  height: 130px;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  opacity: .65;
+}
+body.ani-ambientlight-ui #BH_background #blockVideoInSeason .ani-premium-brand img {
+  width: 116px;
+  height: 116px;
+  filter: brightness(0) invert(1);
+  opacity: .45;
+}
+body.ani-ambientlight-ui #BH_background #blockVideoInSeason .premium-info::after {
+  border-radius: 0;
+  width: 100%;
+  height: 3px;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to right, #e8ffffb3 var(--ani-paid-ratio, 28.31%), #e8ffff26 var(--ani-paid-ratio, 28.31%));
+  z-index: 1;
+}
+
+/* Continue watching follows the season-card geometry and visual hierarchy. */
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card {
+  border-radius: 10px !important;
+  border: 1px solid rgba(255,255,255,.08) !important;
+  background: var(--ani-base, #0f1621) !important;
+  padding-bottom: 38px !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .img-block {
+  border-radius: 9px 9px 0 0 !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .content-block,
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .content {
+  height: 38px !important;
+  min-height: 38px !important;
+  border-radius: 0 0 9px 9px;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .content {
+  padding: 7px 6px !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card:has(.btn-next) .content {
+  padding-right: 88px !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card:is(:hover, :focus-within) .content-block,
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card:is(:hover, :focus-within) .content {
+  height: auto !important;
+  min-height: 38px !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card:is(:hover, :focus-within) .content-block {
+  background: rgba(15,22,33,.96) !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .btn-next {
+  bottom: 5px !important;
+  right: 6px !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .ani-score-badge-top-left {
+  inset: 0 auto auto 0 !important;
+  height: 28px !important;
+  padding: 0 10px !important;
+  gap: 4px !important;
+  border: 0 !important;
+  border-right: 1px solid rgba(255,255,255,.34) !important;
+  border-bottom: 1px solid rgba(255,255,255,.34) !important;
+  border-radius: 5px 0 8px 0 !important;
+  background: linear-gradient(135deg, rgba(235,157,61,.74), rgba(217,134,38,.62)) !important;
+  backdrop-filter: blur(8px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(8px) saturate(140%) !important;
+  box-shadow: inset 0 1px 1px #ffffff61, 0 2px 6px #0003 !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .ani-score-star svg {
+  width: 12px !important;
+  height: 12px !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .img-progress-block {
+  padding: 6px 8px !important;
+  gap: 6px !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .info-row > :is(.episode-block, .ani-continue-position) {
+  height: 22px !important;
+  padding: 0 8px !important;
+  background: linear-gradient(135deg, rgba(56,108,138,.52), rgba(38,76,100,.42)) !important;
+  border: 1px solid rgba(255,255,255,.28) !important;
+  box-shadow: inset 0 1px 1px #ffffff5c, 0 2px 6px #0003 !important;
+}
+
+/* One neutral metadata palette: progress belongs with the episode count. */
+body.ani-ambientlight-ui #BH_background .animate-theme-list .ani-watch-progress-badge {
+  display: none !important;
+}
+body.ani-ambientlight-ui #BH_background .animate-theme-list .theme-img-block > .theme-number {
+  position: absolute !important;
+  right: 8px !important;
+  bottom: 8px !important;
+  z-index: 5;
+  margin: 0 !important;
+  min-height: 22px;
+  box-sizing: border-box;
+}
+body.ani-ambientlight-ui #BH_background .animate-theme-list .theme-detail-info-block > .show-view-number {
+  position: static !important;
+  inset: auto !important;
+  transform: none !important;
+  margin: 0 0 0 auto !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  color: var(--ani-muted, #9aa0ac) !important;
+}
+body.ani-ambientlight-ui #BH_background .animate-theme-list .theme-detail-info-block {
+  align-items: center !important;
+  min-height: 24px;
+  margin-top: 10px !important;
+}
+body.ani-ambientlight-ui #BH_background .animate-theme-list .theme-info-block .theme-name {
+  line-height: 1.55 !important;
+  margin-bottom: 0 !important;
+}
+/* Leave room inside horizontal scrollports for hover borders and shadows. */
+body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-block {
+  padding: 6px 4px 20px !important;
+  box-sizing: border-box;
+}
+body.ani-ambientlight-ui #BH_background .ani-poster-rail .theme-list-main,
+body.ani-ambientlight-ui #BH_background .ani-poster-rail .theme-list-main:hover {
+  transform: none !important;
+  box-shadow: 0 3px 10px #0003 !important;
+}
+body.ani-ambientlight-ui #BH_background .ani-poster-rail .theme-list-main:hover {
+  border-color: var(--ani-accent, #3dafb6) !important;
+  box-shadow: 0 3px 10px #0003, inset 0 0 0 1px #3dafb633 !important;
+}
+body.ani-ambientlight-ui #BH_background .animate-theme-list .ani-poster-score {
+  box-shadow: inset 0 1px 0 #ffffff38, 0 2px 8px #0003 !important;
+}
+/* Visible rail-edge shading; arrows remain above this decorative layer. */
+body.ani-ambientlight-page #BH_background #blockContinueWatch #continueWatch {
+  position: relative;
+}
+body.ani-ambientlight-page #BH_background #blockContinueWatch #continueWatch::before,
+body.ani-ambientlight-page #BH_background #blockContinueWatch #continueWatch::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 40px;
+  pointer-events: none;
+  z-index: 6;
+}
+body.ani-ambientlight-page #BH_background #blockContinueWatch #continueWatch::before {
+  left: 0;
+  background: linear-gradient(to right, #0f1621c7, #0f162140 50%, transparent);
+}
+body.ani-ambientlight-page #BH_background #blockContinueWatch #continueWatch::after {
+  right: 0;
+  background: linear-gradient(to left, #0f1621c7, #0f162140 50%, transparent);
+}
+body.ani-ambientlight-page #BH_background #blockContinueWatch :is(.slick-prev, .slick-next) {
+  z-index: 8 !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .anime-name.ani-continue-overflow {
+  mask-image: linear-gradient(to right, transparent, #000 8px, #000 calc(100% - 14px), transparent) !important;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 8px, #000 calc(100% - 14px), transparent) !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card:is(:hover, :focus-within) .anime-name.ani-continue-overflow {
+  mask-image: none !important;
+  -webkit-mask-image: none !important;
+}
+
+/* Poster titles expand upward within a reserved footer, never changing row height. */
+body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main {
+  padding-bottom: 88px !important;
+}
+body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main .anime-detail-block {
+  position: absolute !important;
+  inset: auto 8px 8px !important;
+  width: calc(100% - 16px) !important;
+  height: 72px !important;
+  min-height: 72px !important;
+  z-index: 6;
+  background: var(--ani-card-bg, #172332) !important;
+  border-radius: 0 0 8px 8px;
+}
+body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main:is(:hover, :focus-within) .anime-detail-block {
+  height: auto !important;
+  background: rgba(23,35,50,.96) !important;
+}
+body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main .theme-name {
+  display: block !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  height: auto !important;
+  max-height: none !important;
+}
+body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main:is(:hover, :focus-within) .theme-name {
+  white-space: normal !important;
+  overflow: visible !important;
+  -webkit-line-clamp: unset !important;
+  overflow-wrap: anywhere;
+}
+
+/* Stronger frosted navigation capsules; keep account popovers outside the blur root. */
+body.ani-layout-nav.ani-ambientlight-ui .top_sky .sky .logo,
+body.ani-layout-nav.ani-ambientlight-ui .top_sky .anime_search-input,
+body.ani-ambientlight-ui .ani-collection-search-capsule,
+body.ani-layout-nav.ani-ambientlight-ui .top_sky .ani-view-settings,
+body.ani-layout-nav.ani-ambientlight-ui .top_sky .sky .member::before {
+  background: linear-gradient(155deg, rgba(153,185,210,.24), rgba(30,48,68,.56) 48%, rgba(16,30,47,.62)) !important;
+  backdrop-filter: blur(28px) saturate(170%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(170%) !important;
+  border: 1px solid rgba(219,239,255,.26) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.3), inset 0 -1px 0 rgba(157,198,228,.1), 0 6px 22px rgba(0,8,20,.28) !important;
+}
+body.ani-layout-nav.ani-ambientlight-ui .top_sky .anime_search-input input {
+  background: transparent !important;
+}
+
+/* Next-episode preview crossfades the site's own alternating image layers. */
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .card-img,
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .img-bg-blur-bg {
+  opacity: 1;
+  transition: opacity .3s ease, visibility .3s ease !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch :is(.card-img, .img-bg-blur-bg)[style*='visibility: hidden'] {
+  opacity: 0;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .btn-next {
+  transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .btn-next .ani-next-icon {
+  display: inline-flex;
+  width: 15px;
+  height: 15px;
+  pointer-events: none;
+  transition: transform .2s ease;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .ani-next-icon svg {
+  width: 15px;
+  height: 15px;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .btn-next:hover .ani-next-icon {
+  transform: translateX(2px);
+}
+@media (prefers-reduced-motion: reduce) {
+  body.ani-ambientlight-ui #BH_background #blockContinueWatch :is(.card-img, .img-bg-blur-bg, .btn-next, .ani-next-icon) {
+    transition: none !important;
+  }
+}
+
+/* Poster footers must not inherit the native 61px clipping limit. */
+body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main .theme-info-block {
+  max-height: none !important;
+  overflow: visible !important;
+  flex-shrink: 0 !important;
+  justify-content: flex-start !important;
+}
+body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main .theme-name {
+  min-height: 21px;
+  line-height: 21px !important;
+  flex-shrink: 0;
+}
+body.ani-ambientlight-ui #BH_background .animate-theme-list .show-view-number .pic-eye-style {
+  font-size: 13px !important;
+  line-height: 16px !important;
+  width: 15px !important;
+  height: 16px !important;
+  padding: 0 !important;
+  margin: 0 3px 0 0 !important;
+}
+body.ani-ambientlight-ui #BH_background .animate-theme-list .label-edition:not(.ani-rating-source) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 22px;
+  padding: 3px 8px !important;
+  box-sizing: border-box;
+  border-radius: 999px !important;
+  border: 1px solid #d4e9fc45 !important;
+  background: linear-gradient(135deg, #466a83b3, #20384bb3) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #f1f5f9 !important;
+  font-size: 11px !important;
+  line-height: 1.2 !important;
+}
+body.ani-ambientlight-page #BH_background .theme-title:has(.ani-section-icon) {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+}
+body.ani-ambientlight-page #BH_background .ani-section-icon,
+body.ani-ambientlight-page #BH_background .ani-section-icon svg {
+  display: inline-flex;
+  width: 25px;
+  height: 25px;
+  flex-shrink: 0;
+}
+
+/* Poster rails use the same readable type scale as the season cards. */
+body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main .theme-name {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  letter-spacing: -.01em !important;
+  line-height: 1.5 !important;
+  min-height: 22px;
+}
+body.ani-ambientlight-ui #BH_background .animate-theme-list .ani-poster-score {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+}
+body.ani-ambientlight-ui #BH_background .animate-theme-list .theme-img-block > .theme-number {
+  font-size: 12.5px !important;
+}
+body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main :is(.theme-time, .show-view-number, .show-view-number p) {
+  font-size: 13px !important;
+  line-height: 20px !important;
+}
+body.ani-ambientlight-ui #BH_background .animate-theme-list .label-edition:not(.ani-rating-source) {
+  font-size: 12px !important;
+}
+
+/* Hover footers extend downward from the poster, outside document flow. */
+body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main {
+  overflow: visible !important;
+}
+body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main .anime-detail-block {
+  inset: calc(100% - 80px) 8px auto !important;
+  border-radius: 0 0 8px 8px;
+  border: 1px solid transparent;
+  box-sizing: border-box;
+}
+body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main:is(:hover, :focus-within) {
+  z-index: 9;
+}
+body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main:is(:hover, :focus-within) .anime-detail-block {
+  height: auto !important;
+  border-color: var(--ani-accent, #3dafb6);
+  border-top-color: transparent;
+  box-shadow: 0 8px 16px #0003;
+}
+body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-block {
+  padding-bottom: 100px !important;
+  margin-bottom: -80px !important;
+}
+
+/* The expanding footer continues the outer card, with no inset second frame. */
+body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main .anime-detail-block {
+  inset: calc(100% - 80px) -1px auto !important;
+  width: calc(100% + 2px) !important;
+  padding-inline: 8px !important;
+  border: 1px solid transparent;
+  border-top: 0 !important;
+  border-radius: 0 0 var(--ani-radius, 12px) var(--ani-radius, 12px) !important;
+}
+body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main:is(:hover, :focus-within) {
+  border-bottom-color: transparent !important;
+}
+body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main:is(:hover, :focus-within) .anime-detail-block {
+  border-color: var(--ani-accent, #3dafb6) !important;
+  border-top: 0 !important;
+}
+body.ani-ambientlight-ui #BH_background .theme-img-block > .ani-poster-labels {
+  position: absolute !important;
+  top: auto !important;
+  bottom: 42px !important;
+  left: 8px !important;
+  right: 8px !important;
+  width: auto !important;
+  margin: 0 !important;
+  display: flex !important;
+  gap: 5px;
+  z-index: 5;
+}
+body.ani-ambientlight-page #BH_background .ani-rail-arrow {
+  z-index: 20 !important;
+}
+body.ani-ambientlight-page #BH_background .ani-poster-rail::before,
+body.ani-ambientlight-page #BH_background .ani-poster-rail::after {
+  z-index: 12;
+}
+
+/* Publisher channels share the same frosted surfaces and carousel controls. */
+body.ani-ambientlight-ui #BH_background #blockAnimePublisherChannel .trademark-logo {
+  background: radial-gradient(ellipse at 30% 15%, #8badc52b, transparent 65%), linear-gradient(145deg, #253b4c99, #172332b3) !important;
+  border: 1px solid #c4e1f52e !important;
+  box-shadow: inset 0 1px 0 #ffffff24, 0 4px 16px #0002;
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  box-sizing: border-box;
+  transition: border-color .2s ease, background-color .2s ease;
+}
+body.ani-ambientlight-ui #BH_background #blockAnimePublisherChannel .trademark-logo:hover {
+  border-color: var(--ani-accent, #3dafb6) !important;
+  background-color: #3dafb61a !important;
+}
+body.ani-ambientlight-ui #BH_background #blockAnimePublisherChannel .update-time {
+  width: auto !important;
+  height: auto !important;
+  min-width: 48px;
+  padding: 5px 9px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(135deg, #466a83b3, #20384bb3) !important;
+  border: 1px solid #d4e9fc45 !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: inset 0 1px 0 #ffffff38, 0 2px 8px #0003;
+  color: #f1f5f9 !important;
+  box-sizing: border-box;
+  z-index: 3;
+}
+body.ani-ambientlight-ui #BH_background #blockAnimePublisherChannel .update-time p {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 12px !important;
+  line-height: 18px !important;
+}
+body.ani-ambientlight-ui #BH_background #blockAnimePublisherChannel .update-time span {
+  font-size: 10px !important;
+  line-height: 18px !important;
+  font-weight: 600;
+  color: #bce6ed;
+}
+body.ani-ambientlight-ui #BH_background #blockAnimePublisherChannel :is(.slick-prev, .slick-next) {
+  width: 32px !important;
+  height: 60px !important;
+  border-radius: 999px !important;
+  border: 1px solid #c4e1f54d !important;
+  background: linear-gradient(135deg, #54738f99, #1b2f44cc) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: inset 0 1px 0 #ffffff38, 0 4px 14px #0004;
+  color: #eef7ff !important;
+  z-index: 8 !important;
+}
+body.ani-ambientlight-ui #BH_background #blockAnimePublisherChannel .slick-disabled {
+  opacity: .25 !important;
+}
+
+/* Updated publisher channels use a blue light instead of a New label. */
+body.ani-ambientlight-ui #BH_background #blockAnimePublisherChannel .update-time span {
+  font-size: 0 !important;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #72d7ff;
+  box-shadow: 0 0 5px #72d7ffcc, 0 0 12px #4ab5ff80;
+  flex: 0 0 6px;
+}
+/* A restrained violet identifies membership without looking age restricted. */
+body.ani-ambientlight-ui #BH_background #blockVideoInSeason .newanime-date-area.ani-member-anime .anime-pic-block :is(.anime-hours-block, .anime-episode) {
+  background: linear-gradient(135deg, #7069aac2, #434170b8) !important;
+  border-color: #cac6f599 !important;
+  box-shadow: inset 0 1px 0 #e2ddff40, 0 2px 6px #0003 !important;
+}
+/* Anchor status tags explicitly at the lower-left corner of the poster. */
+body.ani-ambientlight-ui #BH_background .theme-list-main .theme-img-block > .ani-poster-labels {
+  left: 8px !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: 8px !important;
+  width: auto !important;
+  max-width: calc(100% - 110px);
+  justify-content: flex-start !important;
+  transform: none !important;
+}
+/* One continuous footer: its default bottom matches the original card bottom. */
+body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main .anime-detail-block {
+  top: calc(100% - 88px) !important;
+  height: 88px !important;
+  min-height: 88px !important;
+}
+body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main:is(:hover, :focus-within) {
+  box-shadow: none !important;
+}
+body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main:is(:hover, :focus-within) .anime-detail-block {
+  height: auto !important;
+  min-height: 88px !important;
+}
+/* Increase poster titles, independent of the compact landscape cards. */
+body.ani-ambientlight-ui #BH_background .animate-theme-list .theme-list-main .theme-info-block .theme-name {
+  font-size: 15px !important;
+  line-height: 1.5 !important;
+  min-height: 24px !important;
+  font-weight: 600 !important;
+}
+/* Catalog: spacious glass filters and a stable responsive poster grid. */
+body.ani-layout-related.ani-ambientlight-page #BH_background .animate-theme-list:has(> .filter-section) > .filter-section {
+  padding: 24px !important;
+  gap: 24px !important;
+  border-radius: 16px !important;
+  background: linear-gradient(135deg, #263d5026, #14213270) !important;
+  backdrop-filter: blur(16px);
+}
+body.ani-layout-related.ani-ambientlight-page #BH_background .animate-theme-list:has(> .filter-section) section.class_list {
+  gap: 20px !important;
+}
+body.ani-layout-related.ani-ambientlight-page #BH_background .animate-theme-list:has(> .filter-section) section.class_list > ul {
+  gap: 10px !important;
+}
+body.ani-layout-related.ani-ambientlight-page #BH_background .animate-theme-list:has(> .filter-section) section.class_list li a {
+  min-height: 34px;
+  padding: 0 14px !important;
+  border-radius: 999px !important;
+  background: #30475d52 !important;
+  border: 1px solid #bdd7ec1f !important;
+  color: var(--ani-muted) !important;
+}
+body.ani-layout-related.ani-ambientlight-page #BH_background .animate-theme-list:has(> .filter-section) section.class_list li.now a {
+  background: #719eb940 !important;
+  border-color: #b9dff57a !important;
+  color: #edf7ff !important;
+  box-shadow: inset 0 1px 0 #ffffff20;
+}
+body.ani-layout-related.ani-ambientlight-page #BH_background .animate-theme-list:has(> .filter-section) > .theme-list-block {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 190px), 1fr)) !important;
+  gap: 32px 20px !important;
+  align-items: start !important;
+}
+body.ani-layout-related.ani-ambientlight-page #BH_background .animate-theme-list:has(> .filter-section) .theme-list-main {
+  display: flex !important;
+  flex-direction: column;
+  min-width: 0;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 8px 8px 88px !important;
+  overflow: visible !important;
+}
+body.ani-layout-related.ani-ambientlight-page #BH_background .animate-theme-list:has(> .filter-section) .theme-img-block {
+  aspect-ratio: 2 / 3 !important;
+  padding: 0 !important;
+  height: auto !important;
+  width: 100% !important;
+  min-width: 0;
+  flex: 0 0 auto;
+  overflow: hidden;
+}
+body.ani-layout-related.ani-ambientlight-page #BH_background .animate-theme-list:has(> .filter-section) .theme-img {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+}
+body.ani-layout-related.ani-ambientlight-page #BH_background .animate-theme-list:has(> .filter-section) .theme-list-main::after { display: none !important; }
+body.ani-layout-related.ani-ambientlight-page #BH_background .animate-theme-list:has(> .filter-section) .anime-detail-block {
+  position: absolute !important;
+  inset: calc(100% - 88px) -1px auto !important;
+  width: calc(100% + 2px) !important;
+  height: 88px !important;
+  min-height: 88px;
+  padding: 0 8px !important;
+  box-sizing: border-box;
+  background: var(--ani-card-bg, #172332) !important;
+  border-radius: 0 0 12px 12px;
+}
+body.ani-layout-related.ani-ambientlight-page #BH_background .animate-theme-list:has(> .filter-section) .theme-info-block {
+  max-height: none !important;
+  height: auto !important;
+  overflow: visible !important;
+  padding: 10px 3px 4px !important;
+}
+body.ani-layout-related.ani-ambientlight-page #BH_background .animate-theme-list:has(> .filter-section) .theme-list-main:hover .anime-detail-block {
+  height: auto !important;
+  z-index: 8;
+  box-shadow: 0 6px 12px #0003;
+}
+body.ani-layout-related.ani-ambientlight-page #BH_background .animate-theme-list:has(> .filter-section) .theme-name {
+  display: block !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+body.ani-layout-related.ani-ambientlight-page #BH_background .animate-theme-list:has(> .filter-section) .theme-list-main:hover .theme-name { white-space: normal !important; }
+.ani-catalog-sort { display: none; }
+body.ani-ambientlight-page #BH_background .filter-title-block .btn-newanime-filter[data-ani-catalog-sort] { display: none !important; }
+body.ani-ambientlight-page #BH_background .ani-catalog-sort {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 3px;
+  padding: 4px;
+  margin-left: auto;
+  border-radius: 999px;
+  border: 1px solid #c4e1f538;
+  background: #23384c80;
+  backdrop-filter: blur(14px);
+}
+body.ani-ambientlight-page #BH_background .ani-catalog-sort button {
+  padding: 8px 13px;
+  font: 500 12px/1.3 var(--ani-font, system-ui, sans-serif);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ani-muted);
+  cursor: pointer;
+}
+body.ani-ambientlight-page #BH_background .ani-catalog-sort button[aria-pressed='true'] {
+  color: #edf7ff;
+  background: #719eb940;
+  border-color: #b9dff54d;
+}
+
+/* Publisher dates have a full capsule surface and a leading update light. */
+body.ani-ambientlight-ui #BH_background #blockAnimePublisherChannel .update-time {
+  display: inline-flex !important;
+  min-width: 65px !important;
+  min-height: 28px !important;
+  padding: 5px 11px !important;
+  border-radius: 999px !important;
+  overflow: visible !important;
+}
+body.ani-ambientlight-ui #BH_background #blockAnimePublisherChannel .update-time p {
+  min-height: 18px !important;
+  line-height: 18px !important;
+  white-space: nowrap;
+}
+body.ani-ambientlight-ui #BH_background #blockAnimePublisherChannel .update-time span {
+  order: -1;
+  display: block !important;
+}
+body.ani-ambientlight-ui #BH_background #blockAnimePublisherChannel .trademark-logo {
+  border-radius: 24px !important;
+  overflow: hidden;
+}
+/* Catalog panels align to the card grid and allow generous line spacing. */
+body.ani-layout-related.ani-ambientlight-page #BH_background .animate-theme-list:has(> .filter-section) > .filter-section {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  gap: 28px !important;
+  padding: 24px !important;
+}
+body.ani-layout-related.ani-ambientlight-page #BH_background .animate-theme-list:has(> .filter-section) section.class_list {
+  padding: 8px 0 !important;
+  min-height: 0 !important;
+}
+body.ani-layout-related.ani-ambientlight-page #BH_background .animate-theme-list:has(> .filter-section) section.class_list > ul {
+  row-gap: 16px !important;
+  column-gap: 12px !important;
+}
+body.ani-layout-related.ani-ambientlight-page #BH_background .animate-theme-list:has(> .filter-section) {
+  width: 100% !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+body.ani-layout-related.ani-ambientlight-page #BH_background .animate-theme-list:has(> .filter-section) > .theme-list-block {
+  align-items: start !important;
+  grid-auto-rows: auto !important;
+}
+body.ani-layout-related.ani-ambientlight-page #BH_background .animate-theme-list:has(> .filter-section) .theme-list-main {
+  align-self: start !important;
+  grid-template-rows: none !important;
+  flex: none !important;
+}
+body.ani-layout-related.ani-ambientlight-page #BH_background .animate-theme-list:has(> .filter-section) .theme-img-block > .theme-number {
+  top: auto !important;
+  left: auto !important;
+  bottom: 8px !important;
+  right: 8px !important;
+}
+body.ani-layout-related.ani-ambientlight-page #BH_background .animate-theme-list:has(> .filter-section) .theme-info-block {
+  min-height: 0 !important;
+  flex: none !important;
+}
+body.ani-ambientlight-page #BH_background .ani-catalog-sort button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+body.ani-ambientlight-page #BH_background .ani-catalog-sort svg { width: 15px; height: 15px; }
+/* A readable title and compact metadata row, without the oversized blank footer. */
+body.ani-ambientlight-ui #BH_background .animate-theme-list .theme-list-main .theme-info-block .theme-name {
+  font-size: 16px !important;
+  line-height: 24px !important;
+  font-weight: 600 !important;
+}
+body.ani-ambientlight-ui #BH_background .animate-theme-list .theme-list-main .theme-detail-info-block {
+  margin-top: 5px !important;
+}
+body.ani-layout-nav.ani-ambientlight-ui .top_sky .anime_search-icon {
+  color: #fff !important;
+  display: grid !important;
+  place-items: center;
+}
+body.ani-layout-nav.ani-ambientlight-ui .top_sky .anime_search-icon .ani-search-glyph,
+body.ani-ambientlight-ui .ani-collection-search-capsule .ani-search-glyph {
+  width: 23px !important;
+  height: 23px !important;
+  color: #fff !important;
+}
+body.ani-layout-nav.ani-ambientlight-ui .top_sky .anime_search-icon::before,
+body.ani-layout-nav.ani-ambientlight-ui .top_sky .anime_search-icon::after { display: none !important; }
+body.ani-layout-nav.ani-ambientlight-ui .top_sky .anime_search-icon:is(:hover,:focus-visible) .ani-search-glyph,
+body.ani-ambientlight-ui .ani-collection-search-capsule .anime_search-icon:is(:hover,:focus-visible) .ani-search-glyph {
+  color: #72beff !important;
+}
+/* Continue titles expand downwards like season cards, anchored below the cover. */
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card {
+  overflow: visible !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .content-block,
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card:is(:hover, :focus-within) .content-block {
+  inset: calc(100% - 38px) 0 auto !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .content-block {
+  background: var(--ani-base, #0f1621) !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card:is(:hover, :focus-within) {
+  z-index: 9;
+}
+body.ani-ambientlight-page #BH_background #blockContinueWatch #continueWatch .slick-list {
+  padding-bottom: 60px !important;
+  margin-bottom: -60px !important;
 }
