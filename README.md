@@ -1,195 +1,91 @@
-# anigamer-ambilight
+# Anigamer-Redesign 3.0
 
-繁體中文（本頁）｜[English](README.en.md)
+由 [aunight](https://github.com/aunight/Anigamer-Redesign3.0) 主導的 **巴哈姆特動畫瘋 UI Redesign 3.0 全面重構版** —— 以現代化磨砂玻璃（Frosted Glass）、高對比電影級排版與全頁視覺一致性為核心，重製動畫瘋首頁、播放頁、播放器控制列、片庫目錄與第三方輔助腳本整合體驗。
 
-**動畫瘋的環境光與播放頁主題編輯器。**
-影片的顏色會延伸到頁面四周。配色、字體、透明度與版面也都能自己調。光暈和主題互不綁定，想只用其中一個也行。
+> **上游專案致謝 / Upstream Attribution**  
+> 本專案的「動態環境光引擎（WebGL 2 / Canvas）」與基礎設定框架改作自原專案 **[Hinataragi/anigamer-ambilight](https://github.com/Hinataragi/anigamer-ambilight)**（MIT 授權），並承襲其參考自 [youtube-ambilight](https://github.com/WesselKroos/youtube-ambilight) 與 [bilibili-ambilight](https://github.com/iceorange-dev/bilibili-ambilight) 的取樣技術。  
+> 在此感謝原作者建立的穩定光暈底層；**Anigamer-Redesign 3.0** 在此基礎之上，將視覺設計系統、頁面重構層與擴充套件相容性獨立翻新。
 
-支援三種安裝方式，功能與設定完全一致：**Userscript**、**Chromium 擴充功能**（Chrome、Edge）、**Firefox 擴充功能**。
+---
 
-> 非官方工具。保留動畫瘋原播放器與登入流程，不讀取帳號密碼。靈感來自 [youtube-ambilight](https://github.com/WesselKroos/youtube-ambilight)，並參考 [bilibili-ambilight](https://github.com/iceorange-dev/bilibili-ambilight)。
+## Redesign 3.0 核心亮點
 
-## 這個工具能做什麼
+### 1. 全站視覺設計系統 3.0
+- **全域磨砂玻璃層次與排版**：統一調整頁首導覽列、搜尋框、會員頭像與下拉通知氣泡（`topbar-bridge.js`），消除生硬邊框與高飽和雜訊，保留高可讀性與清晰層次。
+- **頁面進場與轉場動畫**：透過 `page-entry.js` 與 `motion.css` 統一頁面載入過渡，支援 `prefers-reduced-motion` 無障礙降級。
+- **主題配色與字體系統**：支援 6 種預設配色、深淺模式切換與自訂色票，字體切換精確排除 icon 字型（`Material Icons` / `Font Awesome` / `Video.js`），圖示不跑字。
 
-| 功能       | 說明                                                     |
-| ---------- | -------------------------------------------------------- |
-| 動態環境光 | 取樣影片畫面，在播放器四周投射光暈，共八種延伸方式       |
-| 主題配色   | 六種預設主題，深色、淺色或跟隨系統，可自訂每一個顏色     |
-| 版型重排   | 重新安排集數、作品資訊、相關動畫、新聞與留言，可逐區收合 |
-| 字體       | 內建中文字體，也能載入任何 Google Fonts 或使用裝置字體   |
-| 影片黑條   | 偵測上下、左右黑邊，用光暈蓋過去（預設關閉）             |
+### 2. 首頁、新番時間軸與海報卡片重製
+- **Hero Banner 主視覺橫幅（`hero-banner.js`、`hero-cache-worker.js`）**：自動快取並呈現主打動畫大圖與重點資訊，支援鍵盤操作與流暢切換。
+- **新番時間軸配色區分**：**當天更新標籤**維持醒目橘色，**過去日期標籤**統一採用藍綠主色，時間軸雙圓節點全面改為高對比純白填充，去除黑點干擾。
+- **海報卡片與封面光暈**：統一 `EP.x` 集數徽章、評分膠囊與觀看數圖示；星期列表支援 hover 日期提示與單面板順暢展開／收合。
 
-三項主要功能各有獨立開關。**只想換個好看的主題，就關掉「動態環境光」**，不會取樣影片，也不會耗額外效能。
+### 3. 播放頁與播放器 UI 重構
+- **Vidstack 風格播放器控制列**：
+  - 左側時間膠囊化與 YouTube 比例音量滑桿；
+  - 右側畫質選單（Auto → 自動，128px 精簡寬度）、置中純白單格彈幕開關（`#danmuToggle`）、環境光按鈕；
+  - **跳過片頭／片尾提示**：自動偵測浮層轉化為位於控制列上方的水平毛玻璃膠囊，保留 `×` 關閉圖示不壓迫進度條。
+- **無邊框純淨全螢幕**：修正全螢幕下頂部殘留邊線、側欄殘影與標題遮罩，確保全螢幕完整貼齊視窗。
+- **播放頁資訊區重編排**：將集數列表（`ani-episode-shelf`）、標題列功能膠囊（作品資料、哈啦板、Bangumi 點格子、分享）、上架日曆圖示、右側邊欄分集清單與雙欄留言區整合為一致的暗色玻璃介面。
 
-## 安裝
+### 4. 片庫、觀看紀錄、我的動畫與付費頁整合
+- **所有動畫目錄**：可收合篩選條件與動態載入評分排序。
+- **我的動畫**：狀態、年份、搜尋與公開類型標籤（Genre）即時組合篩選，載入下一頁自動重套篩選結果。
+- **觀看紀錄**：獨立卡片分集清單搭配滾動哨兵自動載入更多紀錄，並顯示快取評分與追番收藏狀態。
+- **付費方案與序號兌換**：專屬漸層會員背景卡片、非同步載入方案保留原生操作與自訂兌換彈窗。
 
-三種方式擇一，不要同時啟用，否則光暈和樣式會重複套用。
+### 5. 第三方腳本／擴充功能深度相容
+- **動畫瘋+（AniGamer Plus）**：將左側工具列、截圖按鈕抽屜整合為統一暗色玻璃風格；截圖預覽卡片 4 顆操作鈕重製為 **30px 深藍圓底搭配純白向量圖示**。
+- **動畫瘋資訊+（aniInfo+）自動備援**：當 Syoboi 日曆因連線限流回傳非 JSON 或查無資料時，透過 Background Service Worker（`hero-cache-worker.js`）自動改以 **AniList GraphQL** 與 **Wikipedia API** 補齊日文聲優 CAST 與維基百科連結，並保留原站作品連結與標籤供腳本讀取。
 
-| 方式              | 適合                 | 更新                        |
-| ----------------- | -------------------- | --------------------------- |
-| Userscript        | 長期使用、手機與平板 | 由腳本管理器自動檢查        |
-| Chromium 擴充功能 | Chrome、Edge 桌面版  | 手動以新檔覆蓋後重新載入    |
-| Firefox 擴充功能  | 臨時試用             | 重新啟動 Firefox 後會被移除 |
+---
 
-### Userscript（建議）
+## 安裝與建置
 
-1. 安裝腳本管理器，例如 [Violentmonkey](https://violentmonkey.github.io/)。
-2. 安裝腳本，兩個來源擇一：
-   - [Greasy Fork](https://greasyfork.org/zh-TW/scripts/598131-anigamer-ambilight)
-   - [GitHub 最新版](https://github.com/Hinataragi/anigamer-ambilight/releases/latest/download/anigamer-ambilight.user.js)
-3. 核對腳本名稱與來源，按「確認安裝」。
-4. 重新整理動畫瘋，按頁首的 **觀影設定**。
+需具備 Node.js（建議 v20 以上）與 npm：
 
-若瀏覽器把腳本當檔案下載，請在管理器中用「從檔案匯入」。Chrome 138 以上可能需要在擴充功能詳細資料開啟「允許使用者指令碼」。
-
-### Chromium 擴充功能
-
-1. 從 [Releases](https://github.com/Hinataragi/anigamer-ambilight/releases/latest) 下載 Chromium 版 ZIP，解壓縮到固定資料夾。
-2. 開啟 `chrome://extensions`（Edge 為 `edge://extensions`），打開「開發人員模式」。
-3. 選「載入未封裝項目」，指定含有 `manifest.json` 的資料夾。
-4. 重新整理動畫瘋。點工具列圖示可開啟同一份設定選單，頁首也有 **觀影設定**。
-
-更新時以新檔覆蓋原資料夾，在管理頁按「重新載入」。目前不會上架 Chrome Web Store 或 Edge Add-ons。
-
-### Firefox 擴充功能
-
-此套件未經 Mozilla 簽署，只能暫時載入，**Firefox 重新啟動後就會移除**。想長期使用，請改用 Userscript。
-
-1. 從 Releases 下載 Firefox 版 ZIP 並解壓縮。
-2. 開啟 `about:debugging#/runtime/this-firefox`，選「載入暫時附加元件」。
-3. 指定資料夾內的 `manifest.json`，重新整理動畫瘋。
-
-更多步驟、更新與疑難排解請見 [安裝教學](docs/INSTALL.md)。
-
-## 快速上手
-
-1. 打開 **觀影設定**，進入「預設主題」，挑一個喜歡的配色。
-2. 進入「光暈效果」，用「快速套用」選擇自然延伸、清晰畫面、柔和色彩或淡色光暈。
-3. 其餘細節再依需要調整。每個設定都會立刻生效，並自動儲存。
-
-設定旁的重設圖示只還原那一項，分類右上角的圖示還原整個分類，想全部重設就到「其他與備份」。
-
-## 主題
-
-六種預設主題只改配色、字級與透明度，**不動播放版型、光暈或效能設定**。
-
-| 主題     | 特色                   |
-| -------- | ---------------------- |
-| 沉浸墨藍 | 墨藍底色，天藍按鈕與連結 |
-| 低彩石墨 | 低彩灰黑，暖米色重點，適合夜間 |
-| 暖紙淺色 | 暖紙底色，赤陶重點，適合白天 |
-| 森林夜色 | 墨綠底色，灰綠重點色   |
-| 暮紫     | 灰紫底色，柔紫按鈕與連結 |
-| 清楚閱讀 | 較大文字，資訊區不透明 |
-
-在「預設主題」開啟「使用自訂色票」，可用選色器或十六進位色碼（`#112233`、`#123`）分別設定背景、面板、按鈕、主要文字、次要文字與重點色。關閉後回到所選主題。
-
-此外還能調整：重點色相與鮮豔度、字級、行距、圓角、區塊間距，以及頁首、彈幕列表、作品資訊、相關動畫、新聞與留言各自的背景不透明度。按鈕與搜尋欄可選跟隨主題、讓光暈透出或沿用原站。
-
-## 光暈
-
-| 延伸方式 | 畫面特色                                     |
-| -------- | -------------------------------------------- |
-| 放射投影 | 向四周延伸，預設效果                         |
-| 圓弧擴散 | 柔化四角，減少方框感                         |
-| 輪廓延展 | 延續外框色彩                                 |
-| 柔光擴散 | 模糊細節，保留色彩                           |
-| 邊緣反射 | 鏡像延伸，保留更多細節                       |
-| 邊緣光帶 | 只顯示外框色彩                               |
-| 邊緣拉伸 | 以原畫面像素偽延伸，人物、建築與文字可能變形 |
-| 旋流延伸 | 向外延伸時逐漸旋轉，可調旋轉幅度             |
-
-這些都不是 AI 補圖，不會生成影片以外的場景。每種方法有自己的形狀設定，也能調整亮度、範圍、模糊、細節、色彩濃度與對比。「快速套用」只改光暈外觀，解析度與更新方式要到「流暢度與畫質」另外設定。
-
-## 版面與操作
-
-- 集數、作品資訊、相關動畫、新聞與留言預設展開並附收合按鈕。集數可以換行，也可以單列捲動。
-- 「專注觀看」收起周邊資訊，「收合彈幕」只隱藏旁邊的列表，再按一次就恢復。
-- 彈幕列表可以隱藏捲軸，照樣能捲動。
-- 留言區可調寬度、密度與圖片大小。
-- 播放器預設沿用原站的自適應寬度，自訂劇院最大寬度要另外啟用。
-- 可隱藏右側頁面展示廣告，影片廣告不跳過也不攔截，廣告期間暫停取樣。
-- 關閉「版型重排」即保留原站排列，仍可單獨使用光暈與配色。
-- 「所有動畫」的篩選器改成分列的膠囊按鈕，目前選中的那項用重點色標出來。
-- 「我的動畫」改成海報網格，觀看數和付費標籤是同高的小膠囊。
-- 動畫瘋自己跳出的功能通知視窗會跟著主題配色。
-- 淺色模式重新調過對比，徽章、集數標籤和底部公告列在白底上也看得清楚。
-
-## 字體
-
-預設使用 Noto Sans TC。內建選項還有系統字體、Noto Serif TC、芫荽、霞鶩文楷 TC、昭源黑體與昭源宋體，也可以輸入任何 Google Fonts 家族名稱。不想連網下載字體，就切回系統字體，或改用裝置已安裝的字體。
-
-套用範圍包含導覽、標題、資訊、新聞、留言、彈幕列表與設定面板，圖示字型不受影響。也能另外套用到播放器彈幕，但只對 DOM 文字有效。Canvas 彈幕和影片內建字幕沒辦法用頁面 CSS 換字體。
-
-## 設定分類
-
-| 分類         | 可調內容                           |
-| ------------ | ---------------------------------- |
-| 預設主題     | 六種配色、重點色與自訂色票         |
-| 光暈效果     | 快速套用、延伸方式與畫面細節       |
-| 外觀與字體   | 深淺色、字體、閱讀大小與面板透明度 |
-| 透明度與按鈕 | 各區背景與控制項底色               |
-| 版面與間距   | 區塊重排、播放器布局與間距         |
-| 顯示與收合   | 顯示哪些資訊、收合操作與彈幕列表   |
-| 流暢度與畫質 | 光暈解析度、更新方式與渲染狀態     |
-| 影片黑條     | 取樣裁切與可選的黑條覆蓋           |
-| 其他與備份   | 頁面廣告、設定匯入匯出與全部重設   |
-
-桌面版是置中的雙欄面板，左側分類、右側內容。手機與平板改成單欄，先選分類再進去調整。Esc 先返回分類總覽，再按一次關閉。
-
-## 效能與限制
-
-- 預設以 960 px 光暈解析度，跟隨影片新影格更新，不把 24 fps 重畫成 60 fps。畫面平滑預設為 0，避免混合舊幀造成拖影。
-- 自動畫質會在負載高時降低像素量。WebGL 2 不可用時退回 Canvas。硬體加速由瀏覽器、驅動與系統決定，無法強制啟用。
-- 黑條覆蓋預設關閉。遇到字幕、圖案或暗場時保留原畫面，仍可能漏掉很小或很暗的文字。
-- 部分 DRM 或跨來源影片不允許取樣，此時保留原播放器，不影響觀看。
-- 尚未完成各瀏覽器的完整實機測試。手機與平板須使用支援 Userscript 的瀏覽器或管理工具。
-
-## 隱私
-
-設定由腳本管理器或瀏覽器儲存，擴充功能可能依瀏覽器設定同步到你的帳號。預設字體 Noto Sans TC 會向 Google Fonts 下載，改用系統字體或裝置字體就不會發出這個請求。不讀取動畫瘋帳號密碼，也不接管登入。詳見 [隱私政策](docs/PRIVACY.md)。
-
-## 開發
-
-需要 Node.js 與 npm。三種安裝包共用 `src/` 同一份原始碼，由建置腳本產生。
-
-```sh
+```powershell
+git clone https://github.com/aunight/Anigamer-Redesign3.0.git
+cd Anigamer-Redesign3.0
 npm ci
 npm test
 npm run build
 ```
 
-| 產物                         | 用途               |
-| ---------------------------- | ------------------ |
-| `dist/ani-ambilight.user.js` | 單檔 Userscript    |
-| `dist/extension/`            | Chromium 擴充功能  |
-| `dist/extension-firefox/`    | Firefox 暫時載入版 |
+建置完成後會在 `dist/` 產生三種版本：
+
+| 產物路徑 | 適用環境 | 載入方式 |
+| --- | --- | --- |
+| `dist/extension/` | Chrome / Edge / Dia（Chromium） | 開啟擴充功能頁的「開發人員模式」→「載入未封裝項目」選擇此資料夾 |
+| `dist/ani-ambilight.user.js` | Violentmonkey / Tampermonkey | 直接匯入單檔 Userscript |
+| `dist/extension-firefox/` | Firefox | `about:debugging#/runtime/this-firefox` 暫時載入 `manifest.json` |
+
+---
+
+## 專案架構（Redesign 3.0 新增與核心檔案）
 
 ```text
-src/                設定、渲染器、黑條偵測、頁面整合與樣式
-  settings.js       設定定義、預設主題、面板 DOM
-  settings-ui.css   設定面板與擴充功能選單樣式
-  effects.css       主題配色（跟隨深淺色與色票）
-  content.css       頁面版型重排
-  ambient-renderer.js  WebGL 2／Canvas 光暈渲染
-scripts/build.mjs   建置三種安裝包
-tests/              設定、黑條與 GPU API 測試
-docs/               安裝與隱私說明
+src/
+  manifest.json        擴充功能權限與載入順序設定
+  page-entry.js/.css   頁面進場過渡動畫
+  hero-banner.js/.css  首頁主視覺橫幅元件
+  hero-cache-worker.js 背景圖片快取與 aniInfo+（Syoboi / AniList / Wiki）救援 Worker
+  topbar-bridge.js     MAIN world 頂部選單與彈窗橋接
+  settings.js/.css     設定結構、預設主題與設定面板
+  ambient-renderer.js  WebGL 2 / Canvas 環境光渲染器（承襲上游）
+  black-bars.js        上下左右黑邊偵測
+  content.js/.css      各頁面重構、卡片強化與播放頁布局
+  effects.css          全站主題變數與配色套用
+  motion.css           動畫曲線與降級規則
+  ui-repairs.css       播放器、第三方腳本相容與全螢幕精修樣式
+tests/                 20 項自動化單元與 DOM 合約測試
+scripts/build.mjs      統一打包 Chromium / Firefox / Userscript
 ```
 
-CI 在提交與 Pull Request 時跑測試與建置。推送跟專案版本一致的 `v*.*.*` 標籤，會自動建立 GitHub Release。
+---
 
-## 參與改善
+## 授權聲明（License）
 
-這個專案是拋磚引玉，我不一定經常查看 Issue，回覆可能需要一段時間。歡迎 fork，或直接改良畫面延伸、效能、手機操作與網站相容性。
-
-回報問題請附：瀏覽器與管理器版本、動畫頁網址、使用的效果與相關設定、重現步驟。截圖請避開帳號通知與個人資料。
-
-## 授權與致謝
-
-[MIT 授權](LICENSE)，允許使用、修改、再發布與商業使用，發布時須保留著作權與授權聲明。授權適用於專案程式碼，不含動畫瘋商標、網站素材或影片內容。
-
-- [youtube-ambilight](https://github.com/WesselKroos/youtube-ambilight)（Wessel Kroos）：主要靈感來源，參考其光暈效果與效能處理思路。授權見 [LICENSE.youtube-ambilight](LICENSE.youtube-ambilight)。
-- [bilibili-ambilight](https://github.com/iceorange-dev/bilibili-ambilight)（iceorange-dev）：參考其將環境光整合到動畫網站的方式。授權見 [LICENSE.bilibili-ambilight](LICENSE.bilibili-ambilight)。
-
-軟體依現況提供，不保證持續相容或完全無錯誤，詳見 LICENSE。本專案不隸屬於巴哈姆特，也未獲動畫瘋或上述專案作者背書。
+本專案延續上游專案採用 **[MIT License](LICENSE)** 釋出：
+- 保留原著作權人 **Wessel Kroos**、**iceorange-dev** 與 **Hinataragi** 之版權與授權聲明；
+- 本專案為非官方開源重構工具，與巴哈姆特動畫瘋無關，亦不讀取或儲存使用者帳號密碼。
