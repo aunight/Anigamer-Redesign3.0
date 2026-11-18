@@ -1,12 +1,15 @@
-# Anigamer-Redesign 3.0
+# 動畫瘋重製版 3.0
 
-![Anigamer-Redesign 3.0 首頁預覽](docs/preview-home.jpg)
+![動畫瘋重製版 3.0 首頁預覽](docs/preview-home.jpg)
 
-由 [aunight](https://github.com/aunight/Anigamer-Redesign3.0) 主導的 **巴哈姆特動畫瘋 UI Redesign 3.0 全面重構版** —— 以現代化磨砂玻璃（Frosted Glass）、高對比電影級排版與全頁視覺一致性為核心，重製動畫瘋首頁、播放頁、播放器控制列、片庫目錄與第三方輔助腳本整合體驗。
+由 [aunight](https://github.com/aunight/Anigamer-Redesign3.0) 主導的 **動畫瘋重製版 3.0** —— 以現代化磨砂玻璃（Frosted Glass）、高對比電影級排版與全頁視覺一致性為核心，重製動畫瘋首頁、播放頁、播放器控制列、片庫目錄與第三方輔助腳本整合體驗。
+
+> [!NOTE]
+> 本版本還在測試修改當中，有任何問題歡迎至 [Issues](https://github.com/aunight/Anigamer-Redesign3.0/issues) 提 Issue 回報。
 
 > **上游專案致謝 / Upstream Attribution**  
 > 本專案的「動態環境光引擎（WebGL 2 / Canvas）」與基礎設定框架改作自原專案 **[Hinataragi/anigamer-ambilight](https://github.com/Hinataragi/anigamer-ambilight)**（MIT 授權），並承襲其參考自 [youtube-ambilight](https://github.com/WesselKroos/youtube-ambilight) 與 [bilibili-ambilight](https://github.com/iceorange-dev/bilibili-ambilight) 的取樣技術。  
-> 在此感謝原作者建立的穩定光暈底層；**Anigamer-Redesign 3.0** 在此基礎之上，將視覺設計系統、頁面重構層與擴充套件相容性獨立翻新。
+> 在此感謝原作者建立的穩定光暈底層；**動畫瘋重製版 3.0** 在此基礎之上，將視覺設計系統、頁面重構層與擴充套件相容性獨立翻新。
 
 ---
 
