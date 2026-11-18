@@ -246,10 +246,21 @@
       s.tmy = 0;
     });
 
+    const widths = new WeakMap();
+    let pixelsDirty = true;
+    const sizes = typeof ResizeObserver === 'function' && new ResizeObserver(entries => {
+      for (const entry of entries) widths.set(entry.target, entry.contentRect.width);
+      pixelsDirty = true;
+    });
+    if (sizes) {
+      sizes.observe(trackPixels);
+      sizes.observe(lensPixels);
+    }
     function prepare(canvas, width, height) {
       const ctx = canvas.getContext('2d');
-      if (!ctx || canvas.clientWidth === 0) return null;
-      const k = (canvas.clientWidth * Math.max(2, devicePixelRatio || 1) * RIG_SCALE) / width;
+      const cssWidth = sizes ? widths.get(canvas) : canvas.clientWidth;
+      if (!ctx || !cssWidth) return null;
+      const k = (cssWidth * Math.max(2, devicePixelRatio || 1) * RIG_SCALE) / width;
       const w = Math.max(1, Math.round(width * k));
       const h = Math.max(1, Math.round(height * k));
       if (canvas.width !== w || canvas.height !== h) {
@@ -271,7 +282,7 @@
 
     let checked = -1;
     let rafId = 0;
-    let lastDrawIdle = false;
+    let settledFrameDrawn = false;
 
     function draw(f) {
       const set = (name, value) => wrap.style.setProperty(name, String(value));
@@ -385,10 +396,19 @@
       const kc = kx - TRACK_X + KNOB_D / 2;
       const sq = clamp(Math.abs(s.vel) / SQUASH_SPEED, 0, SQUASH_MAX);
 
-      const frame = { on: s.on, pos: s.pos, fl, kx, kc, sq, angle: s.angle, dots: sample(s.morph, t, reduced), ix, iy };
-      if (!document.hidden || !lastDrawIdle) {
-        draw(frame);
-        lastDrawIdle = document.hidden;
+      const settled = Math.abs(s.pos - s.on) < 0.0001 && Math.abs(s.vel) < 0.001
+        && Math.abs(s.angle - s.rimTarget) < 0.001 && Math.abs(s.spin) < 0.001
+        && Math.abs(fl - s.on) < 0.0001 && t > s.morph.start + MORPH + MORPH_STAGGER;
+      if (!document.hidden) {
+        if (!settled || !settledFrameDrawn || pixelsDirty) {
+          draw({ on: s.on, pos: s.pos, fl, kx, kc, sq, angle: s.angle, dots: sample(s.morph, t, reduced), ix, iy });
+          settledFrameDrawn = settled;
+          pixelsDirty = false;
+        } else {
+          // Only the lens reflection sways once the glyph and rim have settled.
+          wrap.style.setProperty('--ix', String(ix));
+          wrap.style.setProperty('--iy', String(iy));
+        }
       }
       rafId = requestAnimationFrame(loop);
     };
@@ -398,6 +418,7 @@
       wrap,
       setOn,
       destroy() {
+        if (sizes) sizes.disconnect();
         cancelAnimationFrame(rafId);
         wrap.remove();
         if (mounted?.wrap === wrap) mounted = null;

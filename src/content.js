@@ -57,27 +57,27 @@
   const fonts = {
     wenkai: {
       family: '"LXGW WenKai TC"',
-      url: 'https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@300;400;700&display=swap',
+      url: 'https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@300;400;700&display=block',
     },
     chironHei: {
       family: '"Chiron Hei HK"',
-      url: 'https://fonts.googleapis.com/css2?family=Chiron+Hei+HK:wght@400;500;700&display=swap',
+      url: 'https://fonts.googleapis.com/css2?family=Chiron+Hei+HK:wght@400;500;700&display=block',
     },
     chironSung: {
       family: '"Chiron Sung HK"',
-      url: 'https://fonts.googleapis.com/css2?family=Chiron+Sung+HK:wght@400;600;700&display=swap',
+      url: 'https://fonts.googleapis.com/css2?family=Chiron+Sung+HK:wght@400;600;700&display=block',
     },
     sans: {
       family: '"Noto Sans TC"',
-      url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap',
+      url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=block',
     },
     serif: {
       family: '"Noto Serif TC"',
-      url: 'https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700&display=swap',
+      url: 'https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700&display=block',
     },
     iansui: {
       family: '"Iansui"',
-      url: 'https://fonts.googleapis.com/css2?family=Iansui&display=swap',
+      url: 'https://fonts.googleapis.com/css2?family=Iansui&display=block',
     },
   };
   const imageObserver =
@@ -99,10 +99,11 @@
 
   const storage =
     globalThis.AniAmbientStorage || globalThis.chrome?.storage?.sync;
+  let fontSettingsKnown = !storage;
   if (storage) {
     storage.get(DEFAULTS, (saved) => {
-      if (globalThis.chrome?.runtime?.lastError) return;
-      Object.assign(settings, options.normalize(saved));
+      fontSettingsKnown = true;
+      if (!globalThis.chrome?.runtime?.lastError) Object.assign(settings, options.normalize(saved));
       applyPageTheme();
       active?.applySettings();
       active?.refresh();
@@ -138,6 +139,80 @@
     element.addEventListener('animationend',end);element.classList.add('animate__animated',animationClass);siteAnimations.set(element,cleanup);
   }
   document.addEventListener('visibilitychange', () => document.body?.classList.toggle('ani-background-paused',document.hidden));
+  function applySelectedFont() {
+    const font =
+      settings.fontFamily === 'custom' && settings.customFontName
+        ? {
+            family: JSON.stringify(settings.customFontName),
+            url: settings.customFontGoogle
+              ? `https://fonts.googleapis.com/css2?family=${encodeURIComponent(settings.customFontName)}&display=block`
+              : null,
+          }
+        : fonts[settings.fontFamily];
+    if (font?.url) {
+      try {
+        localStorage.setItem('aniFontUrlHint', font.url);
+      } catch {}
+    } else {
+      try {
+        localStorage.removeItem('aniFontUrlHint');
+      } catch {}
+    }
+    const preloadedFontLink =
+      font?.url && document.getElementById('ani-intro-font')?.getAttribute('href') === font.url
+        ? document.getElementById('ani-intro-font')
+        : null;
+    if (font?.url && (!fontLink?.isConnected || fontLink.getAttribute('href') !== font.url)) {
+      const request = ++fontRequest;
+      fontStatus = '正在載入 Google 字體…';
+      fontLink?.remove();
+      fontLink = preloadedFontLink || document.createElement('link');
+      fontLink.rel = 'stylesheet';
+      if (!preloadedFontLink) fontLink.href = font.url;
+      fontLink.onload = async () => {
+        try {
+          const loaded = await document.fonts.load(
+            `16px ${font.family}`,
+            '動畫瘋看見光故事',
+          );
+          if (!loaded.length) throw new Error('Font unavailable');
+          if (request === fontRequest) {
+            fontStatus = '字體已載入，已套用頁面文字。';
+            syncSettingsPanel();
+          }
+        } catch {
+          if (request === fontRequest) {
+            fontStatus = '字體未能載入，目前使用系統字體。';
+            syncSettingsPanel();
+          }
+        }
+      };
+      fontLink.onerror = () => {
+        if (request === fontRequest) {
+          fontStatus = '無法連線 Google Fonts，目前使用系統字體。';
+          syncSettingsPanel();
+        }
+      };
+      if (!fontLink.isConnected) document.head.append(fontLink);
+      else if (fontLink.sheet) void fontLink.onload();
+    } else if (!font?.url) {
+      fontRequest++;
+      fontLink?.remove();
+      fontLink = null;
+      fontStatus = font
+        ? '使用裝置字體；裝置未安裝時會使用備用字體。'
+        : '使用系統字體，無需下載。';
+    }
+    document.body?.style.setProperty(
+      '--ani-font',
+      font
+        ? `${font.family},system-ui,"Microsoft JhengHei",sans-serif`
+        : 'system-ui,"Microsoft JhengHei",sans-serif',
+    );
+    const introFont=font?`${font.family},system-ui,"Microsoft JhengHei",sans-serif`:'system-ui,"Microsoft JhengHei",sans-serif';document.documentElement.style.setProperty('--ani-font',introFont);try{localStorage.setItem('aniIntroFontHint',introFont);sessionStorage.setItem('aniIntroFont',introFont);}catch{}
+    document.body?.classList.toggle('ani-custom-font', Boolean(font));
+  }
+
   function applyPageTheme() {
     // This theme owns both light and dark palettes. A second automatic
     // recoloring pass turns translucent white rims into dark opaque fills.
@@ -206,79 +281,7 @@
       focusButton.textContent = settings.focusMode ? '結束專注' : '專注觀看';
       focusButton.setAttribute('aria-pressed', String(settings.focusMode));
     }
-    const font =
-      settings.fontFamily === 'custom' && settings.customFontName
-        ? {
-            family: JSON.stringify(settings.customFontName),
-            url: settings.customFontGoogle
-              ? `https://fonts.googleapis.com/css2?family=${encodeURIComponent(settings.customFontName)}&display=swap`
-              : null,
-          }
-        : fonts[settings.fontFamily];
-    if (font?.url) {
-      try {
-        localStorage.setItem('aniFontUrlHint', font.url);
-      } catch {}
-    } else {
-      try {
-        localStorage.removeItem('aniFontUrlHint');
-      } catch {}
-    }
-    const preloadedFontLink =
-      font?.url && document.getElementById('ani-intro-font')?.getAttribute('href') === font.url
-        ? document.getElementById('ani-intro-font')
-        : null;
-    if (preloadedFontLink) {
-      fontLink = preloadedFontLink;
-      fontStatus = '字體已載入，已套用頁面文字。';
-    } else if (font?.url && fontLink?.getAttribute('href') !== font.url) {
-      const request = ++fontRequest;
-      fontStatus = '正在載入 Google 字體…';
-      fontLink?.remove();
-      fontLink = document.createElement('link');
-      fontLink.rel = 'stylesheet';
-      fontLink.href = font.url;
-      fontLink.onload = async () => {
-        try {
-          const loaded = await document.fonts.load(
-            `16px ${font.family}`,
-            '動畫瘋看見光故事',
-          );
-          if (!loaded.length) throw new Error('Font unavailable');
-          if (request === fontRequest) {
-            fontStatus = '字體已載入，已套用頁面文字。';
-            syncSettingsPanel();
-          }
-        } catch {
-          if (request === fontRequest) {
-            fontStatus = '字體未能載入，目前使用系統字體。';
-            syncSettingsPanel();
-          }
-        }
-      };
-      fontLink.onerror = () => {
-        if (request === fontRequest) {
-          fontStatus = '無法連線 Google Fonts，目前使用系統字體。';
-          syncSettingsPanel();
-        }
-      };
-      document.head.append(fontLink);
-    } else if (!font?.url) {
-      fontRequest++;
-      fontLink?.remove();
-      fontLink = null;
-      fontStatus = font
-        ? '使用裝置字體；裝置未安裝時會使用備用字體。'
-        : '使用系統字體，無需下載。';
-    }
-    document.body?.style.setProperty(
-      '--ani-font',
-      font
-        ? `${font.family},system-ui,"Microsoft JhengHei",sans-serif`
-        : 'system-ui,"Microsoft JhengHei",sans-serif',
-    );
-    const introFont=font?`${font.family},system-ui,"Microsoft JhengHei",sans-serif`:'system-ui,"Microsoft JhengHei",sans-serif';document.documentElement.style.setProperty('--ani-font',introFont);try{localStorage.setItem('aniIntroFontHint',introFont);sessionStorage.setItem('aniIntroFont',introFont);}catch{}
-    document.body?.classList.toggle('ani-custom-font', Boolean(font));
+    if (fontSettingsKnown) applySelectedFont();
     document.body?.classList.toggle(
       'ani-ambientlight-page',
       Boolean(settings.themeEnabled),
@@ -287,6 +290,7 @@
       'ani-ambientlight-ui',
       Boolean(settings.uiEffectsEnabled),
     );
+    document.documentElement.classList.toggle('ani-ambientlight-ui', Boolean(settings.uiEffectsEnabled));
     for (const [suffix, key] of Object.entries({
       nav: 'navLayout',
       watch: 'watchLayout',
@@ -714,12 +718,18 @@
       if (!node.isConnected) originalControlStyles.delete(node);
     const body = document.body,
       active = body.classList.contains('ani-ambientlight-ui');
-    body.classList.remove('ani-ambientlight-ui');
     const props = ['background-color', 'color', 'border-color'];
-    for (const node of document.querySelectorAll(
+    const pending = [...document.querySelectorAll(
       '.anime_search-input,.anime_search-input input,.anime_search-icon,.anime_name>button,.ani-episode-shelf .season a,.subtitle button,.user-score-more',
-    )) {
-      if (originalControlStyles.has(node)) continue;
+    )].filter(node => !originalControlStyles.has(node));
+    if (!pending.length) return;
+    body.classList.remove('ani-ambientlight-ui');
+    const snapshots = pending.map(node => {
+      const computed = getComputedStyle(node);
+      return props.map(key => computed.getPropertyValue(key));
+    });
+    if (active) body.classList.add('ani-ambientlight-ui');
+    pending.forEach((node, idx) => {
       const saved = Object.fromEntries(
         props.map((key) => [
           key,
@@ -729,14 +739,12 @@
           ],
         ]),
       );
-      const computed = getComputedStyle(node),
-        colors = props.map((key) => computed.getPropertyValue(key));
+      const colors = snapshots[idx];
       originalControlStyles.set(node, saved);
       props.forEach((key, index) =>
         node.style.setProperty(key, colors[index], 'important'),
       );
-    }
-    if (active) body.classList.add('ani-ambientlight-ui');
+    });
   }
 
   function getNavIconSvg(href, text) {
@@ -900,17 +908,23 @@
   }
 
   function renderTopLeftScoreBadge(picBlock, scoreText) {
-    if (!picBlock || !scoreText) return;
+    if (!picBlock) return;
     let badge = picBlock.querySelector(':scope > .ani-score-badge-top-left');
-    if (badge) {
-      const val = badge.querySelector('.ani-score-value');
-      if (val && val.textContent !== scoreText) val.textContent = scoreText;
-      return;
+    if (!badge) {
+      badge = document.createElement('div');
+      badge.className = 'ani-score-badge-top-left';
+      badge.innerHTML = `<span class="ani-score-star" aria-hidden="true" style="display:inline-flex;align-items:center;">${SCORE_STAR_SVG}</span><span class="ani-score-value"></span>`;
+      badge.lastElementChild.append(document.createTextNode(''));
+      badge.hidden = !scoreText;
+      picBlock.append(badge);
     }
-    badge = document.createElement('div');
-    badge.className = 'ani-score-badge-top-left';
-    badge.innerHTML = `<span class="ani-score-star" aria-hidden="true" style="display:inline-flex;align-items:center;">${SCORE_STAR_SVG}</span><span class="ani-score-value">${scoreText}</span>`;
-    picBlock.append(badge);
+    if (!scoreText) return;
+    const value = badge.querySelector('.ani-score-value');
+    if (value && value.textContent !== scoreText) {
+      if (value.firstChild) value.firstChild.nodeValue = scoreText;
+      else value.textContent = scoreText;
+    }
+    if (badge.hidden) badge.hidden = false;
   }
 
   function parseScoreFromVideoHtml(html) {
@@ -1226,23 +1240,55 @@
     }
   }
 
+  // These covers are deliberately soft behind schedule text. Rasterize a small
+  // copy once so revealing the tab doesn't filter dozens of full-size images.
+  function prepareWeekCover(tile, source, url) {
+    if (tile.dataset.aniCoverUrl === url) return;
+    tile.dataset.aniCoverUrl = url;
+    const image = source.currentSrc === url && source.complete && source.naturalWidth ? source : new Image();
+    const draw = () => {
+      if (tile.dataset.aniCoverUrl !== url || !image.naturalWidth) return;
+      const cover = tile.querySelector('.ani-week-cover') || document.createElement('canvas');
+      cover.className = 'ani-week-cover';
+      cover.setAttribute('aria-hidden', 'true');
+      cover.width = 32;
+      cover.height = Math.max(1, Math.round(32 * image.naturalHeight / image.naturalWidth));
+      const ctx = cover.getContext('2d');
+      if (!ctx) return;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(image, 0, 0, cover.width, cover.height);
+      if (!cover.parentNode) tile.prepend(cover);
+    };
+    if (image === source) draw();
+    else {
+      image.onload = draw;
+      image.onerror = () => { if (tile.dataset.aniCoverUrl === url) delete tile.dataset.aniCoverUrl; };
+      image.src = url;
+    }
+  }
+
   function fitPremiumCard() {
     const dates=[...document.querySelectorAll('#blockVideoInSeason .newanime-block > .newanime-date-area')];
     const dateKey = date => date?.querySelector('.anime-date-info')?.textContent.match(/\d{1,2}\/\d{1,2}/)?.[0];
     const latestDate = dateKey(dates[0]);
+    const geometry = dates.map(date => {
+      const rail = date.querySelector('.date-block-border');
+      return {top: date.offsetTop, left: date.offsetLeft, width: date.offsetWidth,
+        center: rail ? rail.offsetTop + rail.offsetHeight / 2 : null};
+    });
     dates.forEach((date, index) => {
-      const previous = dates[index - 1];
-      const next = dates[index + 1];
-      const sameRow = other => other && Math.abs(other.offsetTop - date.offsetTop) <= 5;
+      const current = geometry[index];
+      const previous = geometry[index - 1];
+      const next = geometry[index + 1];
+      const sameRow = other => other && Math.abs(other.top - current.top) <= 5;
       date.classList.toggle('ani-date-row-start', !sameRow(previous));
       date.classList.toggle('ani-date-row-end', !sameRow(next));
       const key = dateKey(date);
       date.classList.toggle('ani-date-current', Boolean(key && key === latestDate));
-      const gap = sameRow(next) ? Math.max(0, next.offsetLeft - date.offsetLeft - date.offsetWidth) : 0;
+      const gap = sameRow(next) ? Math.max(0, next.left - current.left - current.width) : 0;
       date.style.setProperty('--ani-date-gap', `${gap}px`);
-      const rail = date.querySelector('.date-block-border');
-      if (rail) {
-        const center = rail.offsetTop + rail.offsetHeight / 2;
+      const center = current.center;
+      if (center !== null) {
         for (const marker of date.querySelectorAll('.date-block :is(.double-circle,.pic-continue,.pic-selected-continue)')) {
           marker.style.setProperty('top', `${center}px`, 'important');
         }
@@ -1361,9 +1407,71 @@
       enhancePosterRails();
     }).catch(()=>{});
   }
-  function enhancePosterRails() {
+  function measureReleaseTitle(nameEl) {
+    scheduleRailMeasurement(() => {
+      const width = nameEl.clientWidth;
+      const scrollWidth = nameEl.scrollWidth;
+      return () => {
+        if (!width || nameEl.dataset.aniMarqueeInit) return;
+        const area = nameEl.closest('.newanime-date-area');
+        if (!area) return;
+        nameEl.dataset.aniMarqueeInit = 'true';
+        const overflow = scrollWidth - width;
+        const ownerCard = area.querySelector('.anime-card-block') || area.closest('.anime-card-block') || area;
+        ownerCard.classList.toggle('ani-card-has-overflow', overflow > 2);
+        if (overflow > 2) {
+          const text = (nameEl.textContent || '').trim();
+          const dist = Math.ceil(overflow + 16);
+          const dur = Math.max(5.5, dist / 14).toFixed(2);
+          const track = document.createElement('span');
+          track.className = 'ani-marquee-track';
+          track.textContent = text;
+          nameEl.replaceChildren(track);
+          nameEl.dataset.aniMarquee = 'true';
+          nameEl.style.setProperty('--ani-marquee-dist', `-${dist}px`);
+          nameEl.style.setProperty('--ani-marquee-dur', `${dur}s`);
+        }
+      };
+    });
+  }
+  const releaseTitles = typeof IntersectionObserver === 'function' && new IntersectionObserver(entries => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      releaseTitles.unobserve(entry.target);
+      measureReleaseTitle(entry.target);
+    }
+  }, {rootMargin: '200px 0px'});
+  const pendingRailMeasurements = new Set();
+  let railFrame = 0;
+  function scheduleRailMeasurement(read) {
+    pendingRailMeasurements.add(read);
+    if (railFrame) return;
+    railFrame = requestAnimationFrame(() => {
+      railFrame = 0;
+      const writes = [...pendingRailMeasurements].map(measure => measure());
+      pendingRailMeasurements.clear();
+      for (const write of writes) write();
+    });
+  }
+  const preparedHomeRails = new WeakSet();
+  const homeRailObserver = typeof IntersectionObserver === 'function' && new IntersectionObserver(entries => {
+    const sections = entries.filter(entry => entry.isIntersecting).map(entry => entry.target);
+    if (!sections.length) return;
+    for (const section of sections) {
+      homeRailObserver.unobserve(section);
+      preparedHomeRails.add(section);
+    }
+    enhancePosterRails(sections);
+  }, { rootMargin: '500px 0px' });
+  function enhancePosterRails(sections) {
     syncNativeWatch();
-    for (const section of document.querySelectorAll('#BH_background .animate-theme-list, #BH_background .old_list:not(:has(.search_result))')) {
+    for (const section of sections || document.querySelectorAll('#BH_background .animate-theme-list, #BH_background .old_list:not(:has(.search_result))')) {
+      if (homeRailObserver && document.body.classList.contains('ani-home-page') && !preparedHomeRails.has(section)) {
+        homeRailObserver.observe(section);
+        continue;
+      }
+      if (section.matches('.old_list')) section.classList.add('ani-related-list');
+      section.classList.toggle('ani-filtered-list', Boolean(section.querySelector(':scope > .filter-section')));
       const heading = section.querySelector('.theme-title, :scope > h2, .old_list-title > h2');
       const headerIcon = section.id === 'blockHotAnime' ? 'hot' : section.id === 'blockAnimeNewArrive' ? 'new' : section.matches('.old_list') || /相關動畫/.test(heading?.textContent || '') ? 'related' : '';
       if (heading && headerIcon && !heading.querySelector('.ani-section-icon')) {
@@ -1505,27 +1613,28 @@
         rail.append(button);
         arrows.push(button);
       }
-      const sync = () => {
-        const cards = [...list.querySelectorAll('.theme-list-main')];
+      const measure = () => {
+        const cards = list.querySelectorAll('.theme-list-main');
         const card = cards[0];
         const image = card?.querySelector('.theme-img-block');
-        if (image) {
-          const imageHeight = `${Math.ceil(image.getBoundingClientRect().height)}px`;
-          if (rail.style.getPropertyValue('--ani-rail-image-height') !== imageHeight) rail.style.setProperty('--ani-rail-image-height',imageHeight);
-        }
-        const height = card ? `${Math.ceil(card.getBoundingClientRect().height)}px` : '';
-        if (height && rail.style.getPropertyValue('--ani-rail-card-height') !== height) rail.style.setProperty('--ani-rail-card-height',height);
+        const imageHeight = image && Math.ceil(image.getBoundingClientRect().height) + 'px';
+        const height = card && Math.ceil(card.getBoundingClientRect().height) + 'px';
         const left = list.scrollLeft > 2;
         const right = list.scrollLeft + list.clientWidth < list.scrollWidth - 2;
-        rail.classList.toggle('ani-can-prev', left);
-        rail.classList.toggle('ani-can-next', right);
-        rail.classList.toggle('ani-rail-no-scroll', cards.length <= 1 || (!left && !right));
-        arrows[0].disabled = !left;
-        arrows[1].disabled = !right;
+        return () => {
+          if (imageHeight) rail.style.setProperty('--ani-rail-image-height', imageHeight);
+          if (height) rail.style.setProperty('--ani-rail-card-height', height);
+          rail.classList.toggle('ani-can-prev', left);
+          rail.classList.toggle('ani-can-next', right);
+          rail.classList.toggle('ani-rail-no-scroll', cards.length <= 1 || (!left && !right));
+          arrows[0].disabled = !left;
+          arrows[1].disabled = !right;
+        };
       };
+      const sync = () => scheduleRailMeasurement(measure);
       list.addEventListener('scroll', sync, { passive: true });
       if (typeof ResizeObserver === 'function') new ResizeObserver(sync).observe(list);
-      requestAnimationFrame(sync);
+      sync();
     }
     for (const actions of document.querySelectorAll('.ani-section-actions')) {
       let input = actions.querySelector('input.ani-owned-rating-toggle');
@@ -1794,6 +1903,8 @@
       inner.style.setProperty('border', '0', 'important');
     }
   }
+  let fullscreenObserver;
+
   function enhancePlayerControls() {
     const dlgMuteSvg = '<svg class="ani-dlg-title-icon" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path d="M301.1 34.8C312.6 40 320 51.4 320 64l0 384c0 12.6-7.4 24-18.9 29.2s-25 3.1-34.4-5.3L131.8 352 64 352c-35.3 0-64-28.7-64-64l0-64c0-35.3 28.7-64 64-64l67.8 0L266.7 40.1c9.4-8.4 22.9-10.4 34.4-5.3zM425 167l55 55 55-55c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-55 55 55 55c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-55-55-55 55c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l55-55-55-55c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0z"/></svg>';
     const dlgFlagSvg = '<svg class="ani-dlg-title-icon" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M64 32C64 14.3 49.7 0 32 0S0 14.3 0 32L0 64 0 368 0 480c0 17.7 14.3 32 32 32s32-14.3 32-32l0-128 64.3-16.1c41.1-10.3 84.6-5.5 122.5 13.4c44.2 22.1 95.5 24.8 141.7 7.4l34.7-13c12.5-4.7 20.8-16.6 20.8-30l0-247.7c0-23-24.2-38-44.8-27.7l-9.6 4.8c-46.3 23.2-100.8 23.2-147.1 0c-35.1-17.6-75.4-22-113.5-12.5L64 48l0-16z"/></svg>';
@@ -1824,6 +1935,7 @@
     const shareUrl=document.querySelector('#share-url-text');
     const shareBody=shareUrl?.closest('.dialogify__body'),shareCard=shareUrl?.closest('.dialogify__content');
     if(shareBody&&shareCard&&!shareCard.dataset.aniShare){
+      shareCard.closest('.dialogify')?.classList.add('ani-share-dialog');
       shareCard.dataset.aniShare='true';shareCard.classList.add('ani-share-card');
       const video=document.querySelector('#ani_video video'),preview=document.createElement('div');preview.className='ani-share-preview';
       const header=document.createElement('div');header.className='ani-share-caption';const heading=document.createElement('h3');
@@ -2770,15 +2882,26 @@
       syncVol();
     }
     const aniPlayer=document.querySelector('#ani_video');
-    if(!document.body.dataset.aniFsSyncBound){
-      document.body.dataset.aniFsSyncBound='true';
-      const syncFs=()=>{
-        const fs=Boolean(document.fullscreenElement||document.webkitFullscreenElement||document.querySelector('#ani_video.vjs-fullscreen,.videoframe.vjs-fullscreen,.videoframe.fullwindow'));
-        document.body.classList.toggle('ani-is-fullscreen',fs);
+    if (aniPlayer && !aniPlayer.dataset.aniFsSyncBound) {
+      aniPlayer.dataset.aniFsSyncBound = 'true';
+      const syncFullscreen = () => {
+        const fullWindow = Boolean(document.querySelector('.vjs-fullwindow, .fullwindow'));
+        const fullScreen = fullWindow || Boolean(document.fullscreenElement ||
+          document.webkitFullscreenElement || document.querySelector('.vjs-fullscreen'));
+        document.body.classList.toggle('ani-is-fullscreen', fullScreen);
+        document.body.classList.toggle('ani-is-fullwindow', fullWindow);
       };
-      document.addEventListener('fullscreenchange',syncFs);
-      document.addEventListener('webkitfullscreenchange',syncFs);
-      syncFs();
+      fullscreenObserver?.disconnect();
+      fullscreenObserver = new MutationObserver(syncFullscreen);
+      for (const node of [document.body, aniPlayer, ...document.querySelectorAll('.videoframe, section.player, #video-container')]) {
+        fullscreenObserver.observe(node, {attributes: true, attributeFilter: ['class']});
+      }
+      if (!document.body.dataset.aniFsSyncBound) {
+        document.body.dataset.aniFsSyncBound = 'true';
+        document.addEventListener('fullscreenchange', syncFullscreen);
+        document.addEventListener('webkitfullscreenchange', syncFullscreen);
+      }
+      syncFullscreen();
     }
     if(aniPlayer&&!aniPlayer.dataset.aniStartedBound){
       aniPlayer.dataset.aniStartedBound='true';
@@ -2806,6 +2929,8 @@
           dismissed=true;
           aniPlayer.classList.remove('ani-mini-pip');
           aniPlayer.dataset.aniPipDismissed='true';
+          document.body.classList.remove('ani-pip-active');
+          document.body.classList.add('ani-pip-dismissed');
           playerSlot.style.minHeight='';
           playerSlot.style.background='';
         });
@@ -2918,11 +3043,13 @@
               playerSlot.style.minHeight=`${Math.round(entry.boundingClientRect.height)}px`;
               playerSlot.style.background='transparent';
               aniPlayer.classList.add('ani-mini-pip');
+              document.body.classList.add('ani-pip-active');
             }
           }else if(entry.isIntersecting||entry.boundingClientRect.top>=0){
             dismissed=false;
             delete aniPlayer.dataset.aniPipDismissed;
             aniPlayer.classList.remove('ani-mini-pip');
+            document.body.classList.remove('ani-pip-active', 'ani-pip-dismissed');
             playerSlot.style.minHeight='';
             playerSlot.style.background='';
           }
@@ -3567,6 +3694,7 @@
     if(location.pathname==='/party_entrance.php')for(const block of document.querySelectorAll('.common-content')){const heading=block.querySelector('.theme-title'),body=block.querySelector('.party-entrance-desc-block');if(heading&&body){block.classList.add('ani-party-secondary');if(!heading.querySelector('.ani-account-icon'))heading.insertAdjacentHTML('afterbegin',accountIcon(heading.textContent.includes('更新')?'<path d="M20 11a8 8 0 1 0-2 6M20 4v7h-7"/>':'<path d="M12 3 2 21h20Z"/><path d="M12 9v5m0 3v.1"/>'));}}
     const accountPage = /\/(?:animePay(?:ed|Router)?|animeAgeValidate|redeem)\.php$/i.test(location.pathname);
     document.body?.classList.toggle('ani-account-page', accountPage);
+    document.body?.classList.toggle('ani-account-has-plans', accountPage && Boolean(document.querySelector('.pay-state')));
     if (!settings.themeEnabled) return;
     for (const toggle of document.querySelectorAll('.pay-state .list-morebtn:not([data-ani-expand])')) {
       toggle.dataset.aniExpand = 'true';
@@ -3791,10 +3919,23 @@
         for (let wrapper = screen.parentElement; wrapper && wrapper !== player; wrapper = wrapper.parentElement) {
           wrapper.classList.add('ani-age-wrapper');
         }
-        const poster=document.querySelector('#ani_video video')?.poster||document.querySelector('meta[property="og:image"]')?.content;if(poster&&/^https:\/\//.test(poster))screen.style.setProperty('--ani-consent-cover',`url("${poster.replace(/["\\]/g,'')}")`);requestAnimationFrame(()=>requestAnimationFrame(()=>screen.classList.add('ani-age-ready')));break;}}
+        const playerRoot = screen.closest('#ani_video');
+        playerRoot?.classList.add('ani-age-player');
+        const poster=document.querySelector('#ani_video video')?.poster||document.querySelector('meta[property="og:image"]')?.content;if(poster&&/^https:\/\//.test(poster))screen.style.setProperty('--ani-consent-cover',`url("${poster.replace(/["\\]/g,'')}")`);
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          if (!screen.isConnected || !playerRoot?.contains(screen)) return;
+          screen.classList.add('ani-age-ready');
+          playerRoot.classList.add('ani-age-screen-ready');
+        }));
+        break;}}
 }}
 
-    { const vid = document.querySelector('#ani_video'); if (vid && agree && decline && !vid.querySelector('.ani-age-screen')) vid.classList.add('ani-has-consent'); else if (vid && !(agree && decline)) vid.classList.remove('ani-has-consent'); }
+    const consentPlayer = document.querySelector('#ani_video');
+    if (consentPlayer) {
+      const consentScreen = consentPlayer.querySelector('.ani-age-screen');
+      consentPlayer.classList.toggle('ani-has-consent', Boolean(agree && decline && !consentScreen));
+      consentPlayer.classList.toggle('ani-age-screen-ready', Boolean(consentScreen?.classList.contains('ani-age-ready')));
+    }
     const sectionIcons={"忍者": "<svg class=\"ani-section-icon\" fill=\"currentColor\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 448 512\"><path d=\"M224 256c-57.2 0-105.6-37.5-122-89.3c-1.1 1.3-2.2 2.6-3.5 3.8c-15.8 15.8-38.8 20.7-53.6 22.1c-8.1 .8-14.6-5.7-13.8-13.8c1.4-14.7 6.3-37.8 22.1-53.6c5.8-5.8 12.6-10.1 19.6-13.4c-7-3.2-13.8-7.6-19.6-13.4C37.4 82.7 32.6 59.7 31.1 44.9c-.8-8.1 5.7-14.6 13.8-13.8c14.7 1.4 37.8 6.3 53.6 22.1c4.8 4.8 8.7 10.4 11.7 16.1C131.4 28.2 174.4 0 224 0c70.7 0 128 57.3 128 128s-57.3 128-128 128zM0 482.3C0 399.5 56.4 330 132.8 309.9c6-1.6 12.2 .9 15.9 5.8l62.5 83.3c6.4 8.5 19.2 8.5 25.6 0l62.5-83.3c3.7-4.9 9.9-7.4 15.9-5.8C391.6 330 448 399.5 448 482.3c0 16.4-13.3 29.7-29.7 29.7L29.7 512C13.3 512 0 498.7 0 482.3zM160 96c-8.8 0-16 7.2-16 16s7.2 16 16 16l128 0c8.8 0 16-7.2 16-16s-7.2-16-16-16L160 96z\"/></svg>", "競速": "<svg class=\"ani-section-icon\" fill=\"currentColor\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 448 512\"><path d=\"M32 0C49.7 0 64 14.3 64 32l0 16 69-17.2c38.1-9.5 78.3-5.1 113.5 12.5c46.3 23.2 100.8 23.2 147.1 0l9.6-4.8C423.8 28.1 448 43.1 448 66.1l0 279.7c0 13.3-8.3 25.3-20.8 30l-34.7 13c-46.2 17.3-97.6 14.6-141.7-7.4c-37.9-19-81.3-23.7-122.5-13.4L64 384l0 96c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-80 0-66L0 64 0 32C0 14.3 14.3 0 32 0zM64 187.1l64-13.9 0 65.5L64 252.6 64 318l48.8-12.2c5.1-1.3 10.1-2.4 15.2-3.3l0-63.9 38.9-8.4c8.3-1.8 16.7-2.5 25.1-2.1l0-64c13.6 .4 27.2 2.6 40.4 6.4l23.6 6.9 0 66.7-41.7-12.3c-7.3-2.1-14.8-3.4-22.3-3.8l0 71.4c21.8 1.9 43.3 6.7 64 14.4l0-69.8 22.7 6.7c13.5 4 27.3 6.4 41.3 7.4l0-64.2c-7.8-.8-15.6-2.3-23.2-4.5l-40.8-12 0-62c-13-3.8-25.8-8.8-38.2-15c-8.2-4.1-16.9-7-25.8-8.8l0 72.4c-13-.4-26 .8-38.7 3.6L128 173.2 128 98 64 114l0 73.1zM320 335.7c16.8 1.5 33.9-.7 50-6.8l14-5.2 0-71.7-7.9 1.8c-18.4 4.3-37.3 5.7-56.1 4.5l0 77.4zm64-149.4l0-70.8c-20.9 6.1-42.4 9.1-64 9.1l0 69.4c13.9 1.4 28 .5 41.7-2.6l22.3-5.2z\"/></svg>", "音樂": "<svg class=\"ani-section-icon\" fill=\"currentColor\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M499.1 6.3c8.1 6 12.9 15.6 12.9 25.7l0 72 0 264c0 44.2-43 80-96 80s-96-35.8-96-80s43-80 96-80c11.2 0 22 1.6 32 4.6L448 147 192 223.8 192 432c0 44.2-43 80-96 80s-96-35.8-96-80s43-80 96-80c11.2 0 22 1.6 32 4.6L128 200l0-72c0-14.1 9.3-26.6 22.8-30.7l320-96c9.7-2.9 20.2-1.1 28.3 5z\"/></svg>", "職業": "<svg class=\"ani-section-icon\" fill=\"currentColor\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M184 48l144 0c4.4 0 8 3.6 8 8l0 40L176 96l0-40c0-4.4 3.6-8 8-8zm-56 8l0 40L64 96C28.7 96 0 124.7 0 160l0 96 192 0 128 0 192 0 0-96c0-35.3-28.7-64-64-64l-64 0 0-40c0-30.9-25.1-56-56-56L184 0c-30.9 0-56 25.1-56 56zM512 288l-192 0 0 32c0 17.7-14.3 32-32 32l-64 0c-17.7 0-32-14.3-32-32l0-32L0 288 0 416c0 35.3 28.7 64 64 64l384 0c35.3 0 64-28.7 64-64l0-128z\"/></svg>", "經典": "<svg class=\"ani-section-icon\" fill=\"currentColor\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M0 96C0 60.7 28.7 32 64 32l384 0c35.3 0 64 28.7 64 64l0 320c0 35.3-28.7 64-64 64L64 480c-35.3 0-64-28.7-64-64L0 96zM48 368l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0c-8.8 0-16 7.2-16 16zm368-16c-8.8 0-16 7.2-16 16l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0zM48 240l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0c-8.8 0-16 7.2-16 16zm368-16c-8.8 0-16 7.2-16 16l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0zM48 112l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16L64 96c-8.8 0-16 7.2-16 16zM416 96c-8.8 0-16 7.2-16 16l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0zM160 128l0 64c0 17.7 14.3 32 32 32l128 0c17.7 0 32-14.3 32-32l0-64c0-17.7-14.3-32-32-32L192 96c-17.7 0-32 14.3-32 32zm32 160c-17.7 0-32 14.3-32 32l0 64c0 17.7 14.3 32 32 32l128 0c17.7 0 32-14.3 32-32l0-64c0-17.7-14.3-32-32-32l-128 0z\"/></svg>", "到期": "<svg class=\"ani-section-icon\" fill=\"currentColor\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 384 512\"><path d=\"M32 0C14.3 0 0 14.3 0 32S14.3 64 32 64l0 11c0 42.4 16.9 83.1 46.9 113.1L146.7 256 78.9 323.9C48.9 353.9 32 394.6 32 437l0 11c-17.7 0-32 14.3-32 32s14.3 32 32 32l32 0 256 0 32 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l0-11c0-42.4-16.9-83.1-46.9-113.1L237.3 256l67.9-67.9c30-30 46.9-70.7 46.9-113.1l0-11c17.7 0 32-14.3 32-32s-14.3-32-32-32L320 0 64 0 32 0zM96 75l0-11 192 0 0 11c0 19-5.6 37.4-16 53L112 128c-10.3-15.6-16-34-16-53zm16 309c3.5-5.3 7.6-10.3 12.1-14.9L192 301.3l67.9 67.9c4.6 4.6 8.6 9.6 12.1 14.9L112 384z\"/></svg>", "新聞": "<svg class=\"ani-section-icon\" fill=\"currentColor\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M96 96c0-35.3 28.7-64 64-64l288 0c35.3 0 64 28.7 64 64l0 320c0 35.3-28.7 64-64 64L80 480c-44.2 0-80-35.8-80-80L0 128c0-17.7 14.3-32 32-32s32 14.3 32 32l0 272c0 8.8 7.2 16 16 16s16-7.2 16-16L96 96zm64 24l0 80c0 13.3 10.7 24 24 24l112 0c13.3 0 24-10.7 24-24l0-80c0-13.3-10.7-24-24-24L184 96c-13.3 0-24 10.7-24 24zm208-8c0 8.8 7.2 16 16 16l48 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-48 0c-8.8 0-16 7.2-16 16zm0 96c0 8.8 7.2 16 16 16l48 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-48 0c-8.8 0-16 7.2-16 16zM160 304c0 8.8 7.2 16 16 16l256 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-256 0c-8.8 0-16 7.2-16 16zm0 96c0 8.8 7.2 16 16 16l256 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-256 0c-8.8 0-16 7.2-16 16z\"/></svg>", "話題": "<svg class=\"ani-section-icon\" fill=\"currentColor\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 512\"><path d=\"M208 352c114.9 0 208-78.8 208-176S322.9 0 208 0S0 78.8 0 176c0 38.6 14.7 74.3 39.6 103.4c-3.5 9.4-8.7 17.7-14.2 24.7c-4.8 6.2-9.7 11-13.3 14.3c-1.8 1.6-3.3 2.9-4.3 3.7c-.5 .4-.9 .7-1.1 .8l-.2 .2s0 0 0 0s0 0 0 0C1 327.2-1.4 334.4 .8 340.9S9.1 352 16 352c21.8 0 43.8-5.6 62.1-12.5c9.2-3.5 17.8-7.4 25.2-11.4C134.1 343.3 169.8 352 208 352zM448 176c0 112.3-99.1 196.9-216.5 207C255.8 457.4 336.4 512 432 512c38.2 0 73.9-8.7 104.7-23.9c7.5 4 16 7.9 25.2 11.4c18.3 6.9 40.3 12.5 62.1 12.5c6.9 0 13.1-4.5 15.2-11.1c2.1-6.6-.2-13.8-5.8-17.9c0 0 0 0 0 0s0 0 0 0l-.2-.2c-.2-.2-.6-.4-1.1-.8c-1-.8-2.5-2-4.3-3.7c-3.6-3.3-8.5-8.1-13.3-14.3c-5.5-7-10.7-15.4-14.2-24.7c24.9-29 39.6-64.7 39.6-103.4c0-92.8-84.9-168.9-192.6-175.5c.4 5.1 .6 10.3 .6 15.5z\"/></svg>"};
     for(const heading of document.querySelectorAll('#BH_background .theme-title')){
       const text=heading.textContent,key=text.includes('2000')||text.includes('經典')?'經典':Object.keys(sectionIcons).find(k=>text.includes(k));
@@ -3823,11 +3964,38 @@
     enhanceInfiniteCatalog();
     const weekly = document.querySelector('#blockVideoInSeason');
     if (weekly) {
+      if (!weekly.dataset.aniScheduleTabs) {
+        weekly.dataset.aniScheduleTabs = 'true';
+        weekly.addEventListener('click', event => {
+          const tab = event.target.closest?.('.textpage-switch-page, .newanime-switch-page');
+          if (!settings.themeEnabled || !tab) return;
+          const week = weekly.querySelector('.programlist-wrap');
+          const releases = weekly.querySelector('.newanime-wrap.sort-selected') || weekly.querySelector('.newanime-wrap');
+          if (!week || !releases) return;
+          event.stopPropagation();
+          if (tab.classList.contains('nav-choose-segment')) return;
+          const weeklyView = tab.matches('.textpage-switch-page');
+          releases.classList.toggle('ani-release-panel', weeklyView);
+          for (const button of tab.parentElement.querySelectorAll('.nav-segment-control')) {
+            button.classList.toggle('nav-choose-segment', button === tab);
+          }
+          for (const [panel, visible] of [[week, weeklyView], [releases, !weeklyView]]) {
+            panel.style.removeProperty('display');
+            panel.classList.toggle('newanime-content-hide', !visible);
+          }
+          const filter = weekly.querySelector('.btn-newanime-filter');
+          if (filter) filter.style.display = weeklyView ? 'none' : 'flex';
+        }, true);
+      }
+      const today = new Intl.DateTimeFormat('en-CA', {timeZone: 'Asia/Taipei', year: 'numeric', month: 'numeric', day: 'numeric'});
+      const parts = Object.fromEntries(today.formatToParts(new Date()).filter(part => part.type !== 'literal').map(part => [part.type, Number(part.value)]));
+      const monday = new Date(Date.UTC(parts.year, parts.month - 1, parts.day));
+      monday.setUTCDate(monday.getUTCDate() - (monday.getUTCDay() + 6) % 7);
       let hasExtra=false;
       [...weekly.querySelectorAll('.day-list')].forEach((day,dayIndex)=>{
         if(day.dataset.aniWeekDay!==String(dayIndex))day.dataset.aniWeekDay=String(dayIndex);
-        const parts=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'numeric',day:'numeric'}).formatToParts(new Date()).filter(p=>p.type!=='literal').map(p=>[p.type,Number(p.value)]));
-        const date=new Date(Date.UTC(parts.year,parts.month-1,parts.day));date.setUTCDate(date.getUTCDate()-((date.getUTCDay()+6)%7)+dayIndex);
+        const date = new Date(monday);
+        date.setUTCDate(date.getUTCDate() + dayIndex);
         const dateLabel=`${date.getUTCMonth()+1}/${date.getUTCDate()}`;
         let dayLabel=day.querySelector(':scope > .ani-week-hover-date');
         if(!dayLabel){dayLabel=document.createElement('span');dayLabel.className='ani-week-hover-date';dayLabel.setAttribute('aria-hidden','true');day.append(dayLabel);}
@@ -3838,23 +4006,37 @@
           tile.classList.toggle('ani-week-extra',index>=5);if(index>=5)hasExtra=true;
           let shell=tile.parentElement;
           if(!shell.classList.contains('ani-week-tile-shell')){shell=document.createElement('div');shell.className='ani-week-tile-shell';tile.before(shell);shell.append(tile);}
+          shell.classList.toggle('ani-week-extra-shell', index >= 5);
           shell.querySelector('.ani-week-hover-date')?.remove();
         });
       });
       if(hasExtra&&!weekly.querySelector('.ani-week-expand')){
         const button=document.createElement('button');button.type='button';button.className='ani-week-expand';button.setAttribute('aria-expanded','false');
-        const sync=()=>{const open=weekly.classList.contains('ani-week-expanded');button.setAttribute('aria-expanded',String(open));button.innerHTML=`<span>${open?'收合週期表':'展開完整週期表'}</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>`;};
-        button.addEventListener('click',()=>{
-          const sy=window.scrollY;
+        button.innerHTML = '<span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+        const label = button.firstElementChild;
+        const sync = () => {
+          const open = weekly.classList.contains('ani-week-expanded');
+          button.setAttribute('aria-expanded', String(open));
+          label.textContent = open ? '收合週期表' : '展開完整週期表';
+        };
+        button.addEventListener('click',event=>{
+          event.stopPropagation();
           const open=!weekly.classList.contains('ani-week-expanded');
           weekly.classList.toggle('ani-week-expanded',open);
           sync();
-          if(open&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
-            button.animate?.([{opacity:0.65},{opacity:1}],{duration:180,easing:'ease-out'});
+          if (open && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            button.animate?.([{opacity: 0.65}, {opacity: 1}], {duration: 150, easing: 'ease-out'});
           }
-          requestAnimationFrame(()=>{if(Math.abs(window.scrollY-sy)>2)window.scrollTo(window.scrollX,sy);});
         });sync();
         (weekly.querySelector('.programlist-wrap_block')||weekly.querySelector('.programlist-block'))?.after(button);
+      }
+      const sourceByHref = new Map();
+      const sourceByName = new Map();
+      for (const card of weekly.querySelectorAll('.anime-card-block')) {
+        const href = card.getAttribute('href');
+        const name = card.querySelector('.anime-name')?.textContent.trim();
+        if (href && !sourceByHref.has(href)) sourceByHref.set(href, card);
+        if (name && !sourceByName.has(name)) sourceByName.set(name, card);
       }
       for (const tile of weekly.querySelectorAll('.text-anime-info')) {
         const title=tile.querySelector('.text-anime-name');
@@ -3866,11 +4048,10 @@
           if(badge&&!badge.querySelector('svg')) badge.insertAdjacentHTML('afterbegin',`<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="${path}"/></svg>`);
         }
         const name = tile.querySelector('.text-anime-name')?.textContent.trim();
-        const sources = [...weekly.querySelectorAll('.anime-card-block')];
-        const source = sources.find(c=>c.getAttribute('href') === tile.getAttribute('href')) || sources.find(c=>c.querySelector('.anime-name')?.textContent.trim() === name);
+        const source = sourceByHref.get(tile.getAttribute('href')) || sourceByName.get(name);
         const image = source?.querySelector('.anime-blocker img');
         const url = image?.dataset.src || image?.src;
-        if (url && /^https:\/\/(?:p2|i2|truth)\.bahamut\.com\.tw\//.test(url) && tile.style.getPropertyValue('--ani-week-cover') !== `url("${url}")`) tile.style.setProperty('--ani-week-cover',`url("${url}")`);
+        if (url && /^https:\/\/(?:p2|i2|truth)\.bahamut\.com\.tw\//.test(url)) prepareWeekCover(tile, image, url);
         if (!tile.querySelector('.ani-week-score')) {
           const score = [...(source?.querySelectorAll('.ani-score-badge-top-left,.label-edition') || [])].map(n=>n.textContent.trim()).find(t=>/^(?:★\s*)?[0-5](?:\.\d+)?$/.test(t));
           if (score) { const pill = document.createElement('span'); pill.className = 'ani-week-score'; pill.textContent = `★ ${score.replace(/★\s*/,'')}`; tile.append(pill); }
@@ -3990,17 +4171,12 @@
       outline.setAttribute('aria-hidden', 'true');
       card.append(outline);
       const measure = () => {
-        const height = `${Math.ceil(Math.max(card.getBoundingClientRect().height, footer.getBoundingClientRect().bottom - card.getBoundingClientRect().top))}px`;
+        const bounds = card.getBoundingClientRect();
+        const height = `${Math.ceil(Math.max(bounds.height, footer.getBoundingClientRect().bottom - bounds.top))}px`;
         if (outline.style.height !== height) outline.style.height = height;
       };
-      if (typeof ResizeObserver === 'function') {
-        const observer = new ResizeObserver(measure);
-        observer.observe(footer);
-        observer.observe(card);
-      }
       card.addEventListener('mouseenter', measure);
       card.addEventListener('focusin', measure);
-      requestAnimationFrame(measure);
     }
     for (const pic of document.querySelectorAll('#BH_background .extend-card .extend-pic-block')) {
       const img = pic.querySelector('img');
@@ -4088,7 +4264,9 @@
     requestAnimationFrame(fitPremiumCard);
     const premiumGrid = document.querySelector('#blockVideoInSeason .newanime-block:has(> .premium-block)');
     if (premiumGrid && !premiumGridObserver && typeof ResizeObserver === 'function') {
-      premiumGridObserver = new ResizeObserver(fitPremiumCard);
+      premiumGridObserver = new ResizeObserver(([entry]) => {
+        if (entry.contentRect.width && !entry.target.closest('.newanime-content-hide')) fitPremiumCard();
+      });
       premiumGridObserver.observe(premiumGrid);
     }
     enhanceContinueWatch();
@@ -4128,7 +4306,7 @@
         if (lightId) {
           document.dispatchEvent(new CustomEvent('ani-topbar-open', { detail: lightId }));
           const msg = getMsgBox();
-          if (msg && getComputedStyle(msg).display === 'none' && link) {
+          if (msg && getComputedStyle(msg).display === 'none' && link && /^javascript:\s*TOPBAR_show\(/i.test(link.getAttribute('href') || '')) {
             link.click();
           }
           if (msg && !msg.dataset.aniHoverBound) {
@@ -4136,7 +4314,7 @@
             msg.addEventListener('mouseenter', () => clearTimeout(memberHoverCloseTimer));
             msg.addEventListener('mouseleave', scheduleClose);
           }
-        } else if (!item.classList.contains('is-active') && link) {
+        } else if (!item.classList.contains('is-active') && link && /^javascript:\s*TOPBAR_show\(/i.test(link.getAttribute('href') || '')) {
           link.click();
         }
       });
@@ -4325,32 +4503,18 @@
       if (capturedScore) {
         if (sn) writeScoreCache(sn, capturedScore);
         renderTopLeftScoreBadge(picBlock, capturedScore);
-      } else if (!picBlock.querySelector(':scope > .ani-score-badge-top-left') && sn) {
+      } else if (!picBlock.querySelector(':scope > .ani-score-badge-top-left:not([hidden])') && sn) {
         if (cache[sn]?.s) {
           renderTopLeftScoreBadge(picBlock, cache[sn].s);
         } else {
+          renderTopLeftScoreBadge(picBlock, '');
           queueScoreFetch(sn);
         }
       }
-      const nameEl = area.querySelector('.anime-name');
-      if (nameEl && (nameEl.clientWidth || 0) > 0 && !nameEl.dataset.aniMarqueeInit) {
-        nameEl.dataset.aniMarqueeInit = 'true';
-        const overflow = (nameEl.scrollWidth || 0) - (nameEl.clientWidth || 0);
-        const ownerCard = area.querySelector('.anime-card-block') || area.closest('.anime-card-block') || area;
-        ownerCard.classList.toggle('ani-card-has-overflow', overflow > 2);
-        if (overflow > 2) {
-          const text = (nameEl.textContent || '').trim();
-          const dist = Math.ceil(overflow + 16);
-          const dur = Math.max(5.5, dist / 14).toFixed(2);
-          const track = document.createElement('span');
-          track.className = 'ani-marquee-track';
-          track.textContent = text;
-          nameEl.replaceChildren(track);
-          nameEl.dataset.aniMarquee = 'true';
-          nameEl.style.setProperty('--ani-marquee-dist', `-${dist}px`);
-          nameEl.style.setProperty('--ani-marquee-dur', `${dur}s`);
-        }
-      }
+    }
+    for (const title of document.querySelectorAll('#blockVideoInSeason .newanime-date-area .anime-name:not([data-ani-marquee-init])')) {
+      if (releaseTitles) releaseTitles.observe(title);
+      else measureReleaseTitle(title);
     }
     // Style 相關商品 header icon, capsule buy button, right-aligned price & hide carousel arrows unless many items scroll
     const ungroupedMerch = document.querySelector('#BH_background > .container-player:has(> section.player) .store_wrapper:not(.ani-watch-related-row .store_wrapper)');
@@ -5571,6 +5735,7 @@
       if (!introPane && dataSection) {
         introPane = document.createElement('div');
         introPane.id = 'ani-tab-content-intro';
+        document.getElementById('BH_background')?.classList.add('ani-has-intro-pane');
         introPane.className = 'ani-tab-content__item ani-sidebar-pane ani-sidebar-intro';
         tabContent.append(introPane);
       }
@@ -7080,7 +7245,7 @@
         record.target.nodeType === 1
           ? record.target
           : record.target.parentElement;
-      if (target?.closest('.ani-view-settings-panel, .ani-nav-more-menu, .ani-week-expand, .ani-date-cursor')) return false;
+      if (target?.closest('.ani-view-settings-panel, .ani-nav-more-menu, .ani-week-expand, .ani-date-cursor, .ani-home-dash, .ani-home-intro')) return false;
       if (!target?.closest('.video-js,.videoframe')) return true;
       return [...record.addedNodes, ...record.removedNodes].some(
         (node) =>

@@ -12,7 +12,7 @@ body.ani-ambientlight-page {
   font-family: var(--ani-font, system-ui, 'Microsoft JhengHei', sans-serif) !important;
   line-height: 1.55;
 }
-html:has(body.ani-ambientlight-ui) {
+html.ani-ambientlight-ui {
   background: var(--ani-base, #0f1621) !important;
 }
 body.ani-ambientlight-ui {
@@ -131,22 +131,22 @@ body.ani-layout-nav .mainmenu .ani-nav-icon svg {
   }
   body.ani-layout-nav.fullscreen #BH_background,
   body.ani-layout-nav.fullscreen .footer,
-  body.ani-layout-nav:has(:fullscreen, .vjs-fullwindow, .vjs-fullscreen, .fullwindow) #BH_background,
-  body.ani-layout-nav:has(:fullscreen, .vjs-fullwindow, .vjs-fullscreen, .fullwindow) .footer,
+  body.ani-layout-nav.ani-is-fullscreen #BH_background,
+  body.ani-layout-nav.ani-is-fullscreen .footer,
   :fullscreen #BH_background,
   :-webkit-full-screen #BH_background {
     padding-left: 0 !important;
     margin-left: 0 !important;
   }
   body.ani-layout-nav.fullscreen :is(.top_sky, .mainmenu > .container-player > ul),
-  body.ani-layout-nav:has(:fullscreen, .vjs-fullwindow, .vjs-fullscreen, .fullwindow) :is(.top_sky, .mainmenu > .container-player > ul) {
+  body.ani-layout-nav.ani-is-fullscreen :is(.top_sky, .mainmenu > .container-player > ul) {
     display: none !important;
   }
 }
 body.ani-layout-watch.fullscreen #BH_background > .container-player:has(> section.player),
 body.ani-layout-watch.fullscreen #BH_background section.player.ani-ambientlight-stage,
-body.ani-layout-watch:has(:fullscreen, .vjs-fullwindow, .vjs-fullscreen, .fullwindow) #BH_background > .container-player:has(> section.player),
-body.ani-layout-watch:has(:fullscreen, .vjs-fullwindow, .vjs-fullscreen, .fullwindow) #BH_background section.player.ani-ambientlight-stage {
+body.ani-layout-watch.ani-is-fullscreen #BH_background > .container-player:has(> section.player),
+body.ani-layout-watch.ani-is-fullscreen #BH_background section.player.ani-ambientlight-stage {
   margin: 0 !important;
   padding: 0 !important;
   max-width: none !important;
@@ -999,6 +999,9 @@ body.ani-ambientlight-page #blockVideoInSeason .anime-pic-block::after {
 body.ani-ambientlight-ui #blockVideoInSeason .anime-pic-block {
   background: var(--ani-soft);
 }
+body.ani-ambientlight-page #blockVideoInSeason .anime-pic-block .ani-score-badge-top-left[hidden] {
+  display: none !important;
+}
 body.ani-ambientlight-page #blockVideoInSeason .anime-pic-block .ani-score-badge-top-left {
   position: absolute !important;
   inset: 0 auto auto 0 !important;
@@ -1384,8 +1387,8 @@ body.ani-ambientlight-ui #blockVideoInSeason .newanime-wrap .newanime-date-area 
 }
 
 /* Home collections are scrollable editorial shelves, not stacked boxes. */
-body.ani-layout-related
-  #BH_background:has(#blockVideoInSeason)
+body.ani-layout-related.ani-home-page
+  #BH_background
   > .container
   > .animate-theme-list:not(:has(.filter-section)) {
   height: auto !important;
@@ -1394,8 +1397,8 @@ body.ani-layout-related
 }
 
 /* Home collections are scrollable editorial shelves, not stacked boxes. */
-body.ani-ambientlight-ui
-  #BH_background:has(#blockVideoInSeason)
+body.ani-ambientlight-ui.ani-home-page
+  #BH_background
   > .container
   > .animate-theme-list:not(:has(.filter-section)) {
   background: transparent !important;
@@ -1414,8 +1417,8 @@ body.ani-layout-related #BH_background > .container > .animate-theme-list .theme
 body.ani-ambientlight-ui #BH_background > .container > .animate-theme-list .theme-title {
   color: var(--ani-text) !important;
 }
-body.ani-layout-related
-  #BH_background:has(#blockVideoInSeason)
+body.ani-layout-related.ani-home-page
+  #BH_background
   > .container
   > .animate-theme-list:not(:has(.filter-section))
   .theme-list-block {
@@ -1430,8 +1433,8 @@ body.ani-layout-related
   scroll-snap-type: x proximity;
   padding: 0 0 12px !important;
 }
-body.ani-layout-related
-  #BH_background:has(#blockVideoInSeason)
+body.ani-layout-related.ani-home-page
+  #BH_background
   > .container
   > .animate-theme-list:not(:has(.filter-section))
   .theme-list-main {
@@ -1442,8 +1445,8 @@ body.ani-layout-related
   scroll-snap-align: start;
   text-decoration: none;
 }
-body.ani-ambientlight-ui
-  #BH_background:has(#blockVideoInSeason)
+body.ani-ambientlight-ui.ani-home-page
+  #BH_background
   > .container
   > .animate-theme-list:not(:has(.filter-section))
   .theme-list-main {
@@ -1457,16 +1460,16 @@ body.ani-ambientlight-ui
     transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
     border-color 0.18s ease !important;
 }
-body.ani-ambientlight-ui
-  #BH_background:has(#blockVideoInSeason)
+body.ani-ambientlight-ui.ani-home-page
+  #BH_background
   > .container
   > .animate-theme-list:not(:has(.filter-section))
   .theme-list-main:hover {
   transform: translateY(-3px);
   border-color: var(--ani-accent) !important;
 }
-body.ani-layout-related
-  #BH_background:has(#blockVideoInSeason)
+body.ani-layout-related.ani-home-page
+  #BH_background
   > .container
   > .animate-theme-list:not(:has(.filter-section))
   .theme-img-block {
@@ -1476,15 +1479,15 @@ body.ani-layout-related
   overflow: hidden;
   border-radius: 10px !important;
 }
-body.ani-ambientlight-ui
-  #BH_background:has(#blockVideoInSeason)
+body.ani-ambientlight-ui.ani-home-page
+  #BH_background
   > .container
   > .animate-theme-list:not(:has(.filter-section))
   .theme-img-block {
   background: var(--ani-soft);
 }
-body.ani-layout-related
-  #BH_background:has(#blockVideoInSeason)
+body.ani-layout-related.ani-home-page
+  #BH_background
   > .container
   > .animate-theme-list:not(:has(.filter-section))
   .theme-img-block
@@ -1493,8 +1496,8 @@ body.ani-layout-related
   height: 100% !important;
   object-fit: cover;
 }
-body.ani-ambientlight-ui
-  #BH_background:has(#blockVideoInSeason)
+body.ani-ambientlight-ui.ani-home-page
+  #BH_background
   > .container
   > .animate-theme-list:not(:has(.filter-section))
   .anime-detail-block {
@@ -1718,7 +1721,7 @@ body.ani-ambientlight-ui
 body.ani-ambientlight-ui
   #BH_background
   > .container
-  > .animate-theme-list:has(> .filter-section)
+  > .animate-theme-list.ani-filtered-list
   .theme-info-block
   :is(p, span, div) {
   color: var(--ani-text) !important;
@@ -2358,8 +2361,8 @@ body.ani-ambientlight-ui .ani-ambientlight-floating-toggle {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 18px 12px;
   }
-  body.ani-layout-related
-    #BH_background:has(#blockVideoInSeason)
+  body.ani-layout-related.ani-home-page
+    #BH_background
     > .container
     > .animate-theme-list:not(:has(.filter-section))
     .theme-list-block {
@@ -4284,7 +4287,7 @@ body.ani-ambientlight-page .anime-card .history-list-triangle {
 }
 
 /* ── 九、我的動畫：卡片網格（海報為主，資訊在下，人氣疊在海報角落） ── */
-body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
+body.ani-ambientlight-ui:not(.ani-home-page)
   #BH_background
   .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason)):not(:has(.ani-poster-card))
   .theme-list-block {
@@ -4295,7 +4298,7 @@ body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
   height: auto !important;
   padding: 4px 0 32px !important;
 }
-body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
+body.ani-ambientlight-ui:not(.ani-home-page)
   #BH_background
   .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason)):not(:has(.ani-poster-card))
   .theme-list-main {
@@ -4317,7 +4320,7 @@ body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
     transform 0.16s cubic-bezier(0.22, 1, 0.36, 1),
     border-color 0.16s ease !important;
 }
-body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
+body.ani-ambientlight-ui:not(.ani-home-page)
   #BH_background
   .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason)):not(:has(.ani-poster-card))
   .theme-img-block {
@@ -4331,7 +4334,7 @@ body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
   background: var(--ani-soft);
   transition: none !important;
 }
-body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
+body.ani-ambientlight-ui:not(.ani-home-page)
   #BH_background
   .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason)):not(:has(.ani-poster-card))
   .theme-img-block
@@ -4341,20 +4344,20 @@ body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
   object-fit: cover;
   transition: none !important;
 }
-body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
+body.ani-ambientlight-ui:not(.ani-home-page)
   #BH_background
   .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason)):not(:has(.ani-poster-card))
   .theme-list-main:hover {
   transform: translateY(-2px);
   border-color: var(--ani-accent, #3dafb6) !important;
 }
-body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
+body.ani-ambientlight-ui:not(.ani-home-page)
   #BH_background
   .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason)):not(:has(.ani-poster-card))
   .anime-detail-block {
   display: contents;
 }
-body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
+body.ani-ambientlight-ui:not(.ani-home-page)
   #BH_background
   .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason)):not(:has(.ani-poster-card))
   .anime-tag-row {
@@ -4366,7 +4369,7 @@ body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
   margin: 0 8px 8px 0;
   pointer-events: none;
 }
-body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
+body.ani-ambientlight-ui:not(.ani-home-page)
   #BH_background
   .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason)):not(:has(.ani-poster-card))
   .show-view-number {
@@ -4380,7 +4383,7 @@ body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
   border-radius: 999px;
   background: rgba(15, 22, 33, 0.8);
 }
-body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
+body.ani-ambientlight-ui:not(.ani-home-page)
   #BH_background
   .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason)):not(:has(.ani-poster-card))
   .show-view-number
@@ -4390,14 +4393,14 @@ body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
   line-height: 16px;
   margin: 0;
 }
-body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
+body.ani-ambientlight-ui:not(.ani-home-page)
   #BH_background
   .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason)):not(:has(.ani-poster-card))
   .theme-info-block {
   grid-area: 2 / 1;
   padding: 10px 2px 0;
 }
-body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
+body.ani-ambientlight-ui:not(.ani-home-page)
   #BH_background
   .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason)):not(:has(.ani-poster-card))
   .theme-name {
@@ -4410,7 +4413,7 @@ body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
   font-weight: 600;
   line-height: 1.4;
 }
-body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
+body.ani-ambientlight-ui:not(.ani-home-page)
   #BH_background
   .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason)):not(:has(.ani-poster-card))
   .theme-detail-info-block {
@@ -4419,7 +4422,7 @@ body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
   gap: 4px 10px;
   margin-top: 4px;
 }
-body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
+body.ani-ambientlight-ui:not(.ani-home-page)
   #BH_background
   .animate-theme-list:not(:has(.filter-section)):not(:has(#blockVideoInSeason)):not(:has(.ani-poster-card))
   :is(.theme-time, .theme-number) {
@@ -4429,18 +4432,18 @@ body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
   font-size: 13px;
 }
 
-body.ani-ambientlight-page:not(:has(#blockVideoInSeason)):not(.ani-catalog-page) #BH_background .theme-list-main:not(.ani-poster-card) :is(.anime-detail-block, .theme-info-block, .theme-detail-info-block) {
+body.ani-ambientlight-page:not(.ani-home-page):not(.ani-catalog-page) #BH_background .theme-list-main:not(.ani-poster-card) :is(.anime-detail-block, .theme-info-block, .theme-detail-info-block) {
   height: auto !important;
   min-height: 0 !important;
   position: static !important;
 }
-body.ani-ambientlight-page:not(:has(#blockVideoInSeason)):not(.ani-catalog-page) #BH_background .theme-list-main:not(.ani-poster-card) .theme-info-block {
+body.ani-ambientlight-page:not(.ani-home-page):not(.ani-catalog-page) #BH_background .theme-list-main:not(.ani-poster-card) .theme-info-block {
   padding: 10px 4px 4px !important;
   display: flex !important;
   flex-direction: column !important;
   gap: 6px !important;
 }
-body.ani-ambientlight-page:not(:has(#blockVideoInSeason)):not(.ani-catalog-page) #BH_background .theme-list-main:not(.ani-poster-card) .theme-name {
+body.ani-ambientlight-page:not(.ani-home-page):not(.ani-catalog-page) #BH_background .theme-list-main:not(.ani-poster-card) .theme-name {
   display: block !important;
   white-space: nowrap !important;
   overflow: hidden !important;
@@ -4451,7 +4454,7 @@ body.ani-ambientlight-page:not(:has(#blockVideoInSeason)):not(.ani-catalog-page)
   font-weight: 600 !important;
   line-height: 1.4 !important;
 }
-body.ani-ambientlight-page:not(:has(#blockVideoInSeason)):not(.ani-catalog-page) #BH_background .theme-list-main:not(.ani-poster-card):hover .theme-name {
+body.ani-ambientlight-page:not(.ani-home-page):not(.ani-catalog-page) #BH_background .theme-list-main:not(.ani-poster-card):hover .theme-name {
   display: block !important;
   white-space: normal !important;
   overflow: visible !important;
@@ -4459,7 +4462,7 @@ body.ani-ambientlight-page:not(:has(#blockVideoInSeason)):not(.ani-catalog-page)
   -webkit-line-clamp: unset !important;
   max-height: none !important;
 }
-body.ani-ambientlight-page:not(:has(#blockVideoInSeason)):not(.ani-catalog-page) #BH_background .theme-list-main:not(.ani-poster-card) .theme-detail-info-block {
+body.ani-ambientlight-page:not(.ani-home-page):not(.ani-catalog-page) #BH_background .theme-list-main:not(.ani-poster-card) .theme-detail-info-block {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
@@ -4468,13 +4471,13 @@ body.ani-ambientlight-page:not(:has(#blockVideoInSeason)):not(.ani-catalog-page)
   margin: 0 !important;
   width: 100% !important;
 }
-body.ani-ambientlight-page:not(:has(#blockVideoInSeason)):not(.ani-catalog-page) #BH_background .theme-list-main:not(.ani-poster-card) :is(.theme-time, .theme-number) {
+body.ani-ambientlight-page:not(.ani-home-page):not(.ani-catalog-page) #BH_background .theme-list-main:not(.ani-poster-card) :is(.theme-time, .theme-number) {
   position: static !important;
   margin: 0 !important;
   float: none !important;
   font-size: 12px !important;
 }
-body.ani-ambientlight-ui:not(:has(#blockVideoInSeason)) #BH_background .theme-list-main:not(.ani-poster-card) .theme-number {
+body.ani-ambientlight-ui:not(.ani-home-page) #BH_background .theme-list-main:not(.ani-poster-card) .theme-number {
   background: var(--ani-accent, #3dafb6) !important;
   color: #0f1621 !important;
   padding: 2px 7px !important;
@@ -4729,11 +4732,11 @@ body.ani-ambientlight-ui #BH_background .btn-next:has(> p):hover {
 body.ani-ambientlight-ui #BH_background .btn-next:has(> p):hover :is(p, span, i) {
   color: #0f1621 !important;
 }
-body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container {
+body.ani-layout-related.ani-home-page #BH_background > .container {
   display: flex !important;
   flex-direction: column !important;
 }
-body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:has(.continue-watch-area, .btn-next) {
+body.ani-layout-related.ani-home-page #BH_background > .container > .animate-theme-list:has(.continue-watch-area, .btn-next) {
   order: -10 !important;
 }
 body.ani-ambientlight-ui #BH_background .animate-theme-list:has(.continue-watch-area, .btn-next) > .theme-title-block {
@@ -5836,13 +5839,13 @@ body.ani-ambientlight-page #BH_background .ani-section-actions input[type='check
   accent-color: var(--ani-accent, #3dafb6);
 }
 /* Homepage poster rails are independent of the My Anime grid. */
-body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main {
+body.ani-layout-related.ani-home-page #BH_background > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main {
   display: flex !important;
   flex-direction: column !important;
   min-width: 0 !important;
   align-self: start !important;
 }
-body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-img-block {
+body.ani-layout-related.ani-home-page #BH_background > .container > .animate-theme-list:not(:has(.filter-section)) .theme-img-block {
   padding: 0 !important;
   width: 100% !important;
   min-width: 0 !important;
@@ -5850,30 +5853,30 @@ body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .
   aspect-ratio: 2 / 3 !important;
   flex: 0 0 auto !important;
 }
-body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-img-block .theme-img {
+body.ani-layout-related.ani-home-page #BH_background > .container > .animate-theme-list:not(:has(.filter-section)) .theme-img-block .theme-img {
   position: absolute !important;
   inset: 0 !important;
   width: 100% !important;
   height: 100% !important;
   object-fit: cover !important;
 }
-body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main::after {
+body.ani-layout-related.ani-home-page #BH_background > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main::after {
   display: none !important;
 }
-body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .anime-detail-block {
+body.ani-layout-related.ani-home-page #BH_background > .container > .animate-theme-list:not(:has(.filter-section)) .anime-detail-block {
   position: relative !important;
   inset: auto !important;
   height: auto !important;
   min-width: 0 !important;
 }
-body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-info-block {
+body.ani-layout-related.ani-home-page #BH_background > .container > .animate-theme-list:not(:has(.filter-section)) .theme-info-block {
   height: auto !important;
   min-height: 0 !important;
   width: 100% !important;
   padding: 10px 3px 4px !important;
   box-sizing: border-box;
 }
-body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-block {
+body.ani-layout-related.ani-home-page #BH_background > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-block {
   align-items: start !important;
   grid-template-columns: none !important;
   grid-auto-rows: auto !important;
@@ -6222,7 +6225,7 @@ body.ani-ambientlight-ui #BH_background .animate-theme-list .theme-info-block .t
   margin-bottom: 0 !important;
 }
 /* Leave room inside horizontal scrollports for hover borders and shadows. */
-body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-block {
+body.ani-layout-related.ani-home-page #BH_background > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-block {
   padding: 6px 4px 20px !important;
   box-sizing: border-box;
 }
@@ -6273,10 +6276,10 @@ body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card
 }
 
 /* Poster titles expand upward within a reserved footer, never changing row height. */
-body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main {
+body.ani-layout-related.ani-home-page #BH_background > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main {
   padding-bottom: 88px !important;
 }
-body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main .anime-detail-block {
+body.ani-layout-related.ani-home-page #BH_background > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main .anime-detail-block {
   position: absolute !important;
   inset: auto 8px 8px !important;
   width: calc(100% - 16px) !important;
@@ -6286,11 +6289,11 @@ body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .
   background: var(--ani-card-bg, #172332) !important;
   border-radius: 0 0 8px 8px;
 }
-body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main:is(:hover, :focus-within) .anime-detail-block {
+body.ani-layout-related.ani-home-page #BH_background > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main:is(:hover, :focus-within) .anime-detail-block {
   height: auto !important;
   background: rgba(23,35,50,.96) !important;
 }
-body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main .theme-name {
+body.ani-layout-related.ani-home-page #BH_background > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main .theme-name {
   display: block !important;
   white-space: nowrap !important;
   overflow: hidden !important;
@@ -6298,7 +6301,7 @@ body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .
   height: auto !important;
   max-height: none !important;
 }
-body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main:is(:hover, :focus-within) .theme-name {
+body.ani-layout-related.ani-home-page #BH_background > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main:is(:hover, :focus-within) .theme-name {
   white-space: normal !important;
   overflow: visible !important;
   -webkit-line-clamp: unset !important;
@@ -6354,13 +6357,13 @@ body.ani-ambientlight-ui #BH_background #blockContinueWatch .btn-next:hover .ani
 }
 
 /* Poster footers must not inherit the native 61px clipping limit. */
-body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main .theme-info-block {
+body.ani-layout-related.ani-home-page #BH_background > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main .theme-info-block {
   max-height: none !important;
   overflow: visible !important;
   flex-shrink: 0 !important;
   justify-content: flex-start !important;
 }
-body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main .theme-name {
+body.ani-layout-related.ani-home-page #BH_background > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main .theme-name {
   min-height: 21px;
   line-height: 21px !important;
   flex-shrink: 0;
@@ -6403,7 +6406,7 @@ body.ani-ambientlight-page #BH_background .ani-section-icon svg {
 }
 
 /* Poster rails use the same readable type scale as the season cards. */
-body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main .theme-name {
+body.ani-layout-related.ani-home-page #BH_background > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main .theme-name {
   font-size: 13px !important;
   font-weight: 600 !important;
   letter-spacing: -.01em !important;
@@ -6417,7 +6420,7 @@ body.ani-ambientlight-ui #BH_background .animate-theme-list .ani-poster-score {
 body.ani-ambientlight-ui #BH_background .animate-theme-list .theme-img-block > .theme-number {
   font-size: 12.5px !important;
 }
-body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main :is(.theme-time, .show-view-number, .show-view-number p) {
+body.ani-layout-related.ani-home-page #BH_background > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main :is(.theme-time, .show-view-number, .show-view-number p) {
   font-size: 13px !important;
   line-height: 20px !important;
 }
@@ -6426,31 +6429,31 @@ body.ani-ambientlight-ui #BH_background .animate-theme-list .label-edition:not(.
 }
 
 /* Hover footers extend downward from the poster, outside document flow. */
-body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main {
+body.ani-layout-related.ani-home-page #BH_background > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main {
   overflow: visible !important;
 }
-body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main .anime-detail-block {
+body.ani-layout-related.ani-home-page #BH_background > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main .anime-detail-block {
   inset: calc(100% - 80px) 8px auto !important;
   border-radius: 0 0 8px 8px;
   border: 1px solid transparent;
   box-sizing: border-box;
 }
-body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main:is(:hover, :focus-within) {
+body.ani-layout-related.ani-home-page #BH_background > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main:is(:hover, :focus-within) {
   z-index: 9;
 }
-body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main:is(:hover, :focus-within) .anime-detail-block {
+body.ani-layout-related.ani-home-page #BH_background > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main:is(:hover, :focus-within) .anime-detail-block {
   height: auto !important;
   border-color: var(--ani-accent, #3dafb6);
   border-top-color: transparent;
   box-shadow: 0 8px 16px #0003;
 }
-body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-block {
+body.ani-layout-related.ani-home-page #BH_background > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-block {
   padding-bottom: 100px !important;
   margin-bottom: -80px !important;
 }
 
 /* The expanding footer continues the outer card, with no inset second frame. */
-body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main .anime-detail-block {
+body.ani-layout-related.ani-home-page #BH_background > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main .anime-detail-block {
   inset: calc(100% - 80px) -1px auto !important;
   width: calc(100% + 2px) !important;
   padding-inline: 8px !important;
@@ -6458,10 +6461,10 @@ body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .
   border-top: 0 !important;
   border-radius: 0 0 var(--ani-radius, 12px) var(--ani-radius, 12px) !important;
 }
-body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main:is(:hover, :focus-within) {
+body.ani-layout-related.ani-home-page #BH_background > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main:is(:hover, :focus-within) {
   border-bottom-color: transparent !important;
 }
-body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main:is(:hover, :focus-within) .anime-detail-block {
+body.ani-layout-related.ani-home-page #BH_background > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main:is(:hover, :focus-within) .anime-detail-block {
   border-color: var(--ani-accent, #3dafb6) !important;
   border-top: 0 !important;
 }
@@ -6574,15 +6577,15 @@ body.ani-ambientlight-ui #BH_background .theme-list-main .theme-img-block > .ani
   transform: none !important;
 }
 /* One continuous footer: its default bottom matches the original card bottom. */
-body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main .anime-detail-block {
+body.ani-layout-related.ani-home-page #BH_background > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main .anime-detail-block {
   top: calc(100% - 88px) !important;
   height: 88px !important;
   min-height: 88px !important;
 }
-body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main:is(:hover, :focus-within) {
+body.ani-layout-related.ani-home-page #BH_background > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main:is(:hover, :focus-within) {
   box-shadow: none !important;
 }
-body.ani-layout-related #BH_background:has(#blockVideoInSeason) > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main:is(:hover, :focus-within) .anime-detail-block {
+body.ani-layout-related.ani-home-page #BH_background > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main:is(:hover, :focus-within) .anime-detail-block {
   height: auto !important;
   min-height: 88px !important;
 }

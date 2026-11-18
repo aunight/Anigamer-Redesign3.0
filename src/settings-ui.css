@@ -2,7 +2,7 @@
    結構：一、色彩 token　二、面板框架　三、導覽　四、欄位　五、選項卡片　六、桌面雙欄　七、手機 */
 
 /* 一、色彩 token：面板配色固定，背景透明度由 --ani-editor-opacity 控制。 */
-:where(.ani-view-settings-panel, body:has(#settings-controls)) {
+:where(.ani-view-settings-panel, body.ani-settings-popup) {
   --ani-editor-bg: #0e1014;
   --ani-editor-bg-rgb: 14, 16, 20;
   --ani-editor-surface: #171a20;
@@ -952,7 +952,7 @@ body .ani-view-settings-panel .ani-settings-select input[type='text'] {
 /* 九、重新設計：放映室控制台。
    一個記號：目前選中、開啟的東西帶一圈柔光，像影片投在牆上的光。其餘保持安靜，不加裝飾條。
    易用性：點擊區一律 44px 以上、按下有回饋、焦點環一致、禁用狀態看得出來。 */
-:where(.ani-view-settings-panel, body:has(#settings-controls)) {
+:where(.ani-view-settings-panel, body.ani-settings-popup) {
   touch-action: manipulation;
 }
 body .ani-view-settings-panel {

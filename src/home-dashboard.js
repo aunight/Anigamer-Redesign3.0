@@ -613,9 +613,12 @@
 
       ro?.disconnect();
       if (view === 'year') {
-        const fit = () => {
+        let lastWidth = -1;
+        const fit = ([entry]) => {
           if (!graph.isConnected || !graph.parentElement) return;
-          const w = graph.parentElement.clientWidth;
+          const w = entry.contentRect.width;
+          if (w === lastWidth) return;
+          lastWidth = w;
           tip.hidden = true;
           const per = Math.floor((w - 34) / weeks);
           const gp = per < 12 ? 2 : 3;
@@ -624,9 +627,8 @@
           graph.style.setProperty('--gp', `${gp}px`);
           requestAnimationFrame(() => { graph.scrollLeft = graph.scrollWidth; });
         };
-        requestAnimationFrame(fit);
         ro = new ResizeObserver(fit);
-        ro.observe(el);
+        ro.observe(graph.parentElement);
         graph.onpointerover = (e) => {
           const c = e.target?.closest?.('.ani-fp-cells .ani-fp-cell');
           if (!c || c.classList.contains('future')) { tip.hidden = true; return; }
