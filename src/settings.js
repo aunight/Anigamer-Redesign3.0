@@ -370,6 +370,12 @@
   // ── 二、選單分類與預設主題 ──
   const categories = [
     {
+      id: 'general',
+      name: '一般設定',
+      description: '常用開關、深淺切換與設定備份',
+      keys: groups[4].fields.map((f) => f[0]),
+    },
+    {
       id: 'themes',
       name: '預設主題',
       description: '六種配色，也可自訂重點色',
@@ -497,10 +503,10 @@
       keys: groups[3].fields.map((f) => f[0]),
     },
     {
-      id: 'general',
-      name: '其他與備份',
-      description: '頁面廣告、匯入與匯出',
-      keys: groups[4].fields.map((f) => f[0]),
+      id: 'credit',
+      name: '關於',
+      description: '版本資訊、致謝與檢查更新',
+      keys: [],
     },
   ];
   const presets = {
@@ -772,6 +778,7 @@
     performance: '<path d="M4 19a9 9 0 1 1 16 0M12 13l5-5"/><circle cx="12" cy="13" r="2"/>',
     bars: '<path d="M7 3v14h14M3 7h14v14"/>',
     general: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18m-12 4h6m-9-9V3m12 2V3"/>',
+    credit: '<circle cx="12" cy="12" r="9"/><path d="M12 16v-4"/><circle cx="12" cy="8.2" r="0.6" fill="currentColor" stroke="none"/>',
   };
   const categoryIcon = id => `<svg class="ani-settings-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${categoryIcons[id] || categoryIcons.general}</svg>`;
   // 依延伸邏輯分組，避免方法增加後變成難掃讀的單一清單。
@@ -839,8 +846,12 @@
         return `<label class="ani-settings-select">${label}<select data-setting="${key}">${field[3].map(([value, label]) => `<option value="${value}">${label}</option>`).join('')}</select></label>`;
       return `<label class="ani-settings-range">${label}<output data-value="${key}"></output><input type="range" aria-label="${label}" data-setting="${key}" min="${field[2]}" max="${field[3]}" step="${field[4]}"></label>`;
     };
-    const fieldHTML = (field) =>
-      `<div class="ani-setting-row">${fieldControlHTML(field)}<button type="button" class="ani-setting-reset" data-reset-setting="${field[0]}" aria-label="還原${field[1]}的預設值" title="恢復預設">${resetIcon}</button>${field[0] === 'customFontGoogle' ? '<div class="ani-settings-help ani-field-help"><p>只在選「自訂字體」時使用。</p><p>填 Google Fonts 的英文名稱，例如 Noto Sans TC。不用貼網址。</p><p>開啟會向 Google 下載字型。</p><p>關閉則使用裝置已安裝的同名字體。找不到時使用系統字體。</p></div>' : ''}</div>`;
+    const fieldHTML = (field) => {
+      const resetHtml = field[2] === 'boolean'
+        ? ''
+        : `<button type="button" class="ani-setting-reset" data-reset-setting="${field[0]}" aria-label="還原${field[1]}的預設值" title="恢復預設">${resetIcon}</button>`;
+      return `<div class="ani-setting-row">${fieldControlHTML(field)}${resetHtml}${field[0] === 'customFontGoogle' ? '<div class="ani-settings-help ani-field-help"><p>只在選「自訂字體」時使用。</p><p>填 Google Fonts 的英文名稱，例如 Noto Sans TC。不用貼網址。</p><p>開啟會向 Google 下載字型。</p><p>關閉則使用裝置已安裝的同名字體。找不到時使用系統字體。</p></div>' : ''}</div>`;
+    };
     const chevron =
       '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     const preset =
@@ -887,7 +898,28 @@
       performance: { adaptiveQuality: '自動畫質', fps: '更新與同步' },
     };
     const backup =
-      '<div class="ani-settings-actions"><button type="button" data-action="reset">還原預設</button><button type="button" data-action="export">匯出</button><button type="button" data-action="import">匯入</button><input type="file" data-import-file accept="application/json,.json" hidden></div>';
+      '<div class="ani-settings-actions">'
+      + '<button type="button" class="ani-pill-btn" data-action="reset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10a8 8 0 1 1 2 9M4 4v6h6"/></svg><span>還原預設</span></button>'
+      + '<button type="button" class="ani-pill-btn" data-action="export"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>匯出設定</span></button>'
+      + '<button type="button" class="ani-pill-btn" data-action="import"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><span>匯入設定</span></button>'
+      + '<input type="file" data-import-file accept="application/json,.json" hidden></div>';
+    const creditCard =
+      '<div class="ani-credit-card">'
+      + '<div class="ani-credit-head">'
+      + '<div><h4 class="ani-credit-title">動畫瘋沉浸重製版 3.0</h4><p class="ani-credit-sub">Anigamer-Redesign 3.0 · v3.0.0 · MIT</p></div>'
+      + '<div class="ani-credit-actions">'
+      + '<button type="button" class="ani-pill-btn is-accent" data-action="check-update"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg><span>檢測更新</span></button>'
+      + '<a class="ani-pill-btn" href="https://github.com/aunight/Anigamer-Redesign3.0" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg><span>GitHub</span></a>'
+      + '</div></div>'
+      + '<p class="ani-credit-update-msg" data-update-status role="status"></p>'
+      + '<h4 class="ani-settings-subheading">Credits</h4>'
+      + '<ul class="ani-credit-list">'
+      + '<li><strong>anigamer-ambilight</strong><span>環境光基底</span><a class="ani-pill-btn ani-pill-sm" href="https://github.com/Hinataragi/anigamer-ambilight" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span>GitHub</span></a></li>'
+      + '<li><strong>bilibili-margin</strong><span>首頁足跡＆天氣卡片</span><a class="ani-pill-btn ani-pill-sm" href="https://github.com/jiuyang5354/bilibili-margin" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span>GitHub</span></a></li>'
+      + '<li><strong>Liquid Ripple Shader</strong><span>開場動態波紋特效</span><a class="ani-pill-btn ani-pill-sm" href="https://21st.dev/@saurabh-2607/components/great-ui-liquid-ripple-shader" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span>21st.dev</span></a></li>'
+      + '<li><strong>Lens Switch</strong><span>深淺模式鏡片開關</span><a class="ani-pill-btn ani-pill-sm" href="https://uberdesigner.ai/t/lens-switch" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span>原文頁</span></a></li>'
+      + '<li><strong>動畫瘋·Plus</strong><span>播放器工具列整合</span><a class="ani-pill-btn ani-pill-sm" href="https://greasyfork.org/zh-TW/scripts/369990-%E5%8B%95%E7%95%AB%E7%98%8B-plus" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span>GreasyFork</span></a></li>'
+      + '</ul></div>';
     return (
       '<div class="ani-settings-home" data-settings-home>' +
       categories
@@ -909,7 +941,7 @@
       categories
         .map(
           (c) =>
-            `<section data-settings-page="${c.id}" hidden><div class="ani-settings-fields">${c.id === 'themes' ? themes : ''}${c.id === 'performance' ? performancePreset : ''}${c.id === 'light' ? preset : ''}${c.keys.map((k) => (sectionHeadings[c.id]?.[k] ? `<h4 class="ani-settings-subheading">${sectionHeadings[c.id][k]}</h4>` : '') + fieldHTML(fields.get(k))).join('')}</div>${c.id === 'appearance' ? '<p class="ani-font-preview" data-font-preview>動畫瘋・作品資訊與留言 Aa 123</p><p class="ani-settings-help">頁面文字會使用此字體。影片內建字幕不受影響。</p><p data-font-status class="ani-settings-help" role="status"></p>' : ''}${c.id === 'light' ? '<p class="ani-settings-help">選好效果後，可再調整亮度、範圍和模糊程度。</p>' : ''}${c.id === 'performance' ? '<p class="ani-settings-help" data-render-status role="status">播放影片後顯示渲染狀態。</p>' : ''}${c.id === 'bars' ? '<p class="ani-settings-help">「避開取樣」讓光暈不取用黑條。「覆蓋黑條」則會把光暈畫在黑條上；偵測到字幕或圖案時保留。</p>' : ''}${c.id === 'general' ? backup : ''}</section>`,
+            `<section data-settings-page="${c.id}" hidden><div class="ani-settings-fields">${c.id === 'themes' ? themes : ''}${c.id === 'performance' ? performancePreset : ''}${c.id === 'light' ? preset : ''}${c.keys.map((k) => (sectionHeadings[c.id]?.[k] ? `<h4 class="ani-settings-subheading">${sectionHeadings[c.id][k]}</h4>` : '') + fieldHTML(fields.get(k))).join('')}</div>${c.id === 'appearance' ? '<p class="ani-font-preview" data-font-preview>動畫瘋・作品資訊與留言 Aa 123</p><p class="ani-settings-help">頁面文字會使用此字體。影片內建字幕不受影響。</p><p data-font-status class="ani-settings-help" role="status"></p>' : ''}${c.id === 'light' ? '<p class="ani-settings-help">選好效果後，可再調整亮度、範圍和模糊程度。</p>' : ''}${c.id === 'performance' ? '<p class="ani-settings-help" data-render-status role="status">播放影片後顯示渲染狀態。</p>' : ''}${c.id === 'bars' ? '<p class="ani-settings-help">「避開取樣」讓光暈不取用黑條。「覆蓋黑條」則會把光暈畫在黑條上；偵測到字幕或圖案時保留。</p>' : ''}${c.id === 'general' ? backup : ''}${c.id === 'credit' ? creditCard : ''}</section>`,
         )
         .join('') +
       '</div><p class="ani-settings-status" role="status" aria-live="polite"></p>'
@@ -1022,11 +1054,12 @@
     for (const input of root.querySelectorAll(
       '[data-settings-overview] [data-setting]',
     )) {
-      const label = input.closest('label'),
-        button = document.createElement('button');
-      const name = label.querySelector('span').textContent;
+      const label = input.closest('label');
+      const name = label?.querySelector('span')?.textContent;
       // 還原按鈕位於同一列，但不應加入開關的朗讀名稱。
-      input.setAttribute('aria-label', name);
+      if (name) input.setAttribute('aria-label', name);
+      if (input.type === 'checkbox') continue;
+      const button = document.createElement('button');
       button.type = 'button';
       button.className = 'ani-setting-reset';
       button.dataset.resetSetting = input.dataset.setting;
@@ -1059,8 +1092,9 @@
       ).scrollTop = 0;
       status.textContent = '';
     };
-    navigate('light');
-    root.addEventListener('ani-settings-open', () => navigate('light'));
+    const firstCat = categories[0]?.id || 'general';
+    navigate(firstCat);
+    root.addEventListener('ani-settings-open', () => navigate(firstCat));
     root.addEventListener('click', (event) => {
       if (event.target.closest('[data-reset-category]')) {
         const category = categories.find((c) => c.id === current);
@@ -1195,6 +1229,39 @@
       if (!preset) return;
       update(normalize(preset.values, getValues()));
       report(`已套用「${preset.label}」。`);
+    });
+    root.querySelector('[data-action="check-update"]')?.addEventListener('click', async () => {
+      const msgEl = root.querySelector('[data-update-status]');
+      if (!msgEl) return;
+      msgEl.textContent = '正在檢測最新版本…';
+      const curVer = '3.0.0';
+      const parseVer = (v) => String(v || '').replace(/^v/i, '').split('.').map((n) => Number.parseInt(n, 10) || 0);
+      const cmp = (a, b) => {
+        const pa = parseVer(a), pb = parseVer(b);
+        for (let i = 0; i < 3; i++) if (pa[i] !== pb[i]) return pa[i] - pb[i];
+        return 0;
+      };
+      try {
+        let remoteVer = '';
+        let releaseUrl = 'https://github.com/aunight/Anigamer-Redesign3.0/releases';
+        const res = await fetch('https://api.github.com/repos/aunight/Anigamer-Redesign3.0/releases/latest', { cache: 'no-store' });
+        if (res.ok) {
+          const data = await res.json();
+          remoteVer = data.tag_name || data.name || '';
+          if (data.html_url) releaseUrl = data.html_url;
+        } else {
+          const raw = await fetch('https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/package.json', { cache: 'no-store' });
+          if (raw.ok) remoteVer = (await raw.json())?.version || '';
+        }
+        if (!remoteVer) throw new Error('empty');
+        if (cmp(remoteVer, curVer) > 0) {
+          msgEl.innerHTML = `發現新版本 ${remoteVer}（目前 v${curVer}）· <a href="${releaseUrl}" target="_blank" rel="noopener noreferrer">前往下載更新</a>`;
+        } else {
+          msgEl.textContent = `目前已是最新版本（v${curVer}）。`;
+        }
+      } catch {
+        msgEl.innerHTML = `無法連線取得版本資訊 · <a href="https://github.com/aunight/Anigamer-Redesign3.0/releases" target="_blank" rel="noopener noreferrer">手動檢查 GitHub</a>`;
+      }
     });
     root
       .querySelector('[data-action="reset"]')

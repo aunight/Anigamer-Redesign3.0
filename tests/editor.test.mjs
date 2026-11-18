@@ -38,11 +38,11 @@ assert.equal(sortOptions.children[0].getAttribute('aria-pressed'), 'true');
 const panel=w.document.querySelector('.ani-view-settings-panel'),change=(key,value)=>{const e=panel.querySelector(`[data-setting="${key}"]`);if(e.type==='checkbox')e.checked=value;else e.value=value;e.dispatchEvent(new w.Event('input',{bubbles:true}));};
 assert.equal(panel.querySelector('[data-setting="method"]').value,'diffuse','Fresh defaults use the requested soft diffusion');
 assert.equal(panel.querySelector('[data-setting="diffusionDepth"]').value,'100');
-assert.equal(panel.querySelector('[data-category-shortcut="light"]').getAttribute('aria-current'),'page','Settings open directly to lighting');
+assert.equal(panel.querySelector('[data-category-shortcut="general"]').getAttribute('aria-current'),'page','Settings open directly to first category 一般設定');
 assert(w.document.querySelector('meta[data-ani-theme-lock]'),'theme palette is not recolored by another dark-mode pass');
 panel.querySelector('[data-category-shortcut="themes"]').click();
 w.document.querySelector('.ani-view-settings').click();
-assert.equal(panel.querySelector('[data-category-shortcut="light"]').getAttribute('aria-current'),'page','Every settings opening starts on lighting');
+assert.equal(panel.querySelector('[data-category-shortcut="general"]').getAttribute('aria-current'),'page','Every settings opening starts on first category 一般設定');
 panel.querySelector('[data-effect-choice="soft"]').click();
 assert.equal(panel.querySelector('[data-effect-choice="soft"]').getAttribute('aria-pressed'),'true');
 panel.querySelector('[data-category="light"]').click();
@@ -95,7 +95,10 @@ for(const [flag,selector] of [['foldInfo','section.data'],['foldRelated','.old_l
 for(const key of ['showInfo','showRelated','showNews','showComments'])change(key,false);
 assert.ok(w.document.body.classList.contains('ani-hide-comments'));
 await new Promise(resolve=>setTimeout(resolve,25));assert.ok(mutations<50);
-assert.equal(panel.querySelectorAll('[data-category]').length,9);
+assert.equal(panel.querySelectorAll('[data-category]').length,10);
+panel.querySelector('[data-category-shortcut="credit"]').click();
+assert.equal(panel.querySelector('[data-settings-page="credit"]').hidden,false);
+assert.ok(panel.querySelector('[data-action="check-update"]'));
 panel.querySelector('[data-category-shortcut="light"]').click();
 assert.equal(panel.querySelector('[data-settings-page="light"]').hidden,false);
 assert.equal(panel.querySelector('[data-category-shortcut="light"]').getAttribute('aria-current'),'page');
@@ -106,7 +109,12 @@ change('method','band');assert.equal(panel.querySelector('[data-setting="bandWid
 assert.equal(panel.querySelector('[data-setting="projectionDepth"]').closest('.ani-setting-row').hidden,true);
 const performancePreset=panel.querySelector('[data-performance-preset]');performancePreset.value='smooth';performancePreset.dispatchEvent(new w.Event('input',{bubbles:true}));
 assert.equal(panel.querySelector('[data-setting="renderWidth"]').value,'960');assert.equal(panel.querySelector('[data-setting="fps"]').value,'0');assert.equal(panel.querySelector('[data-setting="smoothing"]').value,'0');
-assert.equal(panel.querySelectorAll('[data-reset-setting]').length,Object.keys(w.AniAmbientSettings.defaults).length);
+assert.equal(panel.querySelectorAll('[data-setting-row-boolean], .ani-setting-row:has(input[type="checkbox"]) [data-reset-setting]').length,0);
+for(const row of panel.querySelectorAll('.ani-setting-row')){
+  if(row.querySelector('input[type="checkbox"]')) assert.equal(row.querySelector('.ani-setting-reset'),null);
+  else assert.ok(row.querySelector('.ani-setting-reset'));
+}
+assert.equal(panel.querySelectorAll('[data-settings-overview] .ani-setting-reset').length,0);
 for(const input of panel.querySelectorAll('[data-settings-overview] [data-setting]')) {
   assert.equal(input.getAttribute('aria-label'),input.closest('label').querySelector('span').textContent);
 }

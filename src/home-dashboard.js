@@ -511,7 +511,24 @@
       const pk = view === 'month' && picked ? picked : todayK;
       const t = activity[pk], pd = new Date(`${pk}T00:00:00`);
       const pLabel = pk === todayK ? '今日' : `${pd.getMonth() + 1}月${pd.getDate()}日`;
-      const stat = (v, label) => h('div', { class: 'ani-fp-stat' }, h('b', {}, v), h('small', {}, label));
+      const stat = (nodes, label) => h('div', { class: 'ani-fp-stat' }, h('b', {}, ...(Array.isArray(nodes) ? nodes : [nodes])), h('small', {}, label));
+      const fmtSecNodes = (sec) => {
+        const mins = Math.floor((sec || 0) / 60);
+        if (mins < 1) return [sec > 0 ? '<1' : '0', h('span', { class: 'ani-fp-unit' }, ' 分鐘')];
+        if (mins < 60) return [String(mins), h('span', { class: 'ani-fp-unit' }, ' 分鐘')];
+        const hr = Math.floor(mins / 60), rm = mins % 60;
+        return rm
+          ? [String(hr), h('span', { class: 'ani-fp-unit' }, ' 小時 '), String(rm), h('span', { class: 'ani-fp-unit' }, ' 分')]
+          : [String(hr), h('span', { class: 'ani-fp-unit' }, ' 小時')];
+      };
+      const fmtTime12Nodes = (hhmmStr) => {
+        if (!hhmmStr || !/^\d{1,2}:\d{2}$/.test(hhmmStr)) return ['—'];
+        const [rawH, rawM] = hhmmStr.split(':');
+        const h24 = Number(rawH);
+        const ampm = h24 >= 12 ? 'pm' : 'am';
+        const h12 = h24 % 12 || 12;
+        return [`${h12}:${rawM}`, h('span', { class: 'ani-ampm-unit' }, ampm)];
+      };
       const segBtn = (v, label) => h('button', {
         type: 'button', class: 'ani-fp-seg-b', 'aria-pressed': String(view === v),
         onclick: () => { if (view === v) return; view = v; try { localStorage.setItem(FP_VIEW_KEY, v); } catch {} paint(activity); },
@@ -580,12 +597,12 @@
           h('div', { class: 'ani-fp-top' },
             h('div', { class: 'ani-fp-eyebrow' }, h('span', { class: 'en' }, 'Footprint'), h('span', {}, view === 'year' ? '近一年' : '按月')),
             h('div', { class: 'ani-fp-seg', role: 'group', 'aria-label': '視圖' }, segBtn('year', '年'), segBtn('month', '月'))),
-          h('h3', { class: 'ani-fp-head' }, `${active} 天打開過動畫瘋`),
+          h('h3', { class: 'ani-fp-head' }, String(active), h('span', { class: 'ani-fp-head-unit' }, ' 天打開過動畫瘋')),
           h('div', { class: 'ani-fp-stats' },
-            stat(recFirst(t) ?? '—', `${pLabel}首次打開`),
-            stat(fmtSec(recSeconds(t)), `${pLabel}時長`),
-            stat(fmtSec(total), '近一年累計'),
-            stat(`${streak} 天`, `目前連續 · 最長 ${best} 天`))),
+            stat(fmtTime12Nodes(recFirst(t)), `${pLabel}首次打開`),
+            stat(fmtSecNodes(recSeconds(t)), `${pLabel}時長`),
+            stat(fmtSecNodes(total), '近一年累計'),
+            stat([String(streak), h('span', { class: 'ani-fp-unit' }, ' 天')], `目前連續 · 最長 ${best} 天`))),
         h('div', { class: 'ani-fp-main' }, mainVisual,
           h('div', { class: 'ani-fp-foot' },
             h('span', { class: 'ani-fp-status', role: 'status' }, syncMsg),
@@ -658,9 +675,12 @@
       layers.set(l, p); svg.append(p);
     }
 
-    const clockText = () => {
+    const clockParts = () => {
       const d = new Date(Date.now() + (wx?.offset ?? 28800) * 1000);
-      return `${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())}`;
+      const h24 = d.getUTCHours();
+      const ampm = h24 >= 12 ? 'pm' : 'am';
+      const h12 = h24 % 12 || 12;
+      return [`${h12}:${pad2(d.getUTCMinutes())}`, h('span', { class: 'ani-ampm-unit' }, ampm)];
     };
     const localHour = () => {
       const d = new Date(Date.now() + (wx?.offset ?? 28800) * 1000);
@@ -678,7 +698,7 @@
       }
     };
 
-    const clockEl = h('span', { class: 'ani-wx-clock' }, clockText());
+    const clockEl = h('span', { class: 'ani-wx-clock' }, ...clockParts());
     const stopTimers = () => {
       if (animTimer) { clearInterval(animTimer); animTimer = null; }
       if (clockTimer) { clearInterval(clockTimer); clockTimer = null; }
@@ -686,9 +706,9 @@
     const startTimers = () => {
       stopTimers();
       if (!wx || !visible || document.hidden || !el.isConnected) return;
-      clockEl.textContent = clockText();
+      clockEl.replaceChildren(...clockParts());
       clockTimer = setInterval(() => {
-        clockEl.textContent = clockText();
+        clockEl.replaceChildren(...clockParts());
         if (reduced) paintSky();
       }, 15000);
       if (!reduced) {
@@ -775,7 +795,7 @@
       const week = h('ul', { class: 'ani-wx-week' });
       week.innerHTML = days.map((d, i) => `<li data-kind="${d.kind}"><span class="ani-wx-dn">${d.name}</span>${glyphSvg(d.kind)}<span class="ani-wx-lo">${deg(d.low)}</span>${mkBar(d.low, d.high, i === 0 ? w.temp : undefined)}<span class="ani-wx-hi">${deg(d.high)}</span></li>`).join('');
 
-      clockEl.textContent = clockText();
+      clockEl.replaceChildren(...clockParts());
       const side = h('div', { class: 'ani-wx-side' },
         h('header', { class: 'ani-wx-head' },
           h('div', { class: 'ani-wx-place' }, cityBtn, h('small', {}, subTxt)),
@@ -832,24 +852,26 @@
       return;
     }
 
-    const host =
+    const bgRoot = document.querySelector('#BH_background');
+    const hero = document.querySelector('#BH_background .big_banner, .ani-hero-banner, .big_banner');
+    const containerHost =
+      document.querySelector('#BH_background > .container') ||
       document.querySelector('#BH_background > .animate-content') ||
-      document.querySelector('#BH_background') ||
+      bgRoot ||
       document.querySelector('.animate-content');
-    if (!host) return;
-
-    const anchor =
-      host.querySelector('#blockContinueWatch') ||
-      host.querySelector('#blockVideoInSeason');
-    const hero = host.querySelector('.ani-hero-banner, .big_banner');
+    if (!containerHost) return;
 
     let dash = existing;
     if (!dash) {
       dash = document.createElement('div');
       dash.className = 'ani-home-dash';
+    }
+    if (hero && hero.parentElement) {
+      if (dash.previousElementSibling !== hero) hero.after(dash);
+    } else if (!dash.isConnected) {
+      const anchor = containerHost.querySelector('#blockContinueWatch, #blockVideoInSeason');
       if (anchor) anchor.before(dash);
-      else if (hero) hero.after(dash);
-      else host.prepend(dash);
+      else containerHost.prepend(dash);
     }
 
     const curFp = dash.querySelector('.ani-fp-card');

@@ -51,6 +51,7 @@
       "js": [
         "hero-banner.js",
         "home-dashboard.js",
+        "lens-switch.js",
         "settings.js",
         "black-bars.js",
         "ambient-renderer.js",

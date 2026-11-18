@@ -12,7 +12,8 @@ body.ani-ambientlight-page .big_banner.ani-hero-enabled > :not(.ani-hero) { disp
 body.ani-ambientlight-page .ani-hero {
   position: relative;
   display: block;
-  width: min(calc(100% - 32px), 1600px);
+  width: calc(100% - 48px);
+  max-width: none;
   height: clamp(360px, 34vw, 560px);
   margin: 0 auto;
   overflow: hidden;

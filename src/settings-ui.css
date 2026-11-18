@@ -308,9 +308,11 @@ body .ani-view-settings-panel section[data-settings-page] {
 .ani-setting-reset {
   min-height: 44px;
   padding: 0 4px !important;
-  border: 1px solid var(--ani-editor-line) !important;
+  border: 0 !important;
   border-radius: 10px;
   background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
   color: var(--ani-editor-muted) !important;
   font: inherit;
   font-size: 12px;
@@ -318,7 +320,9 @@ body .ani-view-settings-panel section[data-settings-page] {
 }
 .ani-setting-reset:hover,
 .ani-setting-reset:focus-visible {
-  border-color: var(--ani-editor-accent) !important;
+  border: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
   color: var(--ani-editor-text) !important;
 }
 .ani-setting-reset svg {
@@ -372,6 +376,116 @@ body .ani-view-settings-panel section[data-settings-page] {
   font-weight: 600;
   line-height: 1.5;
   color: var(--ani-editor-text) !important;
+}
+.ani-settings-fields > .ani-settings-subheading:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+.ani-pill-btn,
+.ani-settings-actions button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  min-height: 40px !important;
+  padding: 8px 16px !important;
+  border-radius: 999px !important;
+  border: 1px solid var(--ani-editor-line) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: var(--ani-editor-text) !important;
+  font: 600 13.5px/1.2 inherit !important;
+  text-decoration: none !important;
+  cursor: pointer;
+  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+}
+.ani-pill-btn:hover,
+.ani-settings-actions button:hover {
+  background: rgba(61, 175, 182, 0.22) !important;
+  border-color: rgba(76, 211, 220, 0.65) !important;
+  color: #ffffff !important;
+}
+.ani-pill-btn.is-accent {
+  background: rgba(61, 175, 182, 0.22) !important;
+  border-color: rgba(76, 211, 220, 0.56) !important;
+  color: #7ef0f6 !important;
+}
+.ani-pill-btn svg,
+.ani-settings-actions button svg {
+  width: 15px !important;
+  height: 15px !important;
+  flex: none;
+}
+.ani-pill-btn.ani-pill-sm {
+  min-height: 30px !important;
+  padding: 4px 12px !important;
+  font-size: 12.5px !important;
+}
+.ani-credit-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.ani-credit-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.ani-credit-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ani-editor-text);
+}
+.ani-credit-sub {
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  color: var(--ani-editor-muted);
+}
+.ani-credit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ani-credit-desc {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--ani-editor-text);
+}
+.ani-credit-update-msg {
+  margin: 0;
+  font-size: 13px;
+  color: var(--ani-editor-accent);
+}
+.ani-credit-update-msg:empty { display: none; }
+.ani-credit-update-msg a { color: #8eeef4; text-decoration: underline; }
+.ani-credit-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.ani-credit-list li {
+  display: grid;
+  grid-template-columns: minmax(140px, auto) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px 14px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--ani-editor-line);
+  background: rgba(255, 255, 255, 0.03);
+}
+.ani-credit-list strong {
+  font-size: 13.5px;
+  color: var(--ani-editor-text);
+}
+.ani-credit-list span {
+  font-size: 12.5px;
+  color: var(--ani-editor-muted);
 }
 .ani-font-preview {
   margin: 24px 0 0;
@@ -880,13 +994,18 @@ body .ani-view-settings-panel .ani-settings-heading h2 {
   transform: translateX(3px);
 }
 
-/* 欄位列：重設鈕平時安靜，滑過該列才顯示邊框。 */
+/* 欄位列：重設鈕無底無邊框，滑過時僅亮顯圖示。 */
 .ani-setting-reset {
-  border-color: transparent !important;
-  transition: border-color 0.15s, color 0.15s;
+  border: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  transition: color 0.15s, transform 0.15s;
 }
 .ani-setting-row:hover .ani-setting-reset {
-  border-color: var(--ani-editor-line) !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--ani-editor-text) !important;
 }
 .ani-setting-reset:active {
   transform: scale(0.94);

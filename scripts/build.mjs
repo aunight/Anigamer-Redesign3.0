@@ -24,7 +24,14 @@ const renderer = fs.readFileSync(
   path.join(source, 'ambient-renderer.js'),
   'utf8',
 );
-const core = fs.readFileSync(path.join(source, 'hero-banner.js'), 'utf8') + '\n' + fs.readFileSync(path.join(source, 'home-dashboard.js'), 'utf8') + '\n' + fs.readFileSync(path.join(source, 'content.js'), 'utf8');
+const core =
+  fs.readFileSync(path.join(source, 'hero-banner.js'), 'utf8') +
+  '\n' +
+  fs.readFileSync(path.join(source, 'home-dashboard.js'), 'utf8') +
+  '\n' +
+  fs.readFileSync(path.join(source, 'lens-switch.js'), 'utf8') +
+  '\n' +
+  fs.readFileSync(path.join(source, 'content.js'), 'utf8');
 const membershipBackground='data:image/png;base64,'+fs.readFileSync(path.join(source,'membership-background.png')).toString('base64');
 const settingsModule = fs.readFileSync(
   path.join(source, 'settings.js'),
@@ -93,7 +100,7 @@ const styleLiteral =
 const legacyGuard = `const reserve=()=>{if(!document.documentElement)return false;const marker=document.createElement('meta');marker.name='anigamer-ambilight-userscript';marker.dataset.aniPreview='installed';marker.dataset.aniV1='installed';document.documentElement.append(marker);return true;};if(!reserve()){const observer=new MutationObserver(()=>{if(reserve())observer.disconnect();});observer.observe(document,{childList:true,subtree:true});}`;
 const bundled =
   metadata +
-  `\n/* Inspired by WesselKroos/youtube-ambilight and iceorange-dev/bilibili-ambilight.\nhttps://github.com/WesselKroos/youtube-ambilight\nhttps://github.com/iceorange-dev/bilibili-ambilight\n${license}\n*/\n(()=>{\n'use strict';\n// 一、避免與舊版開發預覽重複執行\n${legacyGuard}\nGM_addStyle(${JSON.stringify(entryCss)});\n${entryScript}\nconst start=()=>{\n// 二、使用者設定儲存\n${bridge}\n// 三、主題與設定介面樣式\nGM_addStyle(${styleLiteral});\n// 四、設定定義與表單\n${settingsModule}\n// 五、黑條辨識\n${blackBars}\n// 六、光暈渲染\n${renderer}\n// 七、頁面整合與生命週期\n${core.replaceAll('__ANI_MEMBERSHIP_BACKGROUND__',membershipBackground)}\nGM_registerMenuCommand('觀影設定',()=>document.querySelector('.ani-view-settings')?.click());\n};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();\n})();\n`;
+  `\n/* Inspired by WesselKroos/youtube-ambilight and iceorange-dev/bilibili-ambilight.\nhttps://github.com/WesselKroos/youtube-ambilight\nhttps://github.com/iceorange-dev/bilibili-ambilight\n${license}\n*/\n(()=>{\n'use strict';\n// 一、避免與舊版開發預覽重複執行\n${legacyGuard}\nGM_addStyle(${JSON.stringify(entryCss)});\n${entryScript}\nconst start=()=>{\n// 二、使用者設定儲存\n${bridge}\n// 三、主題與設定介面樣式\nGM_addStyle(${styleLiteral});\n// 四、設定定義與表單\n${settingsModule}\n// 五、黑條辨識\n${blackBars}\n// 六、光暈渲染\n${renderer}\n// 七、頁面整合與生命週期\n${core.replaceAll('__ANI_MEMBERSHIP_BACKGROUND__',membershipBackground)}\nGM_registerMenuCommand('設定',()=>document.querySelector('.ani-view-settings')?.click());\n};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();\n})();\n`;
 fs.writeFileSync(
   path.join(out, 'ani-ambilight.user.js'),
   await format(bundled, {
@@ -119,6 +126,7 @@ for (const file of [
   'hero-banner.css',
   'home-dashboard.js',
   'home-dashboard.css',
+  'lens-switch.js',
   'ui-repairs.css',
   'hero-cache-worker.js',
   'content.css',
