@@ -69,7 +69,9 @@
     "https://ja.wikipedia.org/*",
     "https://api.bgm.tv/*",
     "https://graphql.anilist.co/*",
-    "https://myanimelist.net/*"
+    "https://myanimelist.net/*",
+    "https://api.gamer.com.tw/*",
+    "https://wall.gamer.com.tw/*"
   ],
   "web_accessible_resources": [
     {

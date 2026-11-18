@@ -565,9 +565,14 @@
       );
       columnsButton.setAttribute('aria-pressed', String(double));
     } else columnsButton?.remove();
+    const merchContainer = [...document.querySelectorAll('#BH_background > .container-player > *')].find(
+      (el) => !el.matches('section.player, .old_list, .anime-title, .ani-episode-shelf, section.data') && el.querySelector('.store_wrapper')
+    );
+    if (merchContainer) merchContainer.classList.add('ani-merch-section');
+    const hasSidebarTabs = Boolean(document.querySelector('.subtitle .ani-tabs'));
     const regions = {
-      info: ['section.data', '作品資訊', 'foldInfo', 'showInfo', 3],
-      related: ['.old_list', '相關動畫', 'foldRelated', 'showRelated', 4],
+      ...(hasSidebarTabs ? {} : { info: ['section.data', '作品資訊', 'foldInfo', 'showInfo', 3] }),
+      related: ['.old_list:not(:has(.search_result))', '相關動畫', 'foldRelated', 'showRelated', 4],
       news: [
         '.animate-theme-list:has(.theme-extend-block)',
         '相關新聞',
@@ -576,6 +581,7 @@
         5,
       ],
       comments: ['#w-post-box', '留言', 'foldComments', 'showComments', 6],
+      merch: ['.ani-merch-section', '相關商品', 'foldRelated', 'showRelated', 7],
     };
     for (const [key, [selector, name, flag, visible, order]] of Object.entries(
       regions,
@@ -584,8 +590,8 @@
       let state = regionFolds.get(key);
       const enabled =
         settings.themeEnabled &&
-        (settings.quickCollapse || settings[flag]) &&
-        settings[visible] &&
+        (key === 'merch' || settings.quickCollapse || settings[flag]) &&
+        (key === 'merch' || settings[visible]) &&
         target;
       if (
         state &&
@@ -2033,25 +2039,44 @@
           }
       }
       }
+      for (const epLi of document.querySelectorAll('.season li')) {
+        let isLast = /last/i.test(epLi.className || '');
+        for (const el of epLi.querySelectorAll('*')) {
+          if (el.children.length === 0 && /上次觀看/.test((el.textContent || '').trim())) {
+            el.classList.add('ani-last-watched-badge');
+            el.style.setProperty('display', 'none', 'important');
+            isLast = true;
+          }
+        }
+        if (isLast) epLi.classList.add('ani-last-watched');
+      }
       const skipScope = playerEl.closest('.videoframe') || playerEl;
-      for (const skipEl of skipScope.querySelectorAll('a,button,div,span')) {
-        if (skipEl.closest('.vjs-control-bar,.ani-age-screen,.ani-skip-intro-pill,.top-tool-bar,.ani-fs-title,.plus_imagetool_box,.ani-ambientlight-toggle')) continue;
+      for (const skipEl of skipScope.querySelectorAll('a,button,div,span,p')) {
+        if (skipEl.closest('.vjs-control-bar,.ani-age-screen,.ani-skip-intro-pill,.top-tool-bar,.ani-fs-title,.plus_imagetool_box,.ani-ambientlight-toggle,.ani-player-episodes-drawer')) continue;
         if (skipEl.matches('#ani_video,.video-js,.videoframe,.video,#video-container')) continue;
         const txt = (skipEl.textContent || '').replace(/\s+/g, '');
-        if (!/^(?:按此)?(?:跳過|略過)(?:片頭|片尾|OP|ED)/.test(txt) || txt.length > 40) continue;
-        if ([...skipEl.children].some(c => /^(?:按此)?(?:跳過|略過)(?:片頭|片尾|OP|ED)/.test((c.textContent || '').replace(/\s+/g, '')))) continue;
+        if (!/(?:按此)?(?:跳過|略過)(?:片頭|片尾|OP|ED)/.test(txt) || txt.length > 45) continue;
+        if ([...skipEl.children].some(c => /(?:按此)?(?:跳過|略過)(?:片頭|片尾|OP|ED)/.test((c.textContent || '').replace(/\s+/g, '')))) continue;
         let box = skipEl;
         while (
           box.parentElement &&
           box.parentElement !== skipScope &&
           box.parentElement !== playerEl &&
           !box.parentElement.matches('#ani_video,.video-js,.videoframe,.video,#video-container,.vjs-control-bar') &&
-          box.parentElement.children.length <= 4 &&
-          (box.parentElement.textContent || '').replace(/\s+/g, '').length <= 40
+          box.parentElement.children.length <= 5 &&
+          (box.parentElement.textContent || '').replace(/\s+/g, '').length <= 45
         ) {
           box = box.parentElement;
         }
         box.classList.add('ani-skip-intro-pill');
+        box.style.setProperty('border-radius', '999px', 'important');
+        for (const inner of box.querySelectorAll('*')) {
+          inner.classList.add('ani-skip-intro-inner');
+          inner.style.setProperty('background', 'transparent', 'important');
+          inner.style.setProperty('background-color', 'transparent', 'important');
+          inner.style.setProperty('border', '0', 'important');
+          inner.style.setProperty('box-shadow', 'none', 'important');
+        }
       }
       for(const wm of playerEl.querySelectorAll('a[href*="ani.gamer"],.vjs-watermark,.vjs-logo,.vjs-ani-logo,.ani-logo,[class*="watermark" i],[class*="brand" i],[class*="logo" i]:not(.ani-player-glyph):not(.vjs-control),img[src*="logo" i]')){
         if(wm.dataset.aniWatermarkPlaced||wm.closest('.vjs-poster,.ani-age-screen'))continue;
@@ -2605,8 +2630,10 @@
               for (const srcLink of sec.items) {
                 const epBtnItem = document.createElement('button');
                 epBtnItem.type = 'button';
-                const isPlaying = !!srcLink.closest('li')?.classList.contains('playing');
-                epBtnItem.className = `ani-ep-drawer-btn${isPlaying ? ' is-playing' : ''}`;
+                const epLi = srcLink.closest('li');
+                const isPlaying = !!epLi?.classList.contains('playing');
+                const isLastWatched = !!epLi?.classList.contains('ani-last-watched');
+                epBtnItem.className = `ani-ep-drawer-btn${isPlaying ? ' is-playing' : ''}${isLastWatched ? ' is-last-watched' : ''}`;
                 epBtnItem.textContent = srcLink.textContent.trim();
                 epBtnItem.title = `第 ${srcLink.textContent.trim()} 集`;
                 epBtnItem.addEventListener('click', (ev) => {
@@ -3493,11 +3520,12 @@
               box.parentElement &&
               box.parentElement !== rootEl &&
               !box.parentElement.matches('#ani_video, .video-js, .videoframe, .video, #video-container, .vjs-control-bar') &&
-              ((box.parentElement.textContent || '').replace(/\s+/g, '').length <= 30)
+              ((box.parentElement.textContent || '').replace(/\s+/g, '').length <= 45)
             ) {
               box = box.parentElement;
             }
             box.classList.add('ani-skip-intro-pill');
+            box.style.setProperty('border-radius', '999px', 'important');
             for (const inner of box.querySelectorAll('*')) {
               inner.classList.add('ani-skip-intro-inner');
               inner.style.setProperty('background', 'transparent', 'important');
@@ -3506,6 +3534,18 @@
               inner.style.setProperty('border', '0', 'important');
               inner.style.setProperty('box-shadow', 'none', 'important');
             }
+          }
+        }
+        for (const epLi of document.querySelectorAll('#BH_background :is(.ani-episode-shelf, .season) .season li, #BH_background ul.season li')) {
+          let hasLastBadge = false;
+          for (const node of epLi.querySelectorAll('span, div, small, p, em, i, b')) {
+            if (/上次觀看/.test(node.textContent || '')) {
+              hasLastBadge = true;
+              node.classList.add('ani-last-watched-badge');
+            }
+          }
+          if (hasLastBadge && !epLi.classList.contains('ani-last-watched')) {
+            epLi.classList.add('ani-last-watched');
           }
         }
       } catch (_) {}
@@ -4023,7 +4063,7 @@
       const danmuTab = tabs.querySelector('.ani-tabs-link[href="#ani-tab-content-1"]');
       const settingsPanelNative = document.getElementById('ani-tab-content-2');
 
-      // 1. Unified toolbar integration + collapsible drawer body below .anime-title
+      // 1. Unified Settings Drawer (merges #ani-tab-content-2 + 動畫瘋·Plus into ONE coherent Bento drawer)
       let drawer = document.querySelector('.ani-player-settings-drawer');
       if (!drawer) {
         const animeTitle = document.querySelector('#BH_background .container-player > .anime-title');
@@ -4035,6 +4075,9 @@
           const bodyWrap = document.createElement('div');
           bodyWrap.className = 'ani-player-settings-body';
           bodyWrap.hidden = true;
+          const unifiedGrid = document.createElement('div');
+          unifiedGrid.className = 'ani-unified-settings-grid';
+          bodyWrap.append(unifiedGrid);
           drawer.append(bar, bodyWrap);
           animeTitle.after(drawer);
         }
@@ -4052,54 +4095,117 @@
         }
       };
 
-      const mountIntoDrawer = (key, label, iconMarkup, panelEl, sourceLink = null) => {
-        if (!drawer || !panelEl) return;
+      const decorateSettingsPanel = (panelEl) => {
+        if (!panelEl) return;
+        const sectionIconMap = [
+          [/播放設定|播放/, '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7-11-7Z"/></svg>'],
+          [/彈幕設定|彈幕/, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M7 10h6M15 10h2M7 14h3M12 14h5"/></svg>'],
+          [/關鍵字|過濾/, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h18l-7 8.5V19l-4 2v-7.5L3 5Z"/></svg>'],
+          [/Plus|動畫瘋/i, '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.4 7.4h7.6l-6.1 4.4 2.3 7.4L12 16.8l-6.2 4.4 2.3-7.4L2 9.4h7.6L12 2z"/></svg>'],
+        ];
+        for (const h of panelEl.querySelectorAll('.ani-setting-section > h4, .ani-setting-section > .title, .plus_menu_title')) {
+          if (h.querySelector('.ani-sec-icon')) continue;
+          const t = h.textContent.trim();
+          const match = sectionIconMap.find(([re]) => re.test(t));
+          if (match) {
+            const ic = document.createElement('span');
+            ic.className = 'ani-sec-icon';
+            ic.setAttribute('aria-hidden', 'true');
+            ic.innerHTML = match[1];
+            h.prepend(ic);
+          }
+        }
+        const rowIconMap = [
+          [/自動播放|連播/, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>'],
+          [/彈幕開關/, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M7 10h6M7 14h10"/></svg>'],
+          [/自動過濾|關鍵字|過濾/, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h18l-7 8.5V19l-4 2v-7.5L3 5Z"/></svg>'],
+          [/來源/, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>'],
+          [/不透明度|透明度/, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M12 7l5 5-5 5"/></svg>'],
+          [/字體大小|大小/, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M4 19 9 5l5 14M6 15h6M15 12h6M18 12v7"/></svg>'],
+          [/類型開關/, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="7" height="7" rx="1.5"/><rect x="14" y="4" width="7" height="7" rx="1.5"/><rect x="3" y="13" width="7" height="7" rx="1.5"/><rect x="14" y="13" width="7" height="7" rx="1.5"/></svg>'],
+          [/跳過片頭/, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 5 9 7-9 7V5ZM19 5v14"/></svg>'],
+          [/截圖|錄影/, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h4l2-2h4l2 2h4v12H4V7Z"/><circle cx="12" cy="13" r="3"/></svg>'],
+          [/時間跳躍|空降/, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'],
+        ];
+        for (const lbl of panelEl.querySelectorAll('.ani-setting-label__mian, .ani-setting-label > span:first-child')) {
+          if (lbl.querySelector('.ani-row-icon')) continue;
+          const t = lbl.textContent.trim();
+          const match = rowIconMap.find(([re]) => re.test(t));
+          if (match) {
+            const ic = document.createElement('span');
+            ic.className = 'ani-row-icon';
+            ic.setAttribute('aria-hidden', 'true');
+            ic.innerHTML = match[1];
+            lbl.prepend(ic);
+          }
+        }
+      };
+
+      const ensureUnifiedToggle = () => {
+        if (!drawer) return null;
         const bar = drawer.querySelector('.ani-drawer-toggles');
         const bodyWrap = drawer.querySelector('.ani-player-settings-body');
-        if (!bar || !bodyWrap) return;
-        if (document.querySelector(`.ani-player-settings-toggle[data-ani-drawer-key="${key}"]`)) return;
+        if (!bar || !bodyWrap) return null;
+        let btn = document.querySelector('.ani-player-settings-toggle[data-ani-drawer-key="unified-settings"]');
+        if (!btn) {
+          btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'ani-player-settings-toggle';
+          btn.dataset.aniDrawerKey = 'unified-settings';
+          btn.setAttribute('aria-expanded', 'false');
+          btn.setAttribute('aria-label', '播放與強化設定');
+          btn.title = '播放與強化設定';
+          btn.innerHTML = '<span class="ani-ps-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.6.85 1 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg></span><span class="ani-ps-text">播放器設定</span><svg class="ani-ps-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+          btn.addEventListener('click', () => {
+            const opening = bodyWrap.hidden;
+            for (const s of bodyWrap.querySelectorAll('.ani-drawer-slot[data-ani-source-triggered="false"]')) {
+              const link = s._aniSourceLink;
+              if (link && s.textContent.trim() === '') {
+                s.dataset.aniSourceTriggered = 'true';
+                try { link.click(); } catch {}
+              }
+            }
+            btn.setAttribute('aria-expanded', String(opening));
+            btn.classList.toggle('is-open', opening);
+            bodyWrap.hidden = !opening;
+            drawer.classList.toggle('is-open', opening);
+            for (const p of bodyWrap.querySelectorAll('.ani-drawer-slot > *')) decorateSettingsPanel(p);
+          });
+          const plusBox = document.querySelector('#BH_background .plus_imagetool_box');
+          if (plusBox) {
+            btn.classList.add('ani-in-toolbar');
+            plusBox.append(btn);
+            drawer.classList.add('has-toolbar-host');
+          } else {
+            bar.append(btn);
+          }
+        }
+        return btn;
+      };
 
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'ani-player-settings-toggle';
-        btn.dataset.aniDrawerKey = key;
-        btn.setAttribute('aria-expanded', 'false');
-        btn.setAttribute('aria-label', label);
-        btn.title = label;
-        btn.innerHTML = `<span class="ani-ps-icon">${iconMarkup}</span><span class="ani-ps-text">${label}</span><svg class="ani-ps-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+      const mountIntoDrawer = (key, label, _iconMarkup, panelEl, sourceLink = null) => {
+        if (!drawer || !panelEl) return;
+        const unifiedGrid = drawer.querySelector('.ani-unified-settings-grid');
+        if (!unifiedGrid) return;
+        if (unifiedGrid.querySelector(`.ani-drawer-slot[data-ani-drawer-key="${key}"]`)) return;
 
+        const btn = ensureUnifiedToggle();
+        if (btn && key !== 'native-settings') {
+          const txtEl = btn.querySelector('.ani-ps-text');
+          if (txtEl) txtEl.textContent = '播放與 Plus 設定';
+        }
         const slot = document.createElement('div');
-        slot.className = 'ani-drawer-slot';
+        slot.className = `ani-drawer-slot ani-drawer-slot-${key === 'native-settings' ? 'native' : 'extra'}`;
         slot.dataset.aniDrawerKey = key;
-        slot.hidden = true;
+        if (sourceLink) {
+          slot._aniSourceLink = sourceLink;
+          slot.dataset.aniSourceTriggered = 'false';
+        }
         panelEl.style.removeProperty('display');
         delete panelEl.dataset.aniTabActive;
+        decorateSettingsPanel(panelEl);
         slot.append(panelEl);
-        bodyWrap.append(slot);
-
-        btn.addEventListener('click', () => {
-          const opening = slot.hidden;
-          if (opening && sourceLink && panelEl.children.length === 0 && !panelEl.textContent.trim()) {
-            try { sourceLink.click(); } catch {}
-          }
-          for (const b of document.querySelectorAll('.ani-player-settings-toggle')) {
-            b.setAttribute('aria-expanded', String(opening && b === btn));
-            b.classList.toggle('is-open', opening && b === btn);
-          }
-          for (const s of bodyWrap.querySelectorAll(':scope > .ani-drawer-slot')) {
-            s.hidden = !(opening && s === slot);
-          }
-          bodyWrap.hidden = !opening;
-          drawer.classList.toggle('is-open', opening);
-        });
-        const plusBox = document.querySelector('#BH_background .plus_imagetool_box');
-        if (plusBox) {
-          btn.classList.add('ani-in-toolbar');
-          plusBox.append(btn);
-          drawer.classList.add('has-toolbar-host');
-        } else {
-          bar.append(btn);
-        }
+        unifiedGrid.append(slot);
       };
 
       if (settingsPanelNative) {
@@ -4167,16 +4273,17 @@
       }
 
       let lastIntroSig = '';
+      const escHtml = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
       const populateIntroPane = () => {
         if (!introPane) return;
         const infoSrc = document.querySelector('#BH_background #ani-info');
         const activeInfoPane = infoSrc?.querySelector('.ani-tab-pane.active') || infoSrc;
         const castGrid = activeInfoPane?.querySelector('.grid.cast');
         const songGrid = activeInfoPane?.querySelector('.grid.song');
-        const descText = (document.querySelector('#BH_background section.data .data-intro > p')?.textContent || '').trim();
+        const rawDescText = (document.querySelector('#BH_background section.data .data-intro > p')?.textContent || '').trim();
         const typeItems = document.querySelectorAll('#BH_background section.data .type-list > li.type');
 
-        const sig = `${typeItems.length}|${descText.length}|${castGrid?.children.length || 0}|${songGrid?.children.length || 0}`;
+        const sig = `${typeItems.length}|${rawDescText.length}|${castGrid?.children.length || 0}|${songGrid?.children.length || 0}`;
         if (sig === lastIntroSig) {
           window.__aniIconifyInfoLinks?.(introPane);
           return;
@@ -4184,24 +4291,65 @@
         lastIntroSig = sig;
 
         const types = [];
+        const seenMeta = new Set();
+        const pushMeta = (title, val) => {
+          const cleanT = String(title || '').trim();
+          const cleanV = String(val || '').trim();
+          if (!cleanT || !cleanV) return;
+          const normKey = `${cleanT}::${cleanV}`;
+          if (seenMeta.has(normKey)) return;
+          seenMeta.add(normKey);
+          types.push({ title: cleanT, val: cleanV });
+        };
+
         for (const li of typeItems) {
           const title = (li.querySelector('.title')?.textContent || '').trim();
           const tagTexts = [...li.querySelectorAll('.tag-list .tag')].map((t) => t.textContent.trim()).filter(Boolean);
           const val = tagTexts.length ? tagTexts.join(' / ') : (li.querySelector('.content')?.textContent || '').trim();
-          if (title && val) types.push({ title, val });
+          pushMeta(title, val);
         }
+
+        // Lift STAFF / 製作團隊 lines out of synopsis into top pill-grid items
+        const synopsisLines = [];
+        let inStaffBlock = false;
+        for (const rawLine of rawDescText.split(/\r?\n/)) {
+          const line = rawLine.trim();
+          if (!line) {
+            if (!inStaffBlock && synopsisLines.length && synopsisLines[synopsisLines.length - 1] !== '') {
+              synopsisLines.push('');
+            }
+            continue;
+          }
+          if (/^(?:[<＜【\[]\s*)?(?:STAFF|製作團隊|製作人員)(?:\s*[>＞】\]])?[:：]?$/i.test(line)) {
+            inStaffBlock = true;
+            continue;
+          }
+          const cleanedStaffLine = line.replace(/^[｜|‧•・─\-]+\s*/, '').trim();
+          const kv = cleanedStaffLine.match(/^([^：:]{1,14})\s*[：:]\s*(.+)$/);
+          if (kv && (inStaffBlock || /^(?:原作性質|原作|原案|原作插畫|監督|導演|總監督|系列構成|劇本|劇本統籌|角色原案|角色設定|人物設定|機械設定|音樂|動畫製作|製作|美術監督|色彩設計|攝影監督|音響監督|背景)$/.test(kv[1]))) {
+            inStaffBlock = true;
+            // Avoid duplicating exact same director/studio already present in types
+            const isDupVal = types.some((t) => t.val === kv[2].trim());
+            if (!isDupVal) pushMeta(kv[1], kv[2]);
+            continue;
+          }
+          inStaffBlock = false;
+          synopsisLines.push(line);
+        }
+        while (synopsisLines.length && synopsisLines[synopsisLines.length - 1] === '') synopsisLines.pop();
+        const cleanSynopsis = synopsisLines.join('\n').trim();
 
         let html = '<div class="ani-sidebar-scroll">';
         if (types.length) {
           html += '<div class="ani-side-meta-grid">';
           for (const item of types) {
-            const isWide = types.length === 1 || /分類/.test(item.title) || item.val.length > 12;
-            html += `<div class="ani-side-meta-item${isWide ? ' is-wide' : ''}"><span class="ani-side-pill">${item.title}</span><span class="ani-side-meta-val">${item.val}</span></div>`;
+            const isWide = types.length === 1 || /分類/.test(item.title) || item.val.length > 14;
+            html += `<div class="ani-side-meta-item${isWide ? ' is-wide' : ''}"><span class="ani-side-pill">${escHtml(item.title)}</span><span class="ani-side-meta-val">${escHtml(item.val)}</span></div>`;
           }
           html += '</div>';
         }
-        if (descText) {
-          html += `<div class="ani-side-divider"></div><div class="ani-side-synopsis">${descText.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>`;
+        if (cleanSynopsis) {
+          html += `<div class="ani-side-divider"></div><div class="ani-side-synopsis">${escHtml(cleanSynopsis)}</div>`;
         }
         html += '<div class="ani-side-infoplus-mount"></div></div>';
 
@@ -4240,16 +4388,98 @@
 
       let lastRatingSig = '';
       let cachedUserStars = 0;
+      const reviewCache = new Map();
+      const readAcgReviewMeta = () => {
+        let fanpageId = '';
+        let mediaType = '4';
+        let userScore = 0;
+        const moreOnclick = acgReviewEl?.querySelector('.user-score-more')?.getAttribute('onclick') || '';
+        const mNav = moreOnclick.match(/navAllReviews\s*\(\s*(\d+)\s*,\s*(\d+)\s*\)/);
+        if (mNav) {
+          fanpageId = mNav[1];
+          mediaType = mNav[2];
+        }
+        const scripts = [...(dataSection?.querySelectorAll('script') || []), ...document.querySelectorAll('script')];
+        for (const sc of scripts) {
+          const txt = sc.textContent || '';
+          if (!txt) continue;
+          if (!fanpageId) {
+            const mInit = txt.match(/Bahamut\.AcgReview\s*\([\s\S]*?,\s*(\d+)\s*,\s*(\d+)\s*\)/);
+            if (mInit) {
+              fanpageId = mInit[1];
+              mediaType = mInit[2];
+            }
+          }
+          const mUser = txt.match(/acgReview\.userReview\s*\(\s*(\d+)\s*(?:,|\))/);
+          if (mUser) {
+            userScore = Number(mUser[1]) || 0;
+          }
+          if (fanpageId && userScore) break;
+        }
+        return { fanpageId, mediaType, userScore };
+      };
+      const fetchPopularReviews = (fanpageId, mediaType = '4') => {
+        if (!fanpageId) return Promise.resolve([]);
+        if (reviewCache.has(fanpageId)) return reviewCache.get(fanpageId);
+        const p = (async () => {
+          try {
+            if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
+              const res = await new Promise((resolve) => {
+                try {
+                  chrome.runtime.sendMessage({ type: 'ani-fetch-reviews', fanpageId, mediaType }, (resp) => resolve(resp || {}));
+                } catch (_) {
+                  resolve({});
+                }
+              });
+              if (Array.isArray(res?.reviews) && res.reviews.length) return res.reviews;
+            }
+          } catch (_) {}
+          try {
+            if (typeof GM_xmlhttpRequest === 'function') {
+              const json = await new Promise((resolve) => {
+                GM_xmlhttpRequest({
+                  method: 'GET',
+                  url: `https://api.gamer.com.tw/acg/v1/reviews_list.php?sn=${encodeURIComponent(fanpageId)}&t=${encodeURIComponent(mediaType)}&sort=1&page=1`,
+                  onload: (r) => {
+                    try { resolve(JSON.parse(r.responseText)); } catch (_) { resolve(null); }
+                  },
+                  onerror: () => resolve(null),
+                });
+              });
+              const rawList = Array.isArray(json?.data?.list) ? json.data.list.flat(2) : Array.isArray(json?.list) ? json.list.flat(2) : [];
+              if (rawList.length) {
+                return rawList
+                  .filter((it) => it && (it.content || '').trim())
+                  .sort((a, b) => Number(b?.likeCount || 0) - Number(a?.likeCount || 0))
+                  .slice(0, 5)
+                  .map((it) => ({
+                    id: it.id || it.sn || '',
+                    author: it.publisher?.name || it.nickname || it.userid || '匿名',
+                    avatar: it.publisher?.propic || it.propic || '',
+                    rating: Number(it.reviews?.rating ?? it.rating ?? it.score ?? 0) || 0,
+                    likeCount: Number(it.likeCount || it.gp || 0) || 0,
+                    commentCount: Number(it.commentCount || 0) || 0,
+                    time: it.time || '',
+                    content: String(it.content || '').trim(),
+                  }));
+              }
+            }
+          } catch (_) {}
+          return [];
+        })();
+        reviewCache.set(fanpageId, p);
+        return p;
+      };
       const getNativeStarNodes = () => {
         if (!acgReviewEl) return [];
         const direct = [...acgReviewEl.querySelectorAll('.user-star-block > *')].filter(
-          (el) => !/del|remove|trash|clear/i.test(`${el.className || ''} ${el.title || ''} ${el.getAttribute('aria-label') || ''}`)
+          (el) => !/del|remove|trash|clear/i.test(`${el.getAttribute('class') || ''} ${el.title || ''} ${el.getAttribute('aria-label') || ''}`)
         );
         const list =
           direct.length >= 5
             ? direct.slice(0, 5)
-            : [...acgReviewEl.querySelectorAll('.user-star-block :is(button, a, i, span, img)')]
-                .filter((el) => !/del|remove|trash|clear/i.test(`${el.className || ''} ${el.title || ''}`))
+            : [...acgReviewEl.querySelectorAll('.user-star-block :is(button, a, i, span, img, svg.user-star)')]
+                .filter((el) => !/del|remove|trash|clear/i.test(`${el.getAttribute('class') || ''} ${el.title || ''}`))
                 .slice(0, 5);
         return list;
       };
@@ -4265,14 +4495,14 @@
         let count = 0;
         for (let idx = 0; idx < nodes.length; idx++) {
           const el = nodes[idx];
-          const cls = `${el.className || ''} ${[...el.querySelectorAll('*')].map((c) => c.className || '').join(' ')}`;
+          const cls = `${el.getAttribute('class') || ''} ${[...el.querySelectorAll('*')].map((c) => c.getAttribute('class') || '').join(' ')}`;
           const img = el.matches('img') ? el : el.querySelector('img');
           const src = img?.getAttribute('src') || '';
           const svgEl = el.matches('svg') ? el : el.querySelector('svg');
           let filled = false;
           if (/\b(off|empty|outline|unselect|star-off|star_off|star-empty|far)\b/i.test(cls)) {
             filled = false;
-          } else if (/\b(on|active|full|filled|is-active|is-filled|selected|checked|star-on|star_on|star-full|fas)\b/i.test(cls)) {
+          } else if (/\b(is-scored|scored|on|active|full|filled|is-active|is-filled|selected|checked|star-on|star_on|star-full|fas)\b/i.test(cls)) {
             filled = true;
           } else if (src) {
             if (/(off|empty|gray|grey|none|0\.)/i.test(src)) filled = false;
@@ -4310,8 +4540,18 @@
           cachedUserStars = Number(tipNum[1]);
           return cachedUserStars;
         }
+        const meta = readAcgReviewMeta();
+        if (meta.userScore >= 1 && meta.userScore <= 5 && (/已評價/.test(tipText) || nodes.length < 5 || !nodes.some((n) => /star/i.test(n.getAttribute('class') || '')))) {
+          cachedUserStars = meta.userScore;
+          return cachedUserStars;
+        }
         if (!/已評價/.test(tipText) && nodes.length >= 5) cachedUserStars = 0;
         return cachedUserStars;
+      };
+      const goldStarSvg = '<svg class="ani-dist-star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.4l2.92 5.92 6.53.95-4.72 4.6 1.11 6.5L12 17.3l-5.84 3.07 1.11-6.5-4.72-4.6 6.53-.95L12 2.4z"/></svg>';
+      const renderStarsHtml = (count) => {
+        const n = Math.max(1, Math.min(5, Number(count) || 0));
+        return `<span class="ani-rating-star-row" aria-label="${n} 星">${goldStarSvg.repeat(n)}</span>`;
       };
       const populateRatingPane = () => {
         if (!ratingPane || !acgReviewEl) return;
@@ -4329,7 +4569,7 @@
         const dashOffset = circ * (1 - Math.max(0, Math.min(1, scoreNum / 5)));
         const dist = [];
         for (const row of acgReviewEl.querySelectorAll('.ACG-data .acg-score-date')) {
-          const stars = row.dataset.acgstar || row.querySelectorAll('.score-star img').length;
+          const stars = row.dataset.acgstar || row.querySelectorAll('.score-star img, .score-star svg').length;
           const pctStr = row.querySelector('.scored-line')?.style?.width || '0%';
           dist.push({ stars, pctNum: Math.round(parseFloat(pctStr) || 0) });
         }
@@ -4342,13 +4582,17 @@
           : userStars > 0
           ? `已評價 ${userStars} 星`
           : '';
+        const meta = readAcgReviewMeta();
+        const wallUrl = meta.fanpageId
+          ? `https://wall.gamer.com.tw/fanpage.php?sn=${encodeURIComponent(meta.fanpageId)}&tab=7&t=${encodeURIComponent(meta.mediaType || '4')}&filter=0`
+          : '';
 
         let html = '<div class="ani-sidebar-scroll ani-rating-scroll">';
         html += '<div class="ani-rating-hero">';
-        html += `<div class="ani-rating-ring-wrap"><svg viewBox="0 0 116 116" class="ani-rating-ring-svg"><circle class="ani-ring-bg" cx="58" cy="58" r="${r}"/><circle class="ani-ring-fg" cx="58" cy="58" r="${r}" stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${dashOffset.toFixed(1)}"/></svg><div class="ani-ring-center"><strong>${scoreNum ? scoreNum.toFixed(1) : '-'}</strong><span>${peopleText || ''}</span></div></div>`;
+        html += `<div class="ani-rating-ring-wrap"><svg viewBox="0 0 116 116" class="ani-rating-ring-svg"><circle class="ani-ring-bg" cx="58" cy="58" r="${r}"/><circle class="ani-ring-fg" cx="58" cy="58" r="${r}" stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${dashOffset.toFixed(1)}"/></svg><div class="ani-ring-center"><strong>${scoreNum ? scoreNum.toFixed(1) : '-'}</strong><span>${escHtml(peopleText)}</span></div></div>`;
         html += '<div class="ani-rating-bars">';
         for (const item of dist) {
-          html += `<div class="ani-rating-bar-row"><span class="ani-rating-bar-label">${item.stars} 星</span><div class="ani-rating-bar-track"><div class="ani-rating-bar-fill" style="width:${item.pctNum}%"></div></div><span class="ani-rating-bar-pct">${item.pctNum}%</span></div>`;
+          html += `<div class="ani-rating-bar-row"><span class="ani-rating-bar-label">${renderStarsHtml(item.stars)}</span><div class="ani-rating-bar-track"><div class="ani-rating-bar-fill" style="width:${item.pctNum}%"></div></div><span class="ani-rating-bar-pct">${item.pctNum}%</span></div>`;
         }
         html += '</div></div>';
         html += '<div class="ani-side-divider"></div>';
@@ -4359,20 +4603,25 @@
         }
         html += '</div>';
         if (statusLabel) {
-          html += `<div class="ani-my-rating-status-row"><span class="ani-my-rating-status">${statusLabel}</span>${
+          html += `<div class="ani-my-rating-status-row"><span class="ani-my-rating-status">${escHtml(statusLabel)}</span>${
             nativeDelBtn
               ? '<button type="button" class="ani-my-rating-clear" title="清除評價" aria-label="清除評價"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 10v6M14 10v6"/></svg></button>'
               : ''
           }</div>`;
         }
         html += '</div>';
-        if (acgReviewEl.querySelector('.user-score-more')) {
+        if (acgReviewEl.querySelector('.user-score-more') || wallUrl) {
           html += '<button type="button" class="ani-rating-more-btn">查看所有評價</button>';
         }
+        html += '<div class="ani-rating-reviews" hidden></div>';
         html += '</div>';
 
         ratingPane.innerHTML = html;
-        ratingPane.querySelector('.ani-rating-more-btn')?.addEventListener('click', () => acgReviewEl.querySelector('.user-score-more')?.click());
+        ratingPane.querySelector('.ani-rating-more-btn')?.addEventListener('click', () => {
+          const nativeMore = acgReviewEl.querySelector('.user-score-more');
+          if (nativeMore) nativeMore.click();
+          else if (wallUrl) window.open(wallUrl, '_blank', 'noopener,noreferrer');
+        });
         ratingPane.querySelector('.ani-my-rating-clear')?.addEventListener('click', () => {
           cachedUserStars = 0;
           nativeDelBtn?.click();
@@ -4392,6 +4641,30 @@
             setTimeout(populateRatingPane, 150);
           });
         });
+
+        if (meta.fanpageId) {
+          const reviewsWrap = ratingPane.querySelector('.ani-rating-reviews');
+          fetchPopularReviews(meta.fanpageId, meta.mediaType).then((reviews) => {
+            if (!reviewsWrap || !Array.isArray(reviews) || !reviews.length) return;
+            const itemsHtml = reviews.slice(0, 4).map((rev) => {
+              const postUrl = rev.id
+                ? `https://wall.gamer.com.tw/post.php?sn=${encodeURIComponent(rev.id)}`
+                : wallUrl;
+              const safeAvatar = rev.avatar && /^https:\/\//i.test(rev.avatar) ? rev.avatar : '';
+              const starBlock = rev.rating > 0 ? `<span class="ani-rev-stars">${goldStarSvg.repeat(Math.min(5, rev.rating))}</span>` : '';
+              return `<a class="ani-review-card" href="${escHtml(postUrl)}" target="_blank" rel="noopener noreferrer">`
+                + `<div class="ani-rev-head">`
+                + (safeAvatar ? `<img class="ani-rev-avatar" src="${escHtml(safeAvatar)}" alt="" loading="lazy"/>` : '<span class="ani-rev-avatar is-empty"></span>')
+                + `<div class="ani-rev-meta"><strong class="ani-rev-author">${escHtml(rev.author)}</strong>${starBlock}</div>`
+                + `<span class="ani-rev-likes" title="推薦數"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2 21h4V9H2v12Zm20-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L13.17 1 6.59 7.59C6.22 7.95 6 8.45 6 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2Z"/></svg>${rev.likeCount || 0}</span>`
+                + `</div>`
+                + `<p class="ani-rev-body">${escHtml(rev.content)}</p>`
+                + `</a>`;
+            }).join('');
+            reviewsWrap.innerHTML = `<div class="ani-side-divider"></div><div class="ani-reviews-title-row"><span>熱門評價</span>${wallUrl ? `<a class="ani-reviews-all-link" href="${escHtml(wallUrl)}" target="_blank" rel="noopener noreferrer">前往哈啦牆</a>` : ''}</div><div class="ani-reviews-list">${itemsHtml}</div>`;
+            reviewsWrap.hidden = false;
+          });
+        }
       };
       if (acgReviewEl && !acgReviewEl.dataset.aniRatingObserved) {
         acgReviewEl.dataset.aniRatingObserved = 'true';

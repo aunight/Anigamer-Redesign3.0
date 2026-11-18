@@ -74,6 +74,8 @@ const metadata = `// ==UserScript==
 // @connect      ja.wikipedia.org
 // @connect      graphql.anilist.co
 // @connect      myanimelist.net
+// @connect      api.gamer.com.tw
+// @connect      wall.gamer.com.tw
 // @grant        GM_addStyle
 // ==/UserScript==
 `;

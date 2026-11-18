@@ -1,4 +1,38 @@
 chrome.runtime.onMessage.addListener((message, sender, reply) => {
+  if (message?.type === 'ani-fetch-reviews') {
+    (async () => {
+      try {
+        const sn = String(message.fanpageId || '').replace(/\D+/g, '');
+        if (!sn) { reply({ reviews: [] }); return; }
+        const t = Number(message.mediaType || 4) || 4;
+        const r = await fetch(`https://api.gamer.com.tw/acg/v1/reviews_list.php?sn=${encodeURIComponent(sn)}&t=${t}&sort=1&page=1`, {
+          credentials: 'omit',
+          signal: AbortSignal.timeout(9000),
+        });
+        if (!r.ok) { reply({ reviews: [] }); return; }
+        const json = await r.json();
+        const rawList = Array.isArray(json?.data?.list) ? json.data.list.flat(2) : [];
+        const reviews = rawList
+          .filter((item) => item && (item?.content || '').trim().length > 0)
+          .sort((a, b) => Number(b?.likeCount || 0) - Number(a?.likeCount || 0))
+          .slice(0, 5)
+          .map((item) => ({
+            id: String(item.id || ''),
+            author: String(item.publisher?.name || '巴哈勇者'),
+            avatar: String(item.publisher?.propic || ''),
+            time: String(item.time || ''),
+            rating: Number(item.reviews?.rating ?? item.rating ?? item.star ?? 0) || 0,
+            likeCount: Number(item.likeCount || 0),
+            commentCount: Number(item.commentCount || 0),
+            content: String(item.content || '').trim(),
+          }));
+        reply({ reviews });
+      } catch (err) {
+        reply({ reviews: [], error: String(err?.message || err || '') });
+      }
+    })();
+    return true;
+  }
   if (message?.type === 'ani-fetch-infoplus') {
     (async () => {
       try {
