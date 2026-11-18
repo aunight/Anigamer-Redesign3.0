@@ -460,7 +460,7 @@
     const heading = document.createElement('div');
     heading.className = 'ani-episode-heading';
     const label = document.createElement('h2');
-    label.textContent = '集數';
+    label.innerHTML = '<span class="ani-section-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3.5" y="4" width="7" height="7" rx="1.6"/><rect x="13.5" y="4" width="7" height="7" rx="1.6"/><rect x="3.5" y="13" width="7" height="7" rx="1.6"/><rect x="13.5" y="13" width="7" height="7" rx="1.6"/></svg></span>集數';
     const count = document.createElement('span');
     count.textContent = `${season.querySelectorAll('li').length} 集`;
     heading.append(label, count);
@@ -495,7 +495,7 @@
     const refreshLabel = () => {
       const action = season.hidden ? '展開' : '收合';
       button.setAttribute('aria-label', action + '集數');
-      button.innerHTML = `<strong>集數 <small>${season.querySelectorAll('li').length} 集</small></strong><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
+      button.innerHTML = `<strong><span class="ani-section-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3.5" y="4" width="7" height="7" rx="1.6"/><rect x="13.5" y="4" width="7" height="7" rx="1.6"/><rect x="3.5" y="13" width="7" height="7" rx="1.6"/><rect x="13.5" y="13" width="7" height="7" rx="1.6"/></svg></span>集數 <small>${season.querySelectorAll('li').length} 集</small></strong><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
     };
     const toggle = () => {
       season.hidden = !season.hidden;
@@ -669,8 +669,15 @@
         const action = target.hidden ? '展開' : '收合';
         button.setAttribute('aria-label', action + name);
         if (key === 'comments') button.textContent = action + name;
-        else
-          button.innerHTML = `<strong>${name}</strong><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
+        else {
+          const toggleIcon =
+            key === 'related'
+              ? '<span class="ani-section-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m10 9 5 3-5 3V9Z"/></svg></span>'
+              : key === 'merch'
+                ? '<span class="ani-section-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7.5" width="16" height="13.5" rx="3"/><path d="M8.5 7.5V6a3.5 3.5 0 0 1 7 0v1.5"/><path d="M9.5 12a2.5 2.5 0 0 0 5 0"/></svg></span>'
+                : '';
+          button.innerHTML = `<strong>${toggleIcon}${name}</strong><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
+        }
       };
       refreshLabel();
       button.addEventListener('click', () => {
@@ -1456,6 +1463,22 @@
         if (views && details && views.parentElement !== details) details.append(views);
       }
       const list = section.querySelector('.theme-list-block');
+      if (section.matches('.old_list') && !section.dataset.aniOldlistScrollSync) {
+        section.dataset.aniOldlistScrollSync = 'true';
+        const syncOldListScroll = () => {
+          const cards = [...section.querySelectorAll('.theme-list-main')];
+          const sliderEl = section.querySelector('.anime_slider') || list;
+          const trackEl = section.querySelector('.anime_slider > ul, .theme-list-block');
+          const trackWidth = trackEl ? Math.max(trackEl.scrollWidth, cards.length * 200 - 16) : 0;
+          const viewportWidth = sliderEl ? sliderEl.clientWidth : section.clientWidth;
+          const canScroll = cards.length > 1 && viewportWidth > 0 && trackWidth > viewportWidth + 4;
+          section.classList.toggle('ani-oldlist-can-scroll', canScroll);
+        };
+        if (typeof ResizeObserver === 'function') {
+          new ResizeObserver(syncOldListScroll).observe(section);
+        }
+        requestAnimationFrame(syncOldListScroll);
+      }
       if (!list || location.pathname === '/mygather.php' || section.querySelector(':scope > .filter-section') || !list.querySelector('.theme-list-main') || list.closest('.ani-poster-rail')) continue;
       const rail = document.createElement('div');
       rail.className = 'ani-poster-rail';
@@ -1661,9 +1684,14 @@
     for (const root of document.querySelectorAll('#BH_background :is(.ani-episode-shelf, .anime-title, .season)')) {
       for (const epLi of root.querySelectorAll('.season li, ul.season > li, li')) {
         if (!epLi.closest('.season')) continue;
-        let isLast = /\b(?:last|last-?watch(?:ed)?|ani-last-watched)\b/i.test(epLi.className || '');
+        let isLast =
+          /\b(?:saw|last|last-?watch(?:ed)?|ani-last-watched)\b/i.test(epLi.className || '') ||
+          Boolean(epLi.querySelector('.saw'));
         const nodes = [epLi, ...epLi.querySelectorAll('*')];
         for (const el of nodes) {
+          if (el !== epLi && el.classList?.contains('saw')) {
+            isLast = true;
+          }
           if (el !== epLi && el.children.length === 0 && /上次觀看/.test((el.textContent || '').trim())) {
             el.classList.add('ani-last-watched-badge');
             el.style.setProperty('display', 'none', 'important');
@@ -2630,9 +2658,32 @@
       const rawTxt = (el.textContent || '').replace(/\s+/g, ' ').trim();
       if (!rawTxt || rawTxt.length > 90) continue;
       if (!/儲存觀看記錄|觀看紀錄/.test(rawTxt)) continue;
-      if ([...el.querySelectorAll('div, section, p')].some((c) => /儲存觀看記錄|觀看紀錄/.test(c.textContent || '') && (/[✅✔☑]|\[X\]|[×✕✖]/i.test(c.textContent || '') || c.querySelector('button, a, span')))) continue;
+      const csToast = getComputedStyle(el);
+      const isOuterColoredBox =
+        parseFloat(csToast.borderTopWidth || '0') > 0 ||
+        (csToast.backgroundColor && !/rgba?\(\s*0,\s*0,\s*0,\s*0\s*\)|transparent/i.test(csToast.backgroundColor)) ||
+        /fixed|absolute/i.test(csToast.position || '');
+      if (!isOuterColoredBox && [...el.querySelectorAll('div, section, p')].some((c) => /儲存觀看記錄|觀看紀錄/.test(c.textContent || ''))) continue;
       el.classList.add('ani-bgm-toast');
+      el.style.setProperty('display', 'inline-flex', 'important');
+      el.style.setProperty('flex-direction', 'row', 'important');
+      el.style.setProperty('flex-wrap', 'nowrap', 'important');
+      el.style.setProperty('align-items', 'center', 'important');
+      el.style.setProperty('gap', '8px', 'important');
+      el.style.setProperty('width', 'max-content', 'important');
+      el.style.setProperty('min-width', '0', 'important');
+      el.style.setProperty('max-width', 'calc(100vw - 32px)', 'important');
+      el.style.setProperty('height', 'auto', 'important');
+      el.style.setProperty('padding', '8px 12px 8px 14px', 'important');
       el.style.setProperty('border-radius', '999px', 'important');
+      el.style.setProperty('background', 'rgba(18, 30, 44, 0.86)', 'important');
+      el.style.setProperty('background-color', 'rgba(18, 30, 44, 0.86)', 'important');
+      el.style.setProperty('background-image', 'none', 'important');
+      el.style.setProperty('border', '1px solid rgba(255, 255, 255, 0.28)', 'important');
+      el.style.setProperty('box-shadow', 'inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 8px 24px rgba(0, 0, 0, 0.36)', 'important');
+      el.style.setProperty('color', '#ffffff', 'important');
+      el.style.setProperty('white-space', 'nowrap', 'important');
+      el.style.setProperty('writing-mode', 'horizontal-tb', 'important');
       for (const child of el.querySelectorAll('*')) {
         if (child.closest('.ani-bgm-toast-close')) continue;
         child.style.setProperty('background', 'transparent', 'important');
@@ -2640,6 +2691,12 @@
         child.style.setProperty('background-image', 'none', 'important');
         child.style.setProperty('box-shadow', 'none', 'important');
         child.style.setProperty('border', '0', 'important');
+        if (!child.matches('svg, path, circle, line, polyline')) {
+          child.style.setProperty('white-space', 'nowrap', 'important');
+          child.style.setProperty('width', 'auto', 'important');
+          child.style.setProperty('min-width', '0', 'important');
+          child.style.setProperty('flex', 'none', 'important');
+        }
       }
       const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
       let tn;
@@ -2664,8 +2721,20 @@
           btn.innerHTML = '<svg class="ani-bgm-toast-close-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
         }
       }
+      for (const oldSvg of [...el.querySelectorAll('svg:not(.ani-bgm-toast-icon):not(.ani-bgm-toast-close-icon)')]) {
+        if (!oldSvg.closest('.ani-bgm-toast-close')) oldSvg.remove();
+      }
       if (!el.querySelector('.ani-bgm-toast-icon')) {
-        el.insertAdjacentHTML('afterbegin', '<svg class="ani-bgm-toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 4.5-5"/></svg>');
+        el.insertAdjacentHTML('afterbegin', '<svg class="ani-bgm-toast-icon" style="width:17px!important;height:17px!important;min-width:17px!important;min-height:17px!important;flex:none!important;color:#5ee2ea!important;display:block!important" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 4.5-5"/></svg>');
+      } else {
+        const ic = el.querySelector('.ani-bgm-toast-icon');
+        if (ic) {
+          ic.style.setProperty('width', '17px', 'important');
+          ic.style.setProperty('height', '17px', 'important');
+          ic.style.setProperty('min-width', '17px', 'important');
+          ic.style.setProperty('flex', 'none', 'important');
+          ic.style.setProperty('color', '#5ee2ea', 'important');
+        }
       }
     }
     if (plusToolBox) {
@@ -2852,6 +2921,13 @@
     }
     if(controlBar){
       const leftGrp=controlBar.querySelector('.control-bar-leftbtn');
+      if(leftGrp){
+        const nextEpBtn=leftGrp.querySelector('.vjs-next-button');
+        const volPanel=leftGrp.querySelector('.vjs-volume-panel');
+        if(nextEpBtn&&volPanel&&nextEpBtn.nextElementSibling!==volPanel){
+          volPanel.before(nextEpBtn);
+        }
+      }
       if(leftGrp&&!leftGrp.querySelector('.ani-time-capsule')){
         const cur=leftGrp.querySelector('.vjs-current-time');
         const div=leftGrp.querySelector('.vjs-time-divider');
@@ -4276,7 +4352,7 @@
         const ic = document.createElement('span');
         ic.className = 'ani-section-icon';
         ic.setAttribute('aria-hidden', 'true');
-        ic.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l1 12H5L6 7Z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg>';
+        ic.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7.5" width="16" height="13.5" rx="3"/><path d="M8.5 7.5V6a3.5 3.5 0 0 1 7 0v1.5"/><path d="M9.5 12a2.5 2.5 0 0 0 5 0"/></svg>';
         mHead.prepend(ic);
       }
       const mList = merchSec.querySelector('.store_wrapper ul, .store_list, .slick-track, .store_wrapper');
@@ -4518,23 +4594,21 @@
           }
         }
         // Replace ? / ! help triggers ONLY (never overwrite tooltip popup text!) using non-destructive sibling insertion
-        const attachInfoIcon = (host) => {
-          if (!host || host.dataset.aniInfoDone === '1' || host.querySelector('.ani-info-i-icon')) return;
-          if (host.matches('svg, img, input, select, textarea, .ani-hidden-glyph, .ani-plus-info-trigger, .ani-info-badge-host')) return;
-          if (host.closest('.ani-hidden-glyph, .ani-plus-info-trigger, .ani-info-badge-host, .tooltip, [role="tooltip"], [class*="tooltip" i], [class*="popper" i], [class*="popover" i]')) return;
-          host.dataset.aniInfoDone = '1';
-          for (const g of host.querySelectorAll('svg:not(.ani-info-i-icon), i, img')) {
-            if (!g.closest('.tooltip, [role="tooltip"], [class*="tooltip" i], [class*="popper" i], [class*="popover" i]')) {
-              g.classList.add('ani-hidden-glyph');
+        const markHiddenQuestionGlyphs = (scope) => {
+          for (const g of scope.querySelectorAll('svg:not(.ani-info-i-icon):not(.ani-row-icon svg):not(.ani-plus-gear-svg):not(.ani-plus-refresh-svg):not(.ani-plus-add-svg):not(.ani-plus-action-svg), i, img')) {
+            if (!g.closest('.ani-row-icon, .tooltip, [role="tooltip"], [class*="tooltip" i], [class*="popper" i], [class*="popover" i]')) {
+              if (g.closest('.ani-plus-info-trigger, .qa-icon') || /question|help|alert|info|<circle\b/i.test(`${g.innerHTML || ''} ${g.className?.baseVal || g.className || ''}`)) {
+                g.classList.add('ani-hidden-glyph');
+              }
             }
           }
-          for (const leaf of host.querySelectorAll('span, div, b, small')) {
-            if (leaf.closest('.tooltip, [role="tooltip"], [class*="tooltip" i], [class*="popper" i], [class*="popover" i], .ani-info-badge-host')) continue;
+          for (const leaf of scope.querySelectorAll('span, div, b, small')) {
+            if (leaf.closest('.tooltip, [role="tooltip"], [class*="tooltip" i], [class*="popper" i], [class*="popover" i], .ani-info-badge-host, .ani-row-icon')) continue;
             if (leaf.childElementCount === 0 && /^(?:[?!？！!]+|help(?:_outline)?|info(?:_outline)?|error(?:_outline)?|warning|question_mark|contact_support|live_help)$/i.test((leaf.textContent || '').trim())) {
               leaf.classList.add('ani-hidden-glyph');
             }
           }
-          for (const tn of [...host.childNodes]) {
+          for (const tn of [...scope.childNodes]) {
             if (tn.nodeType === 3 && /^[?!？！\s]+$/.test(tn.nodeValue || '') && tn.nodeValue.trim()) {
               const s = document.createElement('span');
               s.className = 'ani-hidden-glyph';
@@ -4542,6 +4616,14 @@
               tn.replaceWith(s);
             }
           }
+        };
+        const attachInfoIcon = (host) => {
+          if (!host) return;
+          if (host.matches('svg, img, input, select, textarea, .ani-hidden-glyph, .ani-plus-info-trigger, .ani-info-badge-host')) return;
+          if (host.closest('.ani-hidden-glyph, .ani-plus-info-trigger, .ani-info-badge-host, .tooltip, [role="tooltip"], [class*="tooltip" i], [class*="popper" i], [class*="popover" i]')) return;
+          markHiddenQuestionGlyphs(host);
+          if (host.dataset.aniInfoDone === '1' || host.querySelector('.ani-info-i-icon')) return;
+          host.dataset.aniInfoDone = '1';
           const badge = document.createElement('span');
           badge.className = 'ani-info-badge-host ani-plus-info-badge';
           badge.setAttribute('aria-hidden', 'true');
@@ -4549,10 +4631,11 @@
           host.prepend(badge);
           host.classList.add('ani-plus-info-trigger');
         };
-        for (const qa of panelEl.querySelectorAll('.qa-icon')) {
-          if (!qa.querySelector('.ani-info-i-icon')) {
-            qa.innerHTML = thinInfoSvg;
-            qa.classList.add('ani-info-badge-host');
+        for (const existingTrigger of panelEl.querySelectorAll('.ani-plus-info-trigger, .qa-icon')) {
+          markHiddenQuestionGlyphs(existingTrigger);
+          if (existingTrigger.matches('.qa-icon') && !existingTrigger.querySelector('.ani-info-i-icon')) {
+            existingTrigger.innerHTML = thinInfoSvg;
+            existingTrigger.classList.add('ani-info-badge-host');
           }
         }
         for (const tipHost of panelEl.querySelectorAll('[tip-content], [data-tooltip], [title], [class*="question" i], [class*="help" i]')) {
@@ -4572,8 +4655,12 @@
             attachInfoIcon(leafTxtEl);
           }
         }
-        for (const iconSvg of panelEl.querySelectorAll('svg:not(.ani-sec-icon svg):not(.ani-info-i-icon):not(.ani-row-icon svg):not(.ani-plus-refresh-svg):not(.ani-plus-add-svg), :is(i, span).material-icons, :is(i, span)[class*="material" i]')) {
-          if (iconSvg.closest('.ani-sec-icon, .ani-row-icon, .ani-info-badge-host, .ani-plus-info-trigger, .ani-hidden-glyph, .ani-danmu-position-btn, .ani-plus-pill-btn, .ani-plus-refresh-btn, .ani-plus-add-icon-btn, .tooltip, [role="tooltip"], [class*="tooltip" i]')) continue;
+        for (const iconSvg of panelEl.querySelectorAll('svg:not(.ani-sec-icon svg):not(.ani-info-i-icon):not(.ani-row-icon svg):not(.ani-plus-refresh-svg):not(.ani-plus-add-svg):not(.ani-plus-gear-svg):not(.ani-plus-action-svg), :is(i, span).material-icons, :is(i, span)[class*="material" i]')) {
+          if (iconSvg.closest('.ani-sec-icon, .ani-row-icon, .ani-info-badge-host, .ani-hidden-glyph, .ani-danmu-position-btn, .ani-plus-pill-btn, .ani-plus-refresh-btn, .ani-plus-add-icon-btn, .ani-plus-gear-btn, .ani-plus-icon-action, .tooltip, [role="tooltip"], [class*="tooltip" i]')) continue;
+          if (iconSvg.closest('.ani-plus-info-trigger, .qa-icon')) {
+            iconSvg.classList.add('ani-hidden-glyph');
+            continue;
+          }
           if (iconSvg.tagName !== 'SVG') {
             const matTxt = (iconSvg.textContent || '').trim();
             if (/^(?:help|help_outline|info|info_outline|error|error_outline|warning|question_mark|contact_support|live_help)$/i.test(matTxt) && iconSvg.parentElement && !iconSvg.parentElement.querySelector('.ani-info-i-icon')) {
@@ -4699,14 +4786,15 @@
               if (/時間跳躍|過濾關鍵字/.test(rawT)) pr.classList.add('ani-plus-group-top');
             }
           }
-          // Fallback for any compact row not matched by known Plus labels
+          // Fallback for any compact row not matched by known Plus labels (skip [label + x-delete] keyword chips)
           for (const pr of panelEl.querySelectorAll('div')) {
-            if (pr.closest('.ani-plus-cap-row, .ani-plus-info-trigger, .ani-plus-form-row') || pr.classList.contains('ani-plus-form-row')) continue;
+            if (pr.closest('.ani-plus-cap-row, .ani-plus-info-trigger, .ani-plus-form-row, .ani-plus-kw-list, .ani-plus-kw-chip') || pr.classList.contains('ani-plus-form-row')) continue;
             if (pr.children.length >= 2 && pr.children.length <= 5) {
               const first = pr.firstElementChild;
               if (first && first.tagName === 'SPAN' && !first.querySelector('input, button')) {
                 const ctrl = [...pr.children].slice(1).find((c) => c.matches('input[type="checkbox"], button, div'));
-                if (ctrl || pr.querySelector(':scope > input[type="checkbox"]')) {
+                const isKwChipLike = ctrl && ctrl.tagName === 'BUTTON' && !pr.querySelector('input') && (/^(?:[×✕✖x])?$/i.test((ctrl.textContent || '').trim()) || /M18 6|M19 6\.41|close|del/i.test(ctrl.innerHTML || ''));
+                if ((ctrl || pr.querySelector(':scope > input[type="checkbox"]')) && !isKwChipLike) {
                   pr.classList.add('ani-plus-form-row');
                   first.classList.add('ani-plus-row-title');
                   if (/時間跳躍|過濾關鍵字/.test((first.textContent || '').trim())) pr.classList.add('ani-plus-group-top');
@@ -4747,55 +4835,32 @@
           ['時間跳躍', 'time-jump', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'],
           ['過濾關鍵字', 'kw-filter', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="6.5" y1="17.5" x2="17.5" y2="6.5"/></svg>'],
         ];
-        const usedKeys = new Set([...drawer.querySelectorAll('.ani-row-icon[data-ani-row-key]')].map((n) => n.dataset.aniRowKey));
         for (const [pat, key, svgHtml] of uniqueRowIcons) {
-          if (usedKeys.has(key)) continue;
           const re = new RegExp(`^${pat}`);
-          for (const lbl of panelEl.querySelectorAll('.ani-setting-label__mian, .ani-setting-label, .ani-plus-cap-heading > span:first-child, .ani-plus-row-title, .plus_row > span, div > span')) {
-            if (lbl.closest('.ani-sec-icon, .ani-info-badge-host, .ani-plus-info-trigger, .ani-danmu-position-btn, .ani-plus-pill-btn, .ani-plus-cap-row, .ani-dup-hidden, .ani-setting-section > h4, .ani-setting-section > .title, .plus_menu_title') || lbl.querySelector('.ani-row-icon')) continue;
-            if (lbl.children.length > 2) continue;
-            const txt = (lbl.textContent || '').trim();
+          for (const lbl of panelEl.querySelectorAll('.ani-setting-label__mian, .ani-setting-label, .ani-plus-cap-heading > span:first-child, .ani-plus-row-title, .plus_row > span, div > span, div > label')) {
+            if (lbl.closest('.ani-sec-icon, .ani-info-badge-host, .ani-plus-info-trigger, .ani-danmu-position-btn, .ani-plus-pill-btn, .ani-plus-cap-row, .ani-dup-hidden, .ani-setting-section > h4, .ani-setting-section > .title, .plus_menu_title, button, input, select')) continue;
+            if (lbl.querySelector('.ani-row-icon')) continue;
+            const ownerRow = lbl.closest('.ani-plus-form-row, .ani-setting-item, .ani-plus-cap-heading, .plus_row');
+            if (ownerRow?.querySelector(`.ani-row-icon[data-ani-row-key="${key}"]`)) continue;
+            if (!lbl.classList.contains('ani-plus-row-title') && lbl.children.length > 3) continue;
+            const txt = (lbl.textContent || '').replace(/\s+/g, ' ').trim();
             if (re.test(txt)) {
-              usedKeys.add(key);
               const ic = document.createElement('span');
               ic.className = 'ani-row-icon';
               ic.dataset.aniRowKey = key;
               ic.setAttribute('aria-hidden', 'true');
               ic.innerHTML = svgHtml;
               lbl.prepend(ic);
-              break;
             }
           }
         }
+        // Hide redundant decorative right-side icons in 動畫瘋·Plus rows once front .ani-row-icon is present
         if (panelEl.closest('.ani-drawer-slot-extra')) {
-          // Left-align #ani-tab-content-2 slider styling is in else branch
-        } else {
-          for (const range of panelEl.querySelectorAll('input[type="range"]')) {
-            const syncRange = () => {
-              const min = Number(range.min || 0);
-              const max = Number(range.max || 100);
-              const val = Number(range.value || 0);
-              const pct = max > min ? Math.max(0, Math.min(100, ((val - min) / (max - min)) * 100)) : 0;
-              range.style.setProperty('--ani-range-pct', `${pct.toFixed(1)}%`);
-            };
-            if (!range.dataset.aniRangeBound) {
-              range.dataset.aniRangeBound = 'true';
-              range.addEventListener('input', syncRange);
-              range.addEventListener('change', syncRange);
-              new MutationObserver(syncRange).observe(range, { attributes: true, attributeFilter: ['value', 'min', 'max'] });
-            }
-            syncRange();
-            const itemRow = range.closest('.ani-setting-item') || range.closest('li') || range.parentElement;
-            if (itemRow && itemRow !== panelEl) {
-              itemRow.classList.add('ani-drawer-slider-row');
-              const sliderBox = (range.parentElement && range.parentElement !== itemRow) ? range.parentElement : range;
-              if (sliderBox !== itemRow) sliderBox.classList.add('ani-drawer-slider-ctrl');
-              if (/字體大小|文字大小/.test(itemRow.textContent || '') && !itemRow.querySelector('.ani-drawer-size-scale') && sliderBox.parentElement) {
-                const scale = document.createElement('div');
-                scale.className = 'ani-drawer-size-scale';
-                scale.innerHTML = '<span>小</span><span>標準</span><span>大</span>';
-                sliderBox.parentElement.insertBefore(scale, sliderBox);
-              }
+          for (const fRow of panelEl.querySelectorAll('.ani-plus-form-row')) {
+            if (!fRow.querySelector('.ani-row-icon')) continue;
+            for (const gSvg of fRow.querySelectorAll('svg:not(.ani-row-icon svg):not(.ani-info-i-icon):not(.ani-plus-gear-svg):not(.ani-plus-refresh-svg):not(.ani-plus-add-svg):not(.ani-plus-action-svg)')) {
+              if (gSvg.closest('button, a, .ani-plus-gear-btn, .ani-plus-icon-action, .ani-plus-add-icon-btn, .ani-info-badge-host, .tooltip, [role="tooltip"]')) continue;
+              gSvg.classList.add('ani-hidden-glyph');
             }
           }
         }
@@ -4816,19 +4881,22 @@
             el.classList.add('ani-dup-hidden');
           }
         }
-        // Pure gear icon (no box/pill bg), group trailing controls (gear / counter / toggle) on right edge
-        const gearSvgMarkup = '<svg class="ani-plus-gear-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.6.85 1 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>';
+        // Clean horizontal sliders icon (replaces ugly jagged cog teeth on 時間跳躍) & move 彈幕格式修改 directly into 彈幕設定
+        const gearSvgMarkup = '<svg class="ani-plus-gear-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="21" y1="6" x2="14" y2="6"/><line x1="10" y1="6" x2="3" y2="6"/><line x1="21" y1="12" x2="12" y2="12"/><line x1="8" y1="12" x2="3" y2="12"/><line x1="21" y1="18" x2="16" y2="18"/><line x1="12" y1="18" x2="3" y2="18"/><circle cx="12" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="14" cy="18" r="2"/></svg>';
         if (panelEl.closest('.ani-drawer-slot-extra')) {
           for (const gBtn of panelEl.querySelectorAll('button, a, [role="button"]')) {
-            if (gBtn.closest('.ani-plus-gear-btn, .ani-plus-refresh-btn, .ani-plus-add-icon-btn, .ani-plus-icon-action')) continue;
+            if (gBtn.closest('.ani-plus-refresh-btn, .ani-plus-add-icon-btn, .ani-plus-icon-action')) continue;
             const bt = (gBtn.textContent || '').trim();
-            const isGearBtn = /^[⚙⚙️🔧]$/.test(bt)
+            const isGearBtn = gBtn.classList.contains('ani-plus-gear-btn')
+              || /^[⚙⚙️🔧]$/.test(bt)
               || (/settings|cog|gear|tune/i.test(bt) && gBtn.childElementCount <= 1)
               || (!bt && /M19\.14|15\.18|19\.4|12 15\.5|gear|cog/i.test(gBtn.innerHTML || ''));
             if (!isGearBtn) continue;
             gBtn.classList.add('ani-plus-gear-btn');
             gBtn.setAttribute('aria-label', gBtn.getAttribute('aria-label') || '設定');
-            if (!gBtn.querySelector('.ani-plus-gear-svg')) gBtn.innerHTML = gearSvgMarkup;
+            if (!gBtn.querySelector('.ani-plus-tune-svg')) {
+              gBtn.innerHTML = gearSvgMarkup.replace('ani-plus-gear-svg', 'ani-plus-gear-svg ani-plus-tune-svg');
+            }
           }
           for (const fRow of panelEl.querySelectorAll('.ani-plus-form-row')) {
             const gBtn = fRow.querySelector(':scope > .ani-plus-gear-btn');
@@ -4843,6 +4911,101 @@
               if (!c.matches('.ani-plus-row-title, .ani-plus-info-trigger, .qa-icon, .ani-plus-status-pill, .ani-hidden-glyph')) {
                 c.classList.add('ani-plus-row-tail-item');
                 break;
+              }
+            }
+          }
+          // Move 彈幕格式修改 (+ Font / Shadow / Border inline controls) directly into left 彈幕設定 card with gear button removed
+          const fmtRoot = unifiedGridEl || panelEl;
+          const formatRow = [...fmtRoot.querySelectorAll('.ani-plus-form-row')].find((r) => /彈幕格式修改/.test(r.textContent || ''));
+          if (formatRow) {
+            const fmtGear = formatRow.querySelector('.ani-plus-gear-btn, button');
+            const findFormatSub = () => {
+              let probe = formatRow.nextElementSibling;
+              while (probe) {
+                const pt = probe.textContent || '';
+                if (probe.matches('.ani-plus-form-row') || /彈魂軌跡|彈幕軌跡|截圖錄影|時間跳躍|過濾關鍵字/.test(pt)) break;
+                if (/字體修改|陰影深度|外框距離/.test(pt)) return probe;
+                probe = probe.nextElementSibling;
+              }
+              return [...fmtRoot.querySelectorAll('.ani-drawer-slot-extra div')].find(
+                (d) =>
+                  d !== formatRow &&
+                  !d.closest('.ani-plus-format-moved') &&
+                  /字體修改|陰影深度|外框距離/.test(d.textContent || '') &&
+                  !/彈幕格式修改|彈魂軌跡|彈幕軌跡|時間跳躍|過濾關鍵字/.test(d.textContent || '') &&
+                  Boolean(d.querySelector('select, input[type="range"]'))
+              ) || null;
+            };
+            let formatSub = findFormatSub();
+            if (!formatSub && fmtGear && !fmtGear.dataset.aniAutoExpanded) {
+              fmtGear.dataset.aniAutoExpanded = '1';
+              try { fmtGear.click(); } catch {}
+              formatSub = findFormatSub();
+            }
+            if (fmtGear) {
+              fmtGear.classList.add('ani-dup-hidden');
+              fmtGear.style.setProperty('display', 'none', 'important');
+            }
+            const leftDanmuSec = [...(fmtRoot.querySelectorAll('#ani-tab-content-2 > .ani-setting-section:not(.ani-dup-hidden)') || [])].pop();
+            if (leftDanmuSec) {
+              let movedHost = leftDanmuSec.querySelector(':scope > .ani-plus-format-moved');
+              if (!movedHost) {
+                movedHost = document.createElement('div');
+                movedHost.className = 'ani-plus-format-moved ani-plus-group-top';
+                leftDanmuSec.append(movedHost);
+              }
+              if (formatRow.parentElement !== movedHost) movedHost.append(formatRow);
+              if (formatSub) {
+                formatSub.classList.add('ani-plus-format-subinline');
+                if (formatSub.parentElement !== movedHost) movedHost.append(formatSub);
+                formatSub.hidden = false;
+                formatSub.style.removeProperty('display');
+                for (const fmtRange of formatSub.querySelectorAll('input[type="range"]')) {
+                  const syncFmtRange = () => {
+                    const min = Number(fmtRange.min || 0);
+                    const max = Number(fmtRange.max || 100);
+                    const val = Number(fmtRange.value || 0);
+                    const pct = max > min ? Math.max(0, Math.min(100, ((val - min) / (max - min)) * 100)) : 0;
+                    fmtRange.style.setProperty('--ani-range-pct', `${pct.toFixed(1)}%`);
+                  };
+                  if (!fmtRange.dataset.aniRangeBound) {
+                    fmtRange.dataset.aniRangeBound = 'true';
+                    fmtRange.addEventListener('input', syncFmtRange);
+                    fmtRange.addEventListener('change', syncFmtRange);
+                  }
+                  syncFmtRange();
+                }
+              }
+            }
+          }
+        }
+        if (!panelEl.closest('.ani-drawer-slot-extra')) {
+          for (const range of panelEl.querySelectorAll('input[type="range"]')) {
+            const syncRange = () => {
+              const min = Number(range.min || 0);
+              const max = Number(range.max || 100);
+              const val = Number(range.value || 0);
+              const pct = max > min ? Math.max(0, Math.min(100, ((val - min) / (max - min)) * 100)) : 0;
+              range.style.setProperty('--ani-range-pct', `${pct.toFixed(1)}%`);
+            };
+            if (!range.dataset.aniRangeBound) {
+              range.dataset.aniRangeBound = 'true';
+              range.addEventListener('input', syncRange);
+              range.addEventListener('change', syncRange);
+              new MutationObserver(syncRange).observe(range, { attributes: true, attributeFilter: ['value', 'min', 'max'] });
+            }
+            syncRange();
+            if (range.closest('.ani-plus-format-moved')) continue;
+            const itemRow = range.closest('.ani-setting-item') || range.closest('li') || range.parentElement;
+            if (itemRow && itemRow !== panelEl) {
+              itemRow.classList.add('ani-drawer-slider-row');
+              const sliderBox = (range.parentElement && range.parentElement !== itemRow) ? range.parentElement : range;
+              if (sliderBox !== itemRow) sliderBox.classList.add('ani-drawer-slider-ctrl');
+              if (/字體大小|文字大小/.test(itemRow.textContent || '') && !itemRow.querySelector('.ani-drawer-size-scale') && sliderBox.parentElement) {
+                const scale = document.createElement('div');
+                scale.className = 'ani-drawer-size-scale';
+                scale.innerHTML = '<span>小</span><span>標準</span><span>大</span>';
+                sliderBox.parentElement.insertBefore(scale, sliderBox);
               }
             }
           }
@@ -4911,13 +5074,15 @@
                 if (node.querySelector('input, .ani-plus-kw-input-row, .ani-plus-form-row')) continue;
                 const nt = (node.textContent || '').replace(/\s+/g, ' ').trim();
                 if (!nt || nt.length > 40) continue;
-                const delCandidates = [...node.querySelectorAll('button, a, span, i, svg')].filter((c) => {
+                const rawDel = [...node.querySelectorAll('button, a, span, i, svg')].filter((c) => {
                   const ct = (c.textContent || '').trim();
-                  return /^[×✕✖x]$/.test(ct) || /close|times|del|remove/i.test(`${c.className?.baseVal || c.className || ''} ${c.getAttribute('aria-label') || ''}`);
+                  const meta = `${c.className?.baseVal || c.className || ''} ${c.getAttribute('aria-label') || ''} ${c.innerHTML || ''}`;
+                  return /^[×✕✖x]$/.test(ct) || /close|times|del|remove|M18 6|M19 6\.41|M6 18|L6 18|l12 12/i.test(meta);
                 });
+                const delCandidates = rawDel.filter((c) => !rawDel.some((other) => other !== c && other.contains(c)));
                 if (delCandidates.length !== 1) continue;
                 const delEl = delCandidates[0];
-                const hasTextAndDel = delEl && nt !== delEl.textContent.trim();
+                const hasTextAndDel = delEl && nt !== (delEl.textContent || '').trim();
                 if (hasTextAndDel && !node.querySelector('.ani-plus-kw-chip')) {
                   node.classList.add('ani-plus-kw-chip');
                   delEl.classList.add('ani-plus-kw-del');
