@@ -48,14 +48,14 @@ globalThis.AniAmbientStorage={
 if(typeof GM_addValueChangeListener==='function')GM_addValueChangeListener('${key}',(_key,oldValue,newValue,remote)=>{if(remote){cached=newValue||{};emit(oldValue||{},cached);}});
 `;
 const metadata = `// ==UserScript==
-// @name         anigamer-ambilight｜動畫瘋環境光與沉浸版面
+// @name         Anigamer-Redesign 3.0｜動畫瘋沉浸重製版
 // @namespace    https://ani.gamer.com.tw/ani-ambientlight
 // @version      ${version}
 // @description  動畫瘋環境光與播放頁主題編輯器。可只用美化主題，獨立調整光暈、配色、字體與版型。非官方。
-// @homepageURL  https://github.com/Hinataragi/anigamer-ambilight
-// @supportURL   https://github.com/Hinataragi/anigamer-ambilight/issues
-// @downloadURL  https://github.com/Hinataragi/anigamer-ambilight/releases/latest/download/anigamer-ambilight.user.js
-// @updateURL    https://github.com/Hinataragi/anigamer-ambilight/releases/latest/download/anigamer-ambilight.user.js
+// @homepageURL  https://github.com/aunight/Anigamer-Redesign3.0
+// @supportURL   https://github.com/aunight/Anigamer-Redesign3.0/issues
+// @downloadURL  https://github.com/aunight/Anigamer-Redesign3.0/releases/latest/download/anigamer-redesign3.0.user.js
+// @updateURL    https://github.com/aunight/Anigamer-Redesign3.0/releases/latest/download/anigamer-redesign3.0.user.js
 // @license      MIT
 // @match        https://ani.gamer.com.tw/*
 // @run-at       document-start
@@ -69,6 +69,11 @@ const metadata = `// ==UserScript==
 // @connect      truth.bahamut.com.tw
 // @connect      p2.bahamut.com.tw
 // @connect      i2.bahamut.com.tw
+// @connect      acg.gamer.com.tw
+// @connect      cal.syoboi.jp
+// @connect      ja.wikipedia.org
+// @connect      graphql.anilist.co
+// @connect      myanimelist.net
 // @grant        GM_addStyle
 // ==/UserScript==
 `;

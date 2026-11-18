@@ -454,11 +454,11 @@
     season.before(anchor);
     const shelf = document.createElement('section');
     shelf.className = 'ani-episode-shelf';
-    shelf.setAttribute('aria-label', '選擇集數');
+    shelf.setAttribute('aria-label', '集數');
     const heading = document.createElement('div');
     heading.className = 'ani-episode-heading';
     const label = document.createElement('h2');
-    label.textContent = '選擇集數';
+    label.textContent = '集數';
     const count = document.createElement('span');
     count.textContent = `${season.querySelectorAll('li').length} 集`;
     heading.append(label, count);
@@ -493,7 +493,7 @@
     const refreshLabel = () => {
       const action = season.hidden ? '展開' : '收合';
       button.setAttribute('aria-label', action + '集數');
-      button.innerHTML = `<strong>選擇集數 <small>${season.querySelectorAll('li').length} 集</small></strong><span>${action}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
+      button.innerHTML = `<strong>集數 <small>${season.querySelectorAll('li').length} 集</small></strong><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
     };
     const toggle = () => {
       season.hidden = !season.hidden;
@@ -612,7 +612,7 @@
         button.setAttribute('aria-label', action + name);
         if (key === 'comments') button.textContent = action + name;
         else
-          button.innerHTML = `<strong>${name}</strong><span>${action}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
+          button.innerHTML = `<strong>${name}</strong><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
       };
       refreshLabel();
       button.addEventListener('click', () => {
@@ -1687,7 +1687,7 @@
                   ? data.cast
                       .map((j) => {
                         const linkPart = j.wikiUrl
-                          ? `<a href="${j.wikiUrl}" target="_blank" rel="noopener noreferrer">🔗${j.wikiText || 'Wiki'}</a>`
+                          ? `<a href="${j.wikiUrl}" target="_blank" rel="noopener noreferrer"><svg class="ani-wiki-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.09 13.119c-.936 1.932-2.217 4.548-2.853 5.728-.616 1.074-1.127.931-1.532.029-1.406-3.321-4.293-9.144-5.651-12.409-.251-.601-.441-.987-.619-1.139-.181-.15-.554-.24-1.122-.271C.103 5.033 0 4.982 0 4.898v-.455l.052-.045c.924-.005 5.401 0 5.401 0l.051.045v.434c0 .119-.075.176-.225.176l.564.031c.485.029.727.164.727.436 0 .135-.053.33-.166.601 1.082 2.646 4.818 10.521 4.818 10.521l.136.046 2.411-4.81-.482-1.067-1.658-3.264s-.318-.654-.428-.872c-.728-1.443-.712-1.518-1.447-1.617-.207-.023-.313-.05-.313-.149v-.468l.06-.045h4.292l.113.037v.451c0 .105-.076.15-.227.15l-.308.047c-.792.061-.661.381-.136 1.422l1.582 3.252 1.758-3.504c.293-.64.233-.801-.416-.872-.231-.027-.346-.063-.346-.184v-.434l.044-.053h4.294l.06.045v.434c0 .119-.089.176-.268.176l-.657.031c-.629.051-.846.235-1.262 1.007-1.06 1.981-2.094 4.027-2.094 4.027l2.536 5.261 4.212-9.512c.259-.61.186-.86-.508-.903l-.671-.031c-.163 0-.244-.046-.244-.15v-.451l.06-.053 4.041.008.045.045v.434c0 .119-.067.176-.202.176l-.491.031c-.792.049-1.158.299-1.564 1.196-.93 2.025-3.953 8.859-5.059 11.494-.39.873-.905 1.029-1.48.03-.758-1.387-1.751-3.361-2.345-4.576l-.189-.39-2.587 4.961c-.616 1.106-1.127.959-1.532.029z"/></svg></a>`
                           : '<div></div>';
                         return `<div>${j.char || ''}</div><div>${j.cv || ''}</div>${linkPart}`;
                       })
@@ -1699,7 +1699,7 @@
                       .map((j) => {
                         const cleanSong = (j.title || '').replace(/^[「『]|[」』]$/g, '');
                         const q = encodeURIComponent(`${cleanSong} ${j.singer || ''}`.trim());
-                        return `<div>${j.type || '主題曲'}${j.title || ''}</div><div>${j.singer || '-'}</div><a href="https://www.youtube.com/results?search_query=${q}" target="_blank" rel="noopener noreferrer">🔎Youtube</a>`;
+                        return `<div>${j.type || '主題曲'}${j.title || ''}</div><div>${j.singer || '-'}</div><a href="https://www.youtube.com/results?search_query=${q}" target="_blank" rel="noopener noreferrer"><svg class="ani-yt-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.5 6.2a3.01 3.01 0 0 0-2.12-2.13C19.5 3.55 12 3.55 12 3.55s-7.5 0-9.38.52A3.01 3.01 0 0 0 .5 6.2 31.4 31.4 0 0 0 0 12a31.4 31.4 0 0 0 .5 5.8 3.01 3.01 0 0 0 2.12 2.13c1.88.52 9.38.52 9.38.52s7.5 0 9.38-.52a3.01 3.01 0 0 0 2.12-2.13A31.4 31.4 0 0 0 24 12a31.4 31.4 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.3 3.6-6.3 3.6Z"/></svg>YouTube</a>`;
                       })
                       .join('')
                   : '';
@@ -1734,9 +1734,39 @@
               if (idx === 0) renderPane(pane, r);
             });
             if (savedEpisodes) aniInfoBox.append(savedEpisodes);
+            setTimeout(enhancePlayerControls, 0);
           },
         );
       }
+
+    
+    for (const pill of document.querySelectorAll('#BH_background #ani-info .data_type li > span')) {
+      if (pill.querySelector('.ani-info-pill-svg')) continue;
+      const t = (pill.textContent || '').trim();
+      if (/^CAST$/i.test(t)) {
+        pill.classList.add('ani-infoplus-badge');
+        pill.insertAdjacentHTML('afterbegin', '<svg class="ani-info-pill-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Zm5-3a1 1 0 1 0-2 0 3 3 0 0 1-6 0 1 1 0 1 0-2 0 5 5 0 0 0 4 4.9V19H8.5a1 1 0 1 0 0 2h7a1 1 0 1 0 0-2H13v-3.1A5 5 0 0 0 17 11Z"/></svg>');
+      } else if (/^主題曲$/.test(t)) {
+        pill.classList.add('ani-infoplus-badge');
+        pill.insertAdjacentHTML('afterbegin', '<svg class="ani-info-pill-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6Z"/></svg>');
+      } else if (/^aniInfo\+$/i.test(t)) {
+        pill.classList.add('ani-infoplus-badge');
+        pill.insertAdjacentHTML('afterbegin', '<svg class="ani-info-pill-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2Zm1 15h-2v-6h2v6Zm0-8h-2V7h2v2Z"/></svg>');
+      }
+    }
+    for (const a of document.querySelectorAll('#BH_background #ani-info a[href*="wikipedia.org"]')) {
+      if (!a.querySelector('.ani-wiki-svg')) {
+        a.classList.add('ani-wiki-link');
+        a.title = a.textContent.replace(/🔗/g, '').trim() || 'Wikipedia';
+        a.innerHTML = '<svg class="ani-wiki-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.09 13.119c-.936 1.932-2.217 4.548-2.853 5.728-.616 1.074-1.127.931-1.532.029-1.406-3.321-4.293-9.144-5.651-12.409-.251-.601-.441-.987-.619-1.139-.181-.15-.554-.24-1.122-.271C.103 5.033 0 4.982 0 4.898v-.455l.052-.045c.924-.005 5.401 0 5.401 0l.051.045v.434c0 .119-.075.176-.225.176l.564.031c.485.029.727.164.727.436 0 .135-.053.33-.166.601 1.082 2.646 4.818 10.521 4.818 10.521l.136.046 2.411-4.81-.482-1.067-1.658-3.264s-.318-.654-.428-.872c-.728-1.443-.712-1.518-1.447-1.617-.207-.023-.313-.05-.313-.149v-.468l.06-.045h4.292l.113.037v.451c0 .105-.076.15-.227.15l-.308.047c-.792.061-.661.381-.136 1.422l1.582 3.252 1.758-3.504c.293-.64.233-.801-.416-.872-.231-.027-.346-.063-.346-.184v-.434l.044-.053h4.294l.06.045v.434c0 .119-.089.176-.268.176l-.657.031c-.629.051-.846.235-1.262 1.007-1.06 1.981-2.094 4.027-2.094 4.027l2.536 5.261 4.212-9.512c.259-.61.186-.86-.508-.903l-.671-.031c-.163 0-.244-.046-.244-.15v-.451l.06-.053 4.041.008.045.045v.434c0 .119-.067.176-.202.176l-.491.031c-.792.049-1.158.299-1.564 1.196-.93 2.025-3.953 8.859-5.059 11.494-.39.873-.905 1.029-1.48.03-.758-1.387-1.751-3.361-2.345-4.576l-.189-.39-2.587 4.961c-.616 1.106-1.127.959-1.532.029z"/></svg>';
+      }
+    }
+    for (const a of document.querySelectorAll('#BH_background #ani-info a[href*="youtube.com"]')) {
+      if (!a.querySelector('.ani-yt-svg')) {
+        a.classList.add('ani-yt-link');
+        a.innerHTML = '<svg class="ani-yt-svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.5 6.2a3.01 3.01 0 0 0-2.12-2.13C19.5 3.55 12 3.55 12 3.55s-7.5 0-9.38.52A3.01 3.01 0 0 0 .5 6.2 31.4 31.4 0 0 0 0 12a31.4 31.4 0 0 0 .5 5.8 3.01 3.01 0 0 0 2.12 2.13c1.88.52 9.38.52 9.38.52s7.5 0 9.38-.52a3.01 3.01 0 0 0 2.12-2.13A31.4 31.4 0 0 0 24 12a31.4 31.4 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.3 3.6-6.3 3.6Z"/></svg>YouTube';
+      }
+    }
 
     for(const badge of document.querySelectorAll('#BH_background span, #BH_background div, #BH_background a, #BH_background button')){
       if(!badge.children.length&&/^\s*aniInfo\+\s*$/i.test(badge.textContent||'')){
@@ -2138,7 +2168,7 @@
         tool.closest('.plus_button_box')?.classList.add('ani-tool-hover-pill');
       }
     }
-    const captureRoots = [...new Set([document.querySelector('#BH_background .image_tool'), plusToolBox?.parentElement, document.querySelector('#BH_background section.player'), document.querySelector('#BH_background .container-player')].filter(Boolean))];
+    const captureRoots = [...new Set([document.querySelector('#BH_background .image_tool'), plusToolBox?.parentElement].filter(Boolean))];
     const captureIcons = [
       { re: /播放|預覽|play|preview/i, path: '<polygon points="7 5 19 12 7 19 7 5" fill="currentColor" stroke="none"/>' },
       { re: /下載|儲存|保存|save|download/i, path: '<path d="M12 4v11m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>' },
@@ -2147,14 +2177,14 @@
     ];
     for (const scope of captureRoots) {
       for (const box of scope.querySelectorAll('div, ul, nav')) {
-        if (box.closest('#ani_video, .plus_button_box, .ani-watch-tools, .anime-title, .subtitle, .ani-plus-dark-drawer')) continue;
+        if (box.closest('#ani_video, .plus_button_box, .ani-watch-tools, .anime-title, .subtitle, .ani-plus-dark-drawer, .data_acgbox, #acg_review, section.data, .ACG-box, .acg-score-user')) continue;
         const btns = [...box.children].filter(el => el.nodeType === 1 && !el.matches('img, video, canvas'));
         if (btns.length !== 4) continue;
         const card = box.parentElement;
         if (!card) continue;
         const hasMedia = Boolean(card.querySelector('img, video, canvas'));
         const hasCapText = /第\s*\d+(?:\.\d+)?\s*集\s*\d+\s*[:：]\s*\d+/.test(card.textContent || '');
-        if (!hasMedia && !hasCapText) continue;
+        if (!hasCapText) continue;
         box.classList.add('ani-plus-capture-actions');
         btns.forEach((btn, idx) => {
           btn.classList.add('ani-plus-capture-btn');
@@ -3252,6 +3282,10 @@
       try {
         const msgEl = document.querySelector('#BH_background #ani-info #ani-info-msg');
         const boxEl = document.querySelector('#BH_background #ani-info');
+        if (typeof window.__aniSyncSidebarIntro === 'function') window.__aniSyncSidebarIntro();
+        if (boxEl && boxEl.querySelector('.data_type li > span:not(:has(.ani-info-pill-svg))')) {
+          enhancePlayerControls();
+        }
         if (msgEl && boxEl && !boxEl.dataset.aniInfoRescued && /無法取得資料|查無資料|搜尋失敗/.test(msgEl.textContent || '')) {
           enhancePlayerControls();
         }
@@ -3277,6 +3311,11 @@
             box.classList.add('ani-skip-intro-pill');
             for (const inner of box.querySelectorAll('*')) {
               inner.classList.add('ani-skip-intro-inner');
+              inner.style.setProperty('background', 'transparent', 'important');
+              inner.style.setProperty('background-color', 'transparent', 'important');
+              inner.style.setProperty('background-image', 'none', 'important');
+              inner.style.setProperty('border', '0', 'important');
+              inner.style.setProperty('box-shadow', 'none', 'important');
             }
           }
         }
@@ -3770,6 +3809,9 @@
         btn.setAttribute('aria-label', label);
         btn.title = label;
         btn.innerHTML = icon;
+        for (const svgEl of btn.querySelectorAll('svg, svg *')) {
+          svgEl.style.setProperty('pointer-events', 'none', 'important');
+        }
         if (/複製/.test(label)) btn.addEventListener('click', () => showAniToast('已複製彈幕內容'));
       }
     }
@@ -3783,37 +3825,337 @@
       reloadBtn.title = '重新整理彈幕';
       reloadBtn.innerHTML = '<svg viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path d="M105.1 202.6c7.7-21.8 20.2-42.3 37.8-59.8c62.5-62.5 163.8-62.5 226.3 0L386.3 160 352 160c-17.7 0-32 14.3-32 32s14.3 32 32 32l111.5 0c0 0 0 0 0 0l.4 0c17.7 0 32-14.3 32-32l0-112c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 35.2L414.4 97.6c-87.5-87.5-229.3-87.5-316.8 0C73.2 122 55.6 150.7 44.8 181.4c-5.9 16.7 2.9 34.9 19.5 40.8s34.9-2.9 40.8-19.5zM39 289.3c-5 1.5-9.8 4.2-13.7 8.2c-4 4-6.7 8.8-8.1 14c-.3 1.2-.6 2.5-.8 3.8c-.3 1.7-.4 3.4-.4 5.1L16 432c0 17.7 14.3 32 32 32s32-14.3 32-32l0-35.1 17.6 17.5c0 0 0 0 0 0c87.5 87.4 229.3 87.4 316.7 0c24.4-24.4 42.1-53.1 52.9-83.8c5.9-16.7-2.9-34.9-19.5-40.8s-34.9 2.9-40.8 19.5c-7.7 21.8-20.2 42.3-37.8 59.8c-62.5 62.5-163.8 62.5-226.3 0l-.1-.1L125.6 352l34.4 0c17.7 0 32-14.3 32-32s-14.3-32-32-32L48.4 288c-1.6 0-3.2 .1-4.8 .3s-3.1 .5-4.6 1z"/></svg>';
     }
-    // Follow the site's active tab rather than replacing its click handlers.
-    // Only opt into panel layout when both a native tab and its target exist.
-    for (const content of document.querySelectorAll(
-      '.subtitle .ani-tab-content',
-    )) {
-      if (content.dataset.aniTabsReady) continue;
-      const tabs = content.parentElement?.querySelector('.ani-tabs');
+    // Redesign 3.0 Right Panel (彈幕列表 | 作品簡介 | 作品評分) + Settings & 動畫瘋·Plus drawers below title
+    for (const tabContent of document.querySelectorAll('.subtitle .ani-tab-content')) {
+      if (tabContent.dataset.aniTabsReady) continue;
+      const tabs = tabContent.parentElement?.querySelector('.ani-tabs');
       if (!tabs) continue;
-      const syncTabs = () => {
-        const id = tabs
-          .querySelector('.ani-tabs-link.is-active')
-          ?.getAttribute('href')
-          ?.slice(1);
-        const panels = [
-          ...content.querySelectorAll(':scope > .ani-tab-content__item'),
-        ];
-        const selected = panels.find((panel) => panel.id === id);
-        for (const panel of panels) {
-          if (selected) panel.dataset.aniTabActive = String(panel === selected);
-          else delete panel.dataset.aniTabActive;
+
+      const danmuTab = tabs.querySelector('.ani-tabs-link[href="#ani-tab-content-1"]');
+      const settingsPanelNative = document.getElementById('ani-tab-content-2');
+
+      // 1. Dual-button collapsible drawer right below .anime-title (進階設定 + 動畫瘋·Plus)
+      let drawer = document.querySelector('.ani-player-settings-drawer');
+      if (!drawer) {
+        const animeTitle = document.querySelector('#BH_background .container-player > .anime-title');
+        if (animeTitle) {
+          drawer = document.createElement('section');
+          drawer.className = 'ani-player-settings-drawer';
+          const bar = document.createElement('div');
+          bar.className = 'ani-drawer-toggles';
+          const bodyWrap = document.createElement('div');
+          bodyWrap.className = 'ani-player-settings-body';
+          bodyWrap.hidden = true;
+          drawer.append(bar, bodyWrap);
+          animeTitle.after(drawer);
+        }
+      }
+
+      const mountIntoDrawer = (key, label, iconMarkup, panelEl) => {
+        if (!drawer || !panelEl) return;
+        const bar = drawer.querySelector('.ani-drawer-toggles');
+        const bodyWrap = drawer.querySelector('.ani-player-settings-body');
+        if (!bar || !bodyWrap) return;
+        if (bar.querySelector(`[data-ani-drawer-key="${key}"]`)) return;
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'ani-player-settings-toggle';
+        btn.dataset.aniDrawerKey = key;
+        btn.setAttribute('aria-expanded', 'false');
+        btn.innerHTML = `<span class="ani-ps-label">${iconMarkup}${label}</span><svg class="ani-ps-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+        const slot = document.createElement('div');
+        slot.className = 'ani-drawer-slot';
+        slot.dataset.aniDrawerKey = key;
+        slot.hidden = true;
+        panelEl.removeAttribute('style');
+        delete panelEl.dataset.aniTabActive;
+        slot.append(panelEl);
+        bodyWrap.append(slot);
+
+        btn.addEventListener('click', () => {
+          const opening = slot.hidden;
+          for (const b of bar.querySelectorAll('.ani-player-settings-toggle')) {
+            b.setAttribute('aria-expanded', String(opening && b === btn));
+            b.classList.toggle('is-open', opening && b === btn);
+          }
+          for (const s of bodyWrap.querySelectorAll(':scope > .ani-drawer-slot')) {
+            s.hidden = !(opening && s === slot);
+          }
+          bodyWrap.hidden = !opening;
+          drawer.classList.toggle('is-open', opening);
+        });
+        bar.append(btn);
+      };
+
+      if (settingsPanelNative) {
+        mountIntoDrawer(
+          'native-settings',
+          '播放器進階設定',
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.6.85 1 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>',
+          settingsPanelNative
+        );
+      }
+
+      const relocateExtraTabs = () => {
+        const keepIds = new Set(['ani-tab-content-1', 'ani-tab-content-intro', 'ani-tab-content-rating']);
+        for (const item of [...tabs.querySelectorAll(':scope > .ani-tabs__item')]) {
+          const link = item.querySelector('.ani-tabs-link');
+          if (!link) continue;
+          const href = (link.getAttribute('href') || '').trim();
+          const id = href.startsWith('#') ? href.slice(1) : '';
+          if (keepIds.has(id)) continue;
+          item.hidden = true;
+          if (id && id !== 'ani-tab-content-2') {
+            const targetPane = document.getElementById(id) || tabContent.querySelector(`#${CSS.escape(id)}`);
+            if (targetPane) {
+              const titleText = (link.textContent || '動畫瘋·Plus').trim() || '動畫瘋·Plus';
+              mountIntoDrawer(
+                'ext-' + id,
+                titleText,
+                '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.4 7.4h7.6l-6.1 4.4 2.3 7.4L12 16.8l-6.2 4.4 2.3-7.4L2 9.4h7.6L12 2z"/></svg>',
+                targetPane
+              );
+            }
+          }
+        }
+        // Also catch any non-core .ani-tab-content__item added without #href matching keepIds (e.g. AniGamer Plus click-based pane)
+        for (const extraPane of [...tabContent.querySelectorAll(':scope > .ani-tab-content__item')]) {
+          if (keepIds.has(extraPane.id)) continue;
+          if (/plus/i.test(extraPane.id + ' ' + extraPane.className) || extraPane.querySelector('[class*="plus" i]')) {
+            mountIntoDrawer(
+              'ext-plus-pane-' + (extraPane.id || 'main'),
+              '動畫瘋·Plus',
+              '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.4 7.4h7.6l-6.1 4.4 2.3 7.4L12 16.8l-6.2 4.4 2.3-7.4L2 9.4h7.6L12 2z"/></svg>',
+              extraPane
+            );
+          }
         }
       };
+
+      // 2. Style top tabs as segmented 3-pill switcher (彈幕列表 | 作品簡介 | 作品評分)
+      tabs.classList.add('ani-segmented-tabs');
+      if (danmuTab && !danmuTab.querySelector('.ani-seg-tab-icon')) {
+        danmuTab.innerHTML =
+          '<svg class="ani-seg-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h12"/></svg><span>彈幕列表</span>';
+      }
+
+      const dataSection = document.querySelector('#BH_background section.data');
+      const acgReviewEl = document.querySelector('#acg_review');
+
+      let introPane = document.getElementById('ani-tab-content-intro');
+      if (!introPane && dataSection) {
+        introPane = document.createElement('div');
+        introPane.id = 'ani-tab-content-intro';
+        introPane.className = 'ani-tab-content__item ani-sidebar-pane ani-sidebar-intro';
+        tabContent.append(introPane);
+      }
+
+      let lastIntroSig = '';
+      const populateIntroPane = () => {
+        if (!introPane) return;
+        const infoSrc = document.querySelector('#BH_background #ani-info');
+        const activeInfoPane = infoSrc?.querySelector('.ani-tab-pane.active') || infoSrc;
+        const castGrid = activeInfoPane?.querySelector('.grid.cast');
+        const songGrid = activeInfoPane?.querySelector('.grid.song');
+        const descText = (document.querySelector('#BH_background section.data .data-intro > p')?.textContent || '').trim();
+        const typeItems = document.querySelectorAll('#BH_background section.data .type-list > li.type');
+
+        const sig = `${typeItems.length}|${descText.length}|${castGrid?.children.length || 0}|${songGrid?.children.length || 0}`;
+        if (sig === lastIntroSig) return;
+        lastIntroSig = sig;
+
+        const types = [];
+        for (const li of typeItems) {
+          const title = (li.querySelector('.title')?.textContent || '').trim();
+          const tagTexts = [...li.querySelectorAll('.tag-list .tag')].map((t) => t.textContent.trim()).filter(Boolean);
+          const val = tagTexts.length ? tagTexts.join(' / ') : (li.querySelector('.content')?.textContent || '').trim();
+          if (title && val) types.push({ title, val });
+        }
+
+        let html = '<div class="ani-sidebar-scroll">';
+        if (types.length) {
+          html += '<div class="ani-side-meta-grid">';
+          for (const item of types) {
+            html += `<div class="ani-side-meta-item"><span class="ani-side-pill">${item.title}</span><span class="ani-side-meta-val">${item.val}</span></div>`;
+          }
+          html += '</div>';
+        }
+        if (descText) {
+          html += `<div class="ani-side-divider"></div><div class="ani-side-synopsis">${descText.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>`;
+        }
+        html += '<div class="ani-side-infoplus-mount"></div></div>';
+
+        const prevScroll = introPane.querySelector('.ani-sidebar-scroll')?.scrollTop || 0;
+        introPane.innerHTML = html;
+        const mount = introPane.querySelector('.ani-side-infoplus-mount');
+        if (mount && (castGrid || songGrid)) {
+          mount.innerHTML = '<div class="ani-side-divider"></div>';
+          if (castGrid && castGrid.children.length) {
+            const sec = document.createElement('div');
+            sec.className = 'ani-side-extra-block';
+            sec.innerHTML = '<div class="ani-side-section-head"><span class="ani-side-pill"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Zm5-3a1 1 0 1 0-2 0 3 3 0 0 1-6 0 1 1 0 1 0-2 0 5 5 0 0 0 4 4.9V19H8.5a1 1 0 1 0 0 2h7a1 1 0 1 0 0-2H13v-3.1A5 5 0 0 0 17 11Z"/></svg>聲優 CAST</span></div>';
+            sec.append(castGrid.cloneNode(true));
+            mount.append(sec);
+          }
+          if (songGrid && songGrid.children.length) {
+            const sec = document.createElement('div');
+            sec.className = 'ani-side-extra-block';
+            sec.innerHTML = '<div class="ani-side-section-head"><span class="ani-side-pill"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6Z"/></svg>歌曲 主題曲</span></div>';
+            sec.append(songGrid.cloneNode(true));
+            mount.append(sec);
+          }
+        }
+        const newScrollEl = introPane.querySelector('.ani-sidebar-scroll');
+        if (newScrollEl && prevScroll) newScrollEl.scrollTop = prevScroll;
+      };
+
+      let ratingPane = document.getElementById('ani-tab-content-rating');
+      if (!ratingPane && acgReviewEl) {
+        ratingPane = document.createElement('div');
+        ratingPane.id = 'ani-tab-content-rating';
+        ratingPane.className = 'ani-tab-content__item ani-sidebar-pane ani-sidebar-rating';
+        tabContent.append(ratingPane);
+      }
+
+      let lastRatingSig = '';
+      const populateRatingPane = () => {
+        if (!ratingPane || !acgReviewEl) return;
+        const scoreNumStr = (acgReviewEl.querySelector('.score-overall-number')?.textContent || '0').trim();
+        const peopleText = (acgReviewEl.querySelector('.score-overall-people')?.textContent || '').replace(/評價$/, '').trim();
+        const scoredTip = (acgReviewEl.querySelector('.user-scored-tip')?.textContent || '').trim();
+        const rSig = `${scoreNumStr}|${peopleText}|${scoredTip}`;
+        if (rSig === lastRatingSig) return;
+        lastRatingSig = rSig;
+
+        const scoreNum = parseFloat(scoreNumStr) || 0;
+        const r = 46;
+        const circ = 2 * Math.PI * r;
+        const dashOffset = circ * (1 - Math.max(0, Math.min(1, scoreNum / 5)));
+        const dist = [];
+        for (const row of acgReviewEl.querySelectorAll('.ACG-data .acg-score-date')) {
+          const stars = row.dataset.acgstar || row.querySelectorAll('.score-star img').length;
+          const pctStr = row.querySelector('.scored-line')?.style?.width || '0%';
+          dist.push({ stars, pctNum: Math.round(parseFloat(pctStr) || 0) });
+        }
+
+        let html = '<div class="ani-sidebar-scroll ani-rating-scroll">';
+        html += '<div class="ani-rating-hero">';
+        html += `<div class="ani-rating-ring-wrap"><svg viewBox="0 0 116 116" class="ani-rating-ring-svg"><circle class="ani-ring-bg" cx="58" cy="58" r="${r}"/><circle class="ani-ring-fg" cx="58" cy="58" r="${r}" stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${dashOffset.toFixed(1)}"/></svg><div class="ani-ring-center"><strong>${scoreNum ? scoreNum.toFixed(1) : '-'}</strong><span>${peopleText || ''}</span></div></div>`;
+        html += '<div class="ani-rating-bars">';
+        for (const item of dist) {
+          html += `<div class="ani-rating-bar-row"><span class="ani-rating-bar-label">${item.stars} 星</span><div class="ani-rating-bar-track"><div class="ani-rating-bar-fill" style="width:${item.pctNum}%"></div></div><span class="ani-rating-bar-pct">${item.pctNum}%</span></div>`;
+        }
+        html += '</div></div>';
+        html += '<div class="ani-side-divider"></div>';
+        html += '<div class="ani-my-rating"><div class="ani-my-rating-label">我的評價</div><div class="ani-my-rating-arrow">▼</div><div class="ani-my-stars" role="group" aria-label="我的評價">';
+        for (let i = 1; i <= 5; i++) {
+          html += `<button type="button" class="ani-my-star-btn" data-star="${i}" aria-label="給予 ${i} 星評價"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.4l2.92 5.92 6.53.95-4.72 4.6 1.11 6.5L12 17.3l-5.84 3.07 1.11-6.5-4.72-4.6 6.53-.95L12 2.4z"/></svg></button>`;
+        }
+        html += `</div>${scoredTip ? `<div class="ani-my-rating-status">${scoredTip}</div>` : ''}</div>`;
+        if (acgReviewEl.querySelector('.user-score-more')) {
+          html += '<button type="button" class="ani-rating-more-btn">查看所有評價</button>';
+        }
+        html += '</div>';
+
+        ratingPane.innerHTML = html;
+        ratingPane.querySelector('.ani-rating-more-btn')?.addEventListener('click', () => acgReviewEl.querySelector('.user-score-more')?.click());
+        const starBtns = [...ratingPane.querySelectorAll('.ani-my-star-btn')];
+        starBtns.forEach((btn, idx) => {
+          btn.addEventListener('click', () => {
+            const targetStar = acgReviewEl.querySelectorAll('.user-star-block > *, .user-star-block img, .user-star-block button')[idx];
+            if (targetStar) targetStar.click();
+            starBtns.forEach((b, j) => b.classList.toggle('is-filled', j <= idx));
+          });
+        });
+      };
+
+      const addCustomTab = (id, label, svgMarkup) => {
+        if (tabs.querySelector(`.ani-tabs-link[href="#${id}"]`)) return;
+        const wrap = document.createElement('div');
+        wrap.className = 'ani-tabs__item';
+        const link = document.createElement('a');
+        link.href = `#${id}`;
+        link.className = 'ani-tabs-link ani-redesign-tab';
+        link.innerHTML = `${svgMarkup}<span>${label}</span>`;
+        wrap.append(link);
+        tabs.append(wrap);
+      };
+
+      if (introPane) {
+        addCustomTab(
+          'ani-tab-content-intro',
+          '作品簡介',
+          '<svg class="ani-tab-svg ani-seg-tab-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5Zm3 2v2h4V7H7Zm0 4v2h10v-2H7Zm0 4v2h10v-2H7Z"/></svg>'
+        );
+        populateIntroPane();
+      }
+      if (ratingPane) {
+        addCustomTab(
+          'ani-tab-content-rating',
+          '作品評分',
+          '<svg class="ani-tab-svg ani-seg-tab-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.4l2.92 5.92 6.53.95-4.72 4.6 1.11 6.5L12 17.3l-5.84 3.07 1.11-6.5-4.72-4.6 6.53-.95L12 2.4z"/></svg>'
+        );
+        populateRatingPane();
+      }
+
+      relocateExtraTabs();
+
+      let syncLocked = false;
+      const syncTabs = () => {
+        if (syncLocked) return;
+        syncLocked = true;
+        try {
+          const activeLink = tabs.querySelector('.ani-tabs-link.is-active') || danmuTab;
+          const id = activeLink?.getAttribute('href')?.slice(1);
+          const panels = [...tabContent.querySelectorAll(':scope > .ani-tab-content__item')];
+          const selected = panels.find((panel) => panel.id === id);
+          for (const panel of panels) {
+            const isSel = selected ? panel === selected : false;
+            if (selected) panel.dataset.aniTabActive = String(isSel);
+            else delete panel.dataset.aniTabActive;
+            panel.style.display = isSel ? 'block' : 'none';
+          }
+          if (id === 'ani-tab-content-intro') populateIntroPane();
+          if (id === 'ani-tab-content-rating') populateRatingPane();
+        } finally {
+          syncLocked = false;
+        }
+      };
+
+      // Capture-phase handler prevents jQuery / 動畫瘋·Plus from fighting tab switches
+      if (!tabs.dataset.aniCaptureBound) {
+        tabs.dataset.aniCaptureBound = 'true';
+        tabs.addEventListener(
+          'click',
+          (ev) => {
+            const link = ev.target?.closest?.('.ani-tabs-link');
+            if (!link) return;
+            ev.preventDefault();
+            ev.stopPropagation();
+            ev.stopImmediatePropagation();
+            for (const other of tabs.querySelectorAll('.ani-tabs-link')) {
+              other.classList.toggle('is-active', other === link);
+            }
+            syncTabs();
+          },
+          true
+        );
+      }
+
       syncTabs();
-      const tabObserver = new MutationObserver(syncTabs);
-      tabObserver.observe(tabs, {
-        subtree: true,
-        childList: true,
-        attributes: true,
-        attributeFilter: ['class', 'href'],
+      // Poll gently via global reference instead of recursive DOM MutationObserver
+      window.__aniSyncSidebarIntro = () => {
+        relocateExtraTabs();
+        populateIntroPane();
+      };
+      const tabObserver = new MutationObserver((muts) => {
+        // Ignore class mutations we caused if already synced; catch external injections like 動畫瘋·Plus
+        if (muts.some((m) => m.type === 'childList')) relocateExtraTabs();
       });
-      content.dataset.aniTabsReady = 'true';
+      tabObserver.observe(tabs, { childList: true });
+      tabContent.dataset.aniTabsReady = 'true';
     }
     if (settings.themeEnabled && imageObserver) {
       for (const image of document.querySelectorAll(

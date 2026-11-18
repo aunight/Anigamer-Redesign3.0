@@ -147,6 +147,53 @@ async function getSyoboiByTid(tid) {
   };
 }
 
+async function fetchMalSongs(idMal) {
+  if (!idMal) return [];
+  try {
+    const res = await fetch(`https://myanimelist.net/anime/${idMal}`, {
+      credentials: 'omit',
+      signal: AbortSignal.timeout(9000),
+    });
+    if (!res.ok) return [];
+    const html = await res.text();
+    const opIdx = html.indexOf('theme-songs js-theme-songs opnening');
+    const edIdx = html.indexOf('theme-songs js-theme-songs ending');
+    const parseBlock = (blockHtml, label) => {
+      if (!blockHtml) return [];
+      const out = [];
+      const seen = new Set();
+      for (const m of blockHtml.matchAll(/<tr[\s\S]*?<\/tr>/g)) {
+        const clean = decodeHtmlEntities(
+          m[0]
+            .replace(/<script[\s\S]*?<\/script>/g, '')
+            .replace(/<[^>]+>/g, ' ')
+            .replace(/&nbsp;/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim()
+        );
+        if (!clean || /Spotify|Apple Music|Amazon Music|No opening|No ending/i.test(clean)) continue;
+        const parsed = clean.match(/^(?:\d+:\s*)?"([^"]+)"\s+by\s+(.+?)(?:\s*\(eps\s*[^)]*\))?$/i);
+        if (parsed) {
+          const title = `「${parsed[1].trim()}」`;
+          const singer = parsed[2].replace(/\s*Spotify[\s\S]*$/i, '').trim();
+          const key = `${label}|${title}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            out.push({ type: label, title, singer });
+          }
+        }
+      }
+      return out;
+    };
+    const opBlock = opIdx !== -1 ? html.slice(opIdx, edIdx !== -1 && edIdx > opIdx ? edIdx : opIdx + 12000) : '';
+    const edEnd = edIdx !== -1 ? Math.min(edIdx + 12000, html.indexOf('<div class="clearfix', edIdx) !== -1 ? html.indexOf('<div class="clearfix', edIdx) : edIdx + 12000) : -1;
+    const edBlock = edIdx !== -1 ? html.slice(edIdx, edEnd) : '';
+    return [...parseBlock(opBlock, 'OP'), ...parseBlock(edBlock, 'ED')];
+  } catch {
+    return [];
+  }
+}
+
 async function fetchFromAniList(candidates) {
   for (const search of candidates) {
     if (!search || search.length < 2) continue;
@@ -159,6 +206,7 @@ async function fetchFromAniList(candidates) {
           query: `query ($search: String) {
             Media(search: $search, type: ANIME) {
               id
+              idMal
               siteUrl
               title { native romaji english }
               characters(sort: ROLE, perPage: 25) {
@@ -176,7 +224,7 @@ async function fetchFromAniList(candidates) {
       const json = await res.json();
       const media = json?.data?.Media;
       const edges = media?.characters?.edges || [];
-      if (!media || !edges.length) continue;
+      if (!media) continue;
       const rawCast = [];
       for (const e of edges) {
         const va = e.voiceActors?.[0];
@@ -185,13 +233,16 @@ async function fetchFromAniList(candidates) {
         const cvName = (va.name?.native || va.name?.full || '').replace(/\s+/g, '');
         if (charName || cvName) rawCast.push({ char: charName, cv: cvName });
       }
-      if (!rawCast.length) continue;
-      const cast = await resolveWikiCast(rawCast);
+      const [cast, song] = await Promise.all([
+        resolveWikiCast(rawCast),
+        fetchMalSongs(media.idMal),
+      ]);
+      if (!cast.length && !song.length) continue;
       return [{
         source: media.siteUrl || `https://anilist.co/anime/${media.id}`,
         title: media.title?.native || media.title?.romaji || media.title?.english || search,
         cast,
-        song: [],
+        song,
       }];
     } catch {}
   }
@@ -282,9 +333,40 @@ async function fetchAniInfoPlusData(acgUrl, fallbackTitle) {
     }
   }
 
-  // Fallback: AniList GraphQL (reliable CORS-enabled Japanese cast database)
-  const aniListResults = await fetchFromAniList([baseJp, strippedJp, nameEn, prefixJp, cleanFallback]);
+  // Fallback 1: AniList GraphQL (Japanese / English candidates)
+  let aniListResults = await fetchFromAniList([baseJp, strippedJp, nameEn, prefixJp]);
   if (aniListResults.length) return aniListResults;
+
+  // Fallback 2: Bangumi v0 search resolves Traditional Chinese -> exact Japanese title -> AniList + MAL
+  if (cleanFallback && cleanFallback.length >= 2) {
+    try {
+      const bgmRes = await fetch('https://api.bgm.tv/v0/search/subjects', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': 'aunight/Anigamer-Redesign3.0 (https://github.com/aunight/Anigamer-Redesign3.0)',
+        },
+        signal: AbortSignal.timeout(7000),
+        body: JSON.stringify({ keyword: cleanFallback, filter: { type: [2] } }),
+      });
+      if (bgmRes.ok) {
+        const bgmData = await bgmRes.json();
+        const jpFromBgm = (bgmData?.data?.[0]?.name || '').trim();
+        if (jpFromBgm) {
+          aniListResults = await fetchFromAniList([
+            jpFromBgm,
+            jpFromBgm.split(/[\s　～〜\-－:：]/)[0]?.trim(),
+          ]);
+          if (aniListResults.length) return aniListResults;
+        }
+      }
+    } catch {}
+  }
+
+  if (cleanFallback) {
+    aniListResults = await fetchFromAniList([cleanFallback]);
+    if (aniListResults.length) return aniListResults;
+  }
 
   return [];
 }

@@ -37,9 +37,9 @@ jobs:
       - name: Package downloads
         run: |
           mkdir release
-          cp dist/ani-ambilight.user.js release/anigamer-ambilight.user.js
-          (cd dist/extension && zip -qr ../../release/anigamer-ambilight-chromium.zip .)
-          (cd dist/extension-firefox && zip -qr ../../release/anigamer-ambilight-firefox.zip .)
+          cp dist/ani-ambilight.user.js release/anigamer-redesign3.0.user.js
+          (cd dist/extension && zip -qr ../../release/anigamer-redesign3.0-chromium.zip .)
+          (cd dist/extension-firefox && zip -qr ../../release/anigamer-redesign3.0-firefox.zip .)
           (cd release && sha256sum *.user.js *.zip > SHA256SUMS.txt)
       - uses: actions/upload-artifact@v4
         with:
