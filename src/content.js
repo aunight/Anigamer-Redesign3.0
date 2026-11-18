@@ -1657,10 +1657,62 @@
       }, 200);
     }, 1800);
   }
+  function syncLastWatchedEpisodes() {
+    for (const root of document.querySelectorAll('#BH_background :is(.ani-episode-shelf, .anime-title, .season)')) {
+      for (const epLi of root.querySelectorAll('.season li, ul.season > li, li')) {
+        if (!epLi.closest('.season')) continue;
+        let isLast = /\b(?:last|last-?watch(?:ed)?|ani-last-watched)\b/i.test(epLi.className || '');
+        const nodes = [epLi, ...epLi.querySelectorAll('*')];
+        for (const el of nodes) {
+          if (el !== epLi && el.children.length === 0 && /上次觀看/.test((el.textContent || '').trim())) {
+            el.classList.add('ani-last-watched-badge');
+            el.style.setProperty('display', 'none', 'important');
+            isLast = true;
+          }
+          if (el !== epLi && /\b(?:last|watch)\b/i.test(el.className || '') && !/ani-last-watched/i.test(el.className || '') && /上次/.test((el.getAttribute('title') || el.getAttribute('aria-label') || el.textContent || ''))) {
+            el.classList.add('ani-last-watched-badge');
+            el.style.setProperty('display', 'none', 'important');
+            isLast = true;
+          }
+          for (const pseudo of ['::before', '::after']) {
+            try {
+              const pContent = getComputedStyle(el, pseudo).content || '';
+              if (/上次觀看/.test(pContent)) {
+                el.classList.add('ani-last-watched-pseudo');
+                isLast = true;
+              }
+            } catch (_) {}
+          }
+        }
+        if (isLast && !epLi.classList.contains('ani-last-watched')) {
+          epLi.classList.add('ani-last-watched');
+        }
+      }
+    }
+    const lastSn = new Set(
+      [...document.querySelectorAll('.season li.ani-last-watched a')]
+        .map((a) => (a.getAttribute('href') || '').match(/[?&]sn=(\d+)/)?.[1])
+        .filter(Boolean)
+    );
+    if (lastSn.size) {
+      for (const btn of document.querySelectorAll('#ani_video .ani-ep-drawer-btn:not(.is-last-watched)')) {
+        const bSn = (btn.getAttribute('href') || '').match(/[?&]sn=(\d+)/)?.[1];
+        if (bSn && lastSn.has(bSn)) btn.classList.add('is-last-watched');
+      }
+    }
+  }
   function styleSkipIntroPill(box) {
     if (!box) return;
     box.classList.add('ani-skip-intro-pill');
     box.style.setProperty('border-radius', '999px', 'important');
+    const twSkip = document.createTreeWalker(box, NodeFilter.SHOW_TEXT);
+    let sn;
+    while ((sn = twSkip.nextNode())) {
+      if (sn.parentElement?.closest('.ani-skip-close')) continue;
+      const raw = sn.nodeValue || '';
+      const next = raw.replace(/按此\s*跳過片頭(?:曲)?/g, '跳過片頭').replace(/按此\s*(?=跳過|略過)/g, '');
+      if (next !== raw) sn.nodeValue = next;
+    }
     if (!box.querySelector('.ani-skip-close')) {
       let closeEl = [...box.querySelectorAll('button, a, span, div, i, svg')].find((n) => {
         if (n === box) return false;
@@ -2287,17 +2339,7 @@
           }
       }
       }
-      for (const epLi of document.querySelectorAll('.season li')) {
-        let isLast = /last/i.test(epLi.className || '');
-        for (const el of epLi.querySelectorAll('*')) {
-          if (el.children.length === 0 && /上次觀看/.test((el.textContent || '').trim())) {
-            el.classList.add('ani-last-watched-badge');
-            el.style.setProperty('display', 'none', 'important');
-            isLast = true;
-          }
-        }
-        if (isLast) epLi.classList.add('ani-last-watched');
-      }
+      syncLastWatchedEpisodes();
       const isQrOrDownloadBox = (node) => {
         if (!node) return false;
         if (/掃描|QR\s*code|App\s*Store|Google\s*Play|前往動畫瘋APP|立即下載/i.test(node.textContent || '')) return true;
@@ -2582,26 +2624,48 @@
       }
       root.classList.add('ani-plus-dark-drawer');
     }
-    for (const el of document.querySelectorAll('body > div, body > section, body > aside')) {
-      if (el.id === 'BH_background' || el.id === 'ani-copy-toast' || el.classList.contains('ani-bgm-toast') || el.classList.contains('ani-plus-dark-drawer')) continue;
-      if (/儲存觀看記錄|觀看紀錄/.test(el.textContent || '') && /[✅✔☑]|\[X\]/i.test(el.textContent || '') && !el.querySelector('#ani_video')) {
-        el.classList.add('ani-bgm-toast');
-        const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-        let tn;
-        while ((tn = walk.nextNode())) {
-          if (/[✅✔☑]/.test(tn.textContent)) tn.textContent = tn.textContent.replace(/\s*[✅✔☑]\s*/g, '');
-          if (/^\s*\[X\]\s*$/i.test(tn.textContent)) {
-            const p = tn.parentElement;
-            if (p && !p.querySelector('.ani-bgm-toast-close-icon')) {
-              tn.textContent = '';
-              p.classList.add('ani-bgm-toast-close');
-              p.innerHTML = '<svg class="ani-bgm-toast-close-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
-            }
+    for (const el of document.querySelectorAll('#ani_video div, .videoframe div, body > div, body > section, body > aside, #BH_background div')) {
+      if (el.id === 'BH_background' || el.id === 'ani_video' || el.id === 'ani-copy-toast' || el.classList.contains('ani-bgm-toast') || el.classList.contains('ani-plus-dark-drawer') || el.closest('.ani-bgm-toast, .ani-plus-dark-drawer, .ani-player-settings-drawer, .ani-settings-panel, .ani-view-settings-panel, .vjs-control-bar')) continue;
+      if (el.querySelector('#ani_video, video, .videoframe')) continue;
+      const rawTxt = (el.textContent || '').replace(/\s+/g, ' ').trim();
+      if (!rawTxt || rawTxt.length > 90) continue;
+      if (!/儲存觀看記錄|觀看紀錄/.test(rawTxt)) continue;
+      if ([...el.querySelectorAll('div, section, p')].some((c) => /儲存觀看記錄|觀看紀錄/.test(c.textContent || '') && (/[✅✔☑]|\[X\]|[×✕✖]/i.test(c.textContent || '') || c.querySelector('button, a, span')))) continue;
+      el.classList.add('ani-bgm-toast');
+      el.style.setProperty('border-radius', '999px', 'important');
+      for (const child of el.querySelectorAll('*')) {
+        if (child.closest('.ani-bgm-toast-close')) continue;
+        child.style.setProperty('background', 'transparent', 'important');
+        child.style.setProperty('background-color', 'transparent', 'important');
+        child.style.setProperty('background-image', 'none', 'important');
+        child.style.setProperty('box-shadow', 'none', 'important');
+        child.style.setProperty('border', '0', 'important');
+      }
+      const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+      let tn;
+      while ((tn = walk.nextNode())) {
+        if (/[\u2705\u2714\u2611\uFE0E\uFE0F]/.test(tn.textContent)) {
+          tn.textContent = tn.textContent.replace(/[\u2705\u2714\u2611\uFE0E\uFE0F]+/g, '').replace(/^\s+/, '');
+        }
+        if (/^\s*(?:\[X\]|[×✕✖])\s*$/i.test(tn.textContent)) {
+          const p = tn.parentElement;
+          if (p && !p.querySelector('.ani-bgm-toast-close-icon')) {
+            tn.textContent = '';
+            p.classList.add('ani-bgm-toast-close');
+            p.innerHTML = '<svg class="ani-bgm-toast-close-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
           }
         }
-        if (!el.querySelector('.ani-bgm-toast-icon')) {
-          el.insertAdjacentHTML('afterbegin', '<svg class="ani-bgm-toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 4.5-5"/></svg>');
+      }
+      for (const btn of el.querySelectorAll('button, a, span, div')) {
+        if (btn === el || btn.classList.contains('ani-bgm-toast-close')) continue;
+        const bt = (btn.textContent || '').trim();
+        if (/^(?:\[X\]|[×✕✖]|X)$/i.test(bt) && btn.childElementCount <= 1) {
+          btn.classList.add('ani-bgm-toast-close');
+          btn.innerHTML = '<svg class="ani-bgm-toast-close-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
         }
+      }
+      if (!el.querySelector('.ani-bgm-toast-icon')) {
+        el.insertAdjacentHTML('afterbegin', '<svg class="ani-bgm-toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 4.5-5"/></svg>');
       }
     }
     if (plusToolBox) {
@@ -3821,22 +3885,11 @@
             styleSkipIntroPill(box);
           }
         }
-        for (const epLi of document.querySelectorAll('#BH_background :is(.ani-episode-shelf, .season) .season li, #BH_background ul.season li')) {
-          let hasLastBadge = false;
-          for (const node of epLi.querySelectorAll('span, div, small, p, em, i, b')) {
-            if (/上次觀看/.test(node.textContent || '')) {
-              hasLastBadge = true;
-              node.classList.add('ani-last-watched-badge');
-            }
-          }
-          if (hasLastBadge && !epLi.classList.contains('ani-last-watched')) {
-            epLi.classList.add('ani-last-watched');
-          }
-        }
+        syncLastWatchedEpisodes();
       } catch (_) {}
     }, 700);
   }
-    for (const card of document.querySelectorAll('#blockContinueWatch .continue-watch-card, #blockVideoInSeason .anime-card-block, #BH_background .animate-theme-list .theme-list-main')) {
+    for (const card of document.querySelectorAll('#blockContinueWatch .continue-watch-card, #blockVideoInSeason .anime-card-block, #BH_background .animate-theme-list .theme-list-main, #BH_background .old_list:not(:has(.search_result)) .theme-list-main')) {
       if (!card.classList.contains('ani-card-surface')) card.classList.add('ani-card-surface');
       const glowImage=card.querySelector('img.card-img:not(.is-next),.anime-blocker img,.anime-pic-block img:not(.anime-clock-img):not([src$=".svg"]),.theme-img');
       const glowUrl=glowImage?.dataset.src||glowImage?.getAttribute('src');
@@ -4470,8 +4523,16 @@
           if (host.matches('svg, img, input, select, textarea, .ani-hidden-glyph, .ani-plus-info-trigger, .ani-info-badge-host')) return;
           if (host.closest('.ani-hidden-glyph, .ani-plus-info-trigger, .ani-info-badge-host, .tooltip, [role="tooltip"], [class*="tooltip" i], [class*="popper" i], [class*="popover" i]')) return;
           host.dataset.aniInfoDone = '1';
-          for (const g of host.querySelectorAll(':scope > svg, :scope > i')) {
-            g.classList.add('ani-hidden-glyph');
+          for (const g of host.querySelectorAll('svg:not(.ani-info-i-icon), i, img')) {
+            if (!g.closest('.tooltip, [role="tooltip"], [class*="tooltip" i], [class*="popper" i], [class*="popover" i]')) {
+              g.classList.add('ani-hidden-glyph');
+            }
+          }
+          for (const leaf of host.querySelectorAll('span, div, b, small')) {
+            if (leaf.closest('.tooltip, [role="tooltip"], [class*="tooltip" i], [class*="popper" i], [class*="popover" i], .ani-info-badge-host')) continue;
+            if (leaf.childElementCount === 0 && /^(?:[?!？！!]+|help(?:_outline)?|info(?:_outline)?|error(?:_outline)?|warning|question_mark|contact_support|live_help)$/i.test((leaf.textContent || '').trim())) {
+              leaf.classList.add('ani-hidden-glyph');
+            }
           }
           for (const tn of [...host.childNodes]) {
             if (tn.nodeType === 3 && /^[?!？！\s]+$/.test(tn.nodeValue || '') && tn.nodeValue.trim()) {
@@ -4524,13 +4585,27 @@
           if (rect.width > 24 || rect.height > 24) continue;
           const pathTxt = iconSvg.innerHTML || '';
           const metaTxt = `${pathTxt} ${iconSvg.className?.baseVal || ''} ${iconSvg.getAttribute('aria-label') || ''} ${iconSvg.parentElement?.className || ''}`;
-          const isGearOrAction = /M19\.14|15\.18|19\.4|14\.7|12 15\.5|gear|cog|wrench|tool|refresh|reset|clear|trash|play|M12 5v14|M5 12h14/i.test(metaTxt) || Boolean(iconSvg.closest('button, a'));
+          const isGearOrAction = /M19\.14|15\.18|19\.4|14\.7|12 15\.5|gear|cog|wrench|tool|refresh|reset|clear|trash|play|M12 5v14|M5 12h14/i.test(metaTxt) || Boolean(iconSvg.closest('button, a, .ani-plus-add-icon-btn, .ani-plus-icon-action'));
           const isWaveformOrChart = /polyline|points=|arrow|M2 12|M3 12h4l3-9|chart|wave|analytics|timeline|show_chart/i.test(metaTxt);
+          const nearInfoTrigger = Boolean(
+            iconSvg.parentElement?.querySelector('.ani-info-i-icon, .ani-plus-info-trigger') ||
+            iconSvg.previousElementSibling?.matches?.('.ani-info-i-icon, .ani-plus-info-trigger') ||
+            iconSvg.nextElementSibling?.matches?.('.ani-info-i-icon, .ani-plus-info-trigger')
+          );
           const isHelpOrWarnSvg = !isGearOrAction && !isWaveformOrChart && (
-            /(?:M11,18h2v-2h-2|M11 18h2v-2h-2|M12 17|M12 16|M12 14|M9\.09|M9 9|a3 3|5\.83|M12 8v4|M12 9v4|question|help|warning|exclamation|alert|info|<text[^>]*>\s*[?!])/i.test(metaTxt)
+            nearInfoTrigger ||
+            /(?:M11,18h2v-2h-2|M11 18h2v-2h-2|M12 17|M12 16|M12 14|M9\.09|M9 9|a3 3|5\.83|M12 8v4|M12 9v4|M256 512|question|help|warning|exclamation|alert|info|<text[^>]*>\s*[?!])/i.test(metaTxt)
             || Boolean(panelEl.closest('.ani-drawer-slot-extra') && /<circle\b/i.test(pathTxt) && !/15\.5|r="3"/.test(pathTxt))
           );
-          if (isHelpOrWarnSvg && iconSvg.parentElement && !iconSvg.parentElement.querySelector('.ani-info-i-icon') && !/BETA|PLUS/i.test(iconSvg.parentElement.textContent || '')) {
+          if (isHelpOrWarnSvg && iconSvg.parentElement && !/BETA|PLUS/i.test(iconSvg.parentElement.textContent || '')) {
+            if (nearInfoTrigger) {
+              iconSvg.classList.add('ani-hidden-glyph');
+              continue;
+            }
+            if (iconSvg.parentElement.querySelector('.ani-info-i-icon')) {
+              iconSvg.classList.add('ani-hidden-glyph');
+              continue;
+            }
             const host = (iconSvg.parentElement.children.length === 1 && !(iconSvg.parentElement.textContent || '').trim()) ? iconSvg.parentElement : iconSvg;
             if (host === iconSvg) {
               iconSvg.classList.add('ani-hidden-glyph');
@@ -4596,6 +4671,64 @@
             if (movedTip) heading.append(movedTip);
           }
         }
+        // Normalize real 動畫瘋·Plus row DOM BEFORE icon & status placement so titles always align flush-left (matching 圖2)
+        if (panelEl.closest('.ani-drawer-slot-extra')) {
+          const plusRowTitleRe = /^(?:自動同意分級警告|無縫連播下一集|跳過片頭曲|彈幕格式修改|彈幕軌跡|彈魂軌跡|截圖\s*按鍵設定|時間跳躍|過濾關鍵字)/;
+          for (const cand of panelEl.querySelectorAll('span, label, div, p')) {
+            if (cand.closest('.ani-plus-cap-row, .ani-plus-info-trigger, .ani-plus-pill-btn, .ani-plus-kw-chip, .ani-plus-status-pill, button')) continue;
+            if (cand.matches('div') && cand.querySelector('span, label, p, input, button')) continue;
+            if (cand.children.length > 3) continue;
+            const rawT = (cand.textContent || '').replace(/\s+/g, ' ').trim();
+            if (!plusRowTitleRe.test(rawT) || rawT.length > 26) continue;
+            // Walk up to direct row container that holds controls or triggers (stop inside drawer slot root)
+            let pr = cand.parentElement;
+            if (!pr || pr.closest('.ani-plus-cap-row, .plus_menu_title')) continue;
+            if (pr.children.length === 1 && pr.parentElement && pr.parentElement.closest('.ani-drawer-slot-extra')) {
+              pr = pr.parentElement;
+            }
+            if (pr.matches('.plus_menu_root, .ani-drawer-slot-extra')) continue;
+            pr.classList.add('ani-plus-form-row');
+            const titleEl = (cand.parentElement === pr) ? cand : [...pr.children].find((c) => c.contains(cand));
+            if (titleEl && !titleEl.matches('input, button')) {
+              titleEl.classList.add('ani-plus-row-title');
+              if (pr.firstElementChild !== titleEl) pr.prepend(titleEl);
+              const trig = pr.querySelector(':scope > .ani-plus-info-trigger, :scope > .qa-icon, .ani-plus-info-trigger, .qa-icon');
+              if (trig && !titleEl.contains(trig) && trig.previousElementSibling !== titleEl) {
+                titleEl.after(trig);
+              }
+              if (/時間跳躍|過濾關鍵字/.test(rawT)) pr.classList.add('ani-plus-group-top');
+            }
+          }
+          // Fallback for any compact row not matched by known Plus labels
+          for (const pr of panelEl.querySelectorAll('div')) {
+            if (pr.closest('.ani-plus-cap-row, .ani-plus-info-trigger, .ani-plus-form-row') || pr.classList.contains('ani-plus-form-row')) continue;
+            if (pr.children.length >= 2 && pr.children.length <= 5) {
+              const first = pr.firstElementChild;
+              if (first && first.tagName === 'SPAN' && !first.querySelector('input, button')) {
+                const ctrl = [...pr.children].slice(1).find((c) => c.matches('input[type="checkbox"], button, div'));
+                if (ctrl || pr.querySelector(':scope > input[type="checkbox"]')) {
+                  pr.classList.add('ani-plus-form-row');
+                  first.classList.add('ani-plus-row-title');
+                  if (/時間跳躍|過濾關鍵字/.test((first.textContent || '').trim())) pr.classList.add('ani-plus-group-top');
+                }
+              }
+            }
+          }
+          // Keep (i) info trigger immediately after each row/header title
+          for (const row of panelEl.querySelectorAll('.ani-plus-form-row, .plus_menu_title, .ani-plus-cap-heading')) {
+            const titleEl = row.matches('.plus_menu_title') ? row : (row.querySelector(':scope > .ani-plus-row-title') || row.firstElementChild);
+            const trig = row.querySelector('.ani-plus-info-trigger, .qa-icon');
+            if (!titleEl || !trig) continue;
+            if (row.matches('.plus_menu_title')) {
+              const textAnchor = [...row.childNodes].find((n) => n.nodeType === 3 && n.nodeValue.trim());
+              if (textAnchor && trig.previousSibling !== textAnchor) {
+                row.insertBefore(trig, textAnchor.nextSibling);
+              }
+            } else if (!titleEl.contains(trig) && trig.previousElementSibling !== titleEl) {
+              titleEl.after(trig);
+            }
+          }
+        }
         // Left & Right column row icons in FRONT of every setting title
         const uniqueRowIcons = [
           ['弹幕開關|彈幕開關', 'danmu-on', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M7 10h6M7 14h10"/></svg>'],
@@ -4618,8 +4751,8 @@
         for (const [pat, key, svgHtml] of uniqueRowIcons) {
           if (usedKeys.has(key)) continue;
           const re = new RegExp(`^${pat}`);
-          for (const lbl of panelEl.querySelectorAll('.ani-setting-label__mian, .ani-setting-label, .ani-plus-cap-heading > span:first-child, .plus_row > span:first-child, div > span:first-child')) {
-            if (lbl.closest('.ani-sec-icon, .ani-info-badge-host, .ani-plus-info-trigger, .ani-danmu-position-btn, .ani-plus-pill-btn, .ani-plus-cap-row, .ani-dup-hidden') || lbl.querySelector('.ani-row-icon')) continue;
+          for (const lbl of panelEl.querySelectorAll('.ani-setting-label__mian, .ani-setting-label, .ani-plus-cap-heading > span:first-child, .ani-plus-row-title, .plus_row > span, div > span')) {
+            if (lbl.closest('.ani-sec-icon, .ani-info-badge-host, .ani-plus-info-trigger, .ani-danmu-position-btn, .ani-plus-pill-btn, .ani-plus-cap-row, .ani-dup-hidden, .ani-setting-section > h4, .ani-setting-section > .title, .plus_menu_title') || lbl.querySelector('.ani-row-icon')) continue;
             if (lbl.children.length > 2) continue;
             const txt = (lbl.textContent || '').trim();
             if (re.test(txt)) {
@@ -4635,34 +4768,7 @@
           }
         }
         if (panelEl.closest('.ani-drawer-slot-extra')) {
-          for (const pr of panelEl.querySelectorAll('div')) {
-            if (pr.closest('.ani-plus-cap-row, .ani-plus-info-trigger')) continue;
-            if (pr.children.length >= 2 && pr.children.length <= 4) {
-              const first = pr.firstElementChild;
-              if (first && first.tagName === 'SPAN' && !first.querySelector('input, button')) {
-                const ctrl = [...pr.children].slice(1).find((c) => c.matches('input[type="checkbox"], button, div'));
-                if (ctrl || pr.querySelector(':scope > input[type="checkbox"]')) {
-                  pr.classList.add('ani-plus-form-row');
-                  if (/時間跳躍|過濾關鍵字/.test((first.textContent || '').trim())) pr.classList.add('ani-plus-group-top');
-                }
-              }
-            }
-          }
-          // Move (i) info trigger immediately AFTER each row/header title so it sits right behind the label, never floated on the right
-          for (const row of panelEl.querySelectorAll('.ani-plus-form-row, .plus_menu_title, .ani-plus-cap-heading')) {
-            const titleEl = row.matches('.plus_menu_title') ? row : row.firstElementChild;
-            const trig = row.querySelector('.ani-plus-info-trigger, .qa-icon');
-            if (!titleEl || !trig) continue;
-            if (row.matches('.plus_menu_title')) {
-              const textAnchor = [...row.childNodes].find((n) => n.nodeType === 3 && n.nodeValue.trim());
-              if (textAnchor && trig.previousSibling !== textAnchor) {
-                row.insertBefore(trig, textAnchor.nextSibling);
-              }
-            } else if (!titleEl.contains(trig)) {
-              titleEl.append(trig);
-            }
-          }
-          // Left-align #ani-tab-content-2 slider styling matching #danmuToggle control bar
+          // Left-align #ani-tab-content-2 slider styling is in else branch
         } else {
           for (const range of panelEl.querySelectorAll('input[type="range"]')) {
             const syncRange = () => {
@@ -4693,7 +4799,7 @@
             }
           }
         }
-        // Single-leaf status pill (inline inside 跳過片頭曲 middle gap!) & hide redundant 空降足跡 block
+        // Single-leaf status pill (centered strictly in the open space between 跳過片頭曲 (i) on left and [toggle] on right)
         for (const el of panelEl.querySelectorAll('div, p, span')) {
           if (el.closest('.ani-plus-cap-row, .tooltip, [role="tooltip"]')) continue;
           const t = (el.textContent || '').replace(/\s+/g, ' ').trim();
@@ -4701,20 +4807,20 @@
             if (!el.classList.contains('ani-plus-status-pill')) el.classList.add('ani-plus-status-pill');
             if (/完成/.test(t)) el.classList.add('is-done');
             const skipRow = [...panelEl.querySelectorAll('.ani-plus-form-row')].find((r) => /跳過片頭曲/.test(r.textContent || ''));
-            if (skipRow && !skipRow.contains(el)) {
-              const titleSpan = skipRow.firstElementChild;
-              if (titleSpan) titleSpan.after(el);
+            if (skipRow) {
+              const anchor = skipRow.querySelector(':scope > .ani-plus-info-trigger, :scope > .qa-icon') || skipRow.querySelector(':scope > .ani-plus-row-title') || skipRow.firstElementChild;
+              if (anchor && el.previousElementSibling !== anchor) anchor.after(el);
             }
           }
           if (/^空降足跡/.test(t) && !/時間跳躍|動畫瘋·Plus/.test(t) && el.querySelector('button') && !el.closest('.ani-dup-hidden')) {
             el.classList.add('ani-dup-hidden');
           }
         }
-        // Pure gear icon (no box/pill bg) + group gear & switch together on right edge
+        // Pure gear icon (no box/pill bg), group trailing controls (gear / counter / toggle) on right edge
         const gearSvgMarkup = '<svg class="ani-plus-gear-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.6.85 1 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>';
         if (panelEl.closest('.ani-drawer-slot-extra')) {
-          for (const gBtn of panelEl.querySelectorAll('button')) {
-            if (gBtn.closest('.ani-plus-gear-btn, .ani-plus-refresh-btn, .ani-plus-add-icon-btn')) continue;
+          for (const gBtn of panelEl.querySelectorAll('button, a, [role="button"]')) {
+            if (gBtn.closest('.ani-plus-gear-btn, .ani-plus-refresh-btn, .ani-plus-add-icon-btn, .ani-plus-icon-action')) continue;
             const bt = (gBtn.textContent || '').trim();
             const isGearBtn = /^[⚙⚙️🔧]$/.test(bt)
               || (/settings|cog|gear|tune/i.test(bt) && gBtn.childElementCount <= 1)
@@ -4732,6 +4838,12 @@
               trail.className = 'ani-plus-row-trailing';
               cb.before(trail);
               trail.append(gBtn, cb);
+            }
+            for (const c of fRow.children) {
+              if (!c.matches('.ani-plus-row-title, .ani-plus-info-trigger, .qa-icon, .ani-plus-status-pill, .ani-hidden-glyph')) {
+                c.classList.add('ani-plus-row-tail-item');
+                break;
+              }
             }
           }
         }
@@ -4757,25 +4869,59 @@
             }
           }
         }
-        // Convert 過濾關鍵字 input + 新增 button reliably (works for button / a / div / span)
+        // Convert 過濾關鍵字 input + 新增 button reliably + style added keyword tags (e.g. 第一 ×, 頭 ×) as pill capsules
         for (const inp of panelEl.querySelectorAll('input[type="text"], input:not([type="checkbox"]):not([type="range"]):not([type="button"]):not([type="submit"])')) {
           const ph = inp.placeholder || '';
           if (/過濾|關鍵字|字詞/.test(ph) || inp.closest('[class*="keyword" i], [class*="filter" i]')) {
             inp.classList.add('ani-plus-filter-input');
             const kwWrap = inp.parentElement;
             kwWrap?.classList.add('ani-plus-kw-input-row');
-            const scope = kwWrap?.parentElement || kwWrap;
-            if (scope) {
-              for (const b of scope.querySelectorAll('button, a, div, span, input[type="button"], input[type="submit"]')) {
-                const bt = ((b.tagName === 'INPUT' ? b.value : b.textContent) || '').trim();
-                if (bt === '新增' && b.tagName !== 'INPUT' && b.childElementCount <= 1 && !b.querySelector('input') && !b.closest('[id*="tj"], [class*="jump" i]')) {
-                  if (b.tagName === 'SPAN' && b.parentElement?.matches('button, a')) continue;
-                  b.classList.add('ani-plus-add-icon-btn');
-                  b.setAttribute('aria-label', '新增');
-                  b.title = '新增';
-                  if (!b.querySelector('.ani-plus-add-svg')) {
-                    b.innerHTML = '<svg class="ani-plus-add-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
+            const kwSection = kwWrap?.closest('div:has(.ani-plus-form-row)') || kwWrap?.parentElement?.parentElement || kwWrap?.parentElement || kwWrap;
+            if (kwSection) {
+              for (const b of kwSection.querySelectorAll('button, a, [role="button"], input[type="button"], input[type="submit"], span, div')) {
+                if (b.closest('[id*="tj"], [class*="jump" i], .ani-plus-add-icon-btn, .ani-plus-form-row')) continue;
+                const bt = ((b.tagName === 'INPUT' ? b.value : b.textContent) || '').replace(/\s+/g, '').trim();
+                if (bt === '新增' && b.childElementCount <= 2 && !b.querySelector('input')) {
+                  if ((b.tagName === 'SPAN' || b.tagName === 'DIV') && b.parentElement?.matches('button, a, [role="button"]')) continue;
+                  if (b.tagName === 'INPUT') {
+                    b.style.setProperty('display', 'none', 'important');
+                    if (!b.nextElementSibling?.classList.contains('ani-plus-add-icon-btn')) {
+                      const proxy = document.createElement('button');
+                      proxy.type = 'button';
+                      proxy.className = 'ani-plus-add-icon-btn';
+                      proxy.setAttribute('aria-label', '新增');
+                      proxy.title = '新增';
+                      proxy.innerHTML = '<svg class="ani-plus-add-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
+                      proxy.addEventListener('click', () => b.click());
+                      b.after(proxy);
+                    }
+                  } else {
+                    b.classList.add('ani-plus-add-icon-btn');
+                    b.setAttribute('aria-label', '新增');
+                    b.title = '新增';
+                    if (!b.querySelector('.ani-plus-add-svg')) {
+                      b.innerHTML = '<svg class="ani-plus-add-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
+                    }
                   }
+                }
+              }
+              // Wrap added keyword items as sleek individual pill capsules (e.g. [第一 ×] [頭 ×]), never merging list wrapper
+              for (const node of kwSection.querySelectorAll('div, span, li, a')) {
+                if (node.closest('.ani-plus-kw-input-row, .ani-plus-form-row, .ani-plus-add-icon-btn, .ani-plus-info-trigger, .ani-plus-kw-chip') || node.classList.contains('ani-plus-kw-chip')) continue;
+                if (node.querySelector('input, .ani-plus-kw-input-row, .ani-plus-form-row')) continue;
+                const nt = (node.textContent || '').replace(/\s+/g, ' ').trim();
+                if (!nt || nt.length > 40) continue;
+                const delCandidates = [...node.querySelectorAll('button, a, span, i, svg')].filter((c) => {
+                  const ct = (c.textContent || '').trim();
+                  return /^[×✕✖x]$/.test(ct) || /close|times|del|remove/i.test(`${c.className?.baseVal || c.className || ''} ${c.getAttribute('aria-label') || ''}`);
+                });
+                if (delCandidates.length !== 1) continue;
+                const delEl = delCandidates[0];
+                const hasTextAndDel = delEl && nt !== delEl.textContent.trim();
+                if (hasTextAndDel && !node.querySelector('.ani-plus-kw-chip')) {
+                  node.classList.add('ani-plus-kw-chip');
+                  delEl.classList.add('ani-plus-kw-del');
+                  node.parentElement?.classList.add('ani-plus-kw-list');
                 }
               }
             }
@@ -4796,21 +4942,36 @@
             }
           }
         }
-        // Convert Save (儲存) and Time Jump (+ / - / 新增 / 取消) buttons to crisp vector icons, leaving remaining pills (-01:00..+01:30) as left-aligned capsules
+        // Convert Save (儲存) and Time Jump (+ / - / 新增 / 取消) buttons to crisp vector icons, leaving remaining pills (-01:00..+01:30 / 00:30) as left-aligned capsules
         for (const el of panelEl.querySelectorAll('button, a, span, div, input[type="button"], input[type="submit"]')) {
-          if (el.closest('input, label.ani-checkbox__label, .ani-setting-section > h4, .ani-info-badge-host, .ani-plus-info-trigger, .ani-plus-refresh-btn, .ani-plus-add-icon-btn, .ani-plus-gear-btn, .ani-plus-icon-action')) continue;
-          const txt = ((el.tagName === 'INPUT' ? el.value : el.textContent) || '').trim();
-          const isTimeJumpEditorBtn = el.tagName === 'BUTTON' && /^(?:[+-]|新增|取消)$/.test(txt) && !!el.closest('[class*="jump" i], div')?.querySelector('input');
-          if (el.tagName === 'BUTTON' && txt === '儲存') {
-            el.classList.add('ani-plus-icon-action', 'is-save');
-            el.setAttribute('aria-label', '儲存');
-            el.title = '儲存';
-            if (!el.querySelector('.ani-plus-action-svg')) {
-              el.innerHTML = '<svg class="ani-plus-action-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>';
+          if (el.closest('input:not([type="button"]):not([type="submit"]), label.ani-checkbox__label, .ani-setting-section > h4, .ani-info-badge-host, .ani-plus-info-trigger, .ani-plus-refresh-btn, .ani-plus-add-icon-btn, .ani-plus-gear-btn, .ani-plus-icon-action')) continue;
+          const txt = ((el.tagName === 'INPUT' ? el.value : el.textContent) || '').replace(/\s+/g, '').trim();
+          const isBtnLike = el.matches('button, a, [role="button"], input[type="button"], input[type="submit"]');
+          const isTimeJumpEditorBtn = isBtnLike && /^(?:[+-]|新增|取消)$/.test(txt) && !!el.closest('[class*="jump" i], div')?.querySelector('input:not([type="button"]):not([type="submit"])');
+          if (isBtnLike && txt === '儲存' && el.childElementCount <= 1) {
+            if (el.tagName === 'INPUT') {
+              el.style.setProperty('display', 'none', 'important');
+              if (!el.nextElementSibling?.classList.contains('is-save')) {
+                const proxy = document.createElement('button');
+                proxy.type = 'button';
+                proxy.className = 'ani-plus-icon-action is-save';
+                proxy.setAttribute('aria-label', '儲存');
+                proxy.title = '儲存';
+                proxy.innerHTML = '<svg class="ani-plus-action-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>';
+                proxy.addEventListener('click', () => el.click());
+                el.after(proxy);
+              }
+            } else {
+              el.classList.add('ani-plus-icon-action', 'is-save');
+              el.setAttribute('aria-label', '儲存');
+              el.title = '儲存';
+              if (!el.querySelector('.ani-plus-action-svg')) {
+                el.innerHTML = '<svg class="ani-plus-action-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>';
+              }
             }
             continue;
           }
-          if (isTimeJumpEditorBtn) {
+          if (isTimeJumpEditorBtn && el.tagName === 'BUTTON') {
             el.parentElement?.classList.add('ani-plus-jump-controls');
             const kind = txt === '新增' ? 'is-confirm' : txt === '取消' ? 'is-cancel' : 'is-step';
             const path = txt === '新增'
@@ -4829,21 +4990,21 @@
             continue;
           }
           const isTargetLabel =
-            /^[+-]\d{2}:\d{2}$/.test(txt) ||
+            /^[+-]?\d{1,2}:\d{2}$/.test(txt) ||
             /^(?:確認|其它)(?:座標|空降)$/.test(txt);
-          if (isTargetLabel && el.childElementCount <= 1) {
-            el.parentElement?.classList.add('ani-plus-jump-controls');
+          if (isTargetLabel && el.childElementCount <= 1 && (!/^[+-]?\d{1,2}:\d{2}$/.test(txt) || !el.closest('input, #sub_list, .sub-list-li'))) {
             let target = el;
             while (
               target.parentElement &&
               target.parentElement !== panelEl &&
               target.parentElement.childElementCount === 1 &&
               !target.parentElement.querySelector('input, select, textarea') &&
-              target.parentElement.textContent.trim() === txt &&
+              target.parentElement.textContent.replace(/\s+/g, '').trim() === txt &&
               !target.parentElement.matches('.ani-setting-item, .ani-keyword-header, .plus_jump_time, .plus_row, .ani-plus-subcard, .ani-setting-section')
             ) {
               target = target.parentElement;
             }
+            target.parentElement?.classList.add('ani-plus-jump-controls');
             const isNeutral = /^其它(?:座標|空降)$/.test(txt);
             target.classList.add('ani-plus-pill-btn');
             if (isNeutral) target.classList.add('is-neutral');
@@ -6513,7 +6674,7 @@
       return [...record.addedNodes, ...record.removedNodes].some(
         (node) =>
           node.nodeType === 1 &&
-          (node.matches('video') || node.querySelector('video') || /按此跳過|跳過片頭|跳過片尾|略過片頭/.test(node.textContent || '') || /skip/i.test(String(node.className || '') + ' ' + String(node.id || ''))),
+          (node.matches('video') || node.querySelector('video') || /按此跳過|跳過片頭|跳過片尾|略過片頭|儲存觀看記錄|觀看紀錄|\[X\]/i.test(node.textContent || '') || /skip|toast/i.test(String(node.className || '') + ' ' + String(node.id || ''))),
       );
     });
     if (!structural) return;
@@ -6526,7 +6687,7 @@
             node.querySelector?.('#share-url-text, .plus_imagetool_box, .image_tool') ||
             node.closest?.('.image_tool') ||
             /第\s*\d+(?:\.\d+)?\s*集/.test(node.textContent || '') ||
-            /按此跳過|跳過片頭|跳過片尾|略過片頭/.test(node.textContent || '')),
+            /按此跳過|跳過片頭|跳過片尾|略過片頭|儲存觀看記錄|觀看紀錄|\[X\]/i.test(node.textContent || '')),
       ),
     );
     clearTimeout(rebindTimer);
