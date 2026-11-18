@@ -1,15 +1,26 @@
 {
   "manifest_version": 3,
   "name": "動畫瘋沉浸重製版 3.0｜Anigamer-Redesign 3.0",
-  "description": "動畫瘋播放頁環境光與主題編輯器。光暈、配色與版型可獨立使用，支援字體、透明度、收合與自訂色碼。非官方工具。",
+  "description": "動畫瘋環境光與沉浸重製介面：毛玻璃播放器、開場液態波紋、首頁足跡熱力圖＆天氣實況（靈感改作自 Hinataragi/anigamer-ambilight、jiuyang5354/bilibili-margin 與 GreatUI）。非官方工具。",
   "version": "3.0.0",
   "minimum_chrome_version": "121",
+  "icons": {
+    "16": "icon-16.png",
+    "32": "icon-32.png",
+    "48": "icon-48.png",
+    "128": "icon-128.png"
+  },
   "permissions": [
     "storage"
   ],
   "action": {
     "default_title": "動畫瘋環境光設定",
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon-16.png",
+      "32": "icon-32.png",
+      "48": "icon-48.png"
+    }
   },
   "content_scripts": [
     {
@@ -34,10 +45,12 @@
         "effects.css",
         "settings-ui.css",
         "hero-banner.css",
+        "home-dashboard.css",
         "ui-repairs.css"
       ],
       "js": [
         "hero-banner.js",
+        "home-dashboard.js",
         "settings.js",
         "black-bars.js",
         "ambient-renderer.js",
@@ -71,7 +84,10 @@
     "https://graphql.anilist.co/*",
     "https://myanimelist.net/*",
     "https://api.gamer.com.tw/*",
-    "https://wall.gamer.com.tw/*"
+    "https://wall.gamer.com.tw/*",
+    "https://api.open-meteo.com/*",
+    "https://geocoding-api.open-meteo.com/*",
+    "https://ipwho.is/*"
   ],
   "web_accessible_resources": [
     {

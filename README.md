@@ -2,14 +2,15 @@
 
 ![動畫瘋重製版 3.0 首頁預覽](docs/preview-home.jpg)
 
-由 [秋夜](https://www.aunight.pw) 主導的 **動畫瘋重製版 3.0** —— 以現代化磨砂玻璃（Frosted Glass）、高對比電影級排版與全頁視覺一致性為核心，重製動畫瘋首頁、播放頁、播放器控制列、片庫目錄與第三方輔助腳本整合體驗。
+由 [秋夜](https://www.aunight.pw) 主導的 **動畫瘋重製版 3.0** —— 以現代化磨砂玻璃（Frosted Glass）、高對比電影級排版與全頁視覺一致性為核心，重製動畫瘋首頁（含開場液態波紋、主視覺橫幅、動畫瘋足跡熱力圖＆點陣天氣實況）、播放頁、播放器控制列、片庫目錄與第三方輔助腳本整合體驗。
 
 > [!NOTE]
 > 本版本還在測試修改當中，有任何問題歡迎至 [Issues](https://github.com/aunight/Anigamer-Redesign3.0/issues) 提 Issue 回報。
 
-> **上游專案致謝 / Upstream Attribution**  
-> 本專案的「動態環境光引擎（WebGL 2 / Canvas）」與基礎設定框架改作自原專案 **[Hinataragi/anigamer-ambilight](https://github.com/Hinataragi/anigamer-ambilight)**（MIT 授權），並承襲其參考自 [youtube-ambilight](https://github.com/WesselKroos/youtube-ambilight) 與 [bilibili-ambilight](https://github.com/iceorange-dev/bilibili-ambilight) 的取樣技術。  
-> 在此感謝原作者建立的穩定光暈底層；**動畫瘋重製版 3.0** 在此基礎之上，將視覺設計系統、頁面重構層與擴充套件相容性獨立翻新。
+> **上游專案與開源致謝 / Upstream & Credits**  
+> - **動態環境光引擎（WebGL 2 / Canvas）與基礎設定框架**：改作自原專案 **[Hinataragi/anigamer-ambilight](https://github.com/Hinataragi/anigamer-ambilight)**（MIT 授權），並承襲其參考自 [youtube-ambilight](https://github.com/WesselKroos/youtube-ambilight) 與 [bilibili-ambilight](https://github.com/iceorange-dev/bilibili-ambilight) 的取樣技術。  
+> - **首頁足跡熱力圖＆點陣天氣卡片**：移植並適配自 **[jiuyang5354/bilibili-margin](https://github.com/jiuyang5354/bilibili-margin)**（MIT 授權，含來自 21st `vijayksingh` 的點陣天氣天空概念），可於「一般」設定中獨立開關顯示，並支援動畫瘋觀影紀錄補全與即時天時統計。  
+> - **開場液態波紋著色器背景**：改寫自 **[Saurabh-2607/GreatUI](https://github.com/Saurabh-2607/GreatUI)** 的 `great-ui-liquid-ripple-shader`（MIT 授權），為巴哈動畫瘋主色系訂製的純原生 WebGL 迴圈動態波紋背景，隨頁面載入完成後平滑淡出。
 
 ---
 
@@ -20,8 +21,11 @@
 - **頁面進場與轉場動畫**：透過 `page-entry.js` 與 `motion.css` 統一頁面載入過渡，支援 `prefers-reduced-motion` 無障礙降級。
 - **主題配色與字體系統**：支援 6 種預設配色、深淺模式切換與自訂色票，字體切換精確排除 icon 字型（`Material Icons` / `Font Awesome` / `Video.js`），圖示不跑字。
 
-### 2. 首頁、新番時間軸與海報卡片重製
+### 2. 首頁、足跡＆天氣、新番時間軸與海報卡片重製
 - **Hero Banner 主視覺橫幅（`hero-banner.js`、`hero-cache-worker.js`）**：自動快取並呈現主打動畫大圖與重點資訊，支援鍵盤操作與流暢切換。
+- **首頁動畫瘋足跡＆點陣天氣實況（`home-dashboard.js/.css`，改作自 `jiuyang5354/bilibili-margin`）**：
+  - **動畫瘋足跡**：支援全站觀影心跳計時與個人觀看紀錄補全，提供 52 週年熱力圖與可點選月視圖（統計開啟天數、首次開啟時間、今日與年累計時長、連續天數）；
+  - **天氣實況**：結合動態點陣天空 SVG 與 Open-Meteo 預報／城市切換，並皆可於擴充設定「一般」分頁中**獨立開關**。
 - **新番時間軸配色區分**：**當天更新標籤**維持醒目橘色，**過去日期標籤**統一採用藍綠主色，時間軸雙圓節點全面改為高對比純白填充，去除黑點干擾。
 - **海報卡片與封面光暈**：統一 `EP.x` 集數徽章、評分膠囊與觀看數圖示；星期列表支援 hover 日期提示與單面板順暢展開／收合。
 
@@ -76,9 +80,10 @@ npm run build
 ```text
 src/
   manifest.json        擴充功能權限與載入順序設定
-  page-entry.js/.css   頁面進場過渡動畫
+  page-entry.js/.css   頁面進場過渡動畫與 WebGL 液態波紋背景（改作自 GreatUI）
   hero-banner.js/.css  首頁主視覺橫幅元件
-  hero-cache-worker.js 背景圖片快取與 aniInfo+（Syoboi / AniList / Wiki）救援 Worker
+  home-dashboard.js/.css 首頁足跡熱力圖與天氣實況（改作自 bilibili-margin）
+  hero-cache-worker.js 背景圖片、aniInfo+ 及天氣 / 地理編碼 API Worker
   topbar-bridge.js     MAIN world 頂部選單與彈窗橋接
   settings.js/.css     設定結構、預設主題與設定面板
   ambient-renderer.js  WebGL 2 / Canvas 環境光渲染器（承襲上游）
@@ -96,5 +101,5 @@ scripts/build.mjs      統一打包 Chromium / Firefox / Userscript
 ## 授權聲明（License）
 
 本專案延續上游專案採用 **[MIT License](LICENSE)** 釋出：
-- 保留原著作權人 **Wessel Kroos**、**iceorange-dev** 與 **Hinataragi** 之版權與授權聲明；
+- 保留原著作權人 **Wessel Kroos**、**iceorange-dev**、**Hinataragi**、**jiuyang5354**（`bilibili-margin`）與 **Saurabh Sharma**（`GreatUI`）之版權與授權聲明；
 - 本專案為非官方開源重構工具，與巴哈姆特動畫瘋無關，亦不讀取或儲存使用者帳號密碼。

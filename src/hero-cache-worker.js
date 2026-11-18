@@ -1,4 +1,39 @@
 chrome.runtime.onMessage.addListener((message, sender, reply) => {
+  if (message?.type === 'ani-fetch-ip') {
+    (async () => {
+      try {
+        const r = await fetch('https://ipwho.is/?fields=success,city,latitude,longitude', { signal: AbortSignal.timeout(7000) });
+        if (!r.ok) { reply({ ok: false }); return; }
+        reply({ ok: true, data: await r.json() });
+      } catch { reply({ ok: false }); }
+    })();
+    return true;
+  }
+  if (message?.type === 'ani-fetch-weather') {
+    (async () => {
+      try {
+        const lat = Number(message.lat), lon = Number(message.lon);
+        if (!Number.isFinite(lat) || !Number.isFinite(lon)) { reply({ ok: false }); return; }
+        const u = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&timezone=auto&forecast_days=5&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code,precipitation_probability&daily=weather_code,temperature_2m_max,temperature_2m_min`;
+        const r = await fetch(u, { signal: AbortSignal.timeout(9000) });
+        if (!r.ok) { reply({ ok: false }); return; }
+        reply({ ok: true, data: await r.json() });
+      } catch { reply({ ok: false }); }
+    })();
+    return true;
+  }
+  if (message?.type === 'ani-search-city') {
+    (async () => {
+      try {
+        const q = String(message.q || '').trim();
+        if (!q) { reply({ ok: false }); return; }
+        const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?count=6&language=zh&name=${encodeURIComponent(q)}`, { signal: AbortSignal.timeout(7000) });
+        if (!r.ok) { reply({ ok: false }); return; }
+        reply({ ok: true, data: await r.json() });
+      } catch { reply({ ok: false }); }
+    })();
+    return true;
+  }
   if (message?.type === 'ani-fetch-reviews') {
     (async () => {
       try {

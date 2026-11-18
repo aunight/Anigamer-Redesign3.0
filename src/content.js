@@ -191,6 +191,7 @@
       'ani-hidden-danmu-scrollbar',
       settings.hideDanmuScrollbar,
     );
+    globalThis.AniHomeDashboard?.mount(settings);
     document.body?.style.setProperty(
       '--ani-button-opacity',
       String(settings.buttonOpacity / 100),
@@ -1496,6 +1497,48 @@
         qa.classList.add('ani-info-badge-host');
       }
     }
+    for (const tb of document.querySelectorAll('.user-setting-toolbox')) {
+      const secBtn = tb.querySelector('a.btn-account-manage');
+      if (secBtn && !secBtn.dataset.aniSecPolished) {
+        secBtn.dataset.aniSecPolished = 'true';
+        const secTip = (secBtn.getAttribute('aria-label') || secBtn.getAttribute('title') || '帳號與安全性設定').replace(/設定$/, '');
+        secBtn.dataset.aniSecTip = secTip;
+        secBtn.innerHTML = '<svg class="ani-sec-shield-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 5 6v6c0 4.5 3 8.2 7 9.5 4-1.3 7-5 7-9.5V6l-7-3Z"/><path d="m9.5 12 1.8 1.8 3.6-3.8"/></svg>';
+      }
+      const tbIcons = [
+        [/闇黑/, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>'],
+        [/家長/, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>'],
+        [/動漫通/, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 14.5 9.5 21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3Z"/></svg>'],
+        [/推播|通知/, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>'],
+      ];
+      for (const titleEl of tb.querySelectorAll('.item-title')) {
+        if (titleEl.querySelector('.ani-tb-row-icon')) continue;
+        const m = tbIcons.find(([re]) => re.test(titleEl.textContent || ''));
+        if (m) titleEl.insertAdjacentHTML('afterbegin', `<span class="ani-tb-row-icon" aria-hidden="true">${m[1]}</span>`);
+      }
+      for (const sw of tb.querySelectorAll('ul.switch-toggle')) {
+        const onRadio = sw.querySelector('input[value="moon"], input[value="1"]');
+        const offRadio = sw.querySelector('input[value="sun"], input[value="0"]');
+        if (!onRadio || !offRadio) continue;
+        sw.classList.add('ani-toolbox-pill-switch');
+        const syncSw = () => sw.classList.toggle('is-on', !!onRadio.checked);
+        syncSw();
+        if (!sw.dataset.aniSwBound) {
+          sw.dataset.aniSwBound = 'true';
+          onRadio.addEventListener('change', syncSw);
+          offRadio.addEventListener('change', syncSw);
+          sw.addEventListener('click', (ev) => {
+            if (ev.target?.tagName === 'INPUT' || ev.target?.tagName === 'LABEL') {
+              setTimeout(syncSw, 20);
+              return;
+            }
+            ev.preventDefault();
+            (onRadio.checked ? offRadio : onRadio).click();
+            setTimeout(syncSw, 20);
+          });
+        }
+      }
+    }
   }
   function showAniToast(message) {
     let toast = document.querySelector('#ani-copy-toast');
@@ -1520,6 +1563,46 @@
         }
       }, 200);
     }, 1800);
+  }
+  function styleSkipIntroPill(box) {
+    if (!box) return;
+    box.classList.add('ani-skip-intro-pill');
+    box.style.setProperty('border-radius', '999px', 'important');
+    if (!box.querySelector('.ani-skip-close')) {
+      let closeEl = [...box.querySelectorAll('i, span, button, a, svg')].find(
+        (n) => n !== box && (/^(?:×|✕|✖|close|x)$/i.test((n.textContent || '').trim()) || n.matches('i.material-icons'))
+      );
+      if (!closeEl) {
+        const w = document.createTreeWalker(box, NodeFilter.SHOW_TEXT);
+        let tNode;
+        while ((tNode = w.nextNode())) {
+          const m = (tNode.nodeValue || '').match(/^([\s\S]*?)([×✕✖])\s*$/);
+          if (m && tNode.parentNode) {
+            const closeSpan = document.createElement('span');
+            closeSpan.className = 'ani-skip-close';
+            closeSpan.textContent = m[2];
+            tNode.nodeValue = m[1].replace(/\s+$/, '');
+            tNode.parentNode.insertBefore(closeSpan, tNode.nextSibling);
+            closeEl = closeSpan;
+            break;
+          }
+        }
+      }
+      if (closeEl) closeEl.classList.add('ani-skip-close');
+    }
+    for (const inner of box.querySelectorAll('*')) {
+      inner.classList.add('ani-skip-intro-inner');
+      inner.style.setProperty('background', 'transparent', 'important');
+      inner.style.setProperty('background-color', 'transparent', 'important');
+      inner.style.setProperty('background-image', 'none', 'important');
+      inner.style.setProperty('backdrop-filter', 'none', 'important');
+      inner.style.setProperty('-webkit-backdrop-filter', 'none', 'important');
+      inner.style.setProperty('filter', 'none', 'important');
+      inner.style.setProperty('box-shadow', 'none', 'important');
+      if (!inner.classList.contains('ani-skip-close')) {
+        inner.style.setProperty('border', '0', 'important');
+      }
+    }
   }
   function enhancePlayerControls() {
     const dlgMuteSvg = '<svg class="ani-dlg-title-icon" viewBox="0 0 576 512" fill="currentColor" aria-hidden="true"><path d="M301.1 34.8C312.6 40 320 51.4 320 64l0 384c0 12.6-7.4 24-18.9 29.2s-25 3.1-34.4-5.3L131.8 352 64 352c-35.3 0-64-28.7-64-64l0-64c0-35.3 28.7-64 64-64l67.8 0L266.7 40.1c9.4-8.4 22.9-10.4 34.4-5.3zM425 167l55 55 55-55c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-55 55 55 55c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-55-55-55 55c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l55-55-55-55c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0z"/></svg>';
@@ -1553,20 +1636,31 @@
     if(shareBody&&shareCard&&!shareCard.dataset.aniShare){
       shareCard.dataset.aniShare='true';shareCard.classList.add('ani-share-card');
       const video=document.querySelector('#ani_video video'),preview=document.createElement('div');preview.className='ani-share-preview';
-      const header=document.createElement('div');header.className='ani-share-caption';const heading=document.createElement('h3');heading.textContent=document.querySelector('.anime_name h1')?.textContent.trim()||'分享動畫';
+      const header=document.createElement('div');header.className='ani-share-caption';const heading=document.createElement('h3');
+      const rawShareTitle=document.querySelector('.anime_name h1')?.textContent.trim()||'分享動畫';
+      heading.textContent=rawShareTitle.replace(/\s*\[(\d+(?:\.\d+)?)\]\s*$/,' EP.$1');
       const curSec=Math.floor(video?.currentTime||0),durSec=video&&Number.isFinite(video.duration)?video.duration:null;
       const time=document.createElement('button');time.type='button';time.className='ani-share-time-toggle';time.dataset.aniTip='切換包含播放時間';time.setAttribute('aria-label','切換是否包含目前播放時間');
       time.textContent=video?`${formatContinueTime(curSec)} / ${durSec!==null?formatContinueTime(durSec):'—'}`:'';
       header.append(heading);
-      const closeBtn=(shareCard.closest('dialog, .dialogify, .dialogify__window')||shareCard).querySelector('.dialogify__close');
+      const shareDialogHost=shareCard.closest('dialog, .dialogify, .dialogify__window')||shareCard;
+      const closeBtn=shareDialogHost.querySelector('.dialogify__close');
+      const closeShareDialog=()=>{if(closeBtn)closeBtn.click();else shareCard.closest('dialog')?.close?.();};
       if(closeBtn)closeBtn.style.setProperty('display','none','important');
+      if(shareDialogHost&&!shareDialogHost.dataset.aniShareDismiss){
+        shareDialogHost.dataset.aniShareDismiss='true';
+        shareDialogHost.addEventListener('click',ev=>{if(ev.target===shareDialogHost)closeShareDialog();});
+        let sy=null;
+        shareCard.addEventListener('pointerdown',ev=>{if(ev.target?.closest?.('.ani-share-caption, .ani-share-preview'))sy=ev.clientY;else sy=null;});
+        shareCard.addEventListener('pointerup',ev=>{if(sy!==null&&ev.clientY-sy>64)closeShareDialog();sy=null;});
+      }
       if(!shareCard.querySelector('.ani-share-close-btn')){
         const xBtn=document.createElement('button');
         xBtn.type='button';
         xBtn.className='ani-share-close-btn';
         xBtn.setAttribute('aria-label','關閉');
         xBtn.innerHTML='<svg viewBox="0 0 384 512" fill="currentColor" aria-hidden="true"><path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/></svg>';
-        xBtn.addEventListener('click',()=>{if(closeBtn)closeBtn.click();else shareCard.closest('dialog')?.close?.();});
+        xBtn.addEventListener('click',closeShareDialog);
         shareCard.append(xBtn);
       }
       const frame=document.createElement('canvas');frame.width=video?.videoWidth||960;frame.height=video?.videoHeight||540;try{if(video?.readyState>=2)frame.getContext('2d')?.drawImage(video,0,0,frame.width,frame.height);}catch{}preview.append(frame);shareBody.prepend(header,preview);
@@ -1578,15 +1672,23 @@
       copyShot.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3.5"/></svg>';
       copyShot.addEventListener('click',()=>{
         frame.toBlob(async blob=>{
-          if(!blob||!navigator.clipboard?.write||typeof ClipboardItem==='undefined')return;
-          try{await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);copyShot.classList.add('is-copied');showAniToast('已複製時間點截圖');setTimeout(()=>copyShot.classList.remove('is-copied'),1500);}catch{}
+          try{
+            if(blob&&navigator.clipboard?.write&&typeof ClipboardItem!=='undefined'){
+              await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
+            }else if(blob&&navigator.clipboard?.writeText){
+              await navigator.clipboard.writeText(shareUrl.value||location.href);
+            }
+          }catch{}
+          copyShot.classList.add('is-copied');
+          showAniToast('已複製截圖');
+          setTimeout(()=>copyShot.classList.remove('is-copied'),1500);
         },'image/png');
       });
       bottomBar.append(tvBadge,time,row,copyShot);
       const socials=document.createElement('div');socials.className='ani-share-socials';
       const socialDefs=[
         {name:'下方留言區',vb:'0 0 512 512',action:url=>{
-          shareCard.querySelector('.dialogify__close')?.click();
+          closeShareDialog();
           const box=document.querySelector('#w-post-box .input-article-content, #w-post-box .reply-input, .commendlist-wrapper textarea, #BH_background .animate-theme-list textarea');
           if(box){
             box.scrollIntoView({behavior:'smooth',block:'center'});
@@ -2062,7 +2164,7 @@
         if (/掃描|QR\s*code|App\s*Store|Google\s*Play|前往動畫瘋APP|立即下載/i.test(node.textContent || '')) return true;
         if (node.matches('.app-download-toolbox, .btn-app-download, [class*="qrcode" i], [class*="download" i]') || node.querySelector('img, canvas, .app-download-toolbox, a.apple, a[href*="apple"], a[href*="play.google"]')) return true;
         const rect = node.getBoundingClientRect();
-        return rect.width > 240 || rect.height > 74;
+        return rect.height > 110;
       };
       const skipScope = playerEl.closest('.videoframe') || playerEl;
       for (const skipEl of skipScope.querySelectorAll('a,button,div,span,p')) {
@@ -2083,15 +2185,7 @@
         ) {
           box = box.parentElement;
         }
-        box.classList.add('ani-skip-intro-pill');
-        box.style.setProperty('border-radius', '999px', 'important');
-        for (const inner of box.querySelectorAll('*')) {
-          inner.classList.add('ani-skip-intro-inner');
-          inner.style.setProperty('background', 'transparent', 'important');
-          inner.style.setProperty('background-color', 'transparent', 'important');
-          inner.style.setProperty('border', '0', 'important');
-          inner.style.setProperty('box-shadow', 'none', 'important');
-        }
+        styleSkipIntroPill(box);
       }
       for(const wm of playerEl.querySelectorAll('a[href*="ani.gamer"],.vjs-watermark,.vjs-logo,.vjs-ani-logo,.ani-logo,[class*="watermark" i],[class*="brand" i],[class*="logo" i]:not(.ani-player-glyph):not(.vjs-control),img[src*="logo" i]')){
         if(wm.dataset.aniWatermarkPlaced||wm.closest('.vjs-poster,.ani-age-screen'))continue;
@@ -3531,7 +3625,7 @@
           if (/掃描|QR\s*code|App\s*Store|Google\s*Play|前往動畫瘋APP|立即下載/i.test(node.textContent || '')) return true;
           if (node.matches('.app-download-toolbox, [class*="qrcode" i], [class*="download" i]') || node.querySelector('img, canvas, .app-download-toolbox, a.apple, a[href*="apple"], a[href*="play.google"]')) return true;
           const r = node.getBoundingClientRect();
-          return r.width > 240 || r.height > 74;
+          return r.height > 110;
         };
         for (const rootEl of document.querySelectorAll('#BH_background #ani_video, #BH_background .videoframe')) {
           for (const qrBox of rootEl.querySelectorAll('div, section')) {
@@ -3561,16 +3655,7 @@
             ) {
               box = box.parentElement;
             }
-            box.classList.add('ani-skip-intro-pill');
-            box.style.setProperty('border-radius', '999px', 'important');
-            for (const inner of box.querySelectorAll('*')) {
-              inner.classList.add('ani-skip-intro-inner');
-              inner.style.setProperty('background', 'transparent', 'important');
-              inner.style.setProperty('background-color', 'transparent', 'important');
-              inner.style.setProperty('background-image', 'none', 'important');
-              inner.style.setProperty('border', '0', 'important');
-              inner.style.setProperty('box-shadow', 'none', 'important');
-            }
+            styleSkipIntroPill(box);
           }
         }
         for (const epLi of document.querySelectorAll('#BH_background :is(.ani-episode-shelf, .season) .season li, #BH_background ul.season li')) {
@@ -3630,6 +3715,7 @@
       if (/收藏|作品.*我的動畫/.test(toast.textContent || '')) toast.classList.add('ani-favorite-toast');
     }
     globalThis.AniHeroBanner?.mount(Boolean(settings.themeEnabled));
+    globalThis.AniHomeDashboard?.mount(settings);
     const catalogHeading = document.querySelector('.filter-title-block .theme-title');
     if (catalogHeading && !catalogHeading.querySelector('.ani-section-icon')) {
       const icon = document.createElement('span');
@@ -4135,8 +4221,12 @@
         }
       };
 
+      const unifiedGridEl = drawer?.querySelector('.ani-unified-settings-grid');
+      let decoratingGrid = false;
       const decorateSettingsPanel = (panelEl) => {
         if (!panelEl) return;
+        decoratingGrid = true;
+        try {
         const thinInfoSvg = '<svg class="ani-info-i-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4"/><circle cx="12" cy="8.2" r="0.6" fill="currentColor" stroke="none"/></svg>';
         const sectionIconMap = [
           [/播放設定|播放/, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 4 19 12 6 20 6 4"/></svg>'],
@@ -4156,33 +4246,92 @@
             h.prepend(ic);
           }
         }
-        // Replace all ? / ! help icons (.qa-icon + Plus help/warning SVG badges) with uniform subtle thin gray (i) info SVG
-        for (const qa of panelEl.querySelectorAll('.qa-icon, [class*="question" i], [class*="help" i], [class*="warning" i]')) {
-          if (!qa.querySelector('.ani-info-i-icon')) {
-            qa.innerHTML = thinInfoSvg;
-          }
+        // Replace ALL ? / ! help & warning icons with consistent thin subtle gray (i) info SVG
+        for (const qa of panelEl.querySelectorAll('.qa-icon, [class*="question" i], [class*="help" i], [class*="warning" i], [class*="tip" i]:not([tip-content])')) {
+          if (!qa.querySelector('.ani-info-i-icon')) qa.innerHTML = thinInfoSvg;
           qa.classList.add('ani-info-badge-host');
         }
-        for (const iconSvg of panelEl.querySelectorAll('svg:not(.ani-sec-icon svg):not(.ani-info-i-icon)')) {
-          if (iconSvg.closest('.ani-sec-icon, .ani-danmu-position-btn')) continue;
-          const vb = iconSvg.getAttribute('viewBox') || '';
-          const pathTxt = iconSvg.innerHTML || '';
-          // Detect Bahamut/Plus ? and ! circle SVGs by question/exclamation path signatures or inline color
-          const fillCol = (iconSvg.style?.color || getComputedStyle(iconSvg).color || '').replace(/\s+/g, '');
-          if (/(?:M11,18h2v-2h-2|M11 18h2v-2h-2|M12 17|question|help)/i.test(pathTxt + ' ' + iconSvg.className.baseVal) || /rgb\(0,176,255\)|rgb\(0,180,216\)|rgb\(255,152,0\)|rgb\(233,30,99\)/.test(fillCol)) {
-            if (!iconSvg.parentElement?.querySelector('.ani-info-i-icon') && iconSvg.getBoundingClientRect().width <= 26) {
-              if (/rgb\(233,30,99\)/.test(fillCol) || /M19.*extension/i.test(pathTxt)) {
-                iconSvg.classList.add('ani-mono-icon');
-              } else {
-                const holder = document.createElement('span');
-                holder.className = 'ani-info-badge-host';
-                holder.innerHTML = thinInfoSvg;
-                iconSvg.replaceWith(holder);
-                continue;
-              }
+        for (const iconSvg of panelEl.querySelectorAll('svg:not(.ani-sec-icon svg):not(.ani-info-i-icon):not(.ani-row-icon svg), i.material-icons')) {
+          if (iconSvg.closest('.ani-sec-icon, .ani-row-icon, .ani-info-badge-host, .ani-danmu-position-btn, .ani-plus-pill-btn')) continue;
+          if (iconSvg.tagName === 'I') {
+            const matTxt = (iconSvg.textContent || '').trim();
+            if (/^(?:help|help_outline|info|info_outline|error|error_outline|warning|question_mark)$/i.test(matTxt)) {
+              const holder = document.createElement('span');
+              holder.className = 'ani-info-badge-host';
+              holder.innerHTML = thinInfoSvg;
+              iconSvg.replaceWith(holder);
+              continue;
             }
           }
-          if (vb !== '') iconSvg.classList.add('ani-mono-icon');
+          const rect = iconSvg.getBoundingClientRect();
+          if (rect.width > 26 || rect.height > 26) continue;
+          const pathTxt = iconSvg.innerHTML || '';
+          const fillCol = (iconSvg.style?.color || getComputedStyle(iconSvg).color || '').replace(/\s+/g, '');
+          const isQuestionOrWarnSvg =
+            /(?:M11,18h2v-2h-2|M11 18h2v-2h-2|M12 17|question|help|alert|exclamation)/i.test(pathTxt + ' ' + (iconSvg.className?.baseVal || '')) ||
+            (/circle|path/i.test(pathTxt) && /rgb\(0,176,255\)|rgb\(0,180,216\)|rgb\(255,152,0\)/.test(fillCol) && !/10\.5.*5\.5|gear|cog|M19\.14|polyline/i.test(pathTxt));
+          if (isQuestionOrWarnSvg && !iconSvg.parentElement?.querySelector('.ani-info-i-icon')) {
+            const holder = document.createElement('span');
+            holder.className = 'ani-info-badge-host';
+            holder.innerHTML = thinInfoSvg;
+            iconSvg.replaceWith(holder);
+            continue;
+          }
+          iconSvg.classList.add('ani-mono-icon');
+        }
+        // Add unique non-repeating outline icons cleanly per row label (Refactoring UI: visual hierarchy & scanability)
+        const uniqueRowIcons = [
+          ['弹幕開關|彈幕開關', 'danmu-on', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M7 10h6M7 14h10"/></svg>'],
+          ['自動過濾', 'auto-filter', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18l-7 8.5V19l-4 2v-7.5L3 5Z"/></svg>'],
+          ['彈幕來源顯示', 'source-region', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>'],
+          ['彈幕不透明度', 'opacity', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M12 7l5 5-5 5"/></svg>'],
+          ['彈幕字體大小', 'font-size', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19 9 5l5 14M6 15h6M16 12h5M18.5 12v7"/></svg>'],
+          ['彈幕類型開關', 'danmu-type', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="7" height="7" rx="1.5"/><rect x="14" y="4" width="7" height="7" rx="1.5"/><rect x="3" y="13" width="7" height="7" rx="1.5"/><rect x="14" y="13" width="7" height="7" rx="1.5"/></svg>'],
+          ['自動同意分級警告', 'age-skip', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v6c0 4.5 3 8.2 7 9.5 4-1.3 7-5 7-9.5V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg>'],
+          ['無縫連播下一集', 'auto-next', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 5 15 12 5 19 5 5"/><line x1="19" y1="5" x2="19" y2="19"/></svg>'],
+          ['跳過片頭曲', 'skip-op', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><polygon points="4 6 12 12 4 18 4 6"/><polygon points="13 6 21 12 13 18 13 6"/></svg>'],
+          ['彈幕格式修改', 'dm-format', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="16" y2="12"/><line x1="4" y1="17" x2="12" y2="17"/></svg>'],
+          ['彈魂軌跡', 'dm-track', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 12 7 12 10 6 14 18 17 12 21 12"/></svg>'],
+          ['截圖錄影 加入彈幕', 'cap-danmu', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h4l2-2h4l2 2h4v12H4V7Z"/><circle cx="12" cy="13" r="3"/></svg>'],
+          ['截圖 按鈕設定', 'cap-key', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h2M11 10h2M15 10h2M8 14h8"/></svg>'],
+          ['時間跳躍', 'time-jump', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'],
+          ['空降足跡', 'airdrop', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.2-6-10a6 6 0 1 1 12 0c0 4.8-6 10-6 10Z"/><circle cx="12" cy="11" r="2.2"/></svg>'],
+          ['過濾關鍵字', 'kw-filter', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="6.5" y1="17.5" x2="17.5" y2="6.5"/></svg>'],
+        ];
+        const usedKeys = new Set([...drawer.querySelectorAll('.ani-row-icon[data-ani-row-key]')].map((n) => n.dataset.aniRowKey));
+        for (const [pat, key, svgHtml] of uniqueRowIcons) {
+          if (usedKeys.has(key)) continue;
+          const re = new RegExp(`^${pat}`);
+          for (const lbl of panelEl.querySelectorAll('.ani-setting-label__mian, .ani-setting-label, .plus_row > span:first-child, div > span:first-child')) {
+            if (lbl.closest('.ani-sec-icon, .ani-info-badge-host, .ani-danmu-position-btn, .ani-plus-pill-btn') || lbl.querySelector('.ani-row-icon')) continue;
+            if (lbl.children.length > 2) continue;
+            const txt = (lbl.textContent || '').trim();
+            if (re.test(txt)) {
+              usedKeys.add(key);
+              const ic = document.createElement('span');
+              ic.className = 'ani-row-icon';
+              ic.dataset.aniRowKey = key;
+              ic.setAttribute('aria-hidden', 'true');
+              ic.innerHTML = svgHtml;
+              lbl.prepend(ic);
+              break;
+            }
+          }
+        }
+        // Balance two-column Bento height cleanly when Plus has bottom 時間跳躍/空降/過濾 blocks next to shorter 彈幕設定
+        const nativeSlot = drawer?.querySelector('.ani-drawer-slot-native');
+        if (nativeSlot && panelEl.closest('.ani-drawer-slot-extra')) {
+          let extraCard = nativeSlot.querySelector('.ani-plus-subcard');
+          const moveCandidates = [...panelEl.children].flatMap((c) => (c.children.length > 4 && !c.matches('.plus_menu_title') ? [...c.children] : [c]));
+          const tailBlocks = moveCandidates.filter((blk) => /(?:時間跳躍|空降足跡|過濾關鍵字)/.test(blk.textContent || '') && !blk.closest('.ani-plus-subcard'));
+          if (tailBlocks.length && nativeSlot.querySelector('#ani-tab-content-2')) {
+            if (!extraCard) {
+              extraCard = document.createElement('div');
+              extraCard.className = 'ani-setting-section ani-plus-subcard';
+              nativeSlot.append(extraCard);
+            }
+            for (const tb of tailBlocks) extraCard.append(tb);
+          }
         }
         // Strip verbose parenthetical notes / placeholder clutter
         const walker = document.createTreeWalker(panelEl, NodeFilter.SHOW_TEXT);
@@ -4222,12 +4371,11 @@
             /^(?:新增|儲存)$/.test(txt);
           if (isTargetLabel && el.childElementCount <= 1) {
             let target = el;
-            if (
+            while (
               target.parentElement &&
               target.parentElement !== panelEl &&
               target.parentElement.textContent.trim() === txt &&
-              target.parentElement.children.length === 1 &&
-              !target.parentElement.matches('.ani-setting-item, .ani-keyword-header, .plus_jump_time')
+              !target.parentElement.matches('.ani-setting-item, .ani-keyword-header, .plus_jump_time, .plus_row, .ani-plus-subcard, .ani-setting-section')
             ) {
               target = target.parentElement;
             }
@@ -4235,22 +4383,40 @@
             target.classList.add('ani-plus-pill-btn');
             if (isNeutral) target.classList.add('is-neutral');
             target.style.setProperty('border-radius', '999px', 'important');
+            target.style.setProperty('padding', '5px 13px', 'important');
             target.style.setProperty('background', isNeutral ? 'rgba(255, 255, 255, 0.1)' : 'rgba(61, 175, 182, 0.22)', 'important');
             target.style.setProperty('background-color', isNeutral ? 'rgba(255, 255, 255, 0.1)' : 'rgba(61, 175, 182, 0.22)', 'important');
             target.style.setProperty('border', isNeutral ? '1px solid rgba(255, 255, 255, 0.24)' : '1px solid rgba(76, 211, 220, 0.56)', 'important');
             target.style.setProperty('color', isNeutral ? '#e8f1f8' : '#7ef0f6', 'important');
-            for (const ch of target.children) {
+            for (const ch of target.querySelectorAll('*')) {
               ch.style.setProperty('background', 'transparent', 'important');
               ch.style.setProperty('background-color', 'transparent', 'important');
               ch.style.setProperty('border', '0', 'important');
+              ch.style.setProperty('padding', '0', 'important');
+              ch.style.setProperty('margin', '0', 'important');
+              ch.style.setProperty('box-shadow', 'none', 'important');
             }
           }
         }
-        for (const iconEl of panelEl.querySelectorAll('i, img, [class*="icon" i]:not(.ani-sec-icon):not(.ani-info-badge-host)')) {
-          if (iconEl.closest('.ani-sec-icon, .ani-info-badge-host, .ani-danmu-position-btn')) continue;
+        for (const iconEl of panelEl.querySelectorAll('i, img, [class*="icon" i]:not(.ani-sec-icon):not(.ani-row-icon):not(.ani-info-badge-host)')) {
+          if (iconEl.closest('.ani-sec-icon, .ani-row-icon, .ani-info-badge-host, .ani-danmu-position-btn')) continue;
           iconEl.classList.add('ani-mono-icon');
         }
+        } finally {
+          decoratingGrid = false;
+        }
       };
+      if (unifiedGridEl && !unifiedGridEl.dataset.aniPanelObserved) {
+        unifiedGridEl.dataset.aniPanelObserved = 'true';
+        let gridTimer = 0;
+        new MutationObserver(() => {
+          if (decoratingGrid) return;
+          clearTimeout(gridTimer);
+          gridTimer = setTimeout(() => {
+            for (const p of unifiedGridEl.querySelectorAll('.ani-drawer-slot > *')) decorateSettingsPanel(p);
+          }, 40);
+        }).observe(unifiedGridEl, { childList: true, subtree: true });
+      }
 
       const ensureUnifiedToggle = () => {
         if (!drawer) return null;
@@ -4724,7 +4890,7 @@
             nativeDelBtn
               ? '<button type="button" class="ani-my-rating-clear" title="清除評價" aria-label="清除評價"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 10v6M14 10v6"/></svg></button>'
               : ''
-          }${(wallUrl || acgReviewEl.querySelector('.user-score-more')) ? '<button type="button" class="ani-my-write-review-btn">寫評論 / 補留言</button>' : ''}</div>`;
+          }${(wallUrl || acgReviewEl.querySelector('.user-score-more')) ? '<button type="button" class="ani-my-write-review-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4Z"/></svg><span>寫評論</span></button>' : ''}</div>`;
         }
         html += '</div>';
         html += '<div class="ani-rating-reviews" hidden></div>';
@@ -4791,7 +4957,7 @@
               blocks += `<div class="ani-side-divider"></div><div class="ani-reviews-title-row"><span>我的評論</span></div><div class="ani-reviews-list">${renderCard(myReview, true)}</div>`;
             }
             if (reviews.length) {
-              const itemsHtml = reviews.slice(0, 4).map((rev) => renderCard(rev, false)).join('');
+              const itemsHtml = reviews.slice(0, 5).map((rev) => renderCard(rev, false)).join('');
               blocks += `<div class="ani-side-divider"></div><div class="ani-reviews-title-row"><span>熱門評價</span></div><div class="ani-reviews-list">${itemsHtml}</div>`;
             }
             reviewsWrap.innerHTML = blocks;
@@ -4850,9 +5016,14 @@
           const selected = panels.find((panel) => panel.id === id);
           for (const panel of panels) {
             const isSel = selected ? panel === selected : false;
+            panel.classList.remove('is-tab-entering');
             if (selected) panel.dataset.aniTabActive = String(isSel);
             else delete panel.dataset.aniTabActive;
             panel.style.display = isSel ? 'block' : 'none';
+            if (isSel) {
+              void panel.offsetWidth;
+              panel.classList.add('is-tab-entering');
+            }
           }
           if (id === 'ani-tab-content-intro') populateIntroPane();
           if (id === 'ani-tab-content-rating') populateRatingPane();

@@ -2258,13 +2258,13 @@ body.ani-ambientlight-page.ani-ambientlight-ui #ani_video :is(.ani-consent-accep
   transition: background-color 0.16s ease, border-color 0.16s ease !important;
 }
 
-/* Move AniGamer player watermark (.vjs-big-play-button) to top-right corner */
+/* Move AniGamer player watermark (.vjs-big-play-button) back to bottom-left corner */
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video :is(.ani-player-watermark, .vjs-watermark, .vjs-logo, .vjs-ani-logo, .vjs-big-play-button) {
   position: absolute !important;
-  top: 16px !important;
-  right: 20px !important;
-  bottom: auto !important;
-  left: auto !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: 88px !important;
+  left: 22px !important;
   margin: 0 !important;
   z-index: 4 !important;
   opacity: 0.68 !important;
@@ -2765,6 +2765,12 @@ body.ani-ambientlight-ui .ani-share-card #share-url-text,
 .ani-share-card .ani-share-shot-btn svg {
   width: 19px !important;
   height: 19px !important;
+  color: var(--ani-accent, #5ee2ea) !important;
+  stroke: currentColor !important;
+}
+.ani-share-card .ani-share-shot-btn.is-copied svg,
+.ani-share-card .ani-share-shot-btn:hover svg {
+  color: #ffffff !important;
 }
 .ani-share-card .ani-share-time-row {
   display: none !important;
@@ -4728,7 +4734,7 @@ body.ani-ambientlight-ui #BH_background .ani-plus-capture-actions .ani-plus-capt
   stroke: none !important;
 }
 
-/* Skip intro pill: horizontal single-line frosted glass capsule above control bar, keep Material Icons as × */
+/* Skip intro pill: horizontal single-line frosted glass capsule above control bar, circular × close badge */
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.videoframe, #ani_video) .ani-skip-intro-pill {
   position: absolute !important;
   bottom: 96px !important;
@@ -4740,13 +4746,13 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.videoframe, #
   align-items: center !important;
   justify-content: center !important;
   flex-wrap: nowrap !important;
-  gap: 8px !important;
+  gap: 4px !important;
   width: max-content !important;
   min-width: max-content !important;
   max-width: none !important;
   height: auto !important;
   min-height: 36px !important;
-  padding: 8px 16px !important;
+  padding: 6px 10px 6px 16px !important;
   margin: 0 !important;
   white-space: nowrap !important;
   writing-mode: horizontal-tb !important;
@@ -4763,7 +4769,13 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.videoframe, #
   line-height: 1.3 !important;
   z-index: 90 !important;
 }
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.videoframe, #ani_video) .ani-skip-intro-pill * {
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.videoframe, #ani_video) .ani-skip-intro-pill::before,
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.videoframe, #ani_video) .ani-skip-intro-pill::after {
+  content: none !important;
+  display: none !important;
+  background: transparent !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.videoframe, #ani_video) .ani-skip-intro-pill *:not(.ani-skip-close) {
   position: static !important;
   inset: auto !important;
   top: auto !important;
@@ -4784,15 +4796,52 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.videoframe, #
   background: transparent !important;
   background-color: transparent !important;
   background-image: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  filter: none !important;
+  appearance: none !important;
   border: 0 !important;
+  border-radius: 0 !important;
   box-shadow: none !important;
   margin: 0 !important;
   padding: 0 !important;
   color: #ffffff !important;
 }
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.videoframe, #ani_video) .ani-skip-intro-pill .ani-skip-close {
+  position: static !important;
+  float: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 22px !important;
+  min-width: 22px !important;
+  max-width: 22px !important;
+  height: 22px !important;
+  min-height: 22px !important;
+  max-height: 22px !important;
+  margin: 0 0 0 10px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  border: 1px solid rgba(255, 255, 255, 0.36) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
+  flex: none !important;
+  cursor: pointer !important;
+  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.videoframe, #ani_video) .ani-skip-intro-pill .ani-skip-close:hover {
+  background: rgba(61, 175, 182, 0.28) !important;
+  border-color: rgba(130, 232, 238, 0.8) !important;
+  color: #ffffff !important;
+}
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.videoframe, #ani_video) .ani-skip-intro-pill :is(.material-icons, .material-icons-round, i.material-icons) {
   font-family: 'Material Icons', 'Material Icons Round' !important;
-  font-size: 18px !important;
+  font-size: 15px !important;
   line-height: 1 !important;
   font-weight: normal !important;
   font-style: normal !important;
@@ -4820,7 +4869,7 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #blockVideoInSeaso
 }
 
 
-/* Control bar right buttons (#danmuToggle, 1080P .vjs-res-button, rate, episodes, etc.): unified white glass rim hover + primary teal icon & text */
+/* Control bar right buttons (#danmuToggle, 1080P .vjs-res-button, rate, episodes, etc.): unified white glass rim hover + primary teal icon & text; menu items stay WHITE until selected/hovered */
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .control-bar-rightbtn > :is(#danmuToggle, .vjs-danmu-button, .vjs-res-button, .vjs-playback-rate, .ani-player-icon-button, .ani-ambientlight-toggle, .ani-episodes-control):is(:hover, :focus-visible),
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video :is(#danmuToggle, .vjs-danmu-button, .vjs-res-button):is(:hover, :focus-visible) {
   background: linear-gradient(145deg, rgba(240, 248, 255, 0.24), rgba(200, 220, 245, 0.08)) !important;
@@ -4830,10 +4879,20 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video :is(#da
   border-radius: 999px !important;
   color: var(--ani-accent, #5ee2ea) !important;
 }
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .control-bar-rightbtn > :is(#danmuToggle, .vjs-danmu-button, .vjs-res-button, .vjs-playback-rate, .ani-player-icon-button, .ani-ambientlight-toggle, .ani-episodes-control):is(:hover, :focus-visible) :is(svg, span, .vjs-control-text, .vjs-playback-rate-value, button),
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .control-bar-rightbtn > :is(#danmuToggle, .vjs-danmu-button, .vjs-res-button, .vjs-playback-rate, .ani-player-icon-button, .ani-ambientlight-toggle, .ani-episodes-control):is(:hover, :focus-visible) > :is(svg, span, .vjs-control-text, .vjs-playback-rate-value, button, .ani-player-glyph),
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .control-bar-rightbtn > :is(#danmuToggle, .vjs-danmu-button, .vjs-res-button, .vjs-playback-rate):is(:hover, :focus-visible) > button > :is(svg, span, .vjs-control-text, .vjs-playback-rate-value, .ani-player-glyph),
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .control-bar-rightbtn > :is(#danmuToggle, .vjs-danmu-button, .vjs-res-button):is(:hover, :focus-visible)::before,
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .control-bar-rightbtn > :is(#danmuToggle, .vjs-danmu-button, .vjs-res-button):is(:hover, :focus-visible) > button::before {
   color: var(--ani-accent, #5ee2ea) !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .control-bar-rightbtn .vjs-menu .vjs-menu-item,
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .control-bar-rightbtn .vjs-menu .vjs-menu-item span {
+  color: #edf4fa !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .control-bar-rightbtn .vjs-menu .vjs-menu-item:is(.vjs-selected, :hover, :focus-visible),
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .control-bar-rightbtn .vjs-menu .vjs-menu-item:is(.vjs-selected, :hover, :focus-visible) span {
+  color: var(--ani-accent, #5ee2ea) !important;
+  font-weight: 700 !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video :is(#danmuToggle, .vjs-danmu-button):is(:hover, :focus-visible)::before {
   filter: brightness(0) saturate(100%) invert(82%) sepia(42%) saturate(650%) hue-rotate(138deg) brightness(98%) contrast(94%) !important;
@@ -4883,13 +4942,16 @@ svg.ani-dlg-title-icon {
   color: #ffffff !important;
 }
 
-/* Skip intro pill: clear all child + pseudo-element inner backgrounds & nicer dark teal hover */
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.videoframe, #ani_video) .ani-skip-intro-pill *:not(.ani-never),
+/* Skip intro pill: clear all inner backgrounds including ::before/::after & child filters while keeping circular close border */
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.videoframe, #ani_video) .ani-skip-intro-pill *:not(.ani-skip-close),
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.videoframe, #ani_video) .ani-skip-intro-pill *::before,
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.videoframe, #ani_video) .ani-skip-intro-pill *::after {
   background: transparent !important;
   background-color: transparent !important;
   background-image: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  filter: none !important;
   border: 0 !important;
   box-shadow: none !important;
 }
@@ -5128,15 +5190,28 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .su
   text-decoration: none !important;
   transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease !important;
 }
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle .ani-tabs.ani-segmented-tabs .ani-tabs-link:focus:not(:focus-visible) {
+  outline: none !important;
+  box-shadow: none !important;
+}
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle .ani-tabs.ani-segmented-tabs .ani-tabs-link:hover {
   color: #ffffff !important;
   background: rgba(255, 255, 255, 0.08) !important;
 }
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle .ani-tabs.ani-segmented-tabs .ani-tabs-link.is-active {
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle .ani-tabs.ani-segmented-tabs .ani-tabs-link.is-active,
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle .ani-tabs.ani-segmented-tabs .ani-tabs-link.is-active:focus:not(:focus-visible) {
   background: rgba(124, 152, 178, 0.28) !important;
   border-color: rgba(255, 255, 255, 0.28) !important;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 2px 8px rgba(0, 0, 0, 0.24) !important;
+  outline: none !important;
   color: #ffffff !important;
+}
+@keyframes aniTabFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle .ani-tab-content__item.is-tab-entering {
+  animation: aniTabFadeIn 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle .ani-tabs.ani-segmented-tabs .ani-seg-tab-icon {
   width: 14px !important;
@@ -5586,7 +5661,7 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settin
   display: grid !important;
   grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   gap: 16px !important;
-  align-items: stretch !important;
+  align-items: start !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body .ani-unified-settings-grid:has(> .ani-drawer-slot:only-child) {
   grid-template-columns: minmax(0, 1fr) !important;
@@ -5600,7 +5675,8 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settin
   min-width: 0 !important;
   display: flex !important;
   flex-direction: column !important;
-  height: 100% !important;
+  gap: 14px !important;
+  height: auto !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body .ani-drawer-slot[hidden],
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body .ani-dup-hidden {
@@ -5609,8 +5685,8 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settin
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body .ani-drawer-slot:not([hidden]) > * {
   display: flex !important;
   flex-direction: column !important;
-  flex: 1 1 auto !important;
-  height: 100% !important;
+  flex: 0 0 auto !important;
+  height: auto !important;
   opacity: 1 !important;
   visibility: visible !important;
   max-height: none !important;
@@ -5620,10 +5696,11 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settin
   display: flex !important;
   flex-direction: column !important;
   gap: 14px !important;
-  flex: 1 1 auto !important;
-  height: 100% !important;
+  flex: 0 0 auto !important;
+  height: auto !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #ani-tab-content-2 > .ani-setting-section:not(.ani-dup-hidden),
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body .ani-plus-subcard,
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body .ani-drawer-slot-extra > * {
   background: rgba(255, 255, 255, 0.045) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -5631,11 +5708,11 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settin
   padding: 16px 18px !important;
   margin: 0 !important;
   color: var(--ani-text, #e6eff8) !important;
-  flex: 1 1 auto !important;
-  height: 100% !important;
+  flex: 0 0 auto !important;
+  height: auto !important;
   box-sizing: border-box !important;
 }
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body .ani-drawer-slot-extra :is(div, span, p, label, h1, h2, h3, h4):not(.ani-plus-pill-btn):not(.ani-mono-icon) {
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body .ani-drawer-slot-extra :is(div, span, p, label, h1, h2, h3, h4):not(.ani-plus-pill-btn):not(.ani-plus-pill-btn *):not(.ani-mono-icon):not(.ani-row-icon):not(.ani-info-badge-host) {
   color: var(--ani-text, #e6eff8) !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body .ani-sec-icon {
@@ -5649,9 +5726,24 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settin
   vertical-align: -2px !important;
   flex: none !important;
 }
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body .ani-sec-icon svg {
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body .ani-row-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   width: 15px !important;
   height: 15px !important;
+  margin-right: 7px !important;
+  color: rgba(214, 228, 242, 0.78) !important;
+  vertical-align: -2px !important;
+  flex: none !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body :is(.ani-sec-icon, .ani-row-icon) svg {
+  width: 15px !important;
+  height: 15px !important;
+  color: currentColor !important;
+  stroke: currentColor !important;
+  fill: none !important;
+  filter: none !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body .ani-checkbox {
   width: auto !important;
@@ -5719,40 +5811,148 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settin
   accent-color: var(--ani-accent, #3dafb6) !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body .ani-mono-icon,
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body :is(svg, img, i):not(.ani-sec-icon svg) {
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body :is(svg, img, i):not(.ani-sec-icon svg):not(.ani-row-icon svg):not(.ani-info-i-icon):not(.ani-danmu-position-btn i) {
   color: rgba(218, 228, 238, 0.72) !important;
   filter: grayscale(1) brightness(1.3) !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body .ani-mono-icon :is(path, circle, rect, line, polygon, polyline) {
   stroke: currentColor !important;
 }
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body :is(.danmu-type-btn, [class*='keyword'], .ani-keyword-tag, .tag) {
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body :is(.danmu-type-btn, [class*='keyword'], .ani-keyword-tag, .tag):not(.ani-danmu-position-btn):not(.ani-plus-pill-btn) {
   filter: grayscale(1) contrast(1.02) !important;
 }
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body :is(.ani-plus-pill-btn, button, a.btn, .btn, .plus_jump_time a, .plus_jump_time button) {
+/* Outer-only capsules (prevent double concentric rings on -01:00..+01:30 / 確認座標 / 儲存) */
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body :is(.ani-plus-pill-btn, button:not(.ani-plus-pill-btn *):not(.ani-danmu-position-btn), a.btn:not(.ani-plus-pill-btn *), .btn:not(.ani-plus-pill-btn *), input[type='button']:not(.ani-plus-pill-btn *), input[type='submit']:not(.ani-plus-pill-btn *), .plus_jump_time a:not(.ani-plus-pill-btn *), .plus_jump_time button:not(.ani-plus-pill-btn *)) {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  padding: 5px 12px !important;
+  padding: 5px 13px !important;
   margin: 2px 3px !important;
-  background: rgba(61, 175, 182, 0.18) !important;
-  border: 1px solid rgba(61, 175, 182, 0.48) !important;
+  background: rgba(61, 175, 182, 0.22) !important;
+  border: 1px solid rgba(76, 211, 220, 0.56) !important;
   border-radius: 999px !important;
-  color: #dff7f9 !important;
+  color: #7ef0f6 !important;
   font-size: 12.5px !important;
   line-height: 1.2 !important;
   cursor: pointer !important;
   filter: none !important;
+  box-shadow: none !important;
 }
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body :is(.ani-plus-pill-btn, button, a.btn, .btn, .plus_jump_time a, .plus_jump_time button):hover {
-  background: rgba(61, 175, 182, 0.34) !important;
-  border-color: rgba(76, 211, 220, 0.78) !important;
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body .ani-plus-pill-btn.is-neutral {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.24) !important;
+  color: #e8f1f8 !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body .ani-plus-pill-btn > * {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  color: inherit !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body :is(.ani-plus-pill-btn, button:not(.ani-plus-pill-btn *):not(.ani-danmu-position-btn), a.btn:not(.ani-plus-pill-btn *), .btn:not(.ani-plus-pill-btn *), input[type='button']:not(.ani-plus-pill-btn *), input[type='submit']:not(.ani-plus-pill-btn *)):hover {
+  background: rgba(61, 175, 182, 0.36) !important;
+  border-color: rgba(76, 211, 220, 0.85) !important;
   color: #ffffff !important;
 }
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #ani-tab-content-2 :is(.danmu-filter-list, ul, textarea) {
-  max-height: 120px !important;
-  min-height: 44px !important;
+/* Unify #setting-danmu-appear position cards inside drawer with #danmuToggle .danmudisplay_btn */
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #setting-danmu-appear {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  width: 100% !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #setting-danmu-appear .ani-danmu-position-btn {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  height: 68px !important;
+  min-height: 68px !important;
+  padding: 10px 8px !important;
+  border-radius: 12px !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  color: #dce9f2 !important;
+  font-size: 12.5px !important;
+  line-height: 1.2 !important;
+  text-decoration: none !important;
+  box-sizing: border-box !important;
+  filter: none !important;
+  opacity: 0.72 !important;
+  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease, opacity 0.16s ease !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #setting-danmu-appear .ani-danmu-position-btn i.material-icons {
+  display: none !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #setting-danmu-appear .ani-danmu-position-btn i:not(.material-icons) {
+  display: block !important;
+  position: relative !important;
+  width: 24px !important;
+  height: 18px !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  background: transparent !important;
+  border: 1.6px solid currentColor !important;
+  border-radius: 4px !important;
+  color: inherit !important;
+  box-sizing: border-box !important;
+  filter: none !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #setting-danmu-appear .ani-danmu-position-btn::before,
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #setting-danmu-appear .ani-danmu-position-btn::after,
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #setting-danmu-appear .ani-danmu-position-btn i:not(.material-icons)::after,
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #setting-danmu-appear .ani-danmu-position-btn span::before,
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #setting-danmu-appear .ani-danmu-position-btn span::after {
+  content: none !important;
+  display: none !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #setting-danmu-appear .ani-danmu-position-btn i:not(.material-icons)::before {
+  content: '' !important;
+  position: absolute !important;
+  left: 4px !important;
+  right: 4px !important;
+  width: auto !important;
+  top: 7px !important;
+  height: 2px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: currentColor !important;
+  border: 0 !important;
+  transform: none !important;
+  animation: none !important;
+  opacity: 1 !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #setting-danmu-appear .ani-danmu-position-btn i.danmu-top::before {
+  top: 3px !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #setting-danmu-appear .ani-danmu-position-btn i.danmu-bottom::before {
+  top: 11px !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #setting-danmu-appear .ani-danmu-position-btn span {
+  color: inherit !important;
+  background: transparent !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #setting-danmu-appear .ani-danmu-position-btn:hover,
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #setting-danmu-appear .ani-danmu-position-btn.is-active {
+  opacity: 1 !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #ani-tab-content-2 :is(.danmu-filter-list, ul, textarea, .ani-keyword-body) {
+  max-height: 92px !important;
+  min-height: 40px !important;
   height: auto !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body .ani-plus-subcard > :not(:last-child) {
+  margin-bottom: 10px !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body .ani-plus-subcard .plus_row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 8px 10px !important;
 }
 
 /* Lock segmented tab pills cleanly at 34px horizontal height across all widths/modes */
@@ -6208,45 +6408,130 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .old_list:has(.sea
   }
 }
 
-/* Unified frosted toolbar pills below player (參考首頁膠囊白字白框設計) */
+/* Unified frosted toolbar pills below player (all pills use primary teal accent consistently on hover/active) */
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .plus_imagetool_box :is(.ani-tools-toggle-btn, .shortcut-button, .plus_button_box, .ani-player-settings-toggle) {
-  background: rgba(20, 30, 44, 0.72) !important;
-  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  background: rgba(20, 30, 44, 0.74) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
   border-radius: 999px !important;
   color: #ffffff !important;
 }
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .plus_imagetool_box .ani-tools-toggle-btn[aria-expanded='true'] {
-  background: rgba(61, 175, 182, 0.2) !important;
-  border-color: rgba(76, 211, 220, 0.62) !important;
-}
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .plus_imagetool_box :is(.ani-tools-toggle-btn, .shortcut-button, .ani-player-settings-toggle):is(:hover, :focus-visible, .is-open) {
-  background: rgba(124, 152, 178, 0.28) !important;
-  border-color: rgba(255, 255, 255, 0.38) !important;
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .plus_imagetool_box :is(.ani-tools-toggle-btn, .shortcut-button, .ani-player-settings-toggle):is(:hover, :focus-visible, .is-open, [aria-expanded='true']),
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .plus_imagetool_box .plus_button_box:is(:hover, :has(input:checked)) {
+  background: rgba(61, 175, 182, 0.24) !important;
+  border-color: rgba(76, 211, 220, 0.72) !important;
   color: #ffffff !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .plus_imagetool_box :is(.ani-tools-toggle-btn, .shortcut-button, .plus_button_box, .ani-player-settings-toggle) :is(svg, span) {
   color: #ffffff !important;
 }
 
-/* User profile dropdown (.user-setting-toolbox): capsule switches in primary teal, thin gray info icons, rose-red logout capsule */
-body.ani-ambientlight-ui .user-setting-toolbox ul.switch-toggle {
+/* User profile dropdown (.user-setting-toolbox): clean outline shield with hover tooltip, single pill switch, teal region capsule, rose logout */
+body.ani-ambientlight-ui .user-setting-toolbox a.btn-account-manage {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50% !important;
+  color: rgba(218, 228, 240, 0.84) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease !important;
+}
+body.ani-ambientlight-ui .user-setting-toolbox a.btn-account-manage:hover {
+  background: rgba(61, 175, 182, 0.22) !important;
+  border-color: rgba(76, 211, 220, 0.72) !important;
+  color: #5ee2ea !important;
+}
+body.ani-ambientlight-ui .user-setting-toolbox a.btn-account-manage svg.ani-sec-shield-svg {
+  width: 17px !important;
+  height: 17px !important;
+}
+body.ani-ambientlight-ui .user-setting-toolbox a.btn-account-manage[data-ani-sec-tip]:hover::after {
+  content: attr(data-ani-sec-tip) !important;
+  position: absolute !important;
+  top: calc(100% + 6px) !important;
+  right: 0 !important;
+  padding: 4px 10px !important;
+  border-radius: 999px !important;
+  background: rgba(12, 20, 30, 0.92) !important;
+  border: 1px solid rgba(76, 211, 220, 0.48) !important;
+  color: #f0f7fc !important;
+  font: 600 11.5px/1.3 var(--ani-font, system-ui, sans-serif) !important;
+  white-space: nowrap !important;
+  z-index: 20 !important;
+  pointer-events: none !important;
+}
+body.ani-ambientlight-ui .user-setting-toolbox .ani-tb-row-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 15px !important;
+  height: 15px !important;
+  margin-right: 7px !important;
+  color: rgba(214, 228, 242, 0.82) !important;
+  vertical-align: -2px !important;
+  flex: none !important;
+}
+body.ani-ambientlight-ui .user-setting-toolbox .ani-tb-row-icon svg {
+  width: 15px !important;
+  height: 15px !important;
+}
+body.ani-ambientlight-ui .user-setting-toolbox ul.switch-toggle.ani-toolbox-pill-switch {
+  position: relative !important;
+  width: 38px !important;
+  min-width: 38px !important;
+  height: 20px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.16) !important;
+  border: 1px solid rgba(255, 255, 255, 0.24) !important;
+  cursor: pointer !important;
+  transition: background-color 0.18s ease, border-color 0.18s ease !important;
+}
+body.ani-ambientlight-ui .user-setting-toolbox ul.switch-toggle.ani-toolbox-pill-switch :is(li, .move-bg) {
+  display: none !important;
+}
+body.ani-ambientlight-ui .user-setting-toolbox ul.switch-toggle.ani-toolbox-pill-switch::after {
+  content: '' !important;
+  position: absolute !important;
+  top: 2px !important;
+  left: 2px !important;
+  width: 14px !important;
+  height: 14px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.88) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35) !important;
+  transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.18s ease !important;
+}
+body.ani-ambientlight-ui .user-setting-toolbox ul.switch-toggle.ani-toolbox-pill-switch.is-on {
+  background: var(--ani-accent, #3dafb6) !important;
+  border-color: rgba(130, 232, 238, 0.72) !important;
+}
+body.ani-ambientlight-ui .user-setting-toolbox ul.switch-toggle.ani-toolbox-pill-switch.is-on::after {
+  transform: translateX(18px) !important;
+  background: #ffffff !important;
+}
+body.ani-ambientlight-ui .user-setting-toolbox ul.switch-toggle:not(.ani-toolbox-pill-switch) {
   border-radius: 999px !important;
   background: rgba(255, 255, 255, 0.08) !important;
   border: 1px solid rgba(255, 255, 255, 0.14) !important;
   padding: 2px !important;
   overflow: hidden !important;
 }
-body.ani-ambientlight-ui .user-setting-toolbox ul.switch-toggle .move-bg {
+body.ani-ambientlight-ui .user-setting-toolbox ul.switch-toggle:not(.ani-toolbox-pill-switch) .move-bg {
   border-radius: 999px !important;
   background: rgba(61, 175, 182, 0.42) !important;
   border: 1px solid rgba(130, 232, 238, 0.65) !important;
   box-shadow: 0 2px 8px rgba(61, 175, 182, 0.35) !important;
 }
-body.ani-ambientlight-ui .user-setting-toolbox ul.switch-toggle li label {
+body.ani-ambientlight-ui .user-setting-toolbox ul.switch-toggle:not(.ani-toolbox-pill-switch) li label {
   border-radius: 999px !important;
   color: rgba(226, 234, 242, 0.72) !important;
 }
-body.ani-ambientlight-ui .user-setting-toolbox ul.switch-toggle li input:checked + label {
+body.ani-ambientlight-ui .user-setting-toolbox ul.switch-toggle:not(.ani-toolbox-pill-switch) li input:checked + label {
   color: #ffffff !important;
   font-weight: 600 !important;
 }
@@ -6331,4 +6616,40 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .su
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle .ani-my-write-review-btn:hover {
   background: rgba(61, 175, 182, 0.32) !important;
   color: #ffffff !important;
+}
+
+/* Progress bar AniGamer TV mascot: solid opaque interior, vertically centered on bar track, shown cleanly on hover */
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .vjs-play-progress::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 50% !important;
+  bottom: auto !important;
+  right: -13px !important;
+  margin: 0 !important;
+  width: 26px !important;
+  height: 26px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background-color: transparent !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 72'%3E%3Cg fill='none'%3E%3Cpath d='M24 17C16 7 9 12 18 20L27 20Z' fill='%23162635' stroke='%23ffffff' stroke-width='3.2' stroke-linejoin='round'/%3E%3Cpath d='M33 17C40 6 48 11 38 19L30 20Z' fill='%23162635' stroke='%23ffffff' stroke-width='3.2' stroke-linejoin='round'/%3E%3Ccircle cx='28' cy='18' r='4.2' fill='%23162635' stroke='%23ffffff' stroke-width='3'/%3E%3Crect x='5' y='24' width='11' height='36' rx='4' transform='rotate(-4 10 42)' fill='%23ffffff'/%3E%3Crect x='14' y='21' width='43' height='38' rx='6' transform='rotate(-4 35 40)' fill='%23162635' stroke='%23ffffff' stroke-width='3.8'/%3E%3Crect x='26' y='32' width='4.5' height='10' rx='2.2' transform='rotate(-4 28 37)' fill='%23ffffff'/%3E%3Crect x='40' y='31' width='4.5' height='10' rx='2.2' transform='rotate(-4 42 36)' fill='%23ffffff'/%3E%3Cpath d='M31 46l5 4 5-4' stroke='%23ffffff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/g%3E%3C/svg%3E") !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: contain !important;
+  opacity: 0 !important;
+  transform: translateY(-50%) scale(0.84) !important;
+  pointer-events: none !important;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.65)) !important;
+  transition: opacity 0.16s ease, transform 0.16s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .vjs-progress-control:is(:hover, :focus-within, .vjs-sliding) .vjs-play-progress::before {
+  opacity: 1 !important;
+  transform: translateY(-50%) scale(1) !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle .ani-tab-content__item.is-tab-entering,
+  body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .vjs-play-progress::before {
+    animation: none !important;
+    transition: none !important;
+  }
 }

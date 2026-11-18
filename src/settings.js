@@ -102,6 +102,8 @@
     cropX: 0,
     cropY: 0,
     hideSidebarAds: true,
+    showFootprint: true,
+    showWeather: true,
   });
   const themeFields = [
     [
@@ -349,7 +351,11 @@
     },
     {
       name: '一般',
-      fields: [['hideSidebarAds', '隱藏右側頁面廣告', 'boolean']],
+      fields: [
+        ['hideSidebarAds', '隱藏右側頁面廣告', 'boolean'],
+        ['showFootprint', '首頁顯示動畫瘋足跡（改作自 bilibili-margin）', 'boolean'],
+        ['showWeather', '首頁顯示天氣實況卡片（改作自 bilibili-margin）', 'boolean'],
+      ],
     },
   ];
   const fields = new Map(

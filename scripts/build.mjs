@@ -14,7 +14,7 @@ const motionCss = `/*! Animate.css 4.1.1 | https://animate.style/\n${animateLice
   ['_vars.css','_base.css','fading_entrances/fadeIn.css','fading_exits/fadeOut.css']
     .map(file=>fs.readFileSync(path.join(animateRoot,'source',file),'utf8').replace(/\.([a-z][\w-]*)/g,'.animate__$1')).join('\n');
 fs.writeFileSync(path.join(source,'motion.css'),motionCss);
-const css = ['content.css', 'effects.css', 'settings-ui.css', 'hero-banner.css', 'ui-repairs.css']
+const css = ['content.css', 'effects.css', 'settings-ui.css', 'hero-banner.css', 'home-dashboard.css', 'ui-repairs.css']
   .map((file) => fs.readFileSync(path.join(source, file), 'utf8'))
   .join('\n');
 const blackBars = fs.readFileSync(path.join(source, 'black-bars.js'), 'utf8');
@@ -24,7 +24,7 @@ const renderer = fs.readFileSync(
   path.join(source, 'ambient-renderer.js'),
   'utf8',
 );
-const core = fs.readFileSync(path.join(source, 'hero-banner.js'), 'utf8') + '\n' + fs.readFileSync(path.join(source, 'content.js'), 'utf8');
+const core = fs.readFileSync(path.join(source, 'hero-banner.js'), 'utf8') + '\n' + fs.readFileSync(path.join(source, 'home-dashboard.js'), 'utf8') + '\n' + fs.readFileSync(path.join(source, 'content.js'), 'utf8');
 const membershipBackground='data:image/png;base64,'+fs.readFileSync(path.join(source,'membership-background.png')).toString('base64');
 const settingsModule = fs.readFileSync(
   path.join(source, 'settings.js'),
@@ -51,7 +51,7 @@ const metadata = `// ==UserScript==
 // @name         動畫瘋沉浸重製版 3.0｜Anigamer-Redesign 3.0
 // @namespace    https://ani.gamer.com.tw/ani-ambientlight
 // @version      ${version}
-// @description  動畫瘋環境光與播放頁主題編輯器。可只用美化主題，獨立調整光暈、配色、字體與版型。非官方。
+// @description  動畫瘋環境光與沉浸重製介面：毛玻璃播放器、開場液態波紋、首頁足跡熱力圖＆天氣實況（靈感改作自 Hinataragi/anigamer-ambilight、jiuyang5354/bilibili-margin 與 GreatUI）。非官方。
 // @homepageURL  https://github.com/aunight/Anigamer-Redesign3.0
 // @supportURL   https://github.com/aunight/Anigamer-Redesign3.0/issues
 // @downloadURL  https://github.com/aunight/Anigamer-Redesign3.0/releases/latest/download/anigamer-redesign3.0.user.js
@@ -76,10 +76,13 @@ const metadata = `// ==UserScript==
 // @connect      myanimelist.net
 // @connect      api.gamer.com.tw
 // @connect      wall.gamer.com.tw
+// @connect      api.open-meteo.com
+// @connect      geocoding-api.open-meteo.com
+// @connect      ipwho.is
 // @grant        GM_addStyle
 // ==/UserScript==
 `;
-const license = fs.readFileSync(path.join(source, 'LICENSE'), 'utf8') + '\n' + fs.readFileSync(path.join(source, 'FONT-AWESOME-NOTICE.txt'), 'utf8');
+const license = fs.readFileSync(path.join(source, 'LICENSE'), 'utf8') + '\n' + fs.readFileSync(path.join(source, 'LICENSE.bilibili-margin'), 'utf8') + '\n' + fs.readFileSync(path.join(source, 'FONT-AWESOME-NOTICE.txt'), 'utf8');
 // 保留多行 CSS，讓安裝後的完整腳本也能閱讀與修改。
 const styleLiteral =
   '`' +
@@ -114,6 +117,8 @@ for (const file of [
   'topbar-bridge.js',
   'hero-banner.js',
   'hero-banner.css',
+  'home-dashboard.js',
+  'home-dashboard.css',
   'ui-repairs.css',
   'hero-cache-worker.js',
   'content.css',
@@ -122,10 +127,15 @@ for (const file of [
   'popup.html',
   'popup.js',
   'popup.css',
+  'icon-16.png',
+  'icon-32.png',
+  'icon-48.png',
+  'icon-128.png',
   'membership-background.png',
   'FONT-AWESOME-NOTICE.txt',
   'LICENSE.youtube-ambilight',
   'LICENSE.bilibili-ambilight',
+  'LICENSE.bilibili-margin',
   'LICENSE',
 ])
   fs.copyFileSync(path.join(source, file), path.join(extension, file));

@@ -1,4 +1,4 @@
-html[data-ani-booting='true'] { background:#111c2b !important; }
+html[data-ani-booting='true'] { background:#111c2b !important;overflow:hidden !important; }
 html[data-ani-booting='true'] > body { opacity:0 !important; }
 #ani_video:not(.video-js):not(.ani-has-consent):not(:has(.ani-age-screen)) > *,
 #ani_video:not(.ani-has-consent):not(:has(.ani-age-screen)) .R18 { opacity:0 !important; visibility:hidden !important; }
@@ -12,8 +12,10 @@ html[data-ani-booting='true'] > body { opacity:0 !important; }
 .ani-intro-caption { color:#b9d3df;font:500 15px/1.4 system-ui,sans-serif;letter-spacing:2px; }
 @keyframes aniIntroLogo { from { opacity:0;transform:translateY(6px); } to { opacity:1;transform:translateY(0); } }
 @media(prefers-reduced-motion:reduce) { .ani-intro-plate { animation:none; } }
-.ani-home-intro { --ani-intro-ease:cubic-bezier(.23,1,.32,1);transition:opacity 180ms var(--ani-intro-ease); }
-.ani-intro-plate { gap:16px;animation:none;max-width:calc(100vw - 40px);text-align:center; }
+.ani-home-intro { --ani-intro-ease:cubic-bezier(.23,1,.32,1);transition:opacity 280ms var(--ani-intro-ease); }
+.ani-intro-shader { position:fixed;inset:0;width:100vw;height:100vh;display:block;z-index:-1;pointer-events:none;opacity:1;transition:opacity 260ms var(--ani-intro-ease); }
+.ani-home-intro.ani-intro-reveal .ani-intro-shader { opacity:0; }
+.ani-intro-plate { position:relative;z-index:1;gap:16px;animation:none;max-width:calc(100vw - 40px);text-align:center; }
 .ani-intro-plate img { width:170px;animation:aniIntroLogo 250ms var(--ani-intro-ease) both; }
 .ani-intro-caption { color:#e8f4fa;font:600 clamp(28px,4vw,44px)/1.2 var(--ani-font,system-ui,sans-serif);letter-spacing:.02em;animation:aniIntroLogo 250ms var(--ani-intro-ease) 50ms both; }
 .ani-intro-credit { color:#9fb9c9;font:400 13px/1.6 var(--ani-font,system-ui,sans-serif);letter-spacing:.03em;animation:aniIntroLogo 250ms var(--ani-intro-ease) 100ms both; }
