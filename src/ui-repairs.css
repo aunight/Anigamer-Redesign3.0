@@ -3944,18 +3944,37 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .anime-title .anim
   color: #8fdde3 !important;
 }
 
-/* Hover-to-expand rightwards for all toolbar pills */
+/* Hover-to-expand rightwards for all toolbar pills; collapsed state is an exact 36x36 circle */
+body.ani-ambientlight-ui #BH_background .plus_imagetool_box .plus_button_box.ani-tool-hover-pill:not(:hover):not(:focus-within) {
+  gap: 0 !important;
+  padding: 0 !important;
+  width: 38px !important;
+  min-width: 38px !important;
+}
 body.ani-ambientlight-ui #BH_background .plus_imagetool_box .plus_button_box.ani-tool-hover-pill .plus_button:not(label) {
   gap: 0 !important;
+  width: 36px !important;
   min-width: 36px !important;
-  padding: 0 9.5px !important;
-  transition: padding 0.22s ease, background-color 0.16s ease, color 0.16s ease !important;
+  padding: 0 !important;
+  justify-content: center !important;
+  transition: width 0.22s ease, padding 0.22s ease, background-color 0.16s ease, color 0.16s ease !important;
 }
 body.ani-ambientlight-ui #BH_background .plus_imagetool_box .plus_button_box.ani-tool-hover-pill:is(:hover, :focus-within) .plus_button:not(label) {
+  width: auto !important;
   padding: 0 14px !important;
 }
 body.ani-ambientlight-ui #BH_background .plus_imagetool_box .plus_button_box.ani-tool-hover-pill:is(:hover, :focus-within) .plus_button[button-type="text"] {
   padding: 0 8px 0 14px !important;
+}
+body.ani-ambientlight-ui #BH_background .plus_imagetool_box .plus_button_box.ani-tool-hover-pill:not(:hover):not(:focus-within) label.plus_button {
+  max-width: 0 !important;
+  min-width: 0 !important;
+  width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-width: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 body.ani-ambientlight-ui #BH_background .plus_imagetool_box .plus_button_box.ani-tool-hover-pill .ani-tool-hover-label {
   display: inline-block !important;
@@ -4882,6 +4901,13 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.videoframe, #
   background: rgba(255, 255, 255, 0.26) !important;
   color: #ffffff !important;
 }
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.videoframe, #ani_video) .ani-skip-intro-pill .ani-skip-close svg {
+  width: 12px !important;
+  height: 12px !important;
+  display: block !important;
+  color: inherit !important;
+  stroke: currentColor !important;
+}
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.videoframe, #ani_video) .ani-skip-intro-pill :is(.material-icons, .material-icons-round, i.material-icons) {
   font-family: 'Material Icons', 'Material Icons Round' !important;
   font-size: 15px !important;
@@ -5749,7 +5775,70 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settin
   flex: 1 1 auto !important;
   display: flex !important;
   flex-direction: column !important;
+  justify-content: flex-start !important;
+  gap: 14px !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #ani-tab-content-2 .ani-drawer-slider-row {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 8px !important;
+  padding: 6px 0 !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #ani-tab-content-2 .ani-drawer-slider-row > .ani-drawer-slider-ctrl,
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #ani-tab-content-2 .ani-drawer-slider-row > :is(.ani-setting-value, .range-slider, div:has(> input[type='range'])) {
+  width: 100% !important;
+  max-width: none !important;
+  flex: none !important;
+  margin-left: 0 !important;
+  display: block !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #ani-tab-content-2 .ani-drawer-size-scale {
+  display: flex !important;
   justify-content: space-between !important;
+  width: 100% !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: rgba(226, 236, 245, 0.88) !important;
+  padding-inline: 2px !important;
+  margin-bottom: -2px !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #ani-tab-content-2 .ani-drawer-slider-row input[type='range'] {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  direction: ltr !important;
+  width: 100% !important;
+  max-width: none !important;
+  height: 6px !important;
+  margin: 6px 0 !important;
+  padding: 0 !important;
+  border-radius: 999px !important;
+  border: 0 !important;
+  overflow: visible !important;
+  background: linear-gradient(to right, var(--ani-accent, #3dafb6) var(--ani-range-pct, 50%), rgba(255, 255, 255, 0.22) var(--ani-range-pct, 50%)) !important;
+  outline: none !important;
+  cursor: pointer !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #ani-tab-content-2 .ani-drawer-slider-row input[type='range']::-webkit-slider-runnable-track {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #ani-tab-content-2 .ani-drawer-slider-row input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  width: 16px !important;
+  height: 16px !important;
+  margin-top: 0 !important;
+  border-radius: 50% !important;
+  background: #ffffff !important;
+  border: 2px solid var(--ani-accent, #3dafb6) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45) !important;
+  cursor: pointer !important;
+  transition: transform 0.14s ease !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #ani-tab-content-2 .ani-drawer-slider-row input[type='range']::-webkit-slider-thumb:hover {
+  transform: scale(1.16) !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #ani-tab-content-2 > .ani-setting-section:not(.ani-dup-hidden),
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body .ani-plus-subcard,
@@ -6505,6 +6594,10 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.ani-section-t
 body.ani-ambientlight-ui #BH_background .ani-poster-rail.ani-rail-no-scroll .ani-rail-arrow {
   display: none !important;
 }
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #blockVideoInSeason .anime-detail-block {
+  padding: 6px 8px !important;
+  min-height: 38px !important;
+}
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #blockVideoInSeason .newanime-wrap .newanime-date-area .anime-card-block:not(.ani-card-has-overflow):hover {
   padding-bottom: 0 !important;
   transform: translateY(-2px) !important;
@@ -6513,9 +6606,10 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #blockVideoInSeaso
   position: relative !important;
   top: auto !important;
   bottom: auto !important;
-  height: 38px !important;
+  height: auto !important;
   min-height: 38px !important;
-  max-height: 38px !important;
+  max-height: none !important;
+  padding: 6px 8px !important;
 }
 body.ani-layout-watch.ani-ambientlight-page #BH_background > .container-player:has(> .old_list:not(:has(.search_result))):has(> .ani-merch-section) > .old_list:not(:has(.search_result)) {
   order: 5 !important;
@@ -6825,7 +6919,7 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .plus_imagetool_bo
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 4px 14px rgba(0, 0, 0, 0.22) !important;
   color: #ffffff !important;
 }
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .plus_imagetool_box .plus_button_box label.plus_button {
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .plus_imagetool_box .plus_button_box:is(:not(.ani-tool-hover-pill), :hover, :focus-within) label.plus_button {
   height: 28px !important;
   min-height: 28px !important;
   margin: 0 2px !important;
@@ -7128,13 +7222,13 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settin
   color: var(--ani-accent, #5ee2ea) !important;
   filter: none !important;
 }
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video :is(.danmudisplay_btn button.active, .danmudisplay-area_btn > div.active) :not(i),
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video :is(.danmudisplay_btn button.active, .danmudisplay-area_btn > div.active) :not(i):not(.svg),
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body .ani-danmu-position-btn.is-active :not(i) {
   background: transparent !important;
   border-color: transparent !important;
   color: var(--ani-accent, #5ee2ea) !important;
 }
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video :is(.danmudisplay_btn button.active i, .danmudisplay-area_btn > div.active i),
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video :is(.danmudisplay_btn button.active i, .danmudisplay-area_btn > div.active i, .danmudisplay-area_btn > div.active .svg),
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body .ani-danmu-position-btn.is-active i:not(.material-icons) {
   border-color: var(--ani-accent, #5ee2ea) !important;
   color: var(--ani-accent, #5ee2ea) !important;
@@ -7351,17 +7445,17 @@ body.ani-ambientlight-ui .top_sky .user-setting-toolbox > :not(.ani-btn-glass) {
   --track-glass: linear-gradient(155deg, rgba(153, 185, 210, 0.18), rgba(22, 36, 52, 0.72) 55%, rgba(12, 22, 34, 0.84));
   --track-shade: inset 0 calc(20 * var(--u)) calc(40 * var(--u)) calc(-22 * var(--u)) rgba(0, 0, 0, 0.72);
   --wash-reach: calc(40 * var(--u));
-  --wash: radial-gradient(60% 70% at 78% 50%, rgba(255, 220, 148, 0.34), rgba(94, 226, 234, 0.12) 55%, rgba(255, 220, 148, 0) 80%);
+  --wash: radial-gradient(60% 70% at 78% 50%, rgba(224, 152, 42, 0.22), rgba(94, 226, 234, 0.1) 55%, rgba(224, 152, 42, 0) 80%);
   --filament-x: calc(64 * var(--u));
   --filament-y: calc(109 * var(--u));
   --filament-h: calc(3 * var(--u));
   --filament-radius: var(--u);
-  --filament: linear-gradient(90deg, rgba(94, 226, 234, 0), #8ef4f8 20%, #fff4cf);
-  --filament-shine: 0 0 calc(4 * var(--u)) 0 rgba(255, 236, 178, 0.95), 0 0 calc(14 * var(--u)) calc(2 * var(--u)) rgba(255, 206, 118, 0.6);
+  --filament: linear-gradient(90deg, rgba(94, 226, 234, 0), #8ef4f8 20%, #e59e2c);
+  --filament-shine: 0 0 calc(3 * var(--u)) 0 rgba(224, 152, 42, 0.45), 0 0 calc(8 * var(--u)) calc(1.5 * var(--u)) rgba(204, 128, 22, 0.25);
   --filament-glow-y: calc(96 * var(--u));
   --filament-glow-h: calc(28 * var(--u));
   --filament-glow-radius: calc(14 * var(--u));
-  --filament-glow: radial-gradient(100% 50% at 70% 50%, rgba(255, 216, 138, 0.3), rgba(255, 216, 138, 0));
+  --filament-glow: radial-gradient(100% 50% at 70% 50%, rgba(224, 152, 42, 0.18), rgba(224, 152, 42, 0));
   --tick-w: calc(5 * var(--u));
   --tick-radius: calc(2.5 * var(--u));
   --tick-y: calc(97 * var(--u));
@@ -7369,7 +7463,7 @@ body.ani-ambientlight-ui .top_sky .user-setting-toolbox > :not(.ani-btn-glass) {
   --tick-tall-y: calc(88 * var(--u));
   --tick-tall-h: calc(44 * var(--u));
   --tick-cold: rgba(210, 234, 248, 0.32);
-  --tick-warm: 255, 230, 174;
+  --tick-warm: 214, 142, 34;
   --knob-y: calc(442 * var(--u));
   --knob-d: calc(196 * var(--u));
   --knob-glass: linear-gradient(180deg, rgba(255, 255, 255, 0) 36%, rgba(94, 226, 234, 0.08) 50%, rgba(255, 255, 255, 0) 64%),
@@ -7392,25 +7486,25 @@ body.ani-ambientlight-ui .top_sky .user-setting-toolbox > :not(.ani-btn-glass) {
   --spark-shift-y: calc(-8 * var(--u));
   --highlight-angle: -26deg;
   --lens-tick-cold: rgba(164, 240, 246, 0.32);
-  --refraction-glow: #ffd166;
-  --refraction-glow-width: 12px;
-  --refraction-glow-opacity: 0.65;
-  --refraction-core: #fff6dc;
-  --pixel-glow-blur: calc(3 * var(--u));
-  --pixel-glow: 255, 214, 128;
-  --pixel-glow-alpha: 0.85;
+  --refraction-glow: #d48920;
+  --refraction-glow-width: 9px;
+  --refraction-glow-opacity: 0.38;
+  --refraction-core: #e6a844;
+  --pixel-glow-blur: calc(2 * var(--u));
+  --pixel-glow: 204, 132, 24;
+  --pixel-glow-alpha: 0.42;
   --lit-reach: 50%;
-  --lit-warm: 255, 218, 138;
+  --lit-warm: 214, 146, 42;
   --lit-cold: 94, 226, 234;
-  --lit-wash: 0.34;
+  --lit-wash: 0.2;
   --lit-wash-cold: 0.14;
   --lit-edge: calc(2 * var(--u));
   --lit-edge-blur: calc(5 * var(--u));
-  --lit-edge-alpha: 0.65;
-  --rim-glow-width: 9px;
-  --rim-core-width: 2.2px;
-  --rim-warm-glow: #ffc966;
-  --rim-warm-core: #fff5d6;
+  --lit-edge-alpha: 0.38;
+  --rim-glow-width: 6px;
+  --rim-core-width: 1.8px;
+  --rim-warm-glow: rgba(204, 132, 24, 0.55);
+  --rim-warm-core: rgba(228, 162, 54, 0.85);
   --rim-cold-glow: #3dafb6;
   --rim-cold-core: #b2f5f9;
   --rim-cold-alpha: 0.58;
@@ -7601,20 +7695,46 @@ body.ani-light-mode.ani-ambientlight-ui {
 body.ani-light-mode.ani-ambientlight-ui .top_sky {
   background: rgba(244, 248, 252, 0.82) !important;
 }
-body.ani-light-mode.ani-ambientlight-ui .top_sky .sky :is(.logo, .anime_search-input, .ani-view-settings, .member::before),
+body.ani-light-mode.ani-ambientlight-ui .top_sky .sky :is(.logo, .anime_search-input, .ani-view-settings),
+body.ani-light-mode.ani-ambientlight-ui .top_sky .sky .member::before,
 body.ani-light-mode.ani-ambientlight-ui .top_sky .mainmenu > .container-player > ul {
   background: linear-gradient(155deg, rgba(255, 255, 255, 0.96), rgba(242, 247, 253, 0.94)) !important;
   border-color: rgba(18, 38, 60, 0.14) !important;
   color: #142232 !important;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 1), 0 6px 20px rgba(20, 40, 68, 0.09) !important;
 }
+body.ani-light-mode.ani-ambientlight-ui.ani-layout-nav .top_sky .sky .member > li:not(.head):not(.bahago):not(.searchbtn) > a,
+body.ani-light-mode.ani-ambientlight-ui.ani-layout-nav .top_sky .sky .member > li:not(.head):not(.bahago):not(.searchbtn) :is(svg, svg path, svg polygon, svg circle, i.material-icons) {
+  color: #1c2e42 !important;
+  fill: #1c2e42 !important;
+}
 body.ani-light-mode.ani-ambientlight-ui .ani-lens-theme-wrap {
   --track-glass: linear-gradient(155deg, rgba(255, 255, 255, 0.94), rgba(232, 240, 248, 0.9));
   --tick-cold: rgba(20, 42, 68, 0.28);
+  --halo: radial-gradient(closest-side, rgba(20, 147, 156, 0.08), rgba(212, 137, 32, 0));
+  --wash: radial-gradient(60% 70% at 78% 50%, rgba(212, 137, 32, 0.14), rgba(20, 147, 156, 0.06) 55%, rgba(212, 137, 32, 0) 80%);
+  --filament: linear-gradient(90deg, rgba(20, 147, 156, 0), #14939c 20%, #c87b16);
+  --filament-shine: none;
+  --filament-glow: none;
+  --refraction-glow: rgba(200, 123, 22, 0.32);
+  --refraction-glow-opacity: 0.28;
+  --refraction-core: #c87b16;
+  --rim-warm-glow: rgba(200, 123, 22, 0.36);
+  --rim-warm-core: rgba(200, 123, 22, 0.72);
+  --tick-warm: 196, 118, 18;
+  --pixel-glow: 196, 118, 18;
+  --pixel-glow-alpha: 0.25;
 }
-body.ani-light-mode.ani-ambientlight-ui .top_sky :is(.anime_search-input input, .ani-view-settings, .sky .member a, .sky .member svg, .sky .member svg path, .sky .member svg polygon, .mainmenu a, .mainmenu span, .mainmenu svg) {
+body.ani-light-mode.ani-ambientlight-ui .top_sky :is(.anime_search-input input, .ani-view-settings, .sky .member a, .sky .member svg, .sky .member svg path, .sky .member svg polygon) {
   color: #1c2e42 !important;
   fill: #1c2e42 !important;
+}
+body.ani-light-mode.ani-ambientlight-ui .top_sky .mainmenu :is(a, span, svg) {
+  color: #1c2e42 !important;
+}
+body.ani-light-mode.ani-ambientlight-ui .top_sky .mainmenu li.is-active a.ani-nav-icon-link:not(.ani-nav-payment-link),
+body.ani-light-mode.ani-ambientlight-ui .top_sky .mainmenu li.is-active a.ani-nav-icon-link:not(.ani-nav-payment-link) :is(.ani-nav-icon, .ani-nav-short, svg, span) {
+  color: #0b757d !important;
 }
 body.ani-light-mode.ani-ambientlight-ui .top_sky .anime_search-input input::placeholder {
   color: rgba(28, 46, 66, 0.56) !important;
@@ -7675,7 +7795,7 @@ body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-wx-sky :is(.ani-wx-t
 }
 /* Cards, Sections, Watch Page, News, Filters, Drawers, Comments & Announcement Bar in Light Mode */
 body.ani-light-mode.ani-ambientlight-ui #BH_background :is(
-  .ani-fp-card, .ani-wx-card, .ani-setting-section, .ani-player-settings-body::before, .ani-plus-subcard, .ani-drawer-slot-extra > *,
+  .ani-fp-card, .ani-wx-card, .ani-setting-section, .ani-plus-subcard, .ani-drawer-slot-extra > *,
   .data_type, .theme-list-main, .theme-list-main .anime-detail-block,
   .anime-card-block, .anime-card-block .anime-detail-block,
   .continue-watch-card, .continue-watch-card .content-block,
@@ -7686,6 +7806,8 @@ body.ani-light-mode.ani-ambientlight-ui #BH_background :is(
   #w-post-box .commend-content, .reply-item, .w-post-form,
   .anime-date-info
 ),
+body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-player-settings-body::before,
+body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-player-settings-body #ani-tab-content-2 > .ani-setting-section:not(.ani-dup-hidden),
 body.ani-light-mode.ani-ambientlight-ui .bottom-announcement,
 body.ani-light-mode.ani-ambientlight-ui :is(.anime_search-content, .filter-items, .dialogify__content, .ani-fp-tip) {
   background: rgba(255, 255, 255, 0.88) !important;
@@ -7700,12 +7822,48 @@ body.ani-light-mode.ani-ambientlight-ui #BH_background #blockVideoInSeason .newa
 }
 body.ani-light-mode.ani-ambientlight-ui #BH_background :is(
   .ani-fp-head, .ani-fp-stat b, .ani-wx-city, .ani-wx-temp, .ani-wx-hours b, .ani-wx-hi, .ani-wx-dn, .ani-wx-clock,
-  .theme-name, .anime-name, .anime-name *, .theme-title, h1, h2, h3, .data-intro, .anime_name h1,
-  .extend-title, .season ul li a, .ani-tabs-link, .ani-review-user, .commend-content, .commend-content *,
+  .theme-name, .anime-name, .anime-name *, .theme-title, h1:not([data-ani-display-title]), h2, h3, .data-intro, .anime_name h1:not([data-ani-display-title]),
+  .extend-title, .season ul li:not(.playing) a, .ani-review-user, .commend-content, .commend-content *,
   .ani-player-settings-body :is(div, span, label, h4, p):not(.ani-plus-pill-btn):not(.ani-plus-pill-btn *):not(.ani-plus-status-pill),
   .ani-merch-section a:not(.store_buy):not(.store_btn):not(.btn),
   .ani-region-toggle, .ani-comment-columns-toggle
 ):not(.ani-poster-score):not(.ani-age-restricted):not(.ani-serial-label) {
+  color: #142232 !important;
+  -webkit-text-fill-color: #142232 !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background .anime-title .anime_name h1[data-ani-display-title] {
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  text-shadow: none !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background .anime-title .anime_name h1[data-ani-display-title]::before {
+  color: #142232 !important;
+  -webkit-text-fill-color: #142232 !important;
+  text-shadow: none !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background .anime-title .anime_info_detail > :is(p, div, span, .ani-info-upload-time, .ani-info-views, .ani-info-counting):not(:empty),
+body.ani-light-mode.ani-ambientlight-ui #BH_background .anime-title .anime_info_detail > :is(.ani-info-upload-time, .ani-info-views, .ani-info-counting) * {
+  background: rgba(18, 38, 60, 0.07) !important;
+  border-color: rgba(18, 38, 60, 0.14) !important;
+  color: #24384e !important;
+  -webkit-text-fill-color: #24384e !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background .anime-title .anime_info_detail > :is(.ani-info-upload-time, .ani-info-views, .ani-info-counting) *,
+body.ani-light-mode.ani-ambientlight-ui #BH_background .anime-title .anime_info_detail .ani-info-clock {
+  background: transparent !important;
+  border: 0 !important;
+  color: #24384e !important;
+  -webkit-text-fill-color: #24384e !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background .anime-title .ani-title-actions > :is(button, a, #bgmtv, .share-button, .shortcut-button, .ani-title-pill-link),
+body.ani-light-mode.ani-ambientlight-ui #BH_background .anime-title .ani-title-actions #bgmtv a {
+  background: rgba(18, 38, 60, 0.07) !important;
+  border-color: rgba(18, 38, 60, 0.16) !important;
+  color: #142232 !important;
+  -webkit-text-fill-color: #142232 !important;
+  box-shadow: none !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background .anime-title .ani-title-actions > :is(button, a, #bgmtv, .share-button, .shortcut-button, .ani-title-pill-link) :is(span, svg, i, .material-icons, .ani-shortcut-btn-glyph, .ani-title-pill-icon) {
   color: #142232 !important;
   -webkit-text-fill-color: #142232 !important;
 }
@@ -7719,7 +7877,7 @@ body.ani-light-mode.ani-ambientlight-ui .bottom-announcement :is(.announce-text,
   -webkit-text-fill-color: #4b5e73 !important;
 }
 body.ani-light-mode.ani-ambientlight-ui #BH_background :is(
-  .ani-fp-seg, .ani-fp-sync-btn, .season ul li a, .btn-show-more, .btn-newanime-filter,
+  .ani-fp-seg, .ani-fp-sync-btn, .season ul li:not(.playing) a, .btn-show-more, .btn-newanime-filter,
   .class_list li a, .ani-my-write-review-btn, .ani-player-settings-toggle, .ani-danmu-position-btn,
   .ani-merch-section :is(.store_buy, .store_btn, a.btn, button),
   .plus_imagetool_box :is(.ani-tools-toggle-btn, .shortcut-button, .plus_button_box)
@@ -7728,6 +7886,24 @@ body.ani-light-mode.ani-ambientlight-ui .bottom-announcement .btn-next {
   background: rgba(18, 38, 60, 0.07) !important;
   border-color: rgba(18, 38, 60, 0.16) !important;
   color: #142232 !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background .plus_imagetool_box :is(.ani-tools-toggle-btn, .shortcut-button, .plus_button_box, .ani-player-settings-toggle),
+body.ani-light-mode.ani-ambientlight-ui #BH_background .plus_imagetool_box :is(.ani-tools-toggle-btn, .shortcut-button, .plus_button_box, .ani-player-settings-toggle) :is(.plus_button, svg, span, label) {
+  color: #142232 !important;
+  -webkit-text-fill-color: #142232 !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background .plus_imagetool_box .plus_button_box :is(input:checked + label.plus_button, label.plus_button.active, .plus_button.active:not([button-type="text"])) {
+  background: rgba(20, 147, 156, 0.16) !important;
+  border-color: rgba(20, 147, 156, 0.55) !important;
+  color: #0b757d !important;
+  -webkit-text-fill-color: #0b757d !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background .season ul li.playing a,
+body.ani-light-mode.ani-ambientlight-ui #BH_background #ani_video .ani-ep-drawer-btn.is-playing {
+  background: #14939c !important;
+  border-color: #0e747c !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }
 body.ani-light-mode.ani-ambientlight-ui #BH_background .btn-newanime-filter .newanime-filter-text,
 body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-player-settings-toggle * {
@@ -7750,13 +7926,46 @@ body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-poster-card .ani-age
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
 }
-body.ani-light-mode.ani-ambientlight-ui #BH_background section.player .subtitle .ani-tabs {
-  background: rgba(18, 38, 60, 0.06) !important;
+body.ani-light-mode.ani-ambientlight-ui #BH_background section.player .subtitle .ani-tabs,
+body.ani-light-mode.ani-ambientlight-ui #BH_background section.player .subtitle .ani-tabs.ani-segmented-tabs {
+  background: rgba(18, 38, 60, 0.07) !important;
   border-color: rgba(18, 38, 60, 0.12) !important;
+  box-shadow: none !important;
 }
+body.ani-light-mode.ani-ambientlight-ui #BH_background section.player .subtitle .ani-tabs.ani-segmented-tabs .ani-tabs-link,
+body.ani-light-mode.ani-ambientlight-ui #BH_background section.player .subtitle .ani-tabs.ani-segmented-tabs .ani-tabs-link :is(span, svg, .ani-seg-tab-icon) {
+  color: #3c4e63 !important;
+  -webkit-text-fill-color: #3c4e63 !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background section.player .subtitle .ani-tabs.ani-segmented-tabs .ani-tabs-link.is-active,
 body.ani-light-mode.ani-ambientlight-ui #BH_background section.player .subtitle .ani-tabs-link.is-active {
-  background: rgba(20, 147, 156, 0.18) !important;
-  color: #0b6d75 !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-color: rgba(20, 147, 156, 0.28) !important;
+  box-shadow: 0 2px 6px rgba(20, 40, 68, 0.08) !important;
+  color: #0b757d !important;
+  -webkit-text-fill-color: #0b757d !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background section.player .subtitle .ani-tabs.ani-segmented-tabs .ani-tabs-link.is-active :is(span, svg, .ani-seg-tab-icon),
+body.ani-light-mode.ani-ambientlight-ui #BH_background section.player .subtitle .ani-tabs-link.is-active :is(span, svg, .ani-seg-tab-icon) {
+  background: transparent !important;
+  color: #0b757d !important;
+  -webkit-text-fill-color: #0b757d !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background section.player .subtitle #sub_list :is(.sub-list-li, .sub-list-li *, .sub_content, .name, span, div) {
+  text-shadow: none !important;
+  color: #1c2e42 !important;
+  -webkit-text-fill-color: #1c2e42 !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background section.player .subtitle #sub_list .sub-list-li b {
+  text-shadow: none !important;
+  color: #526478 !important;
+  -webkit-text-fill-color: #526478 !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-player-settings-body #ani-tab-content-2 .ani-drawer-size-scale {
+  color: #3c4e63 !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-player-settings-body #ani-tab-content-2 .ani-drawer-slider-row input[type='range'] {
+  background: linear-gradient(to right, var(--ani-accent, #14939c) var(--ani-range-pct, 50%), rgba(18, 38, 60, 0.16) var(--ani-range-pct, 50%)) !important;
 }
 body.ani-light-mode.ani-ambientlight-ui :is(input[type='text'], input[type='search'], textarea, select):not(.anime_search-input input) {
   background: rgba(18, 38, 60, 0.05) !important;

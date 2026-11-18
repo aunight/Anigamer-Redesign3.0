@@ -63,9 +63,9 @@
   const RIM_FADE = 0.12;
   const rimFade = (u) => Math.min(1, Math.max(0, (1 - Math.abs(u)) / RIM_FADE));
 
-  // Adapted to Anigamer-Redesign 3.0 palette: luminous aqua moon <-> golden sunlit sun (9x9 crisp HiDPI grid)
+  // Adapted to Anigamer-Redesign 3.0 palette: luminous aqua moon <-> warm amber-gold sun (9x9 crisp HiDPI grid)
   const PIXEL_COLD = [126, 243, 250];
-  const PIXEL_WARM = [255, 224, 148];
+  const PIXEL_WARM = [222, 148, 36];
 
   const SUN = [
     '....+....',

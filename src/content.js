@@ -1611,9 +1611,17 @@
     box.classList.add('ani-skip-intro-pill');
     box.style.setProperty('border-radius', '999px', 'important');
     if (!box.querySelector('.ani-skip-close')) {
-      let closeEl = [...box.querySelectorAll('i, span, button, a, svg')].find(
-        (n) => n !== box && (/^(?:×|✕|✖|close|x)$/i.test((n.textContent || '').trim()) || n.matches('i.material-icons'))
-      );
+      let closeEl = [...box.querySelectorAll('button, a, span, div, i, svg')].find((n) => {
+        if (n === box) return false;
+        const txt = (n.textContent || '').trim();
+        if (/^(?:×|✕|✖|close|x)$/i.test(txt) || n.matches('i.material-icons, .material-icons, .material-icons-round, [class*="close" i], [aria-label*="關閉" i], [aria-label*="close" i], [title*="關閉" i], [title*="close" i]')) {
+          return true;
+        }
+        return n.matches('svg') && !txt && !/(?:skip|forward|fast)/i.test(n.className?.baseVal || '');
+      });
+      if (closeEl?.tagName?.toLowerCase() === 'svg' && closeEl.parentElement && closeEl.parentElement !== box && !/跳過|略過|Skip/i.test(closeEl.parentElement.textContent || '') && closeEl.parentElement.children.length === 1) {
+        closeEl = closeEl.parentElement;
+      }
       if (!closeEl) {
         const w = document.createTreeWalker(box, NodeFilter.SHOW_TEXT);
         let tNode;
@@ -1633,7 +1641,7 @@
       if (closeEl) closeEl.classList.add('ani-skip-close');
     }
     for (const inner of box.querySelectorAll('*')) {
-      if (inner.classList.contains('ani-skip-close')) continue;
+      if (inner.classList.contains('ani-skip-close') || inner.closest('.ani-skip-close')) continue;
       inner.classList.add('ani-skip-intro-inner');
       inner.style.setProperty('background', 'transparent', 'important');
       inner.style.setProperty('background-color', 'transparent', 'important');
@@ -2246,6 +2254,9 @@
         const rect = node.getBoundingClientRect();
         return rect.height > 110;
       };
+      for (const existingPill of document.querySelectorAll('.ani-skip-intro-pill')) {
+        if (!existingPill.querySelector('.ani-skip-close')) styleSkipIntroPill(existingPill);
+      }
       const skipScope = playerEl.closest('.videoframe') || playerEl;
       for (const skipEl of skipScope.querySelectorAll('a,button,div,span,p')) {
         if (skipEl.closest('.vjs-control-bar,.ani-age-screen,.ani-skip-intro-pill,.top-tool-bar,.ani-fs-title,.plus_imagetool_box,.ani-ambientlight-toggle,.ani-player-episodes-drawer,.app-download-toolbox')) continue;
@@ -4413,101 +4424,78 @@
           if (tipHost.closest('.ani-hidden-glyph, .ani-plus-info-trigger, .ani-info-badge-host, .tooltip, [role="tooltip"], [class*="tooltip" i], [class*="popper" i], [class*="popover" i]')) continue;
           const ownText = [...tipHost.childNodes].filter((n) => n.nodeType === 3).map((n) => n.nodeValue || '').join('').trim();
           if (ownText.length > 6 && !/^[?!？！]+$/.test(ownText)) continue;
-          if (!tipHost.querySelector('svg, i') && !/^[?!？！]+$/.test(ownText)) continue;
+          if (!tipHost.querySelector('svg, i, span') && !/^[?!？！]+$/.test(ownText)) continue;
           attachInfoIcon(tipHost);
         }
-        for (const iconSvg of panelEl.querySelectorAll('svg:not(.ani-sec-icon svg):not(.ani-info-i-icon):not(.ani-row-icon svg):not(.ani-plus-refresh-svg):not(.ani-plus-add-svg), i.material-icons, i[class*="material" i]')) {
+        // Catch standalone leaf ?/！ triggers (even without [tip-content]/[title], e.g. Vue hover listeners on span/div/button)
+        for (const leafTxtEl of panelEl.querySelectorAll('span, i, div, a, b, small')) {
+          if (leafTxtEl.closest('.ani-hidden-glyph, .ani-plus-info-trigger, .ani-info-badge-host, .tooltip, [role="tooltip"], [class*="tooltip" i], [class*="popper" i], [class*="popover" i], button, input, select, textarea')) continue;
+          if (leafTxtEl.childElementCount > 0) continue;
+          const lt = (leafTxtEl.textContent || '').trim();
+          if (/^(?:[?!？！]|help(?:_outline)?|info(?:_outline)?|error(?:_outline)?|warning|question_mark|contact_support|live_help)$/i.test(lt)) {
+            attachInfoIcon(leafTxtEl);
+          }
+        }
+        for (const iconSvg of panelEl.querySelectorAll('svg:not(.ani-sec-icon svg):not(.ani-info-i-icon):not(.ani-row-icon svg):not(.ani-plus-refresh-svg):not(.ani-plus-add-svg), :is(i, span).material-icons, :is(i, span)[class*="material" i]')) {
           if (iconSvg.closest('.ani-sec-icon, .ani-row-icon, .ani-info-badge-host, .ani-plus-info-trigger, .ani-hidden-glyph, .ani-danmu-position-btn, .ani-plus-pill-btn, .ani-plus-refresh-btn, .ani-plus-add-icon-btn, .tooltip, [role="tooltip"], [class*="tooltip" i]')) continue;
-          if (iconSvg.tagName === 'I') {
+          if (iconSvg.tagName !== 'SVG') {
             const matTxt = (iconSvg.textContent || '').trim();
             if (/^(?:help|help_outline|info|info_outline|error|error_outline|warning|question_mark|contact_support|live_help)$/i.test(matTxt) && iconSvg.parentElement && !iconSvg.parentElement.querySelector('.ani-info-i-icon')) {
-              iconSvg.classList.add('ani-hidden-glyph');
-              iconSvg.insertAdjacentHTML('afterend', `<span class="ani-info-badge-host ani-plus-info-badge" aria-hidden="true">${thinInfoSvg}</span>`);
+              attachInfoIcon(iconSvg);
               continue;
             }
           }
           const rect = iconSvg.getBoundingClientRect();
           if (rect.width > 24 || rect.height > 24) continue;
           const pathTxt = iconSvg.innerHTML || '';
-          const isGearOrChartOrAction = /M19\.14|15\.18|gear|cog|polyline|points=|arrow|refresh|M12 5v14|M5 12h14/i.test(pathTxt + ' ' + (iconSvg.className?.baseVal || ''));
-          const isHelpOrWarnSvg = !isGearOrChartOrAction && /(?:M11,18h2v-2h-2|M11 18h2v-2h-2|M12 17|M12 16h\.01|M9\.09|M9 9|a3 3|5\.83|M12 8v4|M12 9v4|question|help|warning|exclamation|alert|<text[^>]*>\s*[?!])/i.test(pathTxt + ' ' + (iconSvg.className?.baseVal || '') + ' ' + (iconSvg.parentElement?.className || ''));
+          const metaTxt = `${pathTxt} ${iconSvg.className?.baseVal || ''} ${iconSvg.getAttribute('aria-label') || ''} ${iconSvg.parentElement?.className || ''}`;
+          const isGearOrAction = /M19\.14|15\.18|19\.4|14\.7|12 15\.5|gear|cog|wrench|tool|refresh|reset|clear|trash|play|M12 5v14|M5 12h14/i.test(metaTxt) || Boolean(iconSvg.closest('button, a'));
+          const isWaveformOrChart = /polyline|points=|arrow|M2 12|M3 12h4l3-9|chart|wave|analytics|timeline|show_chart/i.test(metaTxt);
+          const isHelpOrWarnSvg = !isGearOrAction && !isWaveformOrChart && (
+            /(?:M11,18h2v-2h-2|M11 18h2v-2h-2|M12 17|M12 16|M12 14|M9\.09|M9 9|a3 3|5\.83|M12 8v4|M12 9v4|question|help|warning|exclamation|alert|info|<text[^>]*>\s*[?!])/i.test(metaTxt)
+            || Boolean(panelEl.closest('.ani-drawer-slot-extra') && /<circle\b/i.test(pathTxt) && !/15\.5|r="3"/.test(pathTxt))
+          );
           if (isHelpOrWarnSvg && iconSvg.parentElement && !iconSvg.parentElement.querySelector('.ani-info-i-icon') && !/BETA|PLUS/i.test(iconSvg.parentElement.textContent || '')) {
+            const host = (iconSvg.parentElement.children.length === 1 && !(iconSvg.parentElement.textContent || '').trim()) ? iconSvg.parentElement : iconSvg;
+            if (host === iconSvg) {
+              iconSvg.classList.add('ani-hidden-glyph');
+              const trig = document.createElement('span');
+              trig.className = 'ani-plus-info-trigger ani-info-badge-host ani-plus-info-badge';
+              trig.innerHTML = thinInfoSvg;
+              iconSvg.insertAdjacentElement('afterend', trig);
+            } else {
+              attachInfoIcon(host);
+            }
+            continue;
+          }
+          // On 跳過片頭曲 row, hide duplicate right-side waveform/chart icon since title now has front icon
+          const rowTxt = (iconSvg.closest('div, li, .plus_row')?.textContent || '');
+          if (isWaveformOrChart && /跳過片頭曲/.test(rowTxt) && !iconSvg.closest('button')) {
             iconSvg.classList.add('ani-hidden-glyph');
-            iconSvg.insertAdjacentHTML('afterend', `<span class="ani-info-badge-host ani-plus-info-badge" aria-hidden="true">${thinInfoSvg}</span>`);
             continue;
           }
           iconSvg.classList.add('ani-mono-icon');
         }
-        // Keep decorative row icons out of Plus column for clean whitespace & scanability; mark Plus rows for right-aligned layout
-        if (!panelEl.closest('.ani-drawer-slot-extra')) {
-          const uniqueRowIcons = [
-            ['弹幕開關|彈幕開關', 'danmu-on', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M7 10h6M7 14h10"/></svg>'],
-            ['自動過濾', 'auto-filter', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18l-7 8.5V19l-4 2v-7.5L3 5Z"/></svg>'],
-            ['彈幕來源顯示', 'source-region', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>'],
-            ['彈幕不透明度', 'opacity', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M12 7l5 5-5 5"/></svg>'],
-            ['彈幕字體大小', 'font-size', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19 9 5l5 14M6 15h6M16 12h5M18.5 12v7"/></svg>'],
-            ['彈幕類型開關', 'danmu-type', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="7" height="7" rx="1.5"/><rect x="14" y="4" width="7" height="7" rx="1.5"/><rect x="3" y="13" width="7" height="7" rx="1.5"/><rect x="14" y="13" width="7" height="7" rx="1.5"/></svg>'],
-            ['自動同意分級警告', 'age-skip', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v6c0 4.5 3 8.2 7 9.5 4-1.3 7-5 7-9.5V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg>'],
-            ['無縫連播下一集', 'auto-next', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 5 15 12 5 19 5 5"/><line x1="19" y1="5" x2="19" y2="19"/></svg>'],
-            ['跳過片頭曲', 'skip-op', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><polygon points="4 6 12 12 4 18 4 6"/><polygon points="13 6 21 12 13 18 13 6"/></svg>'],
-            ['彈幕格式修改', 'dm-format', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="16" y2="12"/><line x1="4" y1="17" x2="12" y2="17"/></svg>'],
-            ['彈魂軌跡', 'dm-track', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 12 7 12 10 6 14 18 17 12 21 12"/></svg>'],
-            ['截圖 按鍵設定', 'cap-key', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h2M11 10h2M15 10h2M8 14h8"/></svg>'],
-            ['時間跳躍', 'time-jump', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'],
-            ['空降足跡', 'airdrop', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.2-6-10a6 6 0 1 1 12 0c0 4.8-6 10-6 10Z"/><circle cx="12" cy="11" r="2.2"/></svg>'],
-            ['過濾關鍵字', 'kw-filter', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="6.5" y1="17.5" x2="17.5" y2="6.5"/></svg>'],
-          ];
-          const usedKeys = new Set([...drawer.querySelectorAll('.ani-row-icon[data-ani-row-key]')].map((n) => n.dataset.aniRowKey));
-          for (const [pat, key, svgHtml] of uniqueRowIcons) {
-            if (usedKeys.has(key)) continue;
-            const re = new RegExp(`^${pat}`);
-            for (const lbl of panelEl.querySelectorAll('.ani-setting-label__mian, .ani-setting-label, .plus_row > span:first-child, div > span:first-child')) {
-              if (lbl.closest('.ani-sec-icon, .ani-info-badge-host, .ani-plus-info-trigger, .ani-danmu-position-btn, .ani-plus-pill-btn') || lbl.querySelector('.ani-row-icon')) continue;
-              if (lbl.children.length > 2) continue;
-              const txt = (lbl.textContent || '').trim();
-              if (re.test(txt)) {
-                usedKeys.add(key);
-                const ic = document.createElement('span');
-                ic.className = 'ani-row-icon';
-                ic.dataset.aniRowKey = key;
-                ic.setAttribute('aria-hidden', 'true');
-                ic.innerHTML = svgHtml;
-                lbl.prepend(ic);
-                break;
-              }
-            }
-          }
-        } else {
-          for (const oldIc of panelEl.querySelectorAll('.ani-row-icon')) oldIc.remove();
-          for (const pr of panelEl.querySelectorAll('div')) {
-            if (pr.closest('.ani-plus-cap-row, .ani-plus-info-trigger')) continue;
-            if (pr.children.length >= 2 && pr.children.length <= 3) {
-              const first = pr.firstElementChild;
-              if (first && first.tagName === 'SPAN' && !first.querySelector('input, button')) {
-                const ctrl = pr.children[1];
-                if (ctrl && (ctrl.matches('input[type="checkbox"], button, div') || pr.querySelector(':scope > input[type="checkbox"]'))) {
-                  pr.classList.add('ani-plus-form-row');
-                  if (/時間跳躍|過濾關鍵字/.test((first.textContent || '').trim())) pr.classList.add('ani-plus-group-top');
-                }
-              }
-            }
-          }
-        }
-        // Group 截圖錄影 加入彈幕 / Logo / 資訊 into 1 heading + 1 horizontal 3-switch row (keeping checkbox inputs & handlers intact)
+        // Group 截圖錄影 加入彈幕 / Logo / 資訊 BEFORE adding row icons/reordering so titles stay clean
         if (panelEl.closest('.ani-drawer-slot-extra')) {
           const findCapRow = (re) => {
             for (const cb of panelEl.querySelectorAll('input[type="checkbox"]')) {
               let cur = cb.parentElement;
               while (cur && cur !== panelEl && cur.querySelectorAll('input[type="checkbox"]').length === 1) {
-                if (re.test((cur.textContent || '').trim()) && !cur.closest('.ani-plus-cap-row')) return cur;
+                const labelTxt = [...cur.querySelectorAll('span, label, p, div')]
+                  .filter((n) => n.childElementCount === 0 || n.querySelector(':scope > .ani-row-icon, :scope > .ani-plus-info-trigger'))
+                  .map((n) => (n.textContent || '').trim())
+                  .join(' ');
+                const rowOwnTxt = (labelTxt || cur.textContent || '').trim();
+                if (!/彈幕格式|軌跡|跳過|無縫|分級/.test(rowOwnTxt) && re.test(rowOwnTxt) && !cur.closest('.ani-plus-cap-row')) return cur;
                 cur = cur.parentElement;
               }
             }
             return null;
           };
-          const capDanmu = findCapRow(/加入彈幕/);
-          const capLogo = findCapRow(/加入Logo/i);
-          const capInfo = findCapRow(/加入資訊/);
+          const capDanmu = findCapRow(/截圖錄影.*加入彈幕|^加入彈幕/);
+          const capLogo = findCapRow(/截圖錄影.*加入Logo|^加入Logo/i);
+          const capInfo = findCapRow(/截圖錄影.*加入資訊|^加入資訊/);
           if (capDanmu && capLogo && capInfo && !panelEl.querySelector('.ani-plus-cap-row')) {
             const heading = document.createElement('div');
             heading.className = 'ani-plus-cap-heading';
@@ -4531,6 +4519,103 @@
             }
             const movedTip = capDanmu.querySelector('.ani-plus-info-trigger, [tip-content], .qa-icon');
             if (movedTip) heading.append(movedTip);
+          }
+        }
+        // Left & Right column row icons in FRONT of every setting title
+        const uniqueRowIcons = [
+          ['弹幕開關|彈幕開關', 'danmu-on', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M7 10h6M7 14h10"/></svg>'],
+          ['自動過濾', 'auto-filter', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18l-7 8.5V19l-4 2v-7.5L3 5Z"/></svg>'],
+          ['彈幕來源顯示', 'source-region', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>'],
+          ['彈幕不透明度', 'opacity', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M12 7l5 5-5 5"/></svg>'],
+          ['彈幕字體大小', 'font-size', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19 9 5l5 14M6 15h6M16 12h5M18.5 12v7"/></svg>'],
+          ['彈幕類型開關', 'danmu-type', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="7" height="7" rx="1.5"/><rect x="14" y="4" width="7" height="7" rx="1.5"/><rect x="3" y="13" width="7" height="7" rx="1.5"/><rect x="14" y="13" width="7" height="7" rx="1.5"/></svg>'],
+          ['自動同意分級警告', 'age-skip', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v6c0 4.5 3 8.2 7 9.5 4-1.3 7-5 7-9.5V6l-7-3Z"/><path d="m9 12 2 2 4-4"/></svg>'],
+          ['無縫連播下一集', 'auto-next', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 5 15 12 5 19 5 5"/><line x1="19" y1="5" x2="19" y2="19"/></svg>'],
+          ['跳過片頭曲', 'skip-op', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><polygon points="4 6 12 12 4 18 4 6"/><polygon points="13 6 21 12 13 18 13 6"/></svg>'],
+          ['彈幕格式修改', 'dm-format', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="16" y2="12"/><line x1="4" y1="17" x2="12" y2="17"/></svg>'],
+          ['彈幕軌跡|彈魂軌跡', 'dm-track', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 12 7 12 10 6 14 18 17 12 21 12"/></svg>'],
+          ['截圖錄影附加項目', 'cap-extra', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3"/></svg>'],
+          ['截圖\\s*按鍵設定|按鍵設定', 'cap-key', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h2M11 10h2M15 10h2M8 14h8"/></svg>'],
+          ['時間跳躍', 'time-jump', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'],
+          ['過濾關鍵字', 'kw-filter', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="6.5" y1="17.5" x2="17.5" y2="6.5"/></svg>'],
+        ];
+        const usedKeys = new Set([...drawer.querySelectorAll('.ani-row-icon[data-ani-row-key]')].map((n) => n.dataset.aniRowKey));
+        for (const [pat, key, svgHtml] of uniqueRowIcons) {
+          if (usedKeys.has(key)) continue;
+          const re = new RegExp(`^${pat}`);
+          for (const lbl of panelEl.querySelectorAll('.ani-setting-label__mian, .ani-setting-label, .ani-plus-cap-heading > span:first-child, .plus_row > span:first-child, div > span:first-child')) {
+            if (lbl.closest('.ani-sec-icon, .ani-info-badge-host, .ani-plus-info-trigger, .ani-danmu-position-btn, .ani-plus-pill-btn, .ani-plus-cap-row, .ani-dup-hidden') || lbl.querySelector('.ani-row-icon')) continue;
+            if (lbl.children.length > 2) continue;
+            const txt = (lbl.textContent || '').trim();
+            if (re.test(txt)) {
+              usedKeys.add(key);
+              const ic = document.createElement('span');
+              ic.className = 'ani-row-icon';
+              ic.dataset.aniRowKey = key;
+              ic.setAttribute('aria-hidden', 'true');
+              ic.innerHTML = svgHtml;
+              lbl.prepend(ic);
+              break;
+            }
+          }
+        }
+        if (panelEl.closest('.ani-drawer-slot-extra')) {
+          for (const pr of panelEl.querySelectorAll('div')) {
+            if (pr.closest('.ani-plus-cap-row, .ani-plus-info-trigger')) continue;
+            if (pr.children.length >= 2 && pr.children.length <= 4) {
+              const first = pr.firstElementChild;
+              if (first && first.tagName === 'SPAN' && !first.querySelector('input, button')) {
+                const ctrl = [...pr.children].slice(1).find((c) => c.matches('input[type="checkbox"], button, div'));
+                if (ctrl || pr.querySelector(':scope > input[type="checkbox"]')) {
+                  pr.classList.add('ani-plus-form-row');
+                  if (/時間跳躍|過濾關鍵字/.test((first.textContent || '').trim())) pr.classList.add('ani-plus-group-top');
+                }
+              }
+            }
+          }
+          // Move (i) info trigger immediately AFTER each row/header title so it sits right behind the label, never floated on the right
+          for (const row of panelEl.querySelectorAll('.ani-plus-form-row, .plus_menu_title, .ani-plus-cap-heading')) {
+            const titleEl = row.matches('.plus_menu_title') ? row : row.firstElementChild;
+            const trig = row.querySelector('.ani-plus-info-trigger, .qa-icon');
+            if (!titleEl || !trig) continue;
+            if (row.matches('.plus_menu_title')) {
+              const textAnchor = [...row.childNodes].find((n) => n.nodeType === 3 && n.nodeValue.trim());
+              if (textAnchor && trig.previousSibling !== textAnchor) {
+                row.insertBefore(trig, textAnchor.nextSibling);
+              }
+            } else if (!titleEl.contains(trig)) {
+              titleEl.append(trig);
+            }
+          }
+          // Left-align #ani-tab-content-2 slider styling matching #danmuToggle control bar
+        } else {
+          for (const range of panelEl.querySelectorAll('input[type="range"]')) {
+            const syncRange = () => {
+              const min = Number(range.min || 0);
+              const max = Number(range.max || 100);
+              const val = Number(range.value || 0);
+              const pct = max > min ? Math.max(0, Math.min(100, ((val - min) / (max - min)) * 100)) : 0;
+              range.style.setProperty('--ani-range-pct', `${pct.toFixed(1)}%`);
+            };
+            if (!range.dataset.aniRangeBound) {
+              range.dataset.aniRangeBound = 'true';
+              range.addEventListener('input', syncRange);
+              range.addEventListener('change', syncRange);
+              new MutationObserver(syncRange).observe(range, { attributes: true, attributeFilter: ['value', 'min', 'max'] });
+            }
+            syncRange();
+            const itemRow = range.closest('.ani-setting-item') || range.closest('li') || range.parentElement;
+            if (itemRow && itemRow !== panelEl) {
+              itemRow.classList.add('ani-drawer-slider-row');
+              const sliderBox = (range.parentElement && range.parentElement !== itemRow) ? range.parentElement : range;
+              if (sliderBox !== itemRow) sliderBox.classList.add('ani-drawer-slider-ctrl');
+              if (/字體大小|文字大小/.test(itemRow.textContent || '') && !itemRow.querySelector('.ani-drawer-size-scale') && sliderBox.parentElement) {
+                const scale = document.createElement('div');
+                scale.className = 'ani-drawer-size-scale';
+                scale.innerHTML = '<span>小</span><span>標準</span><span>大</span>';
+                sliderBox.parentElement.insertBefore(scale, sliderBox);
+              }
+            }
           }
         }
         // Single-leaf status pill (no nested concentric rings!) & hide redundant 空降足跡 block
@@ -4578,7 +4663,8 @@
             if (scope) {
               for (const b of scope.querySelectorAll('button, a, div, span, input[type="button"], input[type="submit"]')) {
                 const bt = ((b.tagName === 'INPUT' ? b.value : b.textContent) || '').trim();
-                if (bt === '新增' && b.tagName !== 'INPUT' && b.childElementCount === 0 && !b.closest('[id*="tj"], [class*="jump" i]')) {
+                if (bt === '新增' && b.tagName !== 'INPUT' && b.childElementCount <= 1 && !b.querySelector('input') && !b.closest('[id*="tj"], [class*="jump" i]')) {
+                  if (b.tagName === 'SPAN' && b.parentElement?.matches('button, a')) continue;
                   b.classList.add('ani-plus-add-icon-btn');
                   b.setAttribute('aria-label', '新增');
                   b.title = '新增';
@@ -4649,7 +4735,9 @@
           if (decoratingGrid) return;
           clearTimeout(gridTimer);
           gridTimer = setTimeout(() => {
-            for (const p of unifiedGridEl.querySelectorAll('.ani-drawer-slot > *')) decorateSettingsPanel(p);
+            for (const p of unifiedGridEl.querySelectorAll('.ani-drawer-slot > *')) {
+              try { decorateSettingsPanel(p); } catch {}
+            }
           }, 40);
         }).observe(unifiedGridEl, { childList: true, subtree: true });
       }
