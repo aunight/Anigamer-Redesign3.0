@@ -3597,6 +3597,11 @@
   if (typeof window !== 'undefined' && !window.__aniSkipIntroTimer) {
     window.__aniSkipIntroTimer = setInterval(() => {
       try {
+        for (const qa of document.querySelectorAll('.qa-icon:not(.ani-info-badge-host)')) {
+          qa.innerHTML = '<svg class="ani-info-i-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4"/><circle cx="12" cy="8.2" r="0.6" fill="currentColor" stroke="none"/></svg>';
+          qa.classList.add('ani-info-badge-host');
+        }
+        if (!document.querySelector('#ani_video')) return;
         const msgEl = document.querySelector('#BH_background #ani-info #ani-info-msg');
         const boxEl = document.querySelector('#BH_background #ani-info');
         if (typeof window.__aniSyncSidebarIntro === 'function') window.__aniSyncSidebarIntro();
@@ -3614,12 +3619,6 @@
         }
       } catch (_) {}
       try {
-        const infoSvgSmall = '<svg class="ani-info-i-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4"/><circle cx="12" cy="8.2" r="0.6" fill="currentColor" stroke="none"/></svg>';
-        for (const qa of document.querySelectorAll('.qa-icon')) {
-          if (!qa.querySelector('.ani-info-i-icon')) {
-            qa.innerHTML = infoSvgSmall;
-          }
-        }
         const badQrBox = (node) => {
           if (!node) return false;
           if (/掃描|QR\s*code|App\s*Store|Google\s*Play|前往動畫瘋APP|立即下載/i.test(node.textContent || '')) return true;
@@ -3671,7 +3670,7 @@
           }
         }
       } catch (_) {}
-    }, 450);
+    }, 700);
   }
     for (const card of document.querySelectorAll('#blockContinueWatch .continue-watch-card, #blockVideoInSeason .anime-card-block, #BH_background .animate-theme-list .theme-list-main')) {
       if (!card.classList.contains('ani-card-surface')) card.classList.add('ani-card-surface');

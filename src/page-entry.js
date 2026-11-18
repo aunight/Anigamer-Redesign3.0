@@ -67,15 +67,18 @@
             const loc=gl.getAttribLocation(prog,'a_position');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
             gl.useProgram(prog);
             const uP=gl.getUniformLocation(prog,'u_progress'),uT=gl.getUniformLocation(prog,'u_time'),uR=gl.getUniformLocation(prog,'u_resolution'),uA=gl.getUniformLocation(prog,'u_aberration');
-            let rafId=0,alive=true;
-            const resize=()=>{const dpr=Math.min(window.devicePixelRatio||1,2);shaderCanvas.width=Math.max(1,Math.floor(window.innerWidth*dpr));shaderCanvas.height=Math.max(1,Math.floor(window.innerHeight*dpr));gl.viewport(0,0,shaderCanvas.width,shaderCanvas.height);gl.uniform2f(uR,shaderCanvas.width,shaderCanvas.height);};
+            let rafId=0,alive=true,lastDraw=0;
+            const resize=()=>{const w=Math.max(180,Math.min(540,Math.round(window.innerWidth*0.35))),h=Math.max(120,Math.min(340,Math.round(window.innerHeight*0.35)));if(shaderCanvas.width!==w||shaderCanvas.height!==h){shaderCanvas.width=w;shaderCanvas.height=h;gl.viewport(0,0,w,h);gl.uniform2f(uR,w,h);}};
             resize();window.addEventListener('resize',resize);
             const draw=now=>{
               if(!alive)return;
-              const sec=(now-started)*0.001;
-              gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
-              gl.uniform1f(uP,sec/2.4);gl.uniform1f(uT,sec);gl.uniform1f(uA,1.0);
-              gl.drawArrays(gl.TRIANGLES,0,6);
+              if(!lastDraw||now-lastDraw>=32){
+                lastDraw=now;
+                const sec=(now-started)*0.001;
+                gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
+                gl.uniform1f(uP,sec/2.2);gl.uniform1f(uT,sec);gl.uniform1f(uA,1.0);
+                gl.drawArrays(gl.TRIANGLES,0,6);
+              }
               rafId=frame(draw);
             };
             rafId=frame(draw);
@@ -85,11 +88,11 @@
       }
     }catch{}
   }
-  const reveal=()=>{if(done)return;done=true;try{sessionStorage.setItem('aniIntroPlayed','1');}catch{}delete root.dataset.aniBooting;curtain.classList.add('ani-intro-reveal');if(reduced||introSeen){stopShader();curtain.remove();}else setTimeout(()=>{stopShader();curtain.remove();},280);};
-  const settled=()=>{if(ready)return;ready=true;if(introSeen){Promise.race([introFontReady,new Promise(r=>setTimeout(r,200))]).then(()=>frame(reveal));return;}Promise.race([introFontReady.then(()=>document.fonts?.ready||Promise.resolve()),new Promise(r=>setTimeout(r,700))]).then(()=>setTimeout(()=>frame(()=>frame(reveal)),Math.max(0,(reduced?400:1100)-(performance.now()-started))));};
+  const reveal=()=>{if(done)return;done=true;try{sessionStorage.setItem('aniIntroPlayed','1');}catch{}delete root.dataset.aniBooting;stopShader();curtain.classList.add('ani-intro-reveal');if(reduced||introSeen)curtain.remove();else setTimeout(()=>curtain.remove(),240);};
+  const settled=()=>{if(ready)return;ready=true;if(introSeen){Promise.race([introFontReady,new Promise(r=>setTimeout(r,120))]).then(()=>frame(reveal));return;}Promise.race([introFontReady.then(()=>document.fonts?.ready||Promise.resolve()),new Promise(r=>setTimeout(r,300))]).then(()=>setTimeout(()=>frame(()=>frame(reveal)),Math.max(0,(reduced?180:420)-(performance.now()-started))));};
   window.addEventListener('ani-ui-ready',settled,{once:true});
   if(root.dataset.aniUiReady)settled();
-  setTimeout(reveal,introSeen?700:3000);
+  setTimeout(reveal,introSeen?500:1500);
   const settings=saved=>{
     enabled=saved.themeEnabled!==false;if(!enabled){stopShader();reveal();curtain.remove();return;}
     const families={sans:'Noto Sans TC',serif:'Noto Serif TC',wenkai:'LXGW WenKai TC',chironHei:'Chiron Hei HK',chironSung:'Chiron Sung HK',iansui:'Iansui'};

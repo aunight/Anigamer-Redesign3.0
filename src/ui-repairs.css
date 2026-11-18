@@ -3831,7 +3831,7 @@ body.ani-ambientlight-ui #BH_background .plus_imagetool_box .plus_button_box:has
   pointer-events: auto !important;
 }
 body.ani-ambientlight-ui #BH_background .plus_imagetool_box :is(.plus_button:not([button-type="text"]):hover, input:checked + label) {
-  background: rgba(61, 175, 182, 0.24) !important;
+  background: transparent !important;
   color: #ffffff !important;
 }
 
@@ -6028,7 +6028,7 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-pl
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep-drawer-backdrop {
   position: absolute !important;
   inset: 0 !important;
-  background: rgba(4, 8, 14, 0.42) !important;
+  background: transparent !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep-drawer-panel {
   position: absolute !important;
@@ -6408,26 +6408,32 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .old_list:has(.sea
   }
 }
 
-/* Unified frosted toolbar pills below player (all pills use primary teal accent consistently on hover/active) */
+/* Unified frosted toolbar pills below player (consistent deep primary teal active/hover over any video frame) */
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .plus_imagetool_box :is(.ani-tools-toggle-btn, .shortcut-button, .plus_button_box, .ani-player-settings-toggle) {
-  background: rgba(20, 30, 44, 0.74) !important;
+  background: rgba(20, 30, 44, 0.78) !important;
   border: 1px solid rgba(255, 255, 255, 0.2) !important;
   border-radius: 999px !important;
   color: #ffffff !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .plus_imagetool_box :is(.ani-tools-toggle-btn, .shortcut-button, .ani-player-settings-toggle):is(:hover, :focus-visible, .is-open, [aria-expanded='true']),
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .plus_imagetool_box .plus_button_box:is(:hover, :has(input:checked)) {
-  background: rgba(61, 175, 182, 0.24) !important;
-  border-color: rgba(76, 211, 220, 0.72) !important;
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .plus_imagetool_box .plus_button_box:is(:hover, :has(input:checked), .active),
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .plus_imagetool_box .plus_button_box:has(.active) {
+  background: rgba(19, 64, 72, 0.86) !important;
+  border-color: rgba(76, 211, 220, 0.78) !important;
+  box-shadow: inset 0 1px 0 rgba(164, 244, 248, 0.22), 0 4px 14px rgba(61, 175, 182, 0.22) !important;
   color: #ffffff !important;
 }
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .plus_imagetool_box :is(.ani-tools-toggle-btn, .shortcut-button, .plus_button_box, .ani-player-settings-toggle) :is(svg, span) {
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .plus_imagetool_box :is(.ani-tools-toggle-btn, .shortcut-button, .plus_button_box, .ani-player-settings-toggle) :is(svg, span, label) {
   color: #ffffff !important;
 }
 
-/* User profile dropdown (.user-setting-toolbox): clean outline shield with hover tooltip, single pill switch, teal region capsule, rose logout */
-body.ani-ambientlight-ui .user-setting-toolbox a.btn-account-manage {
-  position: relative !important;
+/* User profile dropdown (.user-setting-toolbox): keep security shield at original top-right, align row icons cleanly on LEFT, flush-right switches */
+html body.ani-ambientlight-ui .user-setting-toolbox a.btn-account-manage {
+  position: absolute !important;
+  top: 18px !important;
+  right: 16px !important;
+  left: auto !important;
+  bottom: auto !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -6439,16 +6445,16 @@ body.ani-ambientlight-ui .user-setting-toolbox a.btn-account-manage {
   border: 1px solid rgba(255, 255, 255, 0.14) !important;
   transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease !important;
 }
-body.ani-ambientlight-ui .user-setting-toolbox a.btn-account-manage:hover {
+html body.ani-ambientlight-ui .user-setting-toolbox a.btn-account-manage:hover {
   background: rgba(61, 175, 182, 0.22) !important;
   border-color: rgba(76, 211, 220, 0.72) !important;
   color: #5ee2ea !important;
 }
-body.ani-ambientlight-ui .user-setting-toolbox a.btn-account-manage svg.ani-sec-shield-svg {
+html body.ani-ambientlight-ui .user-setting-toolbox a.btn-account-manage svg.ani-sec-shield-svg {
   width: 17px !important;
   height: 17px !important;
 }
-body.ani-ambientlight-ui .user-setting-toolbox a.btn-account-manage[data-ani-sec-tip]:hover::after {
+html body.ani-ambientlight-ui .user-setting-toolbox a.btn-account-manage[data-ani-sec-tip]:hover::after {
   content: attr(data-ani-sec-tip) !important;
   position: absolute !important;
   top: calc(100% + 6px) !important;
@@ -6463,38 +6469,86 @@ body.ani-ambientlight-ui .user-setting-toolbox a.btn-account-manage[data-ani-sec
   z-index: 20 !important;
   pointer-events: none !important;
 }
-body.ani-ambientlight-ui .user-setting-toolbox .ani-tb-row-icon {
+html body.ani-ambientlight-ui .user-setting-toolbox {
+  min-width: 286px !important;
+  width: 286px !important;
+}
+html body.ani-ambientlight-ui .user-setting-toolbox .setting-section :is(.ani-setting-item, .setting-item, .dark-mode-setting, .parent-mode-setting, .qa-mode-setting, .push-mode-setting, [class*='setting']) {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  width: 100% !important;
+}
+html body.ani-ambientlight-ui .user-setting-toolbox .item-title {
+  position: static !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 6px !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  width: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  white-space: nowrap !important;
+}
+html body.ani-ambientlight-ui .user-setting-toolbox .item-title .ani-tb-row-icon {
+  position: static !important;
+  inset: auto !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  float: none !important;
+  transform: none !important;
+  order: -2 !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
   width: 15px !important;
   height: 15px !important;
-  margin-right: 7px !important;
-  color: rgba(214, 228, 242, 0.82) !important;
-  vertical-align: -2px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color: rgba(214, 228, 242, 0.86) !important;
   flex: none !important;
 }
-body.ani-ambientlight-ui .user-setting-toolbox .ani-tb-row-icon svg {
+html body.ani-ambientlight-ui .user-setting-toolbox .item-title .ani-tb-row-icon svg {
   width: 15px !important;
   height: 15px !important;
 }
-body.ani-ambientlight-ui .user-setting-toolbox ul.switch-toggle.ani-toolbox-pill-switch {
+html body.ani-ambientlight-ui .user-setting-toolbox .item-title .qa-icon {
+  position: static !important;
+  inset: auto !important;
+  float: none !important;
+  order: 2 !important;
+  margin: 0 0 0 2px !important;
+  flex: none !important;
+}
+html body.ani-ambientlight-ui .user-setting-toolbox ul.switch-toggle.ani-toolbox-pill-switch {
   position: relative !important;
   width: 38px !important;
   min-width: 38px !important;
   height: 20px !important;
   padding: 0 !important;
-  margin: 0 !important;
+  margin: 0 0 0 auto !important;
+  flex: none !important;
   border-radius: 999px !important;
   background: rgba(255, 255, 255, 0.16) !important;
   border: 1px solid rgba(255, 255, 255, 0.24) !important;
   cursor: pointer !important;
   transition: background-color 0.18s ease, border-color 0.18s ease !important;
 }
-body.ani-ambientlight-ui .user-setting-toolbox ul.switch-toggle.ani-toolbox-pill-switch :is(li, .move-bg) {
+html body.ani-ambientlight-ui .user-setting-toolbox ul.switch-toggle.ani-toolbox-pill-switch :is(li, .move-bg) {
   display: none !important;
 }
-body.ani-ambientlight-ui .user-setting-toolbox ul.switch-toggle.ani-toolbox-pill-switch::after {
+html body.ani-ambientlight-ui .user-setting-toolbox ul.switch-toggle.ani-toolbox-pill-switch::after {
   content: '' !important;
   position: absolute !important;
   top: 2px !important;
@@ -6506,15 +6560,17 @@ body.ani-ambientlight-ui .user-setting-toolbox ul.switch-toggle.ani-toolbox-pill
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35) !important;
   transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.18s ease !important;
 }
-body.ani-ambientlight-ui .user-setting-toolbox ul.switch-toggle.ani-toolbox-pill-switch.is-on {
+html body.ani-ambientlight-ui .user-setting-toolbox ul.switch-toggle.ani-toolbox-pill-switch.is-on {
   background: var(--ani-accent, #3dafb6) !important;
   border-color: rgba(130, 232, 238, 0.72) !important;
 }
-body.ani-ambientlight-ui .user-setting-toolbox ul.switch-toggle.ani-toolbox-pill-switch.is-on::after {
+html body.ani-ambientlight-ui .user-setting-toolbox ul.switch-toggle.ani-toolbox-pill-switch.is-on::after {
   transform: translateX(18px) !important;
   background: #ffffff !important;
 }
-body.ani-ambientlight-ui .user-setting-toolbox ul.switch-toggle:not(.ani-toolbox-pill-switch) {
+html body.ani-ambientlight-ui .user-setting-toolbox ul.switch-toggle:not(.ani-toolbox-pill-switch) {
+  margin: 0 0 0 auto !important;
+  flex: none !important;
   border-radius: 999px !important;
   background: rgba(255, 255, 255, 0.08) !important;
   border: 1px solid rgba(255, 255, 255, 0.14) !important;
@@ -6616,6 +6672,15 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .su
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle .ani-my-write-review-btn:hover {
   background: rgba(61, 175, 182, 0.32) !important;
   color: #ffffff !important;
+}
+
+/* Hide native white progress-dot / slider-handle completely so the solid bowtie TV thumb renders cleanly */
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .vjs-play-progress::after,
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .vjs-progress-control .vjs-slider-handle,
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .vjs-progress-holder::after {
+  content: none !important;
+  display: none !important;
+  opacity: 0 !important;
 }
 
 /* Progress bar AniGamer TV mascot: solid opaque interior, vertically centered on bar track, shown cleanly on hover */
