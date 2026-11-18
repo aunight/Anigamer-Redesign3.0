@@ -4594,16 +4594,23 @@
           }
         }
         // Replace ? / ! help triggers ONLY (never overwrite tooltip popup text!) using non-destructive sibling insertion
+        const isActualTooltipPopup = (node) => {
+          const tipBox = node?.closest?.('[role="tooltip"], .tooltip, [class*="tooltip-content" i], [class*="tooltip-body" i], [class*="popper" i], [class*="popover" i]');
+          if (!tipBox) return false;
+          if (tipBox.matches('[role="tooltip"]')) return true;
+          const txtLen = (tipBox.textContent || '').replace(/\s+/g, ' ').trim().length;
+          return txtLen > 6;
+        };
         const markHiddenQuestionGlyphs = (scope) => {
-          for (const g of scope.querySelectorAll('svg:not(.ani-info-i-icon):not(.ani-row-icon svg):not(.ani-plus-gear-svg):not(.ani-plus-refresh-svg):not(.ani-plus-add-svg):not(.ani-plus-action-svg), i, img')) {
-            if (!g.closest('.ani-row-icon, .tooltip, [role="tooltip"], [class*="tooltip" i], [class*="popper" i], [class*="popover" i]')) {
-              if (g.closest('.ani-plus-info-trigger, .qa-icon') || /question|help|alert|info|<circle\b/i.test(`${g.innerHTML || ''} ${g.className?.baseVal || g.className || ''}`)) {
-                g.classList.add('ani-hidden-glyph');
-              }
+          const inTriggerScope = Boolean(scope?.matches?.('.ani-plus-info-trigger, .qa-icon'));
+          for (const g of scope.querySelectorAll('svg:not(.ani-info-i-icon):not(.ani-row-icon svg):not(.ani-plus-gear-svg):not(.ani-plus-tune-svg):not(.ani-plus-refresh-svg):not(.ani-plus-add-svg):not(.ani-plus-action-svg), i, img')) {
+            if (g.closest('.ani-row-icon') || isActualTooltipPopup(g)) continue;
+            if (inTriggerScope || g.closest('.ani-plus-info-trigger, .qa-icon') || /question|help|alert|info|exclamation|<circle\b/i.test(`${g.innerHTML || ''} ${g.className?.baseVal || g.className || ''}`)) {
+              g.classList.add('ani-hidden-glyph');
             }
           }
           for (const leaf of scope.querySelectorAll('span, div, b, small')) {
-            if (leaf.closest('.tooltip, [role="tooltip"], [class*="tooltip" i], [class*="popper" i], [class*="popover" i], .ani-info-badge-host, .ani-row-icon')) continue;
+            if (leaf.closest('.ani-info-badge-host, .ani-row-icon') || isActualTooltipPopup(leaf)) continue;
             if (leaf.childElementCount === 0 && /^(?:[?!？！!]+|help(?:_outline)?|info(?:_outline)?|error(?:_outline)?|warning|question_mark|contact_support|live_help)$/i.test((leaf.textContent || '').trim())) {
               leaf.classList.add('ani-hidden-glyph');
             }
@@ -4762,23 +4769,45 @@
         if (panelEl.closest('.ani-drawer-slot-extra')) {
           const plusRowTitleRe = /^(?:自動同意分級警告|無縫連播下一集|跳過片頭曲|彈幕格式修改|彈幕軌跡|彈魂軌跡|截圖\s*按鍵設定|時間跳躍|過濾關鍵字)/;
           for (const cand of panelEl.querySelectorAll('span, label, div, p')) {
-            if (cand.closest('.ani-plus-cap-row, .ani-plus-info-trigger, .ani-plus-pill-btn, .ani-plus-kw-chip, .ani-plus-status-pill, button')) continue;
+            if (cand.closest('.ani-plus-cap-row, .ani-plus-info-trigger, .ani-plus-pill-btn, .ani-plus-kw-chip, .ani-plus-status-pill, .ani-plus-format-subinline, .ani-plus-jump-editor-row, button')) continue;
             if (cand.matches('div') && cand.querySelector('span, label, p, input, button')) continue;
             if (cand.children.length > 3) continue;
             const rawT = (cand.textContent || '').replace(/\s+/g, ' ').trim();
             if (!plusRowTitleRe.test(rawT) || rawT.length > 26) continue;
-            // Walk up to direct row container that holds controls or triggers (stop inside drawer slot root)
+            // Walk up to the actual full row container holding both title and right control (without crossing into another row)
             let pr = cand.parentElement;
-            if (!pr || pr.closest('.ani-plus-cap-row, .plus_menu_title')) continue;
-            if (pr.children.length === 1 && pr.parentElement && pr.parentElement.closest('.ani-drawer-slot-extra')) {
+            if (!pr || pr.closest('.ani-plus-cap-row, .plus_menu_title, .ani-plus-format-subinline')) continue;
+            while (
+              pr.parentElement &&
+              !pr.parentElement.matches('.plus_menu_root, .ani-drawer-slot-extra, .ani-plus-format-moved, .ani-drawer-slot') &&
+              pr.parentElement.children.length <= 5 &&
+              (!pr.querySelector('input, button, select, [role="button"], .ani-plus-gear-btn') || pr.children.length === 1)
+            ) {
+              const upTitleHits = [...pr.parentElement.querySelectorAll('span, label, div, p')].filter((n) => {
+                if (n === cand || n.contains(cand) || cand.contains(n) || n.children.length > 3) return false;
+                const nt = (n.textContent || '').replace(/\s+/g, ' ').trim();
+                return nt.length <= 26 && plusRowTitleRe.test(nt);
+              });
+              if (upTitleHits.length > 0) break;
               pr = pr.parentElement;
             }
-            if (pr.matches('.plus_menu_root, .ani-drawer-slot-extra')) continue;
+            if (pr.matches('.plus_menu_root, .ani-drawer-slot-extra, .ani-plus-format-moved, .ani-drawer-slot')) continue;
             pr.classList.add('ani-plus-form-row');
-            const titleEl = (cand.parentElement === pr) ? cand : [...pr.children].find((c) => c.contains(cand));
+            let titleEl = (cand.parentElement === pr) ? cand : [...pr.children].find((c) => c.contains(cand));
             if (titleEl && !titleEl.matches('input, button')) {
-              titleEl.classList.add('ani-plus-row-title');
-              if (pr.firstElementChild !== titleEl) pr.prepend(titleEl);
+              // If titleEl wraps [cand, trig] together cleanly inside pr, prefer cand itself as titleEl when cand is element
+              if (titleEl !== cand && cand.matches('span, label, p, div') && titleEl.querySelector('.ani-plus-info-trigger, .qa-icon, [tip-content]')) {
+                const movedTrig = titleEl.querySelector('.ani-plus-info-trigger, .qa-icon');
+                titleEl.classList.remove('ani-plus-row-title');
+                cand.classList.add('ani-plus-row-title');
+                pr.prepend(cand);
+                if (movedTrig) cand.after(movedTrig);
+                if (titleEl.childElementCount === 0 && !(titleEl.textContent || '').trim()) titleEl.remove();
+                titleEl = cand;
+              } else {
+                titleEl.classList.add('ani-plus-row-title');
+                if (pr.firstElementChild !== titleEl) pr.prepend(titleEl);
+              }
               const trig = pr.querySelector(':scope > .ani-plus-info-trigger, :scope > .qa-icon, .ani-plus-info-trigger, .qa-icon');
               if (trig && !titleEl.contains(trig) && trig.previousElementSibling !== titleEl) {
                 titleEl.after(trig);
@@ -4788,12 +4817,12 @@
           }
           // Fallback for any compact row not matched by known Plus labels (skip [label + x-delete] keyword chips)
           for (const pr of panelEl.querySelectorAll('div')) {
-            if (pr.closest('.ani-plus-cap-row, .ani-plus-info-trigger, .ani-plus-form-row, .ani-plus-kw-list, .ani-plus-kw-chip') || pr.classList.contains('ani-plus-form-row')) continue;
+            if (pr.closest('.ani-plus-cap-row, .ani-plus-info-trigger, .ani-plus-form-row, .ani-plus-kw-list, .ani-plus-kw-chip, .ani-plus-format-subinline, .ani-plus-jump-editor-row') || pr.classList.contains('ani-plus-form-row')) continue;
             if (pr.children.length >= 2 && pr.children.length <= 5) {
               const first = pr.firstElementChild;
               if (first && first.tagName === 'SPAN' && !first.querySelector('input, button')) {
                 const ctrl = [...pr.children].slice(1).find((c) => c.matches('input[type="checkbox"], button, div'));
-                const isKwChipLike = ctrl && ctrl.tagName === 'BUTTON' && !pr.querySelector('input') && (/^(?:[×✕✖x])?$/i.test((ctrl.textContent || '').trim()) || /M18 6|M19 6\.41|close|del/i.test(ctrl.innerHTML || ''));
+                const isKwChipLike = ctrl && (ctrl.tagName === 'BUTTON' || ctrl.tagName === 'SVG' || ctrl.tagName === 'svg') && !pr.querySelector('input') && (/^(?:[×✕✖x])?$/i.test((ctrl.textContent || '').trim()) || /M18 6|M19 6\.41|close|del/i.test(ctrl.innerHTML || ''));
                 if ((ctrl || pr.querySelector(':scope > input[type="checkbox"]')) && !isKwChipLike) {
                   pr.classList.add('ani-plus-form-row');
                   first.classList.add('ani-plus-row-title');
@@ -4802,18 +4831,30 @@
               }
             }
           }
-          // Keep (i) info trigger immediately after each row/header title
+          // Keep (i) info trigger immediately after each row/header title & hide any remaining ?/! glyphs beside (i)
           for (const row of panelEl.querySelectorAll('.ani-plus-form-row, .plus_menu_title, .ani-plus-cap-heading')) {
             const titleEl = row.matches('.plus_menu_title') ? row : (row.querySelector(':scope > .ani-plus-row-title') || row.firstElementChild);
             const trig = row.querySelector('.ani-plus-info-trigger, .qa-icon');
-            if (!titleEl || !trig) continue;
-            if (row.matches('.plus_menu_title')) {
-              const textAnchor = [...row.childNodes].find((n) => n.nodeType === 3 && n.nodeValue.trim());
-              if (textAnchor && trig.previousSibling !== textAnchor) {
-                row.insertBefore(trig, textAnchor.nextSibling);
+            if (titleEl && trig) {
+              if (row.matches('.plus_menu_title')) {
+                const textAnchor = [...row.childNodes].find((n) => n.nodeType === 3 && n.nodeValue.trim());
+                if (textAnchor && trig.previousSibling !== textAnchor) {
+                  row.insertBefore(trig, textAnchor.nextSibling);
+                }
+              } else if (!titleEl.contains(trig) && trig.previousElementSibling !== titleEl) {
+                titleEl.after(trig);
               }
-            } else if (!titleEl.contains(trig) && trig.previousElementSibling !== titleEl) {
-              titleEl.after(trig);
+            }
+            if (row.querySelector('.ani-info-i-icon')) {
+              markHiddenQuestionGlyphs(row);
+              for (const remSvg of row.querySelectorAll('svg:not(.ani-info-i-icon):not(.ani-row-icon svg):not(.ani-plus-gear-svg):not(.ani-plus-tune-svg):not(.ani-plus-refresh-svg):not(.ani-plus-add-svg):not(.ani-plus-action-svg)')) {
+                if (remSvg.closest('.ani-row-icon, .ani-plus-gear-btn, .ani-plus-icon-action, .ani-plus-add-icon-btn, button, a') || isActualTooltipPopup(remSvg)) continue;
+                const sr = remSvg.getBoundingClientRect();
+                if (sr.width > 24 || sr.height > 24) continue;
+                if (remSvg.closest('.ani-plus-info-trigger, .qa-icon, [tip-content], [title]') || /question|help|alert|exclamation|info|<circle\b/i.test(`${remSvg.innerHTML || ''} ${remSvg.className?.baseVal || ''}`)) {
+                  remSvg.classList.add('ani-hidden-glyph');
+                }
+              }
             }
           }
         }
@@ -4838,9 +4879,10 @@
         for (const [pat, key, svgHtml] of uniqueRowIcons) {
           const re = new RegExp(`^${pat}`);
           for (const lbl of panelEl.querySelectorAll('.ani-setting-label__mian, .ani-setting-label, .ani-plus-cap-heading > span:first-child, .ani-plus-row-title, .plus_row > span, div > span, div > label')) {
-            if (lbl.closest('.ani-sec-icon, .ani-info-badge-host, .ani-plus-info-trigger, .ani-danmu-position-btn, .ani-plus-pill-btn, .ani-plus-cap-row, .ani-dup-hidden, .ani-setting-section > h4, .ani-setting-section > .title, .plus_menu_title, button, input, select')) continue;
+            if (lbl.closest('.ani-sec-icon, .ani-info-badge-host, .ani-plus-info-trigger, .ani-danmu-position-btn, .ani-plus-pill-btn, .ani-plus-cap-row, .ani-plus-format-subinline, .ani-plus-jump-editor-row, .ani-dup-hidden, .ani-setting-section > h4, .ani-setting-section > .title, .plus_menu_title, button, input, select')) continue;
             if (lbl.querySelector('.ani-row-icon')) continue;
             const ownerRow = lbl.closest('.ani-plus-form-row, .ani-setting-item, .ani-plus-cap-heading, .plus_row');
+            if (ownerRow?.matches('.ani-plus-form-row') && ownerRow.querySelector(':scope > .ani-plus-row-title') && !lbl.classList.contains('ani-plus-row-title')) continue;
             if (ownerRow?.querySelector(`.ani-row-icon[data-ani-row-key="${key}"]`)) continue;
             if (!lbl.classList.contains('ani-plus-row-title') && lbl.children.length > 3) continue;
             const txt = (lbl.textContent || '').replace(/\s+/g, ' ').trim();
@@ -4854,11 +4896,26 @@
             }
           }
         }
-        // Hide redundant decorative right-side icons in 動畫瘋·Plus rows once front .ani-row-icon is present
+        // Strict invariant on 動畫瘋·Plus rows: ONE .ani-row-icon strictly inside :scope > .ani-plus-row-title (far left), hide stray decorative SVGs
         if (panelEl.closest('.ani-drawer-slot-extra')) {
           for (const fRow of panelEl.querySelectorAll('.ani-plus-form-row')) {
+            const titleEl = fRow.querySelector(':scope > .ani-plus-row-title') || fRow.querySelector('.ani-plus-row-title');
+            if (titleEl) {
+              const firstIc = fRow.querySelector('.ani-row-icon');
+              if (firstIc) {
+                for (const extraIc of fRow.querySelectorAll('.ani-row-icon')) {
+                  if (extraIc !== firstIc) extraIc.remove();
+                }
+                if (firstIc.parentElement !== titleEl || titleEl.firstElementChild !== firstIc) {
+                  titleEl.prepend(firstIc);
+                }
+              }
+              if (titleEl.parentElement === fRow && fRow.firstElementChild !== titleEl) {
+                fRow.prepend(titleEl);
+              }
+            }
             if (!fRow.querySelector('.ani-row-icon')) continue;
-            for (const gSvg of fRow.querySelectorAll('svg:not(.ani-row-icon svg):not(.ani-info-i-icon):not(.ani-plus-gear-svg):not(.ani-plus-refresh-svg):not(.ani-plus-add-svg):not(.ani-plus-action-svg)')) {
+            for (const gSvg of fRow.querySelectorAll('svg:not(.ani-row-icon svg):not(.ani-info-i-icon):not(.ani-plus-gear-svg):not(.ani-plus-tune-svg):not(.ani-plus-refresh-svg):not(.ani-plus-add-svg):not(.ani-plus-action-svg)')) {
               if (gSvg.closest('button, a, .ani-plus-gear-btn, .ani-plus-icon-action, .ani-plus-add-icon-btn, .ani-info-badge-host, .tooltip, [role="tooltip"]')) continue;
               gSvg.classList.add('ani-hidden-glyph');
             }
@@ -4881,21 +4938,104 @@
             el.classList.add('ani-dup-hidden');
           }
         }
-        // Clean horizontal sliders icon (replaces ugly jagged cog teeth on 時間跳躍) & move 彈幕格式修改 directly into 彈幕設定
-        const gearSvgMarkup = '<svg class="ani-plus-gear-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="21" y1="6" x2="14" y2="6"/><line x1="10" y1="6" x2="3" y2="6"/><line x1="21" y1="12" x2="12" y2="12"/><line x1="8" y1="12" x2="3" y2="12"/><line x1="21" y1="18" x2="16" y2="18"/><line x1="12" y1="18" x2="3" y2="18"/><circle cx="12" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="14" cy="18" r="2"/></svg>';
+        // Clean horizontal sliders icon (replaces jagged cog teeth on 時間跳躍 — including non-<button> SVGs!) & auto-open/move 彈幕格式修改 directly into 彈幕設定
+        const tuneInnerSvg = '<line x1="21" y1="6" x2="14" y2="6"/><line x1="10" y1="6" x2="3" y2="6"/><line x1="21" y1="12" x2="12" y2="12"/><line x1="8" y1="12" x2="3" y2="12"/><line x1="21" y1="18" x2="16" y2="18"/><line x1="12" y1="18" x2="3" y2="18"/><circle cx="12" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="14" cy="18" r="2"/>';
+        const gearSvgMarkup = `<svg class="ani-plus-gear-svg ani-plus-tune-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${tuneInnerSvg}</svg>`;
+        const normalizeFormatSub = (formatSub) => {
+          if (!formatSub) return;
+          formatSub.classList.add('ani-plus-format-subinline');
+          formatSub.hidden = false;
+          formatSub.style.removeProperty('display');
+          for (const d of [formatSub, ...formatSub.querySelectorAll('div')]) {
+            if (d.querySelectorAll('select, input[type="range"]').length >= 2) {
+              d.classList.add('ani-plus-format-stack');
+            }
+          }
+          for (const opt of formatSub.querySelectorAll('div, fieldset, label')) {
+            if (opt.closest('.ani-plus-format-opt-row')) continue;
+            if (opt.children.length === 1 && opt.firstElementChild.tagName === 'DIV') continue;
+            const ctrls = opt.querySelectorAll('select, input[type="range"]');
+            if (ctrls.length !== 1) continue;
+            if (/字體修改|陰影深度|外框距離/.test(opt.textContent || '') && !opt.querySelector('.ani-plus-format-opt-row')) {
+              opt.classList.add('ani-plus-format-opt-row');
+              const ctrl = ctrls[0];
+              if (ctrl.type === 'range' && opt.children.length >= 3 && !opt.querySelector('.ani-plus-format-ctrl')) {
+                const ctrlKids = [...opt.children].filter((c) => c === ctrl || c.contains(ctrl) || (/^\d+(?:\.\d+)?%?$/.test((c.textContent || '').trim()) && c.childElementCount === 0));
+                if (ctrlKids.length >= 2) {
+                  const wrap = document.createElement('span');
+                  wrap.className = 'ani-plus-format-ctrl';
+                  ctrlKids[0].before(wrap);
+                  for (const ck of ctrlKids) wrap.append(ck);
+                }
+              }
+            }
+          }
+          for (const fmtRange of formatSub.querySelectorAll('input[type="range"]')) {
+            const syncFmtRange = () => {
+              const min = Number(fmtRange.min || 0);
+              const max = Number(fmtRange.max || 100);
+              const val = Number(fmtRange.value || 0);
+              const pct = max > min ? Math.max(0, Math.min(100, ((val - min) / (max - min)) * 100)) : 0;
+              fmtRange.style.setProperty('--ani-range-pct', `${pct.toFixed(1)}%`);
+            };
+            if (!fmtRange.dataset.aniRangeBound) {
+              fmtRange.dataset.aniRangeBound = 'true';
+              fmtRange.addEventListener('input', syncFmtRange);
+              fmtRange.addEventListener('change', syncFmtRange);
+              new MutationObserver(syncFmtRange).observe(fmtRange, { attributes: true, attributeFilter: ['value', 'min', 'max'] });
+            }
+            syncFmtRange();
+          }
+        };
         if (panelEl.closest('.ani-drawer-slot-extra')) {
-          for (const gBtn of panelEl.querySelectorAll('button, a, [role="button"]')) {
-            if (gBtn.closest('.ani-plus-refresh-btn, .ani-plus-add-icon-btn, .ani-plus-icon-action')) continue;
-            const bt = (gBtn.textContent || '').trim();
-            const isGearBtn = gBtn.classList.contains('ani-plus-gear-btn')
-              || /^[⚙⚙️🔧]$/.test(bt)
-              || (/settings|cog|gear|tune/i.test(bt) && gBtn.childElementCount <= 1)
-              || (!bt && /M19\.14|15\.18|19\.4|12 15\.5|gear|cog/i.test(gBtn.innerHTML || ''));
+          for (const cand of panelEl.querySelectorAll('button, a, [role="button"], div, span, svg')) {
+            if (cand.closest('.ani-plus-refresh-btn, .ani-plus-add-icon-btn, .ani-plus-icon-action, .ani-row-icon, .ani-info-badge-host, .ani-plus-info-trigger, .ani-hidden-glyph, .ani-plus-kw-chip, .ani-plus-kw-del, .ani-plus-format-subinline, .ani-plus-jump-editor-row')) continue;
+            if ((cand.matches('div, span') && (cand.childElementCount > 2 || cand.querySelector('input, select')))) continue;
+            const bt = (cand.textContent || '').trim();
+            const isSvg = cand.tagName.toLowerCase() === 'svg';
+            const meta = `${bt} ${cand.className?.baseVal || cand.className || ''} ${cand.getAttribute('aria-label') || ''} ${isSvg ? cand.innerHTML : (cand.querySelector('svg')?.innerHTML || '')}`;
+            const rowCtx = (cand.closest('.ani-plus-form-row')?.textContent || '');
+            const inGearRow = /時間跳躍|彈幕格式修改/.test(rowCtx) && (isSvg || Boolean(cand.querySelector('svg')));
+            if (isSvg && cand.closest('.ani-plus-gear-btn')) continue;
+            if (!isSvg && cand.closest('.ani-plus-gear-btn')) continue;
+            const isGearBtn = cand.classList.contains('ani-plus-gear-btn')
+              || (/^[⚙⚙️🔧]$/.test(bt) && cand.childElementCount === 0)
+              || (/settings|cog|gear|tune/i.test(bt) && cand.childElementCount <= 1)
+              || (/M19\.14|15\.18|19\.4|10\.3|12 15|17\.657|8\.93|14\.7|M12 1a3|gear|cog/i.test(meta) && (isSvg || cand.querySelector('svg')))
+              || (inGearRow && !cand.matches('.ani-plus-row-title') && !cand.querySelector('input'));
             if (!isGearBtn) continue;
-            gBtn.classList.add('ani-plus-gear-btn');
-            gBtn.setAttribute('aria-label', gBtn.getAttribute('aria-label') || '設定');
-            if (!gBtn.querySelector('.ani-plus-tune-svg')) {
-              gBtn.innerHTML = gearSvgMarkup.replace('ani-plus-gear-svg', 'ani-plus-gear-svg ani-plus-tune-svg');
+            let host = cand.closest('button, a, [role="button"]') || cand;
+            if (isSvg && cand.parentElement && cand.parentElement.children.length <= 2 && !(cand.parentElement.textContent || '').trim() && !cand.parentElement.matches('.ani-plus-form-row, .ani-plus-row-trailing')) {
+              host = cand.parentElement;
+            }
+            host.classList.add('ani-plus-gear-btn');
+            host.setAttribute('aria-label', host.getAttribute('aria-label') || '設定');
+            if (!host.querySelector('.ani-plus-tune-svg') && !host.classList.contains('ani-plus-tune-svg')) {
+              if (host.tagName.toLowerCase() === 'svg') {
+                host.setAttribute('viewBox', '0 0 24 24');
+                host.setAttribute('fill', 'none');
+                host.setAttribute('stroke', 'currentColor');
+                host.setAttribute('stroke-width', '1.8');
+                host.setAttribute('stroke-linecap', 'round');
+                host.setAttribute('stroke-linejoin', 'round');
+                host.classList.add('ani-plus-gear-svg', 'ani-plus-tune-svg');
+                host.innerHTML = tuneInnerSvg;
+              } else {
+                const innerSvg = host.querySelector('svg');
+                if (innerSvg) {
+                  innerSvg.setAttribute('viewBox', '0 0 24 24');
+                  innerSvg.setAttribute('fill', 'none');
+                  innerSvg.setAttribute('stroke', 'currentColor');
+                  innerSvg.setAttribute('stroke-width', '1.8');
+                  innerSvg.setAttribute('stroke-linecap', 'round');
+                  innerSvg.setAttribute('stroke-linejoin', 'round');
+                  innerSvg.classList.remove('ani-hidden-glyph');
+                  innerSvg.classList.add('ani-plus-gear-svg', 'ani-plus-tune-svg');
+                  innerSvg.innerHTML = tuneInnerSvg;
+                } else {
+                  host.innerHTML = gearSvgMarkup;
+                }
+              }
             }
           }
           for (const fRow of panelEl.querySelectorAll('.ani-plus-form-row')) {
@@ -4907,44 +5047,69 @@
               cb.before(trail);
               trail.append(gBtn, cb);
             }
+            let markedFirstTail = false;
             for (const c of fRow.children) {
               if (!c.matches('.ani-plus-row-title, .ani-plus-info-trigger, .qa-icon, .ani-plus-status-pill, .ani-hidden-glyph')) {
-                c.classList.add('ani-plus-row-tail-item');
-                break;
+                if (!markedFirstTail) {
+                  c.classList.add('ani-plus-row-tail-item');
+                  c.classList.remove('ani-plus-row-tail-extra');
+                  markedFirstTail = true;
+                } else {
+                  c.classList.add('ani-plus-row-tail-extra');
+                }
               }
             }
           }
-          // Move 彈幕格式修改 (+ Font / Shadow / Border inline controls) directly into left 彈幕設定 card with gear button removed
+          // Auto-open & move 彈幕格式修改 (+ stacked Font / Shadow / Border inline controls) directly into left 彈幕設定 card with gear removed
           const fmtRoot = unifiedGridEl || panelEl;
           const formatRow = [...fmtRoot.querySelectorAll('.ani-plus-form-row')].find((r) => /彈幕格式修改/.test(r.textContent || ''));
           if (formatRow) {
-            const fmtGear = formatRow.querySelector('.ani-plus-gear-btn, button');
+            const fmtGear = formatRow.querySelector('.ani-plus-gear-btn, button, a, [role="button"], svg:not(.ani-row-icon svg):not(.ani-info-i-icon):not(.ani-hidden-glyph)');
             const findFormatSub = () => {
               let probe = formatRow.nextElementSibling;
               while (probe) {
                 const pt = probe.textContent || '';
                 if (probe.matches('.ani-plus-form-row') || /彈魂軌跡|彈幕軌跡|截圖錄影|時間跳躍|過濾關鍵字/.test(pt)) break;
-                if (/字體修改|陰影深度|外框距離/.test(pt)) return probe;
+                if (/字體修改|陰影深度|外框距離/.test(pt) && probe.querySelector('select, input[type="range"]')) return probe;
                 probe = probe.nextElementSibling;
               }
-              return [...fmtRoot.querySelectorAll('.ani-drawer-slot-extra div')].find(
+              return [...fmtRoot.querySelectorAll('div')].find(
                 (d) =>
                   d !== formatRow &&
-                  !d.closest('.ani-plus-format-moved') &&
+                  !d.closest('.ani-plus-format-subinline') &&
                   /字體修改|陰影深度|外框距離/.test(d.textContent || '') &&
                   !/彈幕格式修改|彈魂軌跡|彈幕軌跡|時間跳躍|過濾關鍵字/.test(d.textContent || '') &&
-                  Boolean(d.querySelector('select, input[type="range"]'))
+                  Boolean(d.querySelector('select, input[type="range"]')) &&
+                  d.querySelectorAll('select, input[type="range"]').length >= 2
               ) || null;
             };
             let formatSub = findFormatSub();
-            if (!formatSub && fmtGear && !fmtGear.dataset.aniAutoExpanded) {
-              fmtGear.dataset.aniAutoExpanded = '1';
-              try { fmtGear.click(); } catch {}
+            const isSubClosed = !formatSub || formatSub.hidden || getComputedStyle(formatSub).display === 'none';
+            if (isSubClosed && fmtGear && Number(fmtGear.dataset.aniAutoExpanded || '0') < 2) {
+              fmtGear.dataset.aniAutoExpanded = String(Number(fmtGear.dataset.aniAutoExpanded || '0') + 1);
+              const triggerTargets = [fmtGear, fmtGear.parentElement?.matches('.ani-plus-gear-btn, button, a, [role="button"]') ? fmtGear.parentElement : null].filter(Boolean);
+              for (const t of triggerTargets) {
+                try {
+                  t.click?.();
+                  t.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+                } catch {}
+              }
               formatSub = findFormatSub();
+              if (!formatSub) {
+                setTimeout(() => {
+                  for (const p of (unifiedGridEl || document).querySelectorAll('.ani-drawer-slot > *')) {
+                    try { decorateSettingsPanel(p); } catch {}
+                  }
+                }, 80);
+              }
             }
             if (fmtGear) {
               fmtGear.classList.add('ani-dup-hidden');
               fmtGear.style.setProperty('display', 'none', 'important');
+              if (fmtGear.parentElement && fmtGear.parentElement !== formatRow && fmtGear.parentElement.children.length <= 2 && !(fmtGear.parentElement.textContent || '').trim()) {
+                fmtGear.parentElement.classList.add('ani-dup-hidden');
+                fmtGear.parentElement.style.setProperty('display', 'none', 'important');
+              }
             }
             const leftDanmuSec = [...(fmtRoot.querySelectorAll('#ani-tab-content-2 > .ani-setting-section:not(.ani-dup-hidden)') || [])].pop();
             if (leftDanmuSec) {
@@ -4955,28 +5120,23 @@
                 leftDanmuSec.append(movedHost);
               }
               if (formatRow.parentElement !== movedHost) movedHost.append(formatRow);
-              if (formatSub) {
-                formatSub.classList.add('ani-plus-format-subinline');
-                if (formatSub.parentElement !== movedHost) movedHost.append(formatSub);
-                formatSub.hidden = false;
-                formatSub.style.removeProperty('display');
-                for (const fmtRange of formatSub.querySelectorAll('input[type="range"]')) {
-                  const syncFmtRange = () => {
-                    const min = Number(fmtRange.min || 0);
-                    const max = Number(fmtRange.max || 100);
-                    const val = Number(fmtRange.value || 0);
-                    const pct = max > min ? Math.max(0, Math.min(100, ((val - min) / (max - min)) * 100)) : 0;
-                    fmtRange.style.setProperty('--ani-range-pct', `${pct.toFixed(1)}%`);
-                  };
-                  if (!fmtRange.dataset.aniRangeBound) {
-                    fmtRange.dataset.aniRangeBound = 'true';
-                    fmtRange.addEventListener('input', syncFmtRange);
-                    fmtRange.addEventListener('change', syncFmtRange);
-                  }
-                  syncFmtRange();
+              // Ensure master checkbox toggle sits on line 1 inside formatRow if sibling wrapper separated it
+              if (!formatRow.querySelector('input[type="checkbox"]') && formatRow.nextElementSibling && formatRow.nextElementSibling !== formatSub) {
+                const nx = formatRow.nextElementSibling;
+                if (nx.querySelectorAll('input[type="checkbox"]').length === 1 && !nx.querySelector('select, input[type="range"]') && !(nx.textContent || '').trim()) {
+                  nx.classList.add('ani-plus-row-tail-item');
+                  formatRow.append(nx);
                 }
               }
+              if (formatSub) {
+                if (formatSub.parentElement !== movedHost) movedHost.append(formatSub);
+                normalizeFormatSub(formatSub);
+              }
             }
+          }
+        } else {
+          for (const existSub of panelEl.querySelectorAll('.ani-plus-format-subinline')) {
+            normalizeFormatSub(existSub);
           }
         }
         if (!panelEl.closest('.ani-drawer-slot-extra')) {
@@ -5068,26 +5228,40 @@
                   }
                 }
               }
-              // Wrap added keyword items as sleek individual pill capsules (e.g. [第一 ×] [頭 ×]), never merging list wrapper
-              for (const node of kwSection.querySelectorAll('div, span, li, a')) {
-                if (node.closest('.ani-plus-kw-input-row, .ani-plus-form-row, .ani-plus-add-icon-btn, .ani-plus-info-trigger, .ani-plus-kw-chip') || node.classList.contains('ani-plus-kw-chip')) continue;
-                if (node.querySelector('input, .ani-plus-kw-input-row, .ani-plus-form-row')) continue;
+              // Wrap added keyword items as sleek individual pill capsules (e.g. [第一 ×] [頭 ×]), scanning across sibling keyword containers too
+              const kwScopeRoot = panelEl.closest('.ani-drawer-slot-extra') ? (kwSection.closest('.plus_menu_root') || panelEl) : kwSection;
+              const chipCandidates = [...kwScopeRoot.querySelectorAll('div, span, li, a')];
+              const isChipNode = (node) => {
+                if (node.closest('.ani-plus-kw-input-row, .ani-plus-form-row, .ani-plus-add-icon-btn, .ani-plus-info-trigger, .ani-plus-kw-chip, .ani-plus-format-subinline, .ani-plus-jump-controls, .ani-plus-jump-editor-row') || node.classList.contains('ani-plus-kw-chip')) return null;
+                if (node.querySelector('input, select, .ani-plus-kw-input-row, .ani-plus-form-row, .ani-plus-jump-editor-row')) return null;
+                if (kwWrap && (kwWrap.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_FOLLOWING) === 0) return null;
                 const nt = (node.textContent || '').replace(/\s+/g, ' ').trim();
-                if (!nt || nt.length > 40) continue;
-                const rawDel = [...node.querySelectorAll('button, a, span, i, svg')].filter((c) => {
+                if (!nt || nt.length > 32 || /^(?:新增|取消|儲存)$/.test(nt)) return null;
+                const rawDel = [...node.querySelectorAll('button, a, [role="button"], svg, span, i')].filter((c) => {
+                  if (c.closest('.ani-info-badge-host, .ani-row-icon, .ani-plus-info-trigger')) return false;
                   const ct = (c.textContent || '').trim();
-                  const meta = `${c.className?.baseVal || c.className || ''} ${c.getAttribute('aria-label') || ''} ${c.innerHTML || ''}`;
-                  return /^[×✕✖x]$/.test(ct) || /close|times|del|remove|M18 6|M19 6\.41|M6 18|L6 18|l12 12/i.test(meta);
+                  if (c.matches('button, a, [role="button"]')) return /^(?:[×✕✖x✗✘]?)$/i.test(ct);
+                  if (c.tagName.toLowerCase() === 'svg') {
+                    const r = c.getBoundingClientRect();
+                    return r.width <= 22 && r.height <= 22;
+                  }
+                  return c.childElementCount === 0 && /^[×✕✖x✗✘]$/i.test(ct);
                 });
                 const delCandidates = rawDel.filter((c) => !rawDel.some((other) => other !== c && other.contains(c)));
-                if (delCandidates.length !== 1) continue;
+                if (delCandidates.length !== 1) return null;
                 const delEl = delCandidates[0];
-                const hasTextAndDel = delEl && nt !== (delEl.textContent || '').trim();
-                if (hasTextAndDel && !node.querySelector('.ani-plus-kw-chip')) {
-                  node.classList.add('ani-plus-kw-chip');
-                  delEl.classList.add('ani-plus-kw-del');
-                  node.parentElement?.classList.add('ani-plus-kw-list');
-                }
+                const kwOnly = nt.replace(delEl.textContent || '', '').replace(/\s+/g, ' ').trim();
+                if (!kwOnly || kwOnly.length > 24) return null;
+                return delEl;
+              };
+              for (const node of chipCandidates) {
+                const delEl = isChipNode(node);
+                if (!delEl) continue;
+                // Skip container nodes that wrap another candidate chip child
+                if ([...node.querySelectorAll('div, span, li, a')].some((child) => isChipNode(child))) continue;
+                node.classList.add('ani-plus-kw-chip');
+                delEl.classList.add('ani-plus-kw-del');
+                node.parentElement?.classList.add('ani-plus-kw-list');
               }
             }
           }
@@ -5107,12 +5281,54 @@
             }
           }
         }
-        // Convert Save (儲存) and Time Jump (+ / - / 新增 / 取消) buttons to crisp vector icons, leaving remaining pills (-01:00..+01:30 / 00:30) as left-aligned capsules
+        // Format 時間跳躍設定 2-input editor (+ - [00] : [00] ✓) & convert 取消 header button on single clean rows
+        if (panelEl.closest('.ani-drawer-slot-extra')) {
+          const toActionSvg = (btn, kind, label, svgInner) => {
+            btn.classList.add('ani-plus-icon-action', kind);
+            btn.setAttribute('aria-label', label);
+            btn.title = label;
+            if (!btn.querySelector('.ani-plus-action-svg')) {
+              btn.innerHTML = `<svg class="ani-plus-action-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${svgInner}</svg>`;
+            }
+          };
+          for (const tjRow of panelEl.querySelectorAll('.ani-plus-form-row')) {
+            if (!/時間跳躍/.test(tjRow.textContent || '')) continue;
+            for (const cBtn of tjRow.querySelectorAll('button, a, [role="button"]')) {
+              const ct = (cBtn.textContent || '').replace(/\s+/g, '').trim();
+              if (ct === '取消') {
+                toActionSvg(cBtn, 'is-cancel', '取消', '<path d="M18 6 6 18M6 6l12 12"/>');
+              }
+            }
+          }
+          for (const edCont of panelEl.querySelectorAll('div')) {
+            if (edCont.closest('.ani-plus-kw-input-row, .ani-plus-format-subinline, .ani-plus-jump-editor-row') || edCont.querySelector('.ani-plus-form-row')) continue;
+            const numInputs = [...edCont.querySelectorAll('input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]):not(.ani-plus-filter-input):not(.ani-plus-pill-input)')];
+            if (numInputs.length !== 2) continue;
+            if (edCont.querySelectorAll('div').length > 4) continue;
+            const btns = [...edCont.querySelectorAll('button, a, [role="button"]')];
+            if (btns.length < 1 || edCont.textContent.includes('過濾關鍵字')) continue;
+            edCont.classList.add('ani-plus-jump-editor-row');
+            for (const ni of numInputs) ni.classList.add('ani-plus-jump-num-input');
+            const secondInput = numInputs[1];
+            for (const eb of btns) {
+              const ebt = (eb.textContent || '').replace(/\s+/g, '').trim();
+              const isAfterSecond = (secondInput.compareDocumentPosition(eb) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+              if (ebt === '取消') {
+                toActionSvg(eb, 'is-cancel', '取消', '<path d="M18 6 6 18M6 6l12 12"/>');
+              } else if (ebt === '新增' || (isAfterSecond && (/^(?:\+|✓|✔)$/.test(ebt) || !ebt))) {
+                toActionSvg(eb, 'is-confirm', '新增', '<polyline points="20 6 9 17 4 12"/>');
+              } else if (/^[+-]$/.test(ebt)) {
+                toActionSvg(eb, 'is-step', ebt, ebt === '+' ? '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>' : '<line x1="5" y1="12" x2="19" y2="12"/>');
+              }
+            }
+          }
+        }
+        // Convert Save (儲存) and remaining Time Jump (+ / - / 新增 / 取消) buttons to crisp vector icons, leaving remaining pills (-01:00..+01:30 / 00:30) as left-aligned capsules
         for (const el of panelEl.querySelectorAll('button, a, span, div, input[type="button"], input[type="submit"]')) {
           if (el.closest('input:not([type="button"]):not([type="submit"]), label.ani-checkbox__label, .ani-setting-section > h4, .ani-info-badge-host, .ani-plus-info-trigger, .ani-plus-refresh-btn, .ani-plus-add-icon-btn, .ani-plus-gear-btn, .ani-plus-icon-action')) continue;
           const txt = ((el.tagName === 'INPUT' ? el.value : el.textContent) || '').replace(/\s+/g, '').trim();
           const isBtnLike = el.matches('button, a, [role="button"], input[type="button"], input[type="submit"]');
-          const isTimeJumpEditorBtn = isBtnLike && /^(?:[+-]|新增|取消)$/.test(txt) && !!el.closest('[class*="jump" i], div')?.querySelector('input:not([type="button"]):not([type="submit"])');
+          const isTimeJumpEditorBtn = isBtnLike && /^(?:[+-]|新增|取消)$/.test(txt) && !!el.closest('[class*="jump" i], .ani-plus-jump-editor-row, div')?.querySelector('input:not([type="button"]):not([type="submit"])');
           if (isBtnLike && txt === '儲存' && el.childElementCount <= 1) {
             if (el.tagName === 'INPUT') {
               el.style.setProperty('display', 'none', 'important');
@@ -5260,9 +5476,9 @@
         }
         panelEl.style.removeProperty('display');
         delete panelEl.dataset.aniTabActive;
-        decorateSettingsPanel(panelEl);
         slot.append(panelEl);
         unifiedGrid.append(slot);
+        decorateSettingsPanel(panelEl);
       };
 
       if (settingsPanelNative) {
