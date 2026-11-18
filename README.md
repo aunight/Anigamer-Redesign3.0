@@ -1,5 +1,7 @@
 # Anigamer-Redesign 3.0
 
+![Anigamer-Redesign 3.0 首頁預覽](docs/preview-home.jpg)
+
 由 [aunight](https://github.com/aunight/Anigamer-Redesign3.0) 主導的 **巴哈姆特動畫瘋 UI Redesign 3.0 全面重構版** —— 以現代化磨砂玻璃（Frosted Glass）、高對比電影級排版與全頁視覺一致性為核心，重製動畫瘋首頁、播放頁、播放器控制列、片庫目錄與第三方輔助腳本整合體驗。
 
 > **上游專案致謝 / Upstream Attribution**  
