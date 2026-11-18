@@ -48,7 +48,7 @@ globalThis.AniAmbientStorage={
 if(typeof GM_addValueChangeListener==='function')GM_addValueChangeListener('${key}',(_key,oldValue,newValue,remote)=>{if(remote){cached=newValue||{};emit(oldValue||{},cached);}});
 `;
 const metadata = `// ==UserScript==
-// @name         動畫瘋重製版 3.0｜Anigamer-Redesign 3.0
+// @name         動畫瘋沉浸重製版 3.0｜Anigamer-Redesign 3.0
 // @namespace    https://ani.gamer.com.tw/ani-ambientlight
 // @version      ${version}
 // @description  動畫瘋環境光與播放頁主題編輯器。可只用美化主題，獨立調整光暈、配色、字體與版型。非官方。
