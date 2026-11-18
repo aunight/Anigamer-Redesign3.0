@@ -2111,9 +2111,7 @@
         toggleTools.setAttribute('aria-label', label);
         toggleTools.title = label;
         toggleTools.setAttribute('aria-expanded', String(!isCollapsed));
-        toggleTools.innerHTML = (isCollapsed
-          ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>'
-          : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c6.5 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3.5 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg>')
+        toggleTools.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76Z"/></svg>'
           + '<span class="ani-tools-toggle-label">工具欄</span>';
       };
       toggleTools.addEventListener('click', () => {
@@ -4115,28 +4113,45 @@
             h.prepend(ic);
           }
         }
-        const rowIconMap = [
-          [/自動播放|連播/, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>'],
-          [/彈幕開關/, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M7 10h6M7 14h10"/></svg>'],
-          [/自動過濾|關鍵字|過濾/, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h18l-7 8.5V19l-4 2v-7.5L3 5Z"/></svg>'],
-          [/來源/, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>'],
-          [/不透明度|透明度/, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M12 7l5 5-5 5"/></svg>'],
-          [/字體大小|大小/, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M4 19 9 5l5 14M6 15h6M15 12h6M18 12v7"/></svg>'],
-          [/類型開關/, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="7" height="7" rx="1.5"/><rect x="14" y="4" width="7" height="7" rx="1.5"/><rect x="3" y="13" width="7" height="7" rx="1.5"/><rect x="14" y="13" width="7" height="7" rx="1.5"/></svg>'],
-          [/跳過片頭/, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 5 9 7-9 7V5ZM19 5v14"/></svg>'],
-          [/截圖|錄影/, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h4l2-2h4l2 2h4v12H4V7Z"/><circle cx="12" cy="13" r="3"/></svg>'],
-          [/時間跳躍|空降/, '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'],
-        ];
-        for (const lbl of panelEl.querySelectorAll('.ani-setting-label__mian, .ani-setting-label > span:first-child')) {
-          if (lbl.querySelector('.ani-row-icon')) continue;
-          const t = lbl.textContent.trim();
-          const match = rowIconMap.find(([re]) => re.test(t));
-          if (match) {
-            const ic = document.createElement('span');
-            ic.className = 'ani-row-icon';
-            ic.setAttribute('aria-hidden', 'true');
-            ic.innerHTML = match[1];
-            lbl.prepend(ic);
+        // Strip verbose parenthetical notes / placeholder clutter
+        const walker = document.createTreeWalker(panelEl, NodeFilter.SHOW_TEXT);
+        let tn;
+        while ((tn = walker.nextNode())) {
+          const raw = tn.nodeValue || '';
+          const cleaned = raw
+            .replace(/\s*[（(](?:由動畫瘋[·.]?Plus控制中|建議勾選|點擊降落)[）)]/g, '')
+            .replace(/相關段落分析完成/g, '');
+          if (cleaned !== raw) tn.nodeValue = cleaned;
+        }
+        for (const inp of panelEl.querySelectorAll('input[placeholder]')) {
+          if (/請輸入想要過濾的字詞/.test(inp.placeholder)) inp.placeholder = '輸入過濾關鍵字';
+        }
+        // Deduplicate 自動播放下一集 when 動畫瘋·Plus (無縫連播下一集) is active in drawer
+        const hasPlusInDrawer = !!drawer?.querySelector('.ani-drawer-slot-extra');
+        if (hasPlusInDrawer) {
+          for (const sec of panelEl.querySelectorAll('.ani-setting-section')) {
+            const items = sec.querySelectorAll('.ani-setting-item');
+            if (items.length === 1 && sec.querySelector('#autoPlay')) {
+              sec.classList.add('ani-dup-hidden');
+            }
+          }
+        }
+        // Turn Plus/native rectangular cyan buttons into rounded glass capsules & unify colorful icon glyphs to silver/white
+        for (const el of panelEl.querySelectorAll('button, a, span, div')) {
+          if (el.closest('input, label.ani-checkbox__label, .ani-setting-section > h4')) continue;
+          const txt = (el.textContent || '').trim();
+          if (
+            el.childElementCount === 0 &&
+            (/^[+-]\d{2}:\d{2}$/.test(txt) || /^(?:確認空降|其它空降|新增|儲存)$/.test(txt))
+          ) {
+            el.classList.add('ani-plus-pill-btn');
+          }
+        }
+        for (const iconEl of panelEl.querySelectorAll('svg:not(.ani-sec-icon svg), i, img, [class*="help" i], [class*="info" i], [class*="warning" i], [class*="tip" i]')) {
+          if (iconEl.classList.contains('ani-sec-icon') || iconEl.closest('.ani-sec-icon')) continue;
+          const tag = iconEl.tagName;
+          if (tag === 'svg' || tag === 'I' || tag === 'IMG' || iconEl.childElementCount === 0 || /^(?:\?|!)$/.test((iconEl.textContent || '').trim())) {
+            iconEl.classList.add('ani-mono-icon');
           }
         }
       };
@@ -4419,7 +4434,7 @@
         return { fanpageId, mediaType, userScore };
       };
       const fetchPopularReviews = (fanpageId, mediaType = '4') => {
-        if (!fanpageId) return Promise.resolve([]);
+        if (!fanpageId) return Promise.resolve({ myReview: null, reviews: [] });
         if (reviewCache.has(fanpageId)) return reviewCache.get(fanpageId);
         const p = (async () => {
           try {
@@ -4431,7 +4446,9 @@
                   resolve({});
                 }
               });
-              if (Array.isArray(res?.reviews) && res.reviews.length) return res.reviews;
+              if (res?.myReview || (Array.isArray(res?.reviews) && res.reviews.length)) {
+                return { myReview: res.myReview || null, reviews: res.reviews || [] };
+              }
             }
           } catch (_) {}
           try {
@@ -4446,26 +4463,29 @@
                   onerror: () => resolve(null),
                 });
               });
+              const mapRev = (it) => ({
+                id: String(it.id || it.sn || ''),
+                author: it.publisher?.name || it.nickname || it.userid || '匿名',
+                avatar: it.publisher?.propic || it.propic || '',
+                rating: Number(it.reviews?.rating ?? it.rating ?? it.score ?? 0) || 0,
+                likeCount: Number(it.likeCount || it.gp || 0) || 0,
+                commentCount: Number(it.commentCount || 0) || 0,
+                time: it.time || '',
+                content: String(it.content || '').trim(),
+              });
+              const rawRev = Array.isArray(json?.data?.reviewed) ? json.data.reviewed.flat(2) : json?.data?.reviewed ? [json.data.reviewed] : [];
+              const myRaw = rawRev.find((it) => it && (it.content || '').trim());
+              const myReview = myRaw ? mapRev(myRaw) : null;
               const rawList = Array.isArray(json?.data?.list) ? json.data.list.flat(2) : Array.isArray(json?.list) ? json.list.flat(2) : [];
-              if (rawList.length) {
-                return rawList
-                  .filter((it) => it && (it.content || '').trim())
-                  .sort((a, b) => Number(b?.likeCount || 0) - Number(a?.likeCount || 0))
-                  .slice(0, 5)
-                  .map((it) => ({
-                    id: it.id || it.sn || '',
-                    author: it.publisher?.name || it.nickname || it.userid || '匿名',
-                    avatar: it.publisher?.propic || it.propic || '',
-                    rating: Number(it.reviews?.rating ?? it.rating ?? it.score ?? 0) || 0,
-                    likeCount: Number(it.likeCount || it.gp || 0) || 0,
-                    commentCount: Number(it.commentCount || 0) || 0,
-                    time: it.time || '',
-                    content: String(it.content || '').trim(),
-                  }));
-              }
+              const reviews = rawList
+                .filter((it) => it && (it.content || '').trim() && (!myReview || String(it.id || it.sn || '') !== myReview.id))
+                .sort((a, b) => Number(b?.likeCount || 0) - Number(a?.likeCount || 0))
+                .slice(0, 10)
+                .map(mapRev);
+              if (myReview || reviews.length) return { myReview, reviews };
             }
           } catch (_) {}
-          return [];
+          return { myReview: null, reviews: [] };
         })();
         reviewCache.set(fanpageId, p);
         return p;
@@ -4589,7 +4609,7 @@
 
         let html = '<div class="ani-sidebar-scroll ani-rating-scroll">';
         html += '<div class="ani-rating-hero">';
-        html += `<div class="ani-rating-ring-wrap"><svg viewBox="0 0 116 116" class="ani-rating-ring-svg"><circle class="ani-ring-bg" cx="58" cy="58" r="${r}"/><circle class="ani-ring-fg" cx="58" cy="58" r="${r}" stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${dashOffset.toFixed(1)}"/></svg><div class="ani-ring-center"><strong>${scoreNum ? scoreNum.toFixed(1) : '-'}</strong><span>${escHtml(peopleText)}</span></div></div>`;
+        html += `<div class="ani-rating-ring-wrap"><svg viewBox="-8 -8 132 132" class="ani-rating-ring-svg"><circle class="ani-ring-bg" cx="58" cy="58" r="${r}"/><circle class="ani-ring-fg" cx="58" cy="58" r="${r}" stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${dashOffset.toFixed(1)}"/></svg><div class="ani-ring-center"><strong>${scoreNum ? scoreNum.toFixed(1) : '-'}</strong><span>${escHtml(peopleText)}</span></div></div>`;
         html += '<div class="ani-rating-bars">';
         for (const item of dist) {
           html += `<div class="ani-rating-bar-row"><span class="ani-rating-bar-label">${renderStarsHtml(item.stars)}</span><div class="ani-rating-bar-track"><div class="ani-rating-bar-fill" style="width:${item.pctNum}%"></div></div><span class="ani-rating-bar-pct">${item.pctNum}%</span></div>`;
@@ -4610,10 +4630,10 @@
           }</div>`;
         }
         html += '</div>';
+        html += '<div class="ani-rating-reviews" hidden></div>';
         if (acgReviewEl.querySelector('.user-score-more') || wallUrl) {
           html += '<button type="button" class="ani-rating-more-btn">查看所有評價</button>';
         }
-        html += '<div class="ani-rating-reviews" hidden></div>';
         html += '</div>';
 
         ratingPane.innerHTML = html;
@@ -4644,24 +4664,34 @@
 
         if (meta.fanpageId) {
           const reviewsWrap = ratingPane.querySelector('.ani-rating-reviews');
-          fetchPopularReviews(meta.fanpageId, meta.mediaType).then((reviews) => {
-            if (!reviewsWrap || !Array.isArray(reviews) || !reviews.length) return;
-            const itemsHtml = reviews.slice(0, 4).map((rev) => {
-              const postUrl = rev.id
-                ? `https://wall.gamer.com.tw/post.php?sn=${encodeURIComponent(rev.id)}`
-                : wallUrl;
-              const safeAvatar = rev.avatar && /^https:\/\//i.test(rev.avatar) ? rev.avatar : '';
-              const starBlock = rev.rating > 0 ? `<span class="ani-rev-stars">${goldStarSvg.repeat(Math.min(5, rev.rating))}</span>` : '';
-              return `<a class="ani-review-card" href="${escHtml(postUrl)}" target="_blank" rel="noopener noreferrer">`
-                + `<div class="ani-rev-head">`
-                + (safeAvatar ? `<img class="ani-rev-avatar" src="${escHtml(safeAvatar)}" alt="" loading="lazy"/>` : '<span class="ani-rev-avatar is-empty"></span>')
-                + `<div class="ani-rev-meta"><strong class="ani-rev-author">${escHtml(rev.author)}</strong>${starBlock}</div>`
-                + `<span class="ani-rev-likes" title="推薦數"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2 21h4V9H2v12Zm20-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L13.17 1 6.59 7.59C6.22 7.95 6 8.45 6 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2Z"/></svg>${rev.likeCount || 0}</span>`
-                + `</div>`
-                + `<p class="ani-rev-body">${escHtml(rev.content)}</p>`
-                + `</a>`;
-            }).join('');
-            reviewsWrap.innerHTML = `<div class="ani-side-divider"></div><div class="ani-reviews-title-row"><span>熱門評價</span>${wallUrl ? `<a class="ani-reviews-all-link" href="${escHtml(wallUrl)}" target="_blank" rel="noopener noreferrer">前往哈啦牆</a>` : ''}</div><div class="ani-reviews-list">${itemsHtml}</div>`;
+          const renderCard = (rev, isMine = false) => {
+            const postUrl = rev.id
+              ? `https://wall.gamer.com.tw/post.php?sn=${encodeURIComponent(rev.id)}`
+              : wallUrl;
+            const safeAvatar = rev.avatar && /^https:\/\//i.test(rev.avatar) ? rev.avatar : '';
+            const starBlock = rev.rating > 0 ? `<span class="ani-rev-stars">${goldStarSvg.repeat(Math.min(5, rev.rating))}</span>` : '';
+            return `<a class="ani-review-card${isMine ? ' is-mine' : ''}" href="${escHtml(postUrl)}" target="_blank" rel="noopener noreferrer">`
+              + `<div class="ani-rev-head">`
+              + (safeAvatar ? `<img class="ani-rev-avatar" src="${escHtml(safeAvatar)}" alt="" loading="lazy"/>` : '<span class="ani-rev-avatar is-empty"></span>')
+              + `<div class="ani-rev-meta"><strong class="ani-rev-author">${escHtml(rev.author)}${isMine ? '<span class="ani-rev-mine-badge">我的評論</span>' : ''}</strong>${starBlock}</div>`
+              + `<span class="ani-rev-likes" title="推薦數"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2 21h4V9H2v12Zm20-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L13.17 1 6.59 7.59C6.22 7.95 6 8.45 6 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2Z"/></svg>${rev.likeCount || 0}</span>`
+              + `</div>`
+              + `<p class="ani-rev-body">${escHtml(rev.content)}</p>`
+              + `</a>`;
+          };
+          fetchPopularReviews(meta.fanpageId, meta.mediaType).then((data) => {
+            const myReview = data?.myReview || null;
+            const reviews = Array.isArray(data) ? data : (data?.reviews || []);
+            if (!reviewsWrap || (!myReview?.content && !reviews.length)) return;
+            let blocks = '';
+            if (myReview?.content) {
+              blocks += `<div class="ani-side-divider"></div><div class="ani-reviews-title-row"><span>我的評論</span></div><div class="ani-reviews-list">${renderCard(myReview, true)}</div>`;
+            }
+            if (reviews.length) {
+              const itemsHtml = reviews.slice(0, 8).map((rev) => renderCard(rev, false)).join('');
+              blocks += `<div class="ani-side-divider"></div><div class="ani-reviews-title-row"><span>熱門評價</span></div><div class="ani-reviews-list">${itemsHtml}</div>`;
+            }
+            reviewsWrap.innerHTML = blocks;
             reviewsWrap.hidden = false;
           });
         }

@@ -3,32 +3,40 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
     (async () => {
       try {
         const sn = String(message.fanpageId || '').replace(/\D+/g, '');
-        if (!sn) { reply({ reviews: [] }); return; }
+        if (!sn) { reply({ myReview: null, reviews: [] }); return; }
         const t = Number(message.mediaType || 4) || 4;
         const r = await fetch(`https://api.gamer.com.tw/acg/v1/reviews_list.php?sn=${encodeURIComponent(sn)}&t=${t}&sort=1&page=1`, {
-          credentials: 'omit',
+          credentials: 'include',
           signal: AbortSignal.timeout(9000),
         });
-        if (!r.ok) { reply({ reviews: [] }); return; }
+        if (!r.ok) { reply({ myReview: null, reviews: [] }); return; }
         const json = await r.json();
+        const mapReviewItem = (item) => ({
+          id: String(item.id || ''),
+          author: String(item.publisher?.name || '巴哈勇者'),
+          avatar: String(item.publisher?.propic || ''),
+          time: String(item.time || ''),
+          rating: Number(item.reviews?.rating ?? item.rating ?? item.star ?? 0) || 0,
+          likeCount: Number(item.likeCount || 0),
+          commentCount: Number(item.commentCount || 0),
+          content: String(item.content || '').trim(),
+        });
+        const rawReviewed = Array.isArray(json?.data?.reviewed)
+          ? json.data.reviewed.flat(2)
+          : json?.data?.reviewed
+          ? [json.data.reviewed]
+          : [];
+        const myRaw = rawReviewed.find((it) => it && (it.content || '').trim().length > 0);
+        const myReview = myRaw ? mapReviewItem(myRaw) : null;
         const rawList = Array.isArray(json?.data?.list) ? json.data.list.flat(2) : [];
         const reviews = rawList
-          .filter((item) => item && (item?.content || '').trim().length > 0)
+          .filter((item) => item && (item?.content || '').trim().length > 0 && (!myReview || String(item.id || '') !== myReview.id))
           .sort((a, b) => Number(b?.likeCount || 0) - Number(a?.likeCount || 0))
-          .slice(0, 5)
-          .map((item) => ({
-            id: String(item.id || ''),
-            author: String(item.publisher?.name || '巴哈勇者'),
-            avatar: String(item.publisher?.propic || ''),
-            time: String(item.time || ''),
-            rating: Number(item.reviews?.rating ?? item.rating ?? item.star ?? 0) || 0,
-            likeCount: Number(item.likeCount || 0),
-            commentCount: Number(item.commentCount || 0),
-            content: String(item.content || '').trim(),
-          }));
-        reply({ reviews });
+          .slice(0, 10)
+          .map(mapReviewItem);
+        reply({ myReview, reviews });
       } catch (err) {
-        reply({ reviews: [], error: String(err?.message || err || '') });
+        reply({ myReview: null, reviews: [], error: String(err?.message || err || '') });
       }
     })();
     return true;
