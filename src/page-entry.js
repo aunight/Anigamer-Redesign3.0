@@ -5,6 +5,10 @@
   const root=document.documentElement;if(!root)return;
   const started=performance.now();let introFontReady=Promise.resolve();
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reload = performance.getEntriesByType?.('navigation')[0]?.type === 'reload';
+  try {
+    if (!reload && sessionStorage.getItem('aniIntroPlayed') === '1') return;
+  } catch {}
   root.dataset.aniBooting='true';
   try{const font=localStorage.getItem('aniIntroFontHint')||sessionStorage.getItem('aniIntroFont');if(font)root.style.setProperty('--ani-font',font);}catch{}
   const fontUrls={sans:'https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap',serif:'https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700&display=swap',wenkai:'https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@300;400;700&display=swap',chironHei:'https://fonts.googleapis.com/css2?family=Chiron+Hei+HK:wght@400;500;700&display=swap',chironSung:'https://fonts.googleapis.com/css2?family=Chiron+Sung+HK:wght@400;600;700&display=swap',iansui:'https://fonts.googleapis.com/css2?family=Iansui&display=swap'};
@@ -18,10 +22,8 @@
   root.append(curtain);
   let done=false,ready=false,enabled=true,stopShader=()=>{};
   const frame=callback=>typeof requestAnimationFrame==='function'?requestAnimationFrame(callback):setTimeout(callback,16);
-  const isHome=location.pathname==='/'||location.pathname==='/index.php';
-  let introSeen=false;try{introSeen=!isHome&&sessionStorage.getItem('aniIntroPlayed')==='1';}catch{}
-  if(introSeen)curtain.style.display='none';
-  if(!reduced&&!introSeen){
+  const startShader=()=>{
+    if(done || reduced)return;
     try{
       const gl=shaderCanvas.getContext('webgl',{alpha:true,antialias:true});
       if(gl){
@@ -88,11 +90,21 @@
       }
     }catch{}
   }
-  const reveal=()=>{if(done)return;done=true;try{sessionStorage.setItem('aniIntroPlayed','1');}catch{}delete root.dataset.aniBooting;stopShader();curtain.classList.add('ani-intro-reveal');if(reduced||introSeen)curtain.remove();else setTimeout(()=>curtain.remove(),240);};
-  const settled=()=>{if(ready)return;ready=true;if(introSeen){Promise.race([introFontReady,new Promise(r=>setTimeout(r,120))]).then(()=>frame(reveal));return;}Promise.race([introFontReady.then(()=>document.fonts?.ready||Promise.resolve()),new Promise(r=>setTimeout(r,300))]).then(()=>setTimeout(()=>frame(()=>frame(reveal)),Math.max(0,(reduced?180:420)-(performance.now()-started))));};
+  // Paint the animated logo before creating the optional GPU background.
+  if (!reduced) frame(()=>frame(()=>{
+    if (window.requestIdleCallback) window.requestIdleCallback(startShader);
+    else setTimeout(startShader,0);
+  }));
+  const reveal=()=>{if(done)return;done=true;try{sessionStorage.setItem('aniIntroPlayed','1');}catch{}delete root.dataset.aniBooting;stopShader();curtain.classList.add('ani-intro-reveal');if(reduced)curtain.remove();else setTimeout(()=>curtain.remove(),240);};
+  const settled=()=>{
+    if(ready)return;
+    ready=true;
+    frame(reveal);
+  };
+  document.addEventListener('DOMContentLoaded',settled,{once:true});
   window.addEventListener('ani-ui-ready',settled,{once:true});
   if(root.dataset.aniUiReady)settled();
-  setTimeout(reveal,introSeen?500:1500);
+  setTimeout(reveal,900);
   const settings=saved=>{
     enabled=saved.themeEnabled!==false;if(!enabled){stopShader();reveal();curtain.remove();return;}
     const families={sans:'Noto Sans TC',serif:'Noto Serif TC',wenkai:'LXGW WenKai TC',chironHei:'Chiron Hei HK',chironSung:'Chiron Sung HK',iansui:'Iansui'};

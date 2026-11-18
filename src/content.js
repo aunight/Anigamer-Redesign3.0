@@ -1382,7 +1382,17 @@
         const image = card.querySelector('.theme-img-block');
         const score = [...card.querySelectorAll('.label-edition')].find(n => /^[0-5](?:\.\d+)?$/.test(n.textContent.trim()));
         const externalScore = card.querySelector('.tm-acg-rating,.ani-custom-rating');
-        const scoreText = score?.textContent.trim() || externalScore?.textContent.match(/(?:★\s*|^\s*)([0-5](?:\.\d+)?)(?=\s|\/|$)/)?.[1];
+        const scoreText = score?.textContent.trim() || externalScore?.textContent.match(/(?:★\s*|^\s*)([0-5](?:\.\d+)?)(?=\s|\/|$)/)?.[1] || card.dataset.aniRelatedScore;
+        if (!scoreText && image && section.matches('.old_list') && !card.dataset.aniScoreRequested && card.matches('a[href*="animeRef.php?sn="]')) {
+          card.dataset.aniScoreRequested = 'true';
+          aniFetch(card.href).then(response => response.ok ? response.text() : '').then(html => {
+            const value = parseScoreFromVideoHtml(html);
+            if (value && card.isConnected) {
+              card.dataset.aniRelatedScore = value;
+              enhancePosterRails();
+            }
+          }).catch(() => {});
+        }
         if (score && !score.classList.contains('ani-rating-source')) score.classList.add('ani-rating-source');
         if (scoreText && image && !image.querySelector('.ani-poster-score')) {
           const pill = document.createElement('span');
@@ -3840,8 +3850,7 @@
           weekly.classList.toggle('ani-week-expanded',open);
           sync();
           if(open&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
-            const panel=weekly.querySelector('.programlist-wrap_block')||weekly.querySelector('.programlist-block');
-            panel?.animate?.([{opacity:0.4},{opacity:1}],{duration:180,easing:'cubic-bezier(0.22, 1, 0.36, 1)'});
+            button.animate?.([{opacity:0.65},{opacity:1}],{duration:180,easing:'ease-out'});
           }
           requestAnimationFrame(()=>{if(Math.abs(window.scrollY-sy)>2)window.scrollTo(window.scrollX,sy);});
         });sync();
@@ -3849,7 +3858,7 @@
       }
       for (const tile of weekly.querySelectorAll('.text-anime-info')) {
         const title=tile.querySelector('.text-anime-name');
-        if(title&&!title.querySelector('.ani-week-marquee')){const track=document.createElement('span');track.className='ani-week-marquee';track.textContent=title.textContent.trim();title.title=track.textContent;title.replaceChildren(track);const measure=()=>{const distance=track.scrollWidth-title.clientWidth;title.classList.toggle('ani-week-overflow',distance>2);title.style.setProperty('--ani-week-travel',`${-Math.max(0,distance)}px`);};if(typeof ResizeObserver==='function')new ResizeObserver(measure).observe(title);requestAnimationFrame(measure);}
+        if(title&&!title.querySelector('.ani-week-marquee')){const track=document.createElement('span');track.className='ani-week-marquee';track.textContent=title.textContent.trim();title.title=track.textContent;title.replaceChildren(track);const measure=()=>{const distance=track.scrollWidth-title.clientWidth;title.classList.toggle('ani-week-overflow',distance>2);title.style.setProperty('--ani-week-travel',`${-Math.max(0,distance)}px`);};tile.addEventListener('pointerenter',measure);tile.addEventListener('focusin',measure);}
 
         for(const node of tile.querySelector('.text-anime-number')?.childNodes||[]){if(node.nodeType===3){const text=node.textContent.replace(/第\s*(\d+(?:\.\d+)?)\s*集/g,'EP.$1');if(node.textContent!==text)node.textContent=text;}}
         for (const [selector,path] of [['.text-anime-time','M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm1 4v5l4 2-1 2-5-3V7Z'],['.text-anime-number','M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm4 4v10l8-5Z']]) {
@@ -4431,7 +4440,6 @@
       '#blockVideoInSeason .nav-segment-control:not([data-ani-seg-icon])',
     )) {
       seg.dataset.aniSegIcon = 'true';
-      seg.addEventListener('click',()=>requestAnimationFrame(()=>{if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;for(const panel of document.querySelectorAll('#blockVideoInSeason .newanime-wrap,#blockVideoInSeason .programlist-wrap_block'))if(panel.getBoundingClientRect().height&&typeof panel.animate==='function'){panel.getAnimations?.().forEach(a=>a.cancel());panel.animate([{opacity:0},{opacity:1}],{duration:160,easing:'ease-out'});}}));
 
       const text = seg.textContent || '';
       const iconSpan = document.createElement('span');
@@ -4446,6 +4454,10 @@
       }
       const bar = document.createElement('span');
       bar.className = 'ani-segment-bar';
+      seg.addEventListener('click', () => {
+        if (!matchMedia('(prefers-reduced-motion: reduce)').matches)
+          bar.animate?.([{opacity: 0.4}, {opacity: 1}], {duration: 160, easing: 'ease-out'});
+      });
       bar.setAttribute('aria-hidden', 'true');
       seg.prepend(iconSpan);
       seg.append(bar);
@@ -4585,6 +4597,24 @@
         if (!panelEl) return;
         decoratingGrid = true;
         try {
+        const formatLabel = [...panelEl.querySelectorAll('.ani-setting-label__mian')]
+          .find(label => label.textContent.trim() === '彈幕格式修改');
+        const formatHeader = formatLabel?.closest('.ani-setting-item');
+        const formatComponent = formatHeader?.parentElement;
+        const danmuSection = unifiedGridEl?.querySelector('#ani-tab-content-2 .ani-setting-section:has(#danmu-show)');
+        if (formatComponent && danmuSection && !formatComponent.classList.contains('ani-plus-native-format')) {
+          const gear = [...formatHeader.querySelectorAll('.plus_describe.material-icons-outlined')]
+            .find(icon => icon.textContent.trim() === 'settings');
+          if (gear) {
+            formatComponent.classList.add('ani-plus-native-format', 'ani-plus-format-moved');
+            danmuSection.append(formatComponent);
+            gear.click();
+            formatComponent.addEventListener('change', event => {
+              const enable = formatHeader.querySelector('input[type="checkbox"]');
+              if (enable && !enable.checked && event.target.matches('select, input[type="range"]')) enable.click();
+            });
+          }
+        }
         const thinInfoSvg = '<svg class="ani-info-i-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4"/><circle cx="12" cy="8.2" r="0.6" fill="currentColor" stroke="none"/></svg>';
         // Remove any section-level title icons so both column headers (彈幕設定 & 動畫瘋・Plus) are clean & uniform in size
         for (const oldSecIc of panelEl.querySelectorAll('.ani-sec-icon')) oldSecIc.remove();
@@ -4817,6 +4847,7 @@
           }
           // Fallback for any compact row not matched by known Plus labels (skip [label + x-delete] keyword chips)
           for (const pr of panelEl.querySelectorAll('div')) {
+            if (pr.closest('#plus_dan_keywords, .plus-toast-wrapper')) continue;
             if (pr.closest('.ani-plus-cap-row, .ani-plus-info-trigger, .ani-plus-form-row, .ani-plus-kw-list, .ani-plus-kw-chip, .ani-plus-format-subinline, .ani-plus-jump-editor-row') || pr.classList.contains('ani-plus-form-row')) continue;
             if (pr.children.length >= 2 && pr.children.length <= 5) {
               const first = pr.firstElementChild;
@@ -5062,7 +5093,7 @@
           }
           // Auto-open & move 彈幕格式修改 (+ stacked Font / Shadow / Border inline controls) directly into left 彈幕設定 card with gear removed
           const fmtRoot = unifiedGridEl || panelEl;
-          const formatRow = [...fmtRoot.querySelectorAll('.ani-plus-form-row')].find((r) => /彈幕格式修改/.test(r.textContent || ''));
+          const formatRow = [...fmtRoot.querySelectorAll('.ani-plus-form-row')].find((r) => !r.closest('.ani-plus-native-format') && /彈幕格式修改/.test(r.textContent || ''));
           if (formatRow) {
             const fmtGear = formatRow.querySelector('.ani-plus-gear-btn, button, a, [role="button"], svg:not(.ani-row-icon svg):not(.ani-info-i-icon):not(.ani-hidden-glyph)');
             const findFormatSub = () => {
@@ -5155,7 +5186,7 @@
               new MutationObserver(syncRange).observe(range, { attributes: true, attributeFilter: ['value', 'min', 'max'] });
             }
             syncRange();
-            if (range.closest('.ani-plus-format-moved')) continue;
+            if (range.closest('.ani-plus-format-moved:not(.ani-plus-native-format)')) continue;
             const itemRow = range.closest('.ani-setting-item') || range.closest('li') || range.parentElement;
             if (itemRow && itemRow !== panelEl) {
               itemRow.classList.add('ani-drawer-slider-row');
@@ -5182,20 +5213,14 @@
           if (/請輸入想要過濾的字詞/.test(inp.placeholder)) inp.placeholder = '輸入過濾關鍵字';
         }
         // Mark 截圖 按鍵設定 input + button as side-by-side pills
-        for (const row of panelEl.querySelectorAll('div, li')) {
-          if (/截圖\s*按鍵設定|按鍵設定/.test((row.textContent || '').trim()) && row.querySelector('input[type="text"], input:not([type="checkbox"]):not([type="range"])')) {
-            for (const kInp of row.querySelectorAll('input[type="text"], input:not([type="checkbox"]):not([type="range"]):not([type="button"]):not([type="submit"])')) {
-              kInp.classList.add('ani-plus-pill-input');
-              if (kInp.parentElement && kInp.parentElement !== row) {
-                kInp.parentElement.classList.add('ani-plus-inline-controls');
-              }
-            }
-          }
+        for (const input of panelEl.querySelectorAll('.plus-keyword-header input[type="text"][readonly]')) {
+          input.classList.add('ani-plus-pill-input');
+          input.parentElement.classList.add('ani-plus-inline-controls');
         }
         // Convert 過濾關鍵字 input + 新增 button reliably + style added keyword tags (e.g. 第一 ×, 頭 ×) as pill capsules
         for (const inp of panelEl.querySelectorAll('input[type="text"], input:not([type="checkbox"]):not([type="range"]):not([type="button"]):not([type="submit"])')) {
           const ph = inp.placeholder || '';
-          if (/過濾|關鍵字|字詞/.test(ph) || inp.closest('[class*="keyword" i], [class*="filter" i]')) {
+          if (!inp.readOnly && (/過濾|關鍵字|字詞/.test(ph) || inp.closest('[class*="keyword" i], [class*="filter" i]'))) {
             inp.classList.add('ani-plus-filter-input');
             const kwWrap = inp.parentElement;
             kwWrap?.classList.add('ani-plus-kw-input-row');
@@ -5231,6 +5256,11 @@
               // Wrap added keyword items as sleek individual pill capsules (e.g. [第一 ×] [頭 ×]), scanning across sibling keyword containers too
               const kwScopeRoot = panelEl.closest('.ani-drawer-slot-extra') ? (kwSection.closest('.plus_menu_root') || panelEl) : kwSection;
               const chipCandidates = [...kwScopeRoot.querySelectorAll('div, span, li, a')];
+              for (const close of kwScopeRoot.querySelectorAll('.plus_k-label > .plus_ani-keyword-close')) {
+                close.parentElement.classList.add('ani-plus-kw-chip');
+                close.classList.add('ani-plus-kw-del');
+                close.closest('#plus_dan_keywords')?.classList.add('ani-plus-kw-list');
+              }
               const isChipNode = (node) => {
                 if (node.closest('.ani-plus-kw-input-row, .ani-plus-form-row, .ani-plus-add-icon-btn, .ani-plus-info-trigger, .ani-plus-kw-chip, .ani-plus-format-subinline, .ani-plus-jump-controls, .ani-plus-jump-editor-row') || node.classList.contains('ani-plus-kw-chip')) return null;
                 if (node.querySelector('input, select, .ani-plus-kw-input-row, .ani-plus-form-row, .ani-plus-jump-editor-row')) return null;
@@ -7050,7 +7080,7 @@
         record.target.nodeType === 1
           ? record.target
           : record.target.parentElement;
-      if (target?.closest('.ani-view-settings-panel, .ani-nav-more-menu')) return false;
+      if (target?.closest('.ani-view-settings-panel, .ani-nav-more-menu, .ani-week-expand, .ani-date-cursor')) return false;
       if (!target?.closest('.video-js,.videoframe')) return true;
       return [...record.addedNodes, ...record.removedNodes].some(
         (node) =>

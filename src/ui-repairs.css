@@ -1644,7 +1644,11 @@ body.ani-ambientlight-page.ani-ambientlight-ui #ani_video .ani-age-screen.ani-ag
   width:auto !important;
   max-width:100% !important;
   margin:0 auto 24px !important;
-  padding:0 !important;
+  padding:8px 16px !important;
+  box-sizing:border-box;
+  border-radius:14px;
+  background:rgb(16 27 42 / 82%) !important;
+  color:white !important;
   float:none !important;
   text-indent:0 !important;
   text-align:center !important;
@@ -5777,7 +5781,7 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settin
   display: flex !important;
   flex-direction: column !important;
   gap: 16px !important;
-  height: 100% !important;
+  height: auto !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body .ani-drawer-slot[hidden],
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body .ani-dup-hidden {
@@ -6328,6 +6332,8 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settin
   filter: grayscale(1) brightness(1.3) !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body .ani-hidden-glyph,
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body .plus_describe.material-icons-outlined:has(~ .ani-info-badge-host),
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body .ani-plus-form-row:has(.ani-info-i-icon) .plus_describe.material-icons-outlined,
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body :is(.ani-plus-info-trigger, .qa-icon) > :not(.ani-info-badge-host):not(.ani-info-i-icon):not(.tooltip):not([role='tooltip']):not([class*='tooltip' i]):not([class*='popper' i]):not([class*='popover' i]) {
   display: none !important;
 }
@@ -6394,8 +6400,7 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settin
   gap: 14px !important;
   width: 100% !important;
   padding: 8px 10px !important;
-  border-radius: 12px !important;
-  background: rgba(255, 255, 255, 0.035) !important;
+  background: transparent !important;
   box-sizing: border-box !important;
   margin-bottom: 4px !important;
 }
@@ -8744,4 +8749,133 @@ body.ani-light-mode.ani-ambientlight-ui .user-setting-toolbox::after {
 }
 body.ani-light-mode.ani-ambientlight-ui :is(.ani-view-settings-panel, .user-setting-toolbox) :is(h2, h3, h4, strong, p, span, label, a, button) {
   color: #142232 !important;
+}
+
+/* Plus 3.20 renders each keyword inside its own tooltip host. */
+body.ani-ambientlight-ui #BH_background #plus_dan_keywords {
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+body.ani-ambientlight-ui #BH_background #plus_dan_keywords > .plus_describe_b,
+body.ani-ambientlight-ui #BH_background #plus_dan_keywords .plus_k-label {
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  width: fit-content !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+}
+body.ani-ambientlight-ui #BH_background #plus_dan_keywords .plus_k-label {
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 4px 8px 4px 12px !important;
+  border-radius: 999px !important;
+  border: 1px solid var(--ani-border, #53677e) !important;
+  background: var(--ani-surface, #2c3e50) !important;
+}
+body.ani-ambientlight-ui #BH_background #plusbox,
+body.ani-ambientlight-ui #BH_background #plusbox .plus-header {
+  padding: 0 !important;
+}
+body.ani-ambientlight-ui #BH_background #plusbox .plus-title {
+  font-size: 17px !important;
+  line-height: 1.3 !important;
+}
+
+body.ani-ambientlight-ui #BH_background .ani-plus-native-format > .ani-setting-item:first-child :is(.ani-setting-value, .plus_describe_b, .ani-plus-info-trigger) {
+  display: none !important;
+}
+body.ani-ambientlight-ui #BH_background .ani-plus-native-format > div:nth-child(2) {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body :is(.ani-setting-item, .ani-plus-form-row) {
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  min-height: 40px !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body :is(.ani-setting-label__mian, .ani-plus-row-title) {
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+body.ani-ambientlight-ui #BH_background #plus_dan_keywords {
+  min-height: 36px !important;
+}
+body.ani-ambientlight-ui #BH_background #plusbox .plus-header {
+  margin-bottom: 12px !important;
+}
+body.ani-ambientlight-ui #BH_background #plusbox .ani-setting-section > .ani-setting-item,
+body.ani-ambientlight-ui #BH_background #plusbox .ani-setting-section .ani-plus-form-row:not(.ani-plus-kw-chip) {
+  min-height: 54px !important;
+}
+body.ani-ambientlight-ui #BH_background #plusbox .ani-plus-jump-controls {
+  min-width: 0 !important;
+  width: auto !important;
+  flex: 1 1 0 !important;
+  flex-wrap: wrap !important;
+}
+
+body.ani-ambientlight-ui #BH_background #plusbox .plus-keyword-header > .ani-plus-pill-input {
+  flex: 0 0 56px !important;
+  max-width: 56px !important;
+}
+body.ani-ambientlight-ui #BH_background #plusbox :is(div:has(> .ani-keyword-header, > .plus_time_body.ani-plus-jump-controls), .ani-keyword-header, .ani-plus-jump-controls, .plus_time_body) {
+  border: 0 !important;
+}
+
+body.ani-ambientlight-ui #BH_background #ani-tab-content-2 .ani-drawer-slider-row > .ani-setting-label {
+  display: flex !important;
+  width: 100% !important;
+  align-items: center !important;
+}
+body.ani-ambientlight-ui #BH_background #ani-tab-content-2 .ani-drawer-slider-row .ani-setting-label__sub {
+  margin-inline-start: auto !important;
+}
+body.ani-ambientlight-ui #BH_background #plusbox .ani-plus-gear-btn:has(.ani-plus-tune-svg),
+body.ani-ambientlight-ui #BH_background #plusbox .plus_time_body.ani-plus-jump-controls > :nth-child(n+5) {
+  display: none !important;
+}
+body.ani-ambientlight-ui #BH_background #plusbox .plus_time_body.ani-plus-jump-controls {
+  display: grid !important;
+  grid-template-columns: repeat(4,minmax(0,1fr)) !important;
+  gap: 6px !important;
+  padding: 0 !important;
+}
+body.ani-ambientlight-ui #BH_background #plusbox .plus_time_body.ani-plus-jump-controls > .ani-plus-pill-btn {
+  min-width: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+body.ani-ambientlight-ui #BH_background #plusbox :is(.ani-setting-item,div):has(> div > .ani-keyword-header),
+body.ani-ambientlight-ui #BH_background #plusbox div:has(> .ani-keyword-header),
+body.ani-ambientlight-ui #BH_background #plusbox .ani-keyword-header {
+  padding-inline: 0 !important;
+  margin-inline: 0 !important;
+}
+body.ani-ambientlight-ui #BH_background #plusbox :is(.ani-keyword-header,#plus_dan_keywords) {
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+body.ani-ambientlight-ui #BH_background .ani-section-toggle:is([aria-controls="ani-fold-related"],[aria-controls="ani-episode-list"]) {
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+}
+@supports (appearance: base-select) {
+  body.ani-ambientlight-ui #BH_background .ani-plus-native-format select,
+  body.ani-ambientlight-ui #BH_background .ani-plus-native-format select::picker(select) {
+    appearance: base-select !important;
+  }
+  body.ani-ambientlight-ui #BH_background .ani-plus-native-format select::picker(select) {
+    padding: 4px;
+    margin-block: 4px;
+    border: 1px solid #465669;
+    background: #1c2736;
+    color: #edf3fa;
+    border-radius: 12px;
+  }
+  .ani-plus-native-format option { padding: 6px 12px; border-radius: 8px; }
+  .ani-plus-native-format option:is(:checked,:focus-visible,:hover) { background: #304955; color: #bbf6f9; }
 }
