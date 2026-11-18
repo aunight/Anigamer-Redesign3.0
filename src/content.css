@@ -4429,18 +4429,18 @@ body.ani-ambientlight-ui:not(:has(#blockVideoInSeason))
   font-size: 13px;
 }
 
-body.ani-ambientlight-page:not(:has(#blockVideoInSeason)):not(.ani-catalog-page) #BH_background .theme-list-main :is(.anime-detail-block, .theme-info-block, .theme-detail-info-block) {
+body.ani-ambientlight-page:not(:has(#blockVideoInSeason)):not(.ani-catalog-page) #BH_background .theme-list-main:not(.ani-poster-card) :is(.anime-detail-block, .theme-info-block, .theme-detail-info-block) {
   height: auto !important;
   min-height: 0 !important;
   position: static !important;
 }
-body.ani-ambientlight-page:not(:has(#blockVideoInSeason)):not(.ani-catalog-page) #BH_background .theme-list-main .theme-info-block {
+body.ani-ambientlight-page:not(:has(#blockVideoInSeason)):not(.ani-catalog-page) #BH_background .theme-list-main:not(.ani-poster-card) .theme-info-block {
   padding: 10px 4px 4px !important;
   display: flex !important;
   flex-direction: column !important;
   gap: 6px !important;
 }
-body.ani-ambientlight-page:not(:has(#blockVideoInSeason)):not(.ani-catalog-page) #BH_background .theme-list-main .theme-name {
+body.ani-ambientlight-page:not(:has(#blockVideoInSeason)):not(.ani-catalog-page) #BH_background .theme-list-main:not(.ani-poster-card) .theme-name {
   display: block !important;
   white-space: nowrap !important;
   overflow: hidden !important;
@@ -4451,7 +4451,7 @@ body.ani-ambientlight-page:not(:has(#blockVideoInSeason)):not(.ani-catalog-page)
   font-weight: 600 !important;
   line-height: 1.4 !important;
 }
-body.ani-ambientlight-page:not(:has(#blockVideoInSeason)):not(.ani-catalog-page) #BH_background .theme-list-main:hover .theme-name {
+body.ani-ambientlight-page:not(:has(#blockVideoInSeason)):not(.ani-catalog-page) #BH_background .theme-list-main:not(.ani-poster-card):hover .theme-name {
   display: block !important;
   white-space: normal !important;
   overflow: visible !important;
@@ -4459,7 +4459,7 @@ body.ani-ambientlight-page:not(:has(#blockVideoInSeason)):not(.ani-catalog-page)
   -webkit-line-clamp: unset !important;
   max-height: none !important;
 }
-body.ani-ambientlight-page:not(:has(#blockVideoInSeason)):not(.ani-catalog-page) #BH_background .theme-list-main .theme-detail-info-block {
+body.ani-ambientlight-page:not(:has(#blockVideoInSeason)):not(.ani-catalog-page) #BH_background .theme-list-main:not(.ani-poster-card) .theme-detail-info-block {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
@@ -4468,13 +4468,13 @@ body.ani-ambientlight-page:not(:has(#blockVideoInSeason)):not(.ani-catalog-page)
   margin: 0 !important;
   width: 100% !important;
 }
-body.ani-ambientlight-page:not(:has(#blockVideoInSeason)):not(.ani-catalog-page) #BH_background .theme-list-main :is(.theme-time, .theme-number) {
+body.ani-ambientlight-page:not(:has(#blockVideoInSeason)):not(.ani-catalog-page) #BH_background .theme-list-main:not(.ani-poster-card) :is(.theme-time, .theme-number) {
   position: static !important;
   margin: 0 !important;
   float: none !important;
   font-size: 12px !important;
 }
-body.ani-ambientlight-ui:not(:has(#blockVideoInSeason)) #BH_background .theme-list-main .theme-number {
+body.ani-ambientlight-ui:not(:has(#blockVideoInSeason)) #BH_background .theme-list-main:not(.ani-poster-card) .theme-number {
   background: var(--ani-accent, #3dafb6) !important;
   color: #0f1621 !important;
   padding: 2px 7px !important;

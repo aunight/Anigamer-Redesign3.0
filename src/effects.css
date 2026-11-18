@@ -444,7 +444,7 @@ body.ani-theater-layout .subtitle #sub_list .sub-list-li > div:first-child {
   padding-block: var(--ani-danmu-row-spacing, 10px) !important;
 }
 body.ani-hide-info #BH_background section.data,
-body.ani-hide-related #BH_background > .container-player > .old_list,
+body.ani-hide-related #BH_background > .container-player > :is(.old_list, .ani-watch-related-row),
 body.ani-hide-news #BH_background > .container-player > .animate-theme-list,
 body.ani-hide-comments #BH_background :is(.commend-title, #w-post-box) {
   display: none !important;

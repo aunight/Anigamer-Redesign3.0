@@ -61,6 +61,8 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
           : json?.data?.reviewed
           ? [json.data.reviewed]
           : [];
+        const myAnyRaw = rawReviewed.find(Boolean);
+        const myRating = Number(myAnyRaw?.reviews?.rating ?? myAnyRaw?.rating ?? myAnyRaw?.star ?? myAnyRaw?.score ?? 0) || 0;
         const myRaw = rawReviewed.find((it) => it && (it.content || '').trim().length > 0);
         const myReview = myRaw ? mapReviewItem(myRaw) : null;
         const rawList = Array.isArray(json?.data?.list) ? json.data.list.flat(2) : [];
@@ -69,9 +71,9 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
           .sort((a, b) => Number(b?.likeCount || 0) - Number(a?.likeCount || 0))
           .slice(0, 10)
           .map(mapReviewItem);
-        reply({ myReview, reviews });
+        reply({ myReview, myRating, reviews });
       } catch (err) {
-        reply({ myReview: null, reviews: [], error: String(err?.message || err || '') });
+        reply({ myReview: null, myRating: 0, reviews: [], error: String(err?.message || err || '') });
       }
     })();
     return true;
