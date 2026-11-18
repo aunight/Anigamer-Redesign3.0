@@ -7497,74 +7497,205 @@ body.ani-ambientlight-ui .top_sky .user-setting-toolbox > :not(.ani-btn-glass) {
   .ani-lens-theme-wrap { margin-right: 6px; transform: scale(0.88); transform-origin: right center; }
 }
 
-/* Full frosted daytime theme across site chrome when Lens Switch is toggled to Sun */
+/* Comprehensive frosted daytime Light Mode across ALL sections, banners, cards, weather, drawers, comments & popovers */
+html.ani-light-mode,
 html.ani-light-mode body.ani-ambientlight-ui,
 body.ani-light-mode.ani-ambientlight-ui {
+  color-scheme: light !important;
   --ani-base: #eef4f9;
   --ani-surface: #ffffff;
   --ani-surface-rgb: 255, 255, 255;
-  --ani-panel: rgba(255, 255, 255, 0.84);
+  --ani-panel: rgba(255, 255, 255, 0.88);
+  --ani-panel-soft: rgba(18, 38, 60, 0.06);
   --ani-card-bg: rgba(255, 255, 255, 0.92);
-  --ani-glass: rgba(255, 255, 255, 0.78);
+  --ani-glass: rgba(255, 255, 255, 0.84);
   --ani-soft: rgba(18, 38, 60, 0.08);
   --ani-line: rgba(18, 38, 60, 0.12);
   --ani-text: #142232;
   --ani-muted: #526478;
   --ani-accent: #14939c;
-  background-color: #eef4f9 !important;
+  --ani-episode-glass: rgba(255, 255, 255, 0.86);
+  --ani-episode-rim: rgba(18, 38, 60, 0.16);
+  background: #eaf1f8 !important;
+  background-color: #eaf1f8 !important;
   color: #142232 !important;
 }
 body.ani-light-mode.ani-ambientlight-ui .top_sky {
-  background: rgba(242, 247, 252, 0.78) !important;
+  background: rgba(244, 248, 252, 0.82) !important;
 }
 body.ani-light-mode.ani-ambientlight-ui .top_sky .sky :is(.logo, .anime_search-input, .ani-view-settings, .member::before),
 body.ani-light-mode.ani-ambientlight-ui .top_sky .mainmenu > .container-player > ul {
-  background: linear-gradient(155deg, rgba(255, 255, 255, 0.88), rgba(235, 243, 250, 0.84)) !important;
-  border-color: rgba(18, 38, 60, 0.12) !important;
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.96), rgba(242, 247, 253, 0.94)) !important;
+  border-color: rgba(18, 38, 60, 0.14) !important;
   color: #142232 !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 6px 20px rgba(20, 40, 68, 0.1) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 1), 0 6px 20px rgba(20, 40, 68, 0.09) !important;
 }
-body.ani-light-mode.ani-ambientlight-ui .top_sky :is(.anime_search-input input, .ani-view-settings, .sky .member a, .sky .member svg, .mainmenu a, .mainmenu span, .mainmenu svg) {
+body.ani-light-mode.ani-ambientlight-ui .ani-lens-theme-wrap {
+  --track-glass: linear-gradient(155deg, rgba(255, 255, 255, 0.94), rgba(232, 240, 248, 0.9));
+  --tick-cold: rgba(20, 42, 68, 0.28);
+}
+body.ani-light-mode.ani-ambientlight-ui .top_sky :is(.anime_search-input input, .ani-view-settings, .sky .member a, .sky .member svg, .sky .member svg path, .sky .member svg polygon, .mainmenu a, .mainmenu span, .mainmenu svg) {
   color: #1c2e42 !important;
+  fill: #1c2e42 !important;
+}
+body.ani-light-mode.ani-ambientlight-ui .top_sky .anime_search-input input::placeholder {
+  color: rgba(28, 46, 66, 0.56) !important;
+}
+body.ani-light-mode.ani-ambientlight-ui .top_sky .sky .member > li:not(.searchbtn):is(:hover, :focus-within, .is-active) > a {
+  background: rgba(20, 147, 156, 0.14) !important;
+  box-shadow: inset 0 0 0 1px rgba(20, 147, 156, 0.3) !important;
 }
 body.ani-light-mode.ani-ambientlight-ui #BH_background {
-  background: radial-gradient(1200px 680px at 50% 0%, #f7fafd 0%, #eaf1f8 58%, #e0eaf3 100%) !important;
+  background: radial-gradient(1200px 680px at 50% 0%, #f7fafd 0%, #eaf1f8 58%, #dfe9f3 100%) !important;
   color: #142232 !important;
 }
-body.ani-light-mode.ani-ambientlight-ui #BH_background :is(.ani-fp-card, .ani-wx-card, .ani-setting-section, .ani-player-settings-body::before, .data_type, .theme-list-main, .anime-card-block .anime-detail-block, .continue-watch-card .content-block, .ani-merch-section :is(.store_item, .store_wrapper li), .ani-review-card, .data-file, section.data) {
-  background: rgba(255, 255, 255, 0.82) !important;
-  border-color: rgba(18, 38, 60, 0.12) !important;
-  color: #142232 !important;
-  box-shadow: 0 10px 28px rgba(22, 42, 66, 0.08) !important;
+/* Hero banner in Light Mode: soft sky edge, frosted bright glass info card, crisp dark text */
+body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-hero {
+  background: #e4edf6 !important;
 }
-body.ani-light-mode.ani-ambientlight-ui #BH_background :is(.ani-fp-head, .ani-fp-stat b, .ani-wx-city, .ani-wx-temp, .ani-wx-hours b, .ani-wx-hi, .ani-wx-dn, .ani-wx-clock, .theme-name, .anime-name, .anime-name *, .theme-title, h1, h2, h3, .data-intro, .anime_name h1):not(.ani-hero-panel *):not(.ani-hero *) {
+body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-hero-images {
+  background: #dce7f2 !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-hero-shade {
+  background: linear-gradient(0deg, rgba(234, 241, 248, 0.88) 0%, rgba(234, 241, 248, 0.25) 42%, transparent 72%) !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-hero-panel {
+  background: linear-gradient(125deg, rgba(255, 255, 255, 0.86), rgba(242, 248, 253, 0.82)) !important;
+  border-color: rgba(255, 255, 255, 0.8) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 10px 30px rgba(20, 40, 68, 0.14) !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-hero-panel :is(h2, .ani-hero-description, p) {
   color: #142232 !important;
   -webkit-text-fill-color: #142232 !important;
 }
-body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-hero-panel :is(h2, p, span) {
-  color: #f2f7fc !important;
-  -webkit-text-fill-color: #f2f7fc !important;
+body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-hero-stat:not(:first-child) {
+  background: rgba(18, 38, 60, 0.08) !important;
+  border-color: rgba(18, 38, 60, 0.14) !important;
+  color: #142232 !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background :is(.ani-hero-arrow, .ani-hero-favorite, .ani-hero-pause, .ani-rail-arrow) {
+  background: rgba(255, 255, 255, 0.86) !important;
+  border-color: rgba(18, 38, 60, 0.14) !important;
+  color: #142232 !important;
+  box-shadow: 0 4px 14px rgba(20, 40, 68, 0.12) !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-hero-favorite {
+  color: #c94872 !important;
+}
+/* Weather Sky Box in Light Mode */
+body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-wx-sky {
+  background: linear-gradient(180deg, #dcebf8 0%, #eef5fc 100%) !important;
+  border-color: rgba(18, 38, 60, 0.12) !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-wx-sky .s-off { fill: rgba(20, 48, 78, 0.06) !important; }
+body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-wx-sky .s-hz { fill: rgba(20, 48, 78, 0.18) !important; }
+body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-wx-sky .s-cloud { fill: #6389b0 !important; }
+body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-wx-sky .s-cloudDark { fill: #43678c !important; }
+body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-wx-sky .s-hill { fill: rgba(20, 147, 156, 0.26) !important; }
+body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-wx-sky :is(.ani-wx-temp, .ani-wx-cond) {
+  color: #142232 !important;
+}
+/* Cards, Sections, Watch Page, News, Filters, Drawers, Comments & Announcement Bar in Light Mode */
+body.ani-light-mode.ani-ambientlight-ui #BH_background :is(
+  .ani-fp-card, .ani-wx-card, .ani-setting-section, .ani-player-settings-body::before, .ani-plus-subcard, .ani-drawer-slot-extra > *,
+  .data_type, .theme-list-main, .theme-list-main .anime-detail-block,
+  .anime-card-block, .anime-card-block .anime-detail-block,
+  .continue-watch-card, .continue-watch-card .content-block,
+  .extend-card, .premium-info, .filter-section,
+  .ani-merch-section :is(.store_item, .store_wrapper li),
+  .ani-review-card, .ani-my-review-box, .data-file, section.data,
+  .ani-ep-drawer-panel, .ani-history-card, .paycard, .userpaychose,
+  #w-post-box .commend-content, .reply-item, .w-post-form,
+  .anime-date-info
+),
+body.ani-light-mode.ani-ambientlight-ui .bottom-announcement,
+body.ani-light-mode.ani-ambientlight-ui :is(.anime_search-content, .filter-items, .dialogify__content, .ani-fp-tip) {
+  background: rgba(255, 255, 255, 0.88) !important;
+  border-color: rgba(18, 38, 60, 0.12) !important;
+  color: #142232 !important;
+  box-shadow: 0 10px 26px rgba(22, 42, 66, 0.08) !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background #blockVideoInSeason .newanime-date-area .anime-date-info {
+  background: rgba(255, 246, 229, 0.96) !important;
+  border-color: rgba(212, 145, 52, 0.45) !important;
+  color: #8c5408 !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background :is(
+  .ani-fp-head, .ani-fp-stat b, .ani-wx-city, .ani-wx-temp, .ani-wx-hours b, .ani-wx-hi, .ani-wx-dn, .ani-wx-clock,
+  .theme-name, .anime-name, .anime-name *, .theme-title, h1, h2, h3, .data-intro, .anime_name h1,
+  .extend-title, .season ul li a, .ani-tabs-link, .ani-review-user, .commend-content, .commend-content *,
+  .ani-player-settings-body :is(div, span, label, h4, p):not(.ani-plus-pill-btn):not(.ani-plus-pill-btn *):not(.ani-plus-status-pill),
+  .ani-merch-section a:not(.store_buy):not(.store_btn):not(.btn),
+  .ani-region-toggle, .ani-comment-columns-toggle
+):not(.ani-poster-score):not(.ani-age-restricted):not(.ani-serial-label) {
+  color: #142232 !important;
+  -webkit-text-fill-color: #142232 !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background :is(
+  .ani-fp-stat small, .ani-fp-eyebrow, .ani-fp-months, .ani-fp-days, .ani-fp-foot, .ani-fp-unit, .ani-fp-head-unit, .ani-ampm-unit,
+  .ani-wx-place small, .ani-wx-live, .ani-wx-hl, .ani-wx-lo, .theme-time, .show-view-number, .show-view-number *, .anime-watch-number, .anime-watch-number *,
+  .extend-content, .data li, .ani-review-meta
+),
+body.ani-light-mode.ani-ambientlight-ui .bottom-announcement :is(.announce-text, .announce-text a) {
+  color: #4b5e73 !important;
+  -webkit-text-fill-color: #4b5e73 !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background :is(
+  .ani-fp-seg, .ani-fp-sync-btn, .season ul li a, .btn-show-more, .btn-newanime-filter,
+  .class_list li a, .ani-my-write-review-btn, .ani-player-settings-toggle, .ani-danmu-position-btn,
+  .ani-merch-section :is(.store_buy, .store_btn, a.btn, button),
+  .plus_imagetool_box :is(.ani-tools-toggle-btn, .shortcut-button, .plus_button_box)
+),
+body.ani-light-mode.ani-ambientlight-ui .bottom-announcement .btn-next {
+  background: rgba(18, 38, 60, 0.07) !important;
+  border-color: rgba(18, 38, 60, 0.16) !important;
+  color: #142232 !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background .btn-newanime-filter .newanime-filter-text,
+body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-player-settings-toggle * {
+  color: #142232 !important;
 }
 body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-fp-cell:not([data-l='1']):not([data-l='2']):not([data-l='3']):not([data-l='4']),
 body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-wx-seg:not(.on) {
   background: rgba(18, 38, 60, 0.09) !important;
 }
-body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-fp-seg,
-body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-fp-sync-btn {
+body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-poster-card .theme-number,
+body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-poster-card .ani-poster-score,
+body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-poster-card .label-edition,
+body.ani-light-mode.ani-ambientlight-ui #BH_background #blockVideoInSeason .info-row > :is(.episode-block, .anime-hours-block, .anime-episode) {
+  color: #142232 !important;
+  background: rgba(255, 255, 255, 0.88) !important;
+  border-color: rgba(18, 38, 60, 0.16) !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-poster-card .ani-age-restricted {
+  background: #b94257 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background section.player .subtitle .ani-tabs {
   background: rgba(18, 38, 60, 0.06) !important;
+  border-color: rgba(18, 38, 60, 0.12) !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background section.player .subtitle .ani-tabs-link.is-active {
+  background: rgba(20, 147, 156, 0.18) !important;
+  color: #0b6d75 !important;
+}
+body.ani-light-mode.ani-ambientlight-ui :is(input[type='text'], input[type='search'], textarea, select):not(.anime_search-input input) {
+  background: rgba(18, 38, 60, 0.05) !important;
   border-color: rgba(18, 38, 60, 0.16) !important;
   color: #142232 !important;
 }
-body.ani-light-mode.ani-ambientlight-ui #BH_background :is(.ani-fp-stat small, .ani-fp-eyebrow, .ani-fp-months, .ani-fp-days, .ani-fp-foot, .ani-fp-unit, .ani-fp-head-unit, .ani-ampm-unit, .ani-wx-place small, .ani-wx-live, .ani-wx-hl, .ani-wx-lo, .theme-time, .show-view-number, .anime-watch-number, .anime-watch-number *) {
-  color: #526478 !important;
-  -webkit-text-fill-color: #526478 !important;
+body.ani-light-mode.ani-ambientlight-ui .footer {
+  background: rgba(235, 242, 249, 0.9) !important;
+  color: #4b5e73 !important;
+  border-top-color: rgba(18, 38, 60, 0.12) !important;
 }
-body.ani-light-mode .ani-view-settings-panel,
-body.ani-light-mode .user-setting-toolbox::after {
-  background: rgba(246, 250, 254, 0.92) !important;
+body.ani-light-mode.ani-ambientlight-ui .ani-view-settings-panel,
+body.ani-light-mode.ani-ambientlight-ui .user-setting-toolbox::after {
+  background: rgba(248, 251, 255, 0.94) !important;
   color: #142232 !important;
   border-color: rgba(18, 38, 60, 0.14) !important;
 }
-body.ani-light-mode :is(.ani-view-settings-panel, .user-setting-toolbox) :is(h2, h3, h4, strong, p, span, label, a, button) {
+body.ani-light-mode.ani-ambientlight-ui :is(.ani-view-settings-panel, .user-setting-toolbox) :is(h2, h3, h4, strong, p, span, label, a, button) {
   color: #142232 !important;
 }
