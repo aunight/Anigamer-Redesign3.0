@@ -3748,7 +3748,7 @@
       membership.dataset.aniPlans='loading';
       const section=document.createElement('section');section.className='ani-membership-plans';const title=document.createElement('h2');title.textContent='付費方案';
       title.insertAdjacentHTML('afterbegin',accountIcon('<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18m-13 5h4"/>'));section.append(title);
-      const grid=document.createElement('div');grid.className='ani-plan-grid';section.append(grid);
+      const grid=document.createElement('div');grid.className='ani-plan-grid';grid.hidden=true;section.append(grid);
       const free=document.createElement('div');free.className='paycard-container ani-free-plan';free.innerHTML='<div class="paycard"><p class="programtitle">免費觀看</p><div class="programoney"><span class="money-unit">NTD</span><span class="money-main">0</span><span class="money-sub">元</span></div><div class="ani-plan-detail"><p class="ani-plan-daily">540p 畫質</p><p class="ani-free-note">加入會員後享有 720p</p></div></div><a class="ani-free-watch" href="/">免費觀看</a>';grid.append(free);
       document.body.classList.add('ani-membership-page');
       if (!document.querySelector('.ani-membership-background')) {
@@ -3871,34 +3871,30 @@
         ];
         const validPortraitCovers = [];
         let fallbackCoverCursor = 0;
-        const fillFromValidCover = (img) => {
-          if (img.dataset.aniFallbackApplied) {
-            img.remove();
-            return;
-          }
-          if (validPortraitCovers.length > 0) {
-            img.dataset.aniFallbackApplied = 'true';
-            img.src = validPortraitCovers[fallbackCoverCursor++ % validPortraitCovers.length];
-          } else {
-            img.remove();
+        const showCover = async (image) => {
+          try {
+            await image.decode();
+            if (image.naturalWidth < image.naturalHeight) {
+              if (!validPortraitCovers.includes(image.src)) validPortraitCovers.push(image.src);
+              image.classList.add('ani-cover-ready');
+              return;
+            }
+          } catch {}
+          // Keep a tile's grid position during a retry or a failed load.
+          if (!image.dataset.aniFallbackApplied && validPortraitCovers.length) {
+            image.dataset.aniFallbackApplied = 'true';
+            image.src = validPortraitCovers[fallbackCoverCursor++ % validPortraitCovers.length];
+            await showCover(image);
           }
         };
-        const tiledCovers = [...covers, ...covers];
-        for (const cover of tiledCovers) {
+        for (const cover of [...covers, ...covers]) {
           const image = document.createElement('img');
           image.alt = '';
           image.decoding = 'async';
           image.loading = 'eager';
-          image.addEventListener('load', () => {
-            if (image.naturalWidth >= image.naturalHeight) {
-              fillFromValidCover(image);
-            } else if (!validPortraitCovers.includes(image.src)) {
-              validPortraitCovers.push(image.src);
-            }
-          }, { once: true });
-          image.addEventListener('error', () => fillFromValidCover(image), { once: true });
           image.src = cover;
           background.append(image);
+          void showCover(image);
         }
         document.body.prepend(background);
       }
@@ -3948,15 +3944,15 @@
           if(money){for(const node of [...money.childNodes]){if(node.nodeType===3&&/原價/.test(node.textContent)){const original=document.createElement('span');original.className='ani-original-price';original.textContent=node.textContent.trim();node.replaceWith(original);}else if(node.nodeType===1&&/原價/.test(node.textContent)&&!node.querySelector('.money-main'))node.classList.add('ani-original-price');}}
           grid.append(card);
         }
-        fallback.remove();membership.dataset.aniPlans='loaded';return true;
+        fallback.remove();grid.hidden=false;membership.dataset.aniPlans='loaded';return true;
       };
       const loadRenderedPlans=()=>{
         const frame=document.createElement('iframe');frame.hidden=true;frame.style.setProperty('display','none','important');frame.tabIndex=-1;frame.setAttribute('aria-hidden','true');frame.src='animePay.php';
         let watcher,timeout;const cleanup=()=>{watcher?.disconnect();clearTimeout(timeout);frame.remove();};
-        frame.addEventListener('load',()=>{try{const doc=frame.contentDocument;if(!doc)return;if(mountPlans(doc)){cleanup();return;}watcher=new MutationObserver(()=>{if(mountPlans(doc))cleanup();});watcher.observe(doc.documentElement,{childList:true,subtree:true});}catch{cleanup();fallback.textContent='開啟完整付費方案';membership.dataset.aniPlans='failed';}});
-        timeout=setTimeout(()=>{cleanup();if(membership.dataset.aniPlans!=='loaded'){membership.dataset.aniPlans='failed';fallback.textContent='開啟完整付費方案';}},12000);document.body.append(frame);
+        frame.addEventListener('load',()=>{try{const doc=frame.contentDocument;if(!doc)return;if(mountPlans(doc)){cleanup();return;}watcher=new MutationObserver(()=>{if(mountPlans(doc))cleanup();});watcher.observe(doc.documentElement,{childList:true,subtree:true});}catch{cleanup();fallback.textContent='開啟完整付費方案';grid.hidden=false;membership.dataset.aniPlans='failed';}});
+        timeout=setTimeout(()=>{cleanup();if(membership.dataset.aniPlans!=='loaded'){grid.hidden=false;membership.dataset.aniPlans='failed';fallback.textContent='開啟完整付費方案';}},12000);document.body.append(frame);
       };
-      aniFetch(new URL('animePay.php',location.href).href,{credentials:'include',signal:AbortSignal.timeout(12000)}).then(r=>{if(!r.ok)throw new Error('plans unavailable');return r.text();}).then(html=>{if(!mountPlans(new DOMParser().parseFromString(html,'text/html')))loadRenderedPlans();}).catch(()=>{membership.dataset.aniPlans='failed';fallback.textContent='開啟完整付費方案';});
+      aniFetch(new URL('animePay.php',location.href).href,{credentials:'include',signal:AbortSignal.timeout(12000)}).then(r=>{if(!r.ok)throw new Error('plans unavailable');return r.text();}).then(html=>{if(!mountPlans(new DOMParser().parseFromString(html,'text/html')))loadRenderedPlans();}).catch(()=>{grid.hidden=false;membership.dataset.aniPlans='failed';fallback.textContent='開啟完整付費方案';});
     }
     for(const item of document.querySelectorAll('.userpay-precautions .item > svg'))item.remove();
     const status=document.querySelector('.status-info');

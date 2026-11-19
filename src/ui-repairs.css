@@ -6989,31 +6989,16 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep
   }
 }
 
-/* Membership paycard staggered entrance & hover lift animation */
-@keyframes aniPaycardEnter {
-  from {
-    transform: translateY(22px) scale(0.97);
-  }
-  to {
-    transform: translateY(0) scale(1);
-  }
-}
-body.ani-membership-page #BH_background .ani-membership-plans .paycard-container {
-  animation: aniPaycardEnter 0.52s cubic-bezier(0.22, 1, 0.36, 1) backwards !important;
-  transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1), filter 0.24s ease !important;
-}
-body.ani-membership-page #BH_background .ani-membership-plans .paycard-container:nth-child(1) { animation-delay: 0.04s !important; }
-body.ani-membership-page #BH_background .ani-membership-plans .paycard-container:nth-child(2) { animation-delay: 0.11s !important; }
-body.ani-membership-page #BH_background .ani-membership-plans .paycard-container:nth-child(3) { animation-delay: 0.18s !important; }
-body.ani-membership-page #BH_background .ani-membership-plans .paycard-container:nth-child(4) { animation-delay: 0.25s !important; }
-body.ani-membership-page #BH_background .ani-membership-plans .paycard-container:nth-child(5) { animation-delay: 0.32s !important; }
-body.ani-membership-page #BH_background .ani-membership-plans .paycard-container:hover {
-  transform: translateY(-6px) !important;
-}
-@media (prefers-reduced-motion: reduce) {
+/* Reveal the plan row together, keeping the glass surfaces fully composited. */
+body.ani-membership-page #BH_background .ani-plan-grid[hidden] { display:none !important; }
+.ani-membership-background > img:not(.ani-cover-ready) { opacity:0; }
+@media (prefers-reduced-motion: no-preference) {
+  .ani-membership-background > img { transition:opacity 360ms ease-out; }
   body.ani-membership-page #BH_background .ani-membership-plans .paycard-container {
-    animation: none !important;
-    transition: none !important;
+    transition:transform 240ms ease-out !important;
+  }
+  body.ani-membership-page #BH_background .ani-membership-plans .paycard-container:hover {
+    transform:translateY(-6px) !important;
   }
 }
 
@@ -9919,7 +9904,8 @@ body.ani-membership-page.ani-light-mode.ani-ambientlight-ui {
   }
   #BH_background .ani-membership-plans .userpaychose,
   #BH_background .ani-membership-summary > div,
-  #BH_background .record-list-content {
+  #BH_background .usercard:has(.record-list),
+  #BH_background .ani-membership-footer :is(.userpay-precautions,.ani-renewal-body) {
     background:rgb(246 251 255 / 65%) !important;
     border-color:rgb(66 105 125 / 30%) !important;
     backdrop-filter:blur(24px) saturate(125%);
@@ -9940,10 +9926,20 @@ body.ani-membership-page.ani-light-mode.ani-ambientlight-ui {
   }
   #BH_background .ani-membership-plans :is(.programtitle,.ani-plan-daily,.ani-plan-benefit,.ani-free-note),
   #BH_background .ani-membership-summary :is(span,strong),
-  #BH_background .record-list :is(.info-content,.list-grow) {
+  #BH_background .record-list :is(.info-content,.list-grow),
+  #BH_background .ani-membership-footer :is(.item,.item span,.ani-renewal-body p,.ani-membership-renewal .programtitle) {
     color:#20384b !important;
   }
   #BH_background .ani-membership-plans .money-main { color:#086d75 !important; }
+  #BH_background .usercard:has(.record-list) .record-list-content { background:transparent !important; }
+  #BH_background .ani-membership-footer .userpay-precautions a { color:#08616d !important; }
+  #BH_background .ani-membership-renewal .paycard,
+  #BH_background .list-morebtn {
+    background:rgb(224 242 248 / 76%) !important;
+    border-color:rgb(66 105 125 / 32%) !important;
+    color:#20384b !important;
+  }
+
   #BH_background .ani-membership-plans :is(.ani-free-watch,.ani-payment-trigger,.ani-current-plan-tag,.userpaychose > a) {
     background:rgb(220 243 248 / 85%) !important;
     border-color:rgb(39 113 129 / 30%) !important;
