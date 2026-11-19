@@ -57,6 +57,7 @@
         "black-bars.js",
         "ambient-renderer.js",
         "content.js",
+        "opencc.js",
         "enhancements.js"
       ],
       "run_at": "document_end"

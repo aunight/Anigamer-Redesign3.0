@@ -11,14 +11,46 @@
     return;
   }
   if (root.querySelector(':scope > .ani-home-intro')) return;
+  function onVisibleConsent(callback) {
+    if (location.pathname !== '/animeVideo.php') return () => {};
+    const observer = new MutationObserver(() => {
+      const prompt = document.querySelector('#ani_video :is(.ncc-choosebar:has(.choose-btn-agree), .ani-age-ready)');
+      if (!prompt?.getClientRects().length || getComputedStyle(prompt).visibility === 'hidden') return;
+      observer.disconnect();
+      callback();
+    });
+    observer.observe(root, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ['class', 'style', 'hidden'],
+    });
+    return () => observer.disconnect();
+  }
+
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const reload = performance.getEntriesByType?.('navigation')[0]?.type === 'reload';
-  try{const font=localStorage.getItem('aniIntroFontHint')||sessionStorage.getItem('aniIntroFont');if(font)root.style.setProperty('--ani-font',font);}catch{}
-  const fontUrls={sans:'https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=block',serif:'https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700&display=block',wenkai:'https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@300;400;700&display=block',chironHei:'https://fonts.googleapis.com/css2?family=Chiron+Hei+HK:wght@400;500;700&display=block',chironSung:'https://fonts.googleapis.com/css2?family=Chiron+Sung+HK:wght@400;600;700&display=block',iansui:'https://fonts.googleapis.com/css2?family=Iansui&display=block'};
-  const ensureLink=(id,rel,href,crossOrigin)=>{let el=document.getElementById(id);if(el)return el;el=document.createElement('link');el.id=id;el.rel=rel;el.href=href;if(crossOrigin)el.crossOrigin=crossOrigin;(document.head||root).append(el);return el;};
-  ensureLink('ani-gf-preconnect-1','preconnect','https://fonts.googleapis.com');
-  ensureLink('ani-gf-preconnect-2','preconnect','https://fonts.gstatic.com','anonymous');
-  try{const hintUrl=localStorage.getItem('aniFontUrlHint');if(hintUrl)ensureLink('ani-intro-font','stylesheet',hintUrl.replace('display=swap','display=block'));}catch{}
+  const nextFrame = window.requestAnimationFrame?.bind(window) || (fn => setTimeout(fn, 16));
+  const whenSettingsDisabled = (dismiss) => {
+    const check = (saved) => { if (saved?.themeEnabled === false) dismiss(); };
+    if (globalThis.chrome?.storage?.sync) chrome.storage.sync.get({ themeEnabled: true }, check);
+    else if (typeof GM_getValue === 'function') Promise.resolve(GM_getValue('aniAmbientSettingsV1', {})).then(check).catch(() => {});
+  };
+  try {
+    const font = localStorage.getItem('aniIntroFontHint') || sessionStorage.getItem('aniIntroFont');
+    if (font) root.style.setProperty('--ani-font', font);
+    const hint = new URL(localStorage.getItem('aniFontUrlHint') || '', location.href);
+    if (hint.origin === 'https://fonts.googleapis.com' && hint.pathname === '/css2' && !document.getElementById('ani-intro-font')) {
+      const link = document.createElement('link');
+      link.id = 'ani-intro-font';
+      link.rel = 'stylesheet';
+      link.href = hint.href.replace(/display=block$/, 'display=swap');
+      // Keep the early font request off the critical rendering path.
+      link.media = 'print';
+      link.addEventListener('load', () => { link.media = 'all'; }, { once: true });
+      (document.head || root).append(link);
+    }
+  } catch {}
   try {
     const internal = document.referrer && new URL(document.referrer).origin === location.origin;
     if (internal && !reload) {
@@ -26,13 +58,30 @@
       cover.className = 'ani-route-cover';
       cover.setAttribute('aria-hidden', 'true');
       root.append(cover);
-      const finish = () => {
-        cover.classList.add('ani-route-visible');
-        setTimeout(() => cover.remove(), 200);
+      let finished = false;
+      const finish = (immediate = false) => {
+        if (finished) {
+          if (immediate) cover.remove();
+          return;
+        }
+        finished = true;
+        stopWatchingConsent();
+        clearTimeout(deadline);
+        window.removeEventListener('ani-ui-ready', ready);
+        document.removeEventListener('DOMContentLoaded', ready);
+        if (immediate || reduced) cover.remove();
+        else {
+          cover.classList.add('ani-route-visible');
+          setTimeout(() => cover.remove(), 140);
+        }
       };
-      if (root.dataset.aniUiReady) finish();
-      else window.addEventListener('ani-ui-ready', finish, {once:true});
-      setTimeout(() => { if (cover.isConnected) finish(); }, 2000);
+      const ready = () => nextFrame(() => finish());
+      const stopWatchingConsent = onVisibleConsent(() => finish(true));
+      const deadline = setTimeout(finish, 500);
+      window.addEventListener('ani-ui-ready', ready, { once: true });
+      document.addEventListener('DOMContentLoaded', ready, { once: true });
+      if (root.dataset.aniUiReady || document.readyState !== 'loading') ready();
+      whenSettingsDisabled(() => finish(true));
       return;
     }
   } catch {}
@@ -54,15 +103,13 @@
   logo.replaceChildren(...layers);
   root.append(curtain);
   let done = false;
-  let ready = document.readyState !== 'loading' || Boolean(root.dataset.aniUiReady);
-  let firstFrame = 0;
-  let fontSettled = false;
-  const frame = window.requestAnimationFrame?.bind(window) || (fn => setTimeout(fn, 16));
   function reveal() {
     if (done) return;
     done = true;
+    stopWatchingConsent();
     clearTimeout(deadline);
-    try { sessionStorage.setItem('aniIntroPlayed', '1'); } catch {}
+    document.removeEventListener('DOMContentLoaded', settled);
+    window.removeEventListener('ani-ui-ready', settled);
     delete root.dataset.aniBooting;
     curtain.classList.add('ani-intro-reveal');
     if (reduced) curtain.remove();
@@ -71,63 +118,24 @@
         if (event.target === curtain && event.propertyName === 'opacity') curtain.remove();
       };
       curtain.addEventListener('transitionend', remove);
-      setTimeout(() => curtain.remove(), 650);
+      setTimeout(() => curtain.remove(), 220);
     }
-  }
-  function finishWhenReady() {
-    if (!ready || !firstFrame || !fontSettled || done) return;
-    setTimeout(reveal, Math.max(0, firstFrame + (reduced ? 0 : 850) - performance.now()));
   }
   function settled() {
-    ready = true;
-    finishWhenReady();
+    if (reduced) reveal();
+    else nextFrame(reveal);
   }
-  const deadline = setTimeout(reveal, reduced ? 900 : 2000);
-  frame(() => {
-    firstFrame = performance.now();
-    finishWhenReady();
+  const stopWatchingConsent = onVisibleConsent(() => {
+    reveal();
+    curtain.remove();
   });
+  const deadline = setTimeout(reveal, 850);
   document.addEventListener('DOMContentLoaded', settled, {once: true});
   window.addEventListener('ani-ui-ready', settled, {once: true});
-  async function settings(saved) {
-    if (saved.themeEnabled === false) { reveal(); curtain.remove(); return; }
-    const families = {sans:'Noto Sans TC', serif:'Noto Serif TC', wenkai:'LXGW WenKai TC', chironHei:'Chiron Hei HK', chironSung:'Chiron Sung HK', iansui:'Iansui'};
-    const choice = saved.fontFamily || 'sans';
-    const name = choice === 'custom' ? saved.customFontName : families[choice];
-    const url = fontUrls[choice] || (name && saved.customFontGoogle
-      ? `https://fonts.googleapis.com/css2?family=${encodeURIComponent(name)}&display=block` : null);
-    if (name) {
-      const family = JSON.stringify(name);
-      const stack = family + ',system-ui,sans-serif';
-      curtain.style.setProperty('--ani-font', stack);
-      if (url && document.fonts) {
-        let link = document.getElementById('ani-intro-font');
-        if (link && link.getAttribute('href') !== url) { link.remove(); link = null; }
-        if (!link) link = ensureLink('ani-intro-font', 'stylesheet', url);
-        try {
-          if (!link.sheet) await new Promise((resolve, reject) => {
-            link.addEventListener('load', resolve, {once:true});
-            link.addEventListener('error', reject, {once:true});
-          });
-          await Promise.all([caption, credit].map(async element => {
-            const weight = element === caption ? 600 : 400;
-            const faces = await document.fonts.load(weight + ' 16px ' + family, element.textContent);
-            if (!faces.length) throw new Error('Font unavailable');
-          }));
-        } catch {
-          // The logo and the page can still open when the selected face is unavailable.
-          fontSettled = true;
-          finishWhenReady();
-          return;
-        }
-      }
-    }
-    curtain.classList.add('ani-intro-font-ready');
-    fontSettled = true;
-    finishWhenReady();
-  }
-  if(globalThis.chrome?.storage?.sync)chrome.storage.sync.get({themeEnabled:true,fontFamily:'sans',customFontName:'',customFontGoogle:false},settings);
-  else if(typeof GM_getValue==='function')Promise.resolve(GM_getValue('aniAmbientSettingsV1',{})).then(settings).catch(reveal);
-  else settings({});
+  if (root.dataset.aniUiReady || document.readyState !== 'loading') settled();
+  whenSettingsDisabled(() => {
+    reveal();
+    curtain.remove();
+  });
   window.addEventListener('pageshow',event=>{if(event.persisted)reveal();});
 })();

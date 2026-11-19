@@ -24,7 +24,10 @@ const renderer = fs.readFileSync(
   path.join(source, 'ambient-renderer.js'),
   'utf8',
 );
-const core =
+const workOrigin = fs.readFileSync(path.join(source, 'work-origin.js'), 'utf8');
+const episodeData = fs.readFileSync(path.join(source, 'episode-data.js'), 'utf8');
+const opencc = fs.readFileSync(path.join(root, 'node_modules/opencc-js/dist/umd/cn2t.js'), 'utf8');
+const core = workOrigin + "\n" + opencc + "\n;" + episodeData + "\n" +
   fs.readFileSync(path.join(source, 'hero-banner.js'), 'utf8') +
   '\n' +
   fs.readFileSync(path.join(source, 'home-dashboard.js'), 'utf8') +
@@ -154,6 +157,9 @@ for (const file of [
   'LICENSE',
 ])
   fs.copyFileSync(path.join(source, file), path.join(extension, file));
+fs.writeFileSync(path.join(extension, 'opencc.js'), opencc);
+fs.writeFileSync(path.join(extension, 'hero-cache-worker.js'), workOrigin + '\n' + episodeData + '\n' + fs.readFileSync(path.join(source, 'hero-cache-worker.js'), 'utf8'));
+fs.cpSync(path.join(root, 'node_modules/opencc-js/LICENSES'), path.join(extension, 'opencc-licenses'), { recursive: true });
 // Firefox 暫時載入版共用原始碼，僅調整瀏覽器專用的 manifest 欄位。
 const firefox = path.join(out, 'extension-firefox');
 fs.cpSync(extension, firefox, { recursive: true });

@@ -85,3 +85,81 @@ test('collection loads the next page in place and reapplies active filters',asyn
  const d=w.document;[...d.querySelectorAll('[role="group"][aria-label="觀看狀態"] button')].find(b=>b.textContent==='已追完').click();d.querySelector('.ani-load-more').click();await new Promise(r=>setTimeout(r,1800));
  assert.equal(d.querySelectorAll('.theme-list-main').length,2);assert(d.querySelector('a[href="animeRef.php?sn=2"]').hidden);assert(d.querySelector('.page_control').hidden);assert.equal(d.querySelector('.ani-load-more').textContent,'已顯示全部動畫（共 2 部）');dom.window.close();
 });
+
+test('collection origin filter searches later pages and combines with the current broadcast season', async t => {
+  const current = new Intl.DateTimeFormat('en', {
+    year: 'numeric', month: 'numeric', timeZone: 'Asia/Taipei',
+  }).formatToParts(new Date());
+  const year = Number(current.find(part => part.type === 'year').value);
+  const month = Number(current.find(part => part.type === 'month').value);
+  const season = ['冬番', '春番', '夏番', '秋番'][Math.floor((month - 1) / 3)];
+  const currentCard = card(3, year, 0).replace(' 春番', ` ${season}`);
+  const pages = (next) => `<div class="page_control"><div class="page_number"><a href="?page=${next}">下一頁</a></div></div>`;
+  const dom = new JSDOM(`<div id="BH_background"><div class="animate-theme-list">
+    <div class="theme-list-block">${card(1, year - 1, 12)}</div>
+  </div>${pages(2)}</div>`, {
+    url: 'https://ani.gamer.com.tw/mygather.php', runScripts: 'outside-only', pretendToBeVisual: true,
+  });
+  t.after(() => dom.window.close());
+  const w = dom.window;
+  const d = w.document;
+  w.matchMedia = () => ({ matches: false, addEventListener() {} });
+  w.IntersectionObserver = class { observe() {} };
+  const fetched = [];
+  w.fetch = async input => {
+    const page = new URL(input, w.location.href).searchParams.get('page');
+    if (page) fetched.push(page);
+    const response = page === '2' ? `<div class="theme-list-block">${card(2, year, 3)}</div>${pages(3)}`
+      : page === '3' ? `<div class="theme-list-block">${currentCard}</div>`
+      : new URL(input, w.location.href).searchParams.get('sn') === '3'
+      ? '<a href="//acg.gamer.com.tw/acgDetail.php?s=33">作品資料</a>'
+      : new URL(input, w.location.href).searchParams.get('sn') === '2'
+      ? '<a href="//acg.gamer.com.tw/acgDetail.php?s=22">作品資料</a>' : '';
+    return { ok: true, text: async () => response };
+  };
+  w.chrome = {
+    runtime: {
+      sendMessage(message, reply) {
+        if (message.type !== 'ani-fetch-work-meta') return reply({});
+        if (message.acgIds) {
+          if (message.acgIds['作品2'] === '22') {
+            return reply({ ok: true, items: { 作品2: { source: 'game', isShort: false } }, failed: [] });
+          }
+          assert.equal(message.acgIds['作品3'], '33');
+          return reply({ ok: true, items: { 作品3: { source: 'manga', isShort: true } }, failed: [] });
+        }
+        reply({ ok: true, items: Object.fromEntries(message.titles.filter(title => title !== '作品3').map(title =>
+          [title, { source: title === '作品2' ? 'original' : 'manga', isShort: false }])) });
+      },
+    },
+  };
+  for (const file of ['settings.js', 'content.js', 'enhancements.js']) w.eval(fs.readFileSync(`src/${file}`, 'utf8'));
+  await new Promise(resolve => setTimeout(resolve, 40));
+  d.querySelector('[data-origin="manga"]').click();
+  await new Promise(resolve => setTimeout(resolve, 1500));
+  assert.deepEqual(fetched, ['2', '3']);
+  const pager = d.querySelector('.page_control');
+  assert.equal(pager.hidden, true);
+  assert.equal(pager.dataset.aniInfinite, 'true');
+  const visible = () => [...d.querySelectorAll('.theme-list-main:not([hidden]):not(.ani-origin-hidden)')]
+    .map(node => node.getAttribute('href'));
+  assert.deepEqual(visible(), ['animeRef.php?sn=1', 'animeRef.php?sn=3']);
+  const seasonGroup = d.querySelector('[aria-label="播出季度"]');
+  assert.equal(seasonGroup.children[1].textContent, `${year} ${season}`);
+  seasonGroup.querySelector('[value="current"]').click();
+  await new Promise(resolve => setTimeout(resolve, 40));
+  assert.deepEqual(visible(), ['animeRef.php?sn=3']);
+  assert.match(d.querySelector('.ani-collection-count').textContent, /顯示 1 \/ 3 部/);
+  const nextQuarter = new Date(Date.UTC(year, Math.floor((month - 1) / 3) * 3 + 3, 1));
+  const NativeDate = w.Date;
+  w.Date = class extends NativeDate {
+    constructor(...args) { super(...(args.length ? args : [nextQuarter.getTime()])); }
+  };
+  d.dispatchEvent(new w.Event('visibilitychange'));
+  assert.equal(seasonGroup.children[1].textContent, `${nextQuarter.getUTCFullYear()} ${['冬番', '春番', '夏番', '秋番'][nextQuarter.getUTCMonth() / 3]}`);
+  assert.deepEqual(visible(), [], 'an active current-season filter follows the new quarter');
+  seasonGroup.querySelector('[value=""]').click();
+  d.querySelector('[data-origin="game"]').click();
+  await new Promise(resolve => setTimeout(resolve, 1300));
+  assert.deepEqual(visible(), ['animeRef.php?sn=2'], 'official origin restores a game adaptation missed by title lookup');
+});

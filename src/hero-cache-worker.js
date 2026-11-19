@@ -105,6 +105,21 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
           reply({ ok: true, items: {} });
           return;
         }
+        if (message.acgIds) {
+          const items = Object.create(null);
+          const failed = [];
+          await Promise.all(titles.slice(0, 8).map(async title => {
+            const id = String(Object.hasOwn(message.acgIds, title) ? message.acgIds[title] : '');
+            if (!/^\d{1,10}$/.test(id)) return;
+            try {
+              items[title] = await fetchBahamutWorkOrigin(id);
+            } catch {
+              failed.push(title);
+            }
+          }));
+          reply({ ok: true, items, failed });
+          return;
+        }
         const items = await fetchAniListWorkMetaBatch(titles);
         reply({ ok: true, items });
       } catch {
@@ -125,7 +140,7 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
           reply({ ok: true, episodes: {} });
           return;
         }
-        const episodes = await fetchEpisodeTitles(title);
+        const episodes = await fetchEpisodeTitles(title, fetch, message.acgUrl);
         reply({ ok: true, episodes });
       } catch {
         reply({ ok: false, episodes: {} });
@@ -515,14 +530,22 @@ const ANILIST_SOURCE_MAP = {
 
 const workMetaMemCache = new Map();
 
+async function fetchBahamutWorkOrigin(id) {
+  const response = await fetch(`https://acg.gamer.com.tw/acgDetail.php?s=${id}`, {
+    credentials: 'omit', signal: AbortSignal.timeout(8000),
+  });
+  if (!response.ok) throw new Error(`Bahamut work metadata: HTTP ${response.status}`);
+  const html = await response.text();
+  return parseBahamutWorkOrigin(html);
+}
+
 async function fetchAniListWorkMetaBatch(titles) {
   const cleanSearch = (t) =>
     String(t || '')
       .replace(/\s*\[\s*\d+(?:\.\d+)?\s*\]\s*$/, '')
-      .replace(/\s*(?:第[一二三四五六七八九十\d]+[季期部]|Season\s*\d+|Part\s*\d+)\s*$/i, '')
       .trim();
 
-  const items = {};
+  const items = Object.create(null);
   const toFetch = [];
   for (const orig of titles) {
     if (workMetaMemCache.has(orig)) {
@@ -546,133 +569,37 @@ async function fetchAniListWorkMetaBatch(titles) {
     );
   }
 
-  try {
-    const query = `query (${varDecls.join(', ')}) { ${aliases.join(' ')} }`;
-    const res = await fetch('https://graphql.anilist.co', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      signal: AbortSignal.timeout(8000),
-      body: JSON.stringify({ query, variables }),
-    });
-    if (!res.ok) return items;
-    const json = await res.json();
-    const data = json?.data || {};
-    for (const e of entries) {
-      const m = data[e.key]?.media?.[0];
-      if (!m) continue;
-      const duration = Number(m.duration) || 0;
-      const format = String(m.format || '');
-      const source = ANILIST_SOURCE_MAP[m.source] || 'other';
-      const isShort =
-        format === 'TV_SHORT' ||
-        format === 'ONA' ||
-        format === 'SPECIAL' ||
-        (duration > 0 && duration <= 15);
-      const entry = {
-        source,
-        format,
-        duration,
-        episodes: Number(m.episodes) || 0,
-        isShort,
-      };
-      items[e.orig] = entry;
-      workMetaMemCache.set(e.orig, entry);
-      if (workMetaMemCache.size > 1000) {
-        const firstKey = workMetaMemCache.keys().next().value;
-        if (firstKey) workMetaMemCache.delete(firstKey);
-      }
+  const query = `query (${varDecls.join(', ')}) { ${aliases.join(' ')} }`;
+  const res = await fetch('https://graphql.anilist.co', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    signal: AbortSignal.timeout(8000),
+    body: JSON.stringify({ query, variables }),
+  });
+  if (!res.ok) throw new Error(`AniList work metadata: HTTP ${res.status}`);
+  const json = await res.json();
+  if (json?.errors?.length) throw new Error('AniList work metadata query failed');
+  const data = json?.data || {};
+  for (const e of entries) {
+    const m = data[e.key]?.media?.[0];
+    if (!m) continue;
+    const duration = Number(m.duration) || 0;
+    const format = String(m.format || '');
+    const source = ANILIST_SOURCE_MAP[m.source] || 'other';
+    const isShort = duration > 0 ? duration <= 15 : format === 'TV_SHORT';
+    const entry = {
+      source,
+      format,
+      duration,
+      episodes: Number(m.episodes) || 0,
+      isShort,
+    };
+    items[e.orig] = entry;
+    workMetaMemCache.set(e.orig, entry);
+    if (workMetaMemCache.size > 1000) {
+      const firstKey = workMetaMemCache.keys().next().value;
+      if (firstKey) workMetaMemCache.delete(firstKey);
     }
-  } catch {}
+  }
   return items;
-}
-
-async function fetchEpisodeTitles(rawTitle) {
-  const cleanTitle = String(rawTitle || '')
-    .replace(/\s*(?:\[\s*\d+(?:\.\d+)?\s*\]|EP\.?\s*\d+(?:\.\d+)?)\s*$/i, '')
-    .replace(/\s*-\s*巴哈姆特動畫瘋.*$/, '')
-    .replace(/\s*\[(?:特別篇|劇場版|電影版|OAD|OVA|中文配音|年齡限制版)\]\s*/g, ' ')
-    .trim();
-  const stripped = cleanTitle
-    .replace(/\s*(?:第[一二三四五六七八九十\d]+[季期部]|Season\s*\d+|Part\s*\d+)\s*$/i, '')
-    .trim();
-  const candidates = [...new Set([cleanTitle, stripped].filter((s) => s.length >= 2))];
-  const episodes = {};
-
-  for (const kw of candidates) {
-    try {
-      const sRes = await fetch('https://api.bgm.tv/v0/search/subjects', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'User-Agent': 'aunight/Anigamer-Redesign3.0 (https://github.com/aunight/Anigamer-Redesign3.0)',
-        },
-        signal: AbortSignal.timeout(8000),
-        body: JSON.stringify({ keyword: kw, filter: { type: [2] } }),
-      });
-      if (!sRes.ok) continue;
-      const sJson = await sRes.json();
-      const subjectId = sJson?.data?.[0]?.id;
-      if (!subjectId) continue;
-
-      for (let offset = 0; offset <= 200; offset += 100) {
-        const epRes = await fetch(
-          `https://api.bgm.tv/v0/episodes?subject_id=${subjectId}&type=0&limit=100&offset=${offset}`,
-          {
-            headers: {
-              'User-Agent': 'aunight/Anigamer-Redesign3.0 (https://github.com/aunight/Anigamer-Redesign3.0)',
-            },
-            signal: AbortSignal.timeout(8000),
-          },
-        );
-        if (!epRes.ok) break;
-        const epJson = await epRes.json();
-        const rows = Array.isArray(epJson?.data) ? epJson.data : [];
-        for (const ep of rows) {
-          const epNum = ep?.sort ?? ep?.ep;
-          if (epNum === undefined || epNum === null) continue;
-          const name = String(ep.name_cn || ep.name || '').trim();
-          const jp = String(ep.name || '').trim();
-          if (!name && !jp) continue;
-          episodes[String(epNum)] = {
-            name: name || jp,
-            jp,
-            airdate: String(ep.airdate || '').trim(),
-          };
-        }
-        const total = Number(epJson?.total) || rows.length;
-        if (offset + 100 >= total || rows.length < 100) break;
-      }
-      if (Object.keys(episodes).length > 0) return episodes;
-    } catch {}
-  }
-
-  for (const kw of candidates) {
-    try {
-      const res = await fetch('https://graphql.anilist.co', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        signal: AbortSignal.timeout(8000),
-        body: JSON.stringify({
-          query: `query ($search: String) { Page(perPage: 1) { media(search: $search, type: ANIME, sort: SEARCH_MATCH) { streamingEpisodes { title } } } }`,
-          variables: { search: kw },
-        }),
-      });
-      if (!res.ok) continue;
-      const json = await res.json();
-      const streamEps = json?.data?.Page?.media?.[0]?.streamingEpisodes || [];
-      for (const se of streamEps) {
-        const raw = String(se?.title || '').trim();
-        const m = raw.match(/(?:Episode|EP\.?|#)\s*(\d+(?:\.\d+)?)\s*(?:[-–—:]\s*(.+))?$/i);
-        if (!m) continue;
-        const num = String(Number(m[1]));
-        const sub = (m[2] || '').trim();
-        if (sub) {
-          episodes[num] = { name: sub, jp: '', airdate: '' };
-        }
-      }
-      if (Object.keys(episodes).length > 0) return episodes;
-    } catch {}
-  }
-
-  return episodes;
 }

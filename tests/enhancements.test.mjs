@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { JSDOM } from 'jsdom';
+import { Converter } from 'opencc-js';
 
 function bootEnhancements(html, path, { sharedStorage = {}, fetchImpl, chromeMock } = {}) {
   const dom = new JSDOM(html, {
@@ -14,6 +15,7 @@ function bootEnhancements(html, path, { sharedStorage = {}, fetchImpl, chromeMoc
   w.IntersectionObserver = class { observe() {} disconnect() {} };
   w.AbortSignal.timeout = () => undefined;
   w.fetch = fetchImpl || (async () => ({ ok: true, text: async () => '' }));
+  w.OpenCC = { Converter };
   if (chromeMock) w.chrome = chromeMock;
   for (const [k, v] of Object.entries(sharedStorage)) {
     w.localStorage.setItem(k, JSON.stringify(v));
@@ -54,11 +56,15 @@ test('Phase 1A: collection custom status tags persist, compose with native filte
   chip1.click();
   const menu1 = cards[0].querySelector('.ani-col-status-menu');
   assert.equal(menu1.hidden, false);
+  cards[0].dispatchEvent(new w.Event('pointerleave'));
+  assert.equal(menu1.hidden, true);
+  chip1.click();
   menu1.querySelector('button[data-choice="plan"]').click();
   await new Promise((r) => setTimeout(r, 20));
   assert.equal(navClicks, 0, 'clicking status chip/menu must not trigger <a> navigation');
   assert.equal(chip1.dataset.status, 'plan');
-  assert.equal(chip1.textContent, '待看');
+  assert.equal(chip1.textContent, '');
+  assert.equal(chip1.getAttribute('aria-label'), '收藏分類：待看');
 
   // Set card 102 to watching
   const chip2 = cards[1].querySelector('.ani-col-status-chip');
@@ -114,7 +120,8 @@ test('Phase 1B: permanent local history records video visits, snapshots native h
   assert.equal(storedAfterWatch['555'].episodes['12'].videoSn, '99012');
   domV.window.close();
 
-  const viewHtml = `<div id="BH_background"><div class="center-container"><div class="history-wrapper"><div class="history">
+  const viewHtml = `<style>.ani-perm-tabs { background: #12202c; border: 1px solid #555; }</style>
+  <div id="BH_background"><div class="theme-title-block"></div><div class="center-container"><div class="history-wrapper"><div class="history">
     <div class="user-watch-list" id="list-1"><div class="anime-card">
       <a class="click-area" href="animeVideo.php?sn=88805"></a>
       <div class="postimg"><img src="https://p2.bahamut.com.tw/B/2KU/native.JPG"></div>
@@ -133,7 +140,11 @@ test('Phase 1B: permanent local history records video visits, snapshots native h
   const d = domH.window.document;
   const tabs = d.querySelectorAll('.ani-perm-tab');
   assert.equal(tabs.length, 2);
+  assert.equal(d.querySelector('.ani-perm-tabs').classList.contains('ani-bgm-toast'), false);
+  assert.equal(d.querySelectorAll('.ani-perm-tab > svg').length, 2);
   assert.match(tabs[1].textContent, /永久本地紀錄 \(2\)/);
+  const filterCard = d.querySelector('.ani-perm-filter-card');
+  assert.equal(filterCard.hidden, true);
 
   // Default tab keeps native .history visible
   assert.equal(d.querySelector('.history').classList.contains('ani-perm-native-hidden'), false);
@@ -143,6 +154,12 @@ test('Phase 1B: permanent local history records video visits, snapshots native h
   assert.equal(d.querySelector('.history').classList.contains('ani-perm-native-hidden'), true);
   assert.equal(d.querySelector('.history').getAttribute('data-ani-perm-hidden'), '1');
   assert.equal(d.querySelectorAll('.ani-perm-card.anime-card.ani-history-card').length, 2);
+  assert.equal(filterCard.hidden, false);
+  const more = () => d.querySelector('[data-perm-more="555"]');
+  const drawer = () => d.getElementById(more().getAttribute('aria-controls'));
+  more().click();
+  assert.equal(more().getAttribute('aria-expanded'), 'true');
+  assert.equal(drawer().style.display, 'block');
 
   // Search filter
   const search = d.querySelector('.ani-perm-search');
@@ -150,6 +167,10 @@ test('Phase 1B: permanent local history records video visits, snapshots native h
   search.dispatchEvent(new domH.window.Event('input'));
   await new Promise((r) => setTimeout(r, 20));
   assert.equal(d.querySelectorAll('.ani-perm-card').length, 1);
+  assert.equal(drawer().style.display, 'block', 'an open drawer survives a list refresh');
+  more().click();
+  assert.equal(more().getAttribute('aria-expanded'), 'false');
+  assert.equal(drawer().style.display, 'none');
 
   // Delete single entry
   d.querySelector('[data-perm-delete="555"]').click();
@@ -191,6 +212,8 @@ test('Phase 2: catalog negative tags, keyword exclude, origin classification, pa
     <div class="theme-list-block">${catCard(201, '轉生異世界冒險')}${catCard(202, '敗北女角太多了')}${catCard(203, '夜晚的水母不會游泳')}</div>
   </div><div class="page_control"><div class="page_number"><a class="now">2</a><a href="?tags=%E5%8B%95%E4%BD%9C&page=1">1</a><a href="?tags=%E5%8B%95%E4%BD%9C&page=3">3</a><a href="?tags=%E5%8B%95%E4%BD%9C&page=12">12</a></div></div></div></div>`;
 
+  let replyOrigin;
+  let originRequests = 0;
   const dom = bootEnhancements(html, '/animeList.php?tags=%E5%8B%95%E4%BD%9C&page=2', {
     fetchImpl: async (url) => {
       if (String(url).includes('tags=')) {
@@ -203,7 +226,8 @@ test('Phase 2: catalog negative tags, keyword exclude, origin classification, pa
         lastError: null,
         sendMessage(msg, cb) {
           if (msg?.type === 'ani-fetch-work-meta') {
-            cb({
+            originRequests++;
+            replyOrigin = () => cb({
               ok: true,
               items: {
                 '轉生異世界冒險': { source: 'light_novel', format: 'TV', duration: 24, episodes: 12, isShort: false },
@@ -248,12 +272,22 @@ test('Phase 2: catalog negative tags, keyword exclude, origin classification, pa
   assert.equal(cards.some((c) => c.classList.contains('ani-catalog-excluded')), false);
 
   // 2B: Origin filter queries worker meta & keeps only 原創動畫 (sn=203)
+  const originStatus = d.querySelector('.ani-origin-status');
+  assert.equal(originRequests, 1, 'starts metadata prefetch before the first click');
+  d.querySelector('.ani-origin-pill[data-origin="light_novel"]').click();
+  assert.match(originStatus.textContent, /正在比對 3 部/);
+  d.querySelector('.ani-origin-pill[data-origin="all"]').click();
+  assert.equal(originStatus.textContent, '');
+  assert.equal(cards.some((card) => card.classList.contains('ani-origin-hidden')), false);
   d.querySelector('.ani-origin-pill[data-origin="original"]').click();
+  assert.equal(originRequests, 1, 'changing filters reuses the in-flight request');
+  replyOrigin();
   await new Promise((r) => setTimeout(r, 50));
   assert.equal(cards[0].classList.contains('ani-origin-hidden'), true);
   assert.equal(cards[1].classList.contains('ani-origin-hidden'), true);
   assert.equal(cards[2].classList.contains('ani-origin-hidden'), false);
   assert.equal(cards[2].querySelector('.ani-origin-badge')?.textContent, '原創');
+  assert.equal(originStatus.textContent, '符合此原作分類：1 部');
 
   // 2C: Page elevator removed (infinite scroll only)
   assert.equal(d.querySelector('.ani-page-elevator'), null, 'page elevator removed in favor of infinite scroll');
@@ -392,7 +426,7 @@ test('Phase 5: long-series episode grouping, Bangumi/AniList episode title toolt
     <div class="anime_name"><h1>雙城之戰測試篇 [33]</h1><a href="animeRef.php?sn=707">作品資料</a></div>
     <div class="anime_info_detail"><p>本作品將於 2099/12/31 下架</p></div>
     <section class="player"><div id="ani_video"><div class="ani-fs-title">雙城之戰測試篇 [33]</div><video></video></div></section>
-    <div class="anime-title"><div class="season"><ul>${epLis}</ul></div></div>
+    <div class="anime-title"><div class="ani-season-more"><div class="ani-season-more-btn">全部展開</div><section class="season"><p>本篇</p><ul>${epLis}</ul></section></div></div>
   </div></div>`;
 
   const domW = bootEnhancements(watchHtml, '/animeVideo.php?sn=5033', {
@@ -404,7 +438,9 @@ test('Phase 5: long-series episode grouping, Bangumi/AniList episode title toolt
             cb({
               ok: true,
               episodes: {
-                '33': { name: '命運的交會點', jp: '運命の交差点', airdate: '2026-05-01' },
+                '33': { name: '命運的交會點', jp: '運命の交差点', airdate: '2026-05-01', description: '两人决定寻找失散的队友。' },
+                '34': { description: '队伍来到了新城市。' },
+                '35': { description: '二人は街を訪れる。' },
               },
             });
           } else cb({});
@@ -416,34 +452,111 @@ test('Phase 5: long-series episode grouping, Bangumi/AniList episode title toolt
   const wW = domW.window, dW = wW.document;
   await new Promise((r) => setTimeout(r, 50));
 
-  // 5A: 60 episodes grouped into 3 chunks (25 each) + 全部; playing ep 33 auto-selects chunk index 1 (26–50)
+  // Default to 全部 with a single preview row starting at the first episode.
   const grpBtns = [...dW.querySelectorAll('.ani-ep-group-btn')];
   assert.equal(grpBtns.length, 4);
-  assert.equal(grpBtns[1].textContent, '26–50');
-  assert.equal(grpBtns[1].getAttribute('aria-pressed'), 'true');
-  assert.equal(dW.querySelectorAll('.season li:not(.ani-ep-chunk-hidden)').length, 25);
+  assert.equal(grpBtns[0].textContent, '全部');
+  assert.equal(grpBtns[0].childElementCount, 0);
+  assert.equal(grpBtns[2].textContent, '26–50');
+  assert.equal(grpBtns[0].getAttribute('aria-pressed'), 'true');
+  assert.equal(dW.querySelectorAll('.season li:not(.ani-ep-chunk-hidden)').length, 6);
+  assert.equal(dW.querySelector('.season li:not(.ani-ep-chunk-hidden)').textContent.trim(), '1');
 
-  // Switch to '全部' shows all 60
-  grpBtns[3].click();
+  const expand = dW.querySelector('.ani-ep-list-expand');
+  assert.equal(expand.getAttribute('aria-expanded'), 'false');
+  assert.equal(dW.querySelector('.season').classList.contains('is-open'), false);
+  assert.equal(dW.querySelector('.season li.playing').classList.contains('ani-ep-chunk-hidden'), true);
+  expand.click();
+  assert.equal(expand.getAttribute('aria-expanded'), 'true');
   assert.equal(dW.querySelectorAll('.season li:not(.ani-ep-chunk-hidden)').length, 60);
 
-  // Toggle episodeAutoGroup off cleanly removes bar & hidden class
+  const originalList = dW.querySelector('.season ul');
+  originalList.getBoundingClientRect = () => ({ width: 640, left: 0, right: 640 });
+  [...originalList.children].forEach((item, index) => {
+    item.getBoundingClientRect = () => ({ width: 72, left: index % 8 * 80, right: index % 8 * 80 + 72, top: Math.floor(index / 8) * 50 });
+  });
+  expand.click();
+  assert.equal(originalList.querySelectorAll('li:not(.ani-ep-chunk-hidden)').length, 8);
+  assert.equal(originalList.querySelector('li:not(.ani-ep-chunk-hidden)').textContent.trim(), '1');
+  expand.click();
+
+  const season = dW.querySelector('.season');
+  const dubbed = season.querySelector('ul').cloneNode(true);
+  dubbed.removeAttribute('id');
+  delete dubbed.dataset.aniEpExpanded;
+  season.append(dubbed);
+  await new Promise(resolve => setTimeout(resolve, 0));
+  const dubBar = dubbed.previousElementSibling;
+  const dubExpand = dubbed.nextElementSibling;
+  assert.equal(dubExpand.getAttribute('aria-expanded'), 'false');
+  assert.equal(dubBar.querySelectorAll('.ani-ep-group-btn').length, 4);
+  assert.equal(dubbed.querySelectorAll('li:not(.ani-ep-chunk-hidden)').length, 6);
+  assert.equal(dubbed.querySelector('li:not(.ani-ep-chunk-hidden)').textContent.trim(), '1');
+  expand.click();
+  const mainAll = originalList.previousElementSibling.querySelector('[data-ep-group="all"]');
+  mainAll.click();
+  assert.equal(originalList.querySelectorAll('li:not(.ani-ep-chunk-hidden)').length, 60);
+  assert.equal(dubExpand.getAttribute('aria-expanded'), 'false');
+  assert.equal(dubbed.querySelectorAll('li:not(.ani-ep-chunk-hidden)').length, 6);
+  expand.click();
+  const dubAll = dubBar.querySelector('[data-ep-group="all"]');
+  dubAll.click();
+  assert.equal(dubExpand.getAttribute('aria-expanded'), 'true');
+  assert.equal(dubbed.querySelectorAll('li:not(.ani-ep-chunk-hidden)').length, 60);
+  dubAll.click();
+  assert.equal(dubbed.querySelectorAll('li:not(.ani-ep-chunk-hidden)').length, 60);
+  dubExpand.click();
+  assert.equal(dubbed.querySelectorAll('li:not(.ani-ep-chunk-hidden)').length, 6);
+  dubBar.querySelector('[data-ep-group="2"]').click();
+  assert.equal(dubExpand.hidden, true);
+  assert.equal(dubbed.querySelectorAll('li:not(.ani-ep-chunk-hidden)').length, 10);
+  dubAll.click();
+  assert.equal(dubExpand.getAttribute('aria-expanded'), 'true');
+  assert.equal(dubbed.querySelectorAll('li:not(.ani-ep-chunk-hidden)').length, 60);
+  assert.equal(expand.getAttribute('aria-expanded'), 'false');
+  assert.equal(originalList.querySelectorAll('li:not(.ani-ep-chunk-hidden)').length, 8);
+  dubBar.remove();
+  dubExpand.remove();
+  dubbed.remove();
+
+  // Disabling range filters retains the single-row preview.
   await wW.AniEnhancements.writeSettings({ episodeAutoGroup: false });
   assert.equal(dW.querySelector('.ani-ep-group-bar'), null);
-  assert.equal(dW.querySelectorAll('.ani-ep-chunk-hidden').length, 0);
+  assert.equal(expand.getAttribute('aria-expanded'), 'false');
+  assert.equal(originalList.querySelectorAll('li:not(.ani-ep-chunk-hidden)').length, 8);
+
+  dubbed.replaceChildren(...[...dubbed.children].slice(0, 12));
+  delete dubbed.dataset.aniEpExpanded;
+  season.append(dubbed);
+  await new Promise(resolve => setTimeout(resolve, 0));
+  const shortExpand = dubbed.nextElementSibling;
+  assert.equal(shortExpand.getAttribute('aria-expanded'), 'false');
+  assert.equal(dubbed.querySelectorAll('li:not(.ani-ep-chunk-hidden)').length, 6);
+  shortExpand.click();
+  assert.equal(dubbed.querySelectorAll('li:not(.ani-ep-chunk-hidden)').length, 12);
+  assert.equal(expand.getAttribute('aria-expanded'), 'false');
+  shortExpand.remove();
+  dubbed.remove();
 
   // 5B: Episode title tooltip on hover/focus & fullscreen top-center subtitle
   const ep33Link = dW.querySelector('.season li.playing a');
   assert.equal(ep33Link.dataset.aniEpTitle, '命運的交會點');
+  assert.equal(ep33Link.dataset.aniEpDescription, '兩人決定尋找失散的隊友。');
+  assert.equal(dW.querySelector('.season a[href="?sn=5034"]').dataset.aniEpDescription, '隊伍來到了新城市。');
+  assert.equal(dW.querySelector('.season a[href="?sn=5035"]').dataset.aniEpDescription, undefined);
   const fsMain = dW.querySelector('#ani_video .ani-fs-title .ani-fs-title-main');
   const fsSub = dW.querySelector('#ani_video .ani-fs-title .ani-fs-subtitle');
   assert(fsMain && fsSub, 'fullscreen title main and top-center subtitle elements exist');
   assert.equal(fsSub.hidden, false);
-  assert.match(fsSub.textContent, /第 33 話：命運的交會點/);
+  assert.match(fsSub.textContent, /EP\.33\s+命運的交會點/);
+  ep33Link.dataset.aniUploadDate = '2026/10/20';
+  ep33Link.getBoundingClientRect = () => ({ top: 100, bottom: 136, left: 48, width: 36 });
   ep33Link.dispatchEvent(new wW.MouseEvent('mouseover', { bubbles: true }));
   const tip = dW.getElementById('ani-ep-tooltip');
   assert.equal(tip.hidden, false);
-  assert.match(tip.textContent, /命運的交會點/);
+  assert.equal(tip.firstElementChild.textContent, '命運的交會點');
+  assert.equal(tip.lastElementChild.dateTime, '2026-10-20');
+  assert.equal(tip.style.top, '144px');
 
   // 5C: Off-shelf banner displayed on watch page & cached for /mygather.php
   const watchBanner = dW.querySelector('.ani-offshelf-banner');

@@ -11,7 +11,7 @@ html[data-ani-booting='true'] { background:#111c2b !important;overflow:hidden !i
   isolation: isolate;
   pointer-events: none;
   background: radial-gradient(ellipse at center, #244351, #111c2b 72%);
-  transition: opacity 480ms ease-in-out;
+  transition: opacity 180ms ease-out;
 }
 .ani-home-intro.ani-intro-reveal { opacity: 0; }
 .ani-home-intro::before, .ani-home-intro::after {
@@ -49,24 +49,23 @@ html[data-ani-booting='true'] { background:#111c2b !important;overflow:hidden !i
   55% { transform: translateY(-5px); }
   84% { transform: translateY(-2px); }
 }
-.ani-intro-caption { color: #e8f4fa; font: 600 clamp(28px,4vw,44px)/1.2 system-ui,sans-serif; }
-.ani-intro-credit { color: #aac4d0; font: 400 13px/1.6 system-ui,sans-serif; }
-.ani-home-intro:not(.ani-intro-font-ready) :is(.ani-intro-caption,.ani-intro-credit) { visibility: hidden; }
-.ani-intro-font-ready :is(.ani-intro-caption,.ani-intro-credit) { font-family: var(--ani-font,system-ui,sans-serif); }
+.ani-intro-caption { color: #e8f4fa; font: 600 clamp(28px,4vw,44px)/1.2 var(--ani-font,system-ui,sans-serif); }
+.ani-intro-credit { color: #aac4d0; font: 400 13px/1.6 var(--ani-font,system-ui,sans-serif); }
 @media (prefers-reduced-motion: reduce) {
   .ani-home-intro { transition: none; }
   .ani-logo-layer, .ani-home-intro::before, .ani-home-intro::after { animation: none; }
 }
-.ani-route-cover { position: fixed; inset: 0; z-index: 2147483000; pointer-events: none; background: #111c2b; transition: opacity 160ms ease-out; }
+.ani-route-cover { position: fixed; inset: 0; z-index: 2147483000; pointer-events: none; background: #111c2b; transition: opacity 120ms ease-out; }
 .ani-route-visible { opacity: 0; }
 @media (prefers-reduced-motion: reduce) { .ani-route-cover { transition: none; } }
 
-/* Native player inserts the rating panel asynchronously. Allow the themed panel
-   to paint on its first styled frame; fall back if the enhancer cannot start. */
-body.ani-ambientlight-ui #ani_video .ncc-choosebar:not(.ani-age-ready) {
-  animation:ani-consent-bootstrap 900ms step-end both;
+/* Let the native confirmation paint as soon as the player supplies it. */
+html:has(#ani_video .ncc-choosebar:not([hidden], [style*="display: none"], [style*="display:none"]) .choose-btn-agree)
+  > :is(.ani-home-intro, .ani-route-cover),
+html:has(#ani_video .ani-age-ready:not([hidden], [style*="display: none"], [style*="display:none"]))
+  > :is(.ani-home-intro, .ani-route-cover) {
+  display: none;
 }
-@keyframes ani-consent-bootstrap { from {opacity:0} to {opacity:1} }
 
 /* Native review stars have a viewBox, but no intrinsic width or height. */
 #acg_review .user-star-block svg.user-star {
@@ -77,16 +76,9 @@ body.ani-ambientlight-ui #ani_video .ncc-choosebar:not(.ani-age-ready) {
   flex-shrink: 0;
 }
 
-/* StarMap inserts this header icon on watch, catalog and collection pages. */
-.top_btn_rating_setting > a > :is(.material-icons, svg) {
-  flex: 0 0 24px;
-  width: 24px !important;
-  height: 24px !important;
-  max-width: 24px !important;
-  max-height: 24px !important;
-  overflow: hidden;
-  font-size: 24px !important;
-  line-height: 1 !important;
+/* Keep StarMap's launcher available to the settings category. */
+html[data-ani-rating-integrated]:has(#ani-view-settings-panel) .top_btn_rating_setting {
+  display: none !important;
 }
 
 /* The rating helper adds its controls before the themed sorter initializes. */

@@ -5,15 +5,19 @@
   const aniFetch = globalThis.AniAmbientFetch || (globalThis.AniAmbientFetch = (() => {
     const pending = new Map(); let tail = Promise.resolve(), last = 0, blockedUntil = 0;
     try { blockedUntil = Number(sessionStorage.getItem('aniRequestCooldown') || 0); } catch {}
-    return (input, init) => {
+    return (input, init, getInterval) => {
       const key = String(input);
       if (pending.has(key)) return pending.get(key).then(r => r.clone ? r.clone() : r);
       const task = tail.catch(() => {}).then(async () => {
         if (blockedUntil > Date.now()) throw new Error('Extension requests paused after rate limit');
-        const delay = Math.max(0, 400 - (Date.now() - last));
-        if (delay) await new Promise(resolve => setTimeout(resolve, delay));
+        let delay;
+        while ((delay = Math.max(400, getInterval?.() || 0) - (Date.now() - last)) > 0) {
+          await new Promise(resolve => setTimeout(resolve, Math.min(delay, 100)));
+        }
         last = Date.now();
-        const response = await globalThis.fetch(input, init);
+        const { timeoutMs, ...requestInit } = init || {};
+        if (timeoutMs) requestInit.signal = AbortSignal.timeout(timeoutMs);
+        const response = await globalThis.fetch(input, requestInit);
         if (response.status === 429 || response.status === 503) {
           blockedUntil = Date.now() + 10 * 60 * 1000;
           try { sessionStorage.setItem('aniRequestCooldown', String(blockedUntil)); } catch {}
@@ -40,6 +44,21 @@
   const SAMPLE_HEIGHT = 108;
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
   const settings = { ...DEFAULTS };
+  const videoDetails = new Map();
+  const getEpisodeDetails = (sn) => {
+    if (!videoDetails.has(sn)) {
+      const request = fetch(`https://api.gamer.com.tw/anime/v1/video.php?videoSn=${sn}`, { credentials: 'include' })
+        .then(response => response.ok ? response.json() : null)
+        .then(result => {
+          const video = result?.data?.video;
+          if (String(video?.videoSn) !== sn) throw new Error('Missing episode');
+          return { date: String(video.upTime || '').split(' ')[0].replaceAll('-', '/'), cover: video.cover, views: result.data.anime?.popular, duration: Number(video.duration) * 60 };
+        }).catch(() => { videoDetails.delete(sn); return null; });
+      videoDetails.set(sn, request);
+    }
+    return videoDetails.get(sn);
+  };
+  globalThis.aniGetEpisodeDetails = getEpisodeDetails;
   // Keep the pending age prompt in place when a page script requests home on idle.
   if (location.pathname === '/animeVideo.php') {
     const speedKey = 'ani-player-playback-speed';
@@ -92,27 +111,27 @@
   const fonts = {
     wenkai: {
       family: '"LXGW WenKai TC"',
-      url: 'https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@300;400;700&display=block',
+      url: 'https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@300;400;700&display=swap',
     },
     chironHei: {
       family: '"Chiron Hei HK"',
-      url: 'https://fonts.googleapis.com/css2?family=Chiron+Hei+HK:wght@400;500;700&display=block',
+      url: 'https://fonts.googleapis.com/css2?family=Chiron+Hei+HK:wght@400;500;700&display=swap',
     },
     chironSung: {
       family: '"Chiron Sung HK"',
-      url: 'https://fonts.googleapis.com/css2?family=Chiron+Sung+HK:wght@400;600;700&display=block',
+      url: 'https://fonts.googleapis.com/css2?family=Chiron+Sung+HK:wght@400;600;700&display=swap',
     },
     sans: {
       family: '"Noto Sans TC"',
-      url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=block',
+      url: 'https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap',
     },
     serif: {
       family: '"Noto Serif TC"',
-      url: 'https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700&display=block',
+      url: 'https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700&display=swap',
     },
     iansui: {
       family: '"Iansui"',
-      url: 'https://fonts.googleapis.com/css2?family=Iansui&display=block',
+      url: 'https://fonts.googleapis.com/css2?family=Iansui&display=swap',
     },
   };
   const imageObserver =
@@ -180,7 +199,7 @@
         ? {
             family: JSON.stringify(settings.customFontName),
             url: settings.customFontGoogle
-              ? `https://fonts.googleapis.com/css2?family=${encodeURIComponent(settings.customFontName)}&display=block`
+              ? `https://fonts.googleapis.com/css2?family=${encodeURIComponent(settings.customFontName)}&display=swap`
               : null,
           }
         : fonts[settings.fontFamily];
@@ -201,10 +220,16 @@
       const request = ++fontRequest;
       fontStatus = '正在載入 Google 字體…';
       fontLink?.remove();
-      fontLink = preloadedFontLink || document.createElement('link');
-      fontLink.rel = 'stylesheet';
-      if (!preloadedFontLink) fontLink.href = font.url;
-      fontLink.onload = async () => {
+      const link = preloadedFontLink || document.createElement('link');
+      fontLink = link;
+      link.rel = 'stylesheet';
+      if (!preloadedFontLink) {
+        link.href = font.url;
+        link.media = 'print';
+      }
+      link.onload = async () => {
+        if (request !== fontRequest) return;
+        link.media = 'all';
         try {
           const loaded = await document.fonts.load(
             `16px ${font.family}`,
@@ -222,14 +247,14 @@
           }
         }
       };
-      fontLink.onerror = () => {
+      link.onerror = () => {
         if (request === fontRequest) {
           fontStatus = '無法連線 Google Fonts，目前使用系統字體。';
           syncSettingsPanel();
         }
       };
-      if (!fontLink.isConnected) document.head.append(fontLink);
-      else if (fontLink.sheet) void fontLink.onload();
+      if (!link.isConnected) document.head.append(link);
+      else if (link.sheet && link.media === 'all') void link.onload();
     } else if (!font?.url) {
       fontRequest++;
       fontLink?.remove();
@@ -625,8 +650,8 @@
           sync();
         }
       }
-      const list = document.querySelector('#w-post-box .webview_commendlist');
-      const commentBox = list?.closest('#w-post-box');
+      const commentBox = document.querySelector('#w-post-box');
+      const list = commentBox?.querySelector('.webview_commendlist');
       if (commentBox && !commentBox.parentElement.classList.contains('ani-comment-columns')) {
         const columns = document.createElement('div');
         columns.className = 'ani-comment-columns';
@@ -1057,32 +1082,46 @@
     return button;
   }
 
+  function readCommentRecommendations(source) {
+    const cards = new Map();
+    for (const card of source.querySelectorAll('a.theme-list-main[href*="animeRef.php"]')) {
+      const url = new URL(card.getAttribute('href'), location.origin);
+      const title = card.querySelector('.theme-name')?.textContent.trim();
+      const image = card.querySelector('img.theme-img');
+      if (url.origin !== location.origin || !title || !image) continue;
+      const previous = cards.get(url.href);
+      const yearMonth = card.querySelector('.theme-time')?.textContent.match(/年份[：:]\s*(\d{4})\/(\d{1,2})/);
+      const month = Number(yearMonth?.[2]);
+      const season = month >= 1 && month <= 12
+        ? yearMonth[1] + ' ' + ['冬', '春', '夏', '秋'][Math.floor((month - 1) / 3)] + '番'
+        : previous?.season;
+      cards.set(url.href, {
+        title, season, serial:previous?.serial || Boolean(card.querySelector('.color-now-playing')),
+        views:card.querySelector('.show-view-number p')?.textContent.trim(),
+        episodes:card.querySelector('.theme-number')?.textContent.trim(),
+        src:image.dataset.src || image.getAttribute('src')
+      });
+    }
+    return [...cards.entries()];
+  }
+
   async function renderCommentRecommendations(aside) {
     try {
-      const response = await aniFetch('/');
-      if (!response.ok) throw new Error('Recommendations unavailable');
-      const home = new DOMParser().parseFromString(await response.text(), 'text/html');
-      const cards = new Map();
-      for (const card of home.querySelectorAll('a.theme-list-main[href*="animeRef.php"]')) {
-        const url = new URL(card.getAttribute('href'), location.origin);
-        const title = card.querySelector('.theme-name')?.textContent.trim();
-        const image = card.querySelector('img.theme-img');
-        if (url.origin !== location.origin || !title || !image) continue;
-        const previous = cards.get(url.href);
-        const yearMonth = card.querySelector('.theme-time')?.textContent.match(/年份[：:]\s*(\d{4})\/(\d{1,2})/);
-        const month = Number(yearMonth?.[2]);
-        const season = month >= 1 && month <= 12
-          ? yearMonth[1] + ' ' + ['冬', '春', '夏', '秋'][Math.floor((month - 1) / 3)] + '番'
-          : previous?.season;
-        cards.set(url.href, {
-          title, season, serial:previous?.serial || Boolean(card.querySelector('.color-now-playing')),
-          views:card.querySelector('.show-view-number p')?.textContent.trim(),
-          episodes:card.querySelector('.theme-number')?.textContent.trim(),
-          src:image.dataset.src || image.getAttribute('src')
-        });
+      let pool = [];
+      try {
+        const response = await aniFetch('/', { timeoutMs: 8000 });
+        if (response.ok) {
+          const home = new DOMParser().parseFromString(await response.text(), 'text/html');
+          pool = readCommentRecommendations(home);
+        }
+      } catch {
+        // The playback page already includes related works when available.
       }
-      const pool = [...cards.entries()];
-      if (!pool.length) throw new Error('No recommendations');
+      if (!pool.length) {
+        const related = document.querySelector('#BH_background .old_list:not(:has(.search_result))');
+        if (related) pool = readCommentRecommendations(related);
+      }
+      if (!pool.length || !aside.isConnected) return;
       const heading = document.createElement('h3');
       heading.className = 'ani-recommend-heading';
       heading.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linejoin="round" d="m9 3 1.9 5.6L16.5 11l-5.6 2.4L9 19l-2-5.6L1.5 11 7 8.6Z M19 2l1 3 3 1-3 1-1 3-1-3-3-1 3-1Z"/></svg>推薦動畫';
@@ -1175,7 +1214,8 @@
           if (stale !== heading) stale.remove();
         }
         heading.classList.toggle('ani-recommend-heading-desktop', desktop.matches);
-        if (desktop.matches) document.querySelector('.commend-title .commend-segment-wrapper')?.after(heading);
+        const segment = desktop.matches && document.querySelector('.commend-title .commend-segment-wrapper');
+        if (segment) segment.after(heading);
         else aside.prepend(heading);
       };
       placeHeading();
@@ -1618,8 +1658,105 @@
   }
   let premiumGridObserver;
   const posterSorters = new WeakMap();
+  const starMapLive = {};
+  let starMapScoreObserver;
+  let starMapFetchMissing = false;
+  let starMapRatingCache = {};
+  function pruneStarMapRatingCache() {
+    const cutoff = Date.now() - (starMapLive.ttlHours ?? 24) * 3600000;
+    starMapRatingCache = Object.fromEntries(Object.entries(starMapRatingCache)
+      .filter(([, record]) => record?.timestamp >= cutoff)
+      .sort(([, a], [, b]) => (b.lastUsed || b.timestamp) - (a.lastUsed || a.timestamp))
+      .slice(0, starMapLive.cacheLimit ?? 500));
+  }
+  let starMapLiveFrame = 0;
+
+  function applyStarMapRatingToCard(card, scoreText, image) {
+    if (!Object.hasOwn(starMapLive, 'enabled') || !image) return;
+    const watched = card.querySelector('.theme-number')?.textContent.match(/(\d+)\s*\/\s*\d+/);
+    card.classList.toggle('ani-starmap-progress-fade', Boolean(starMapLive.fadeWatched && Number(watched?.[1]) > 0));
+    if (scoreText === undefined || scoreText === null || scoreText === '') return;
+    const score = Number(scoreText);
+    if (!Number.isFinite(score)) return;
+    const enabled = starMapLive.enabled !== false;
+    const poster = image.querySelector('img');
+    poster?.classList.toggle('ani-low-rating-masked', enabled && score < (starMapLive.threshold ?? 3.5));
+    card.classList.toggle('ani-rating-blocked', enabled && score < (starMapLive.blockThreshold ?? 3));
+    const id = card.getAttribute('href')?.match(/[?&]sn=(\d+)/)?.[1];
+    const countLabel = image.querySelector('.acr-count')?.textContent;
+    const count = Number(card.dataset.aniRatingCount || starMapRatingCache[id]?.count || countLabel?.replace(/[^\d]/g, ''));
+    image.querySelector('.ani-poster-score')?.classList.toggle(
+      'ani-rating-low-sample',
+      enabled && Number.isFinite(count) && count > 0 && count < (starMapLive.sampleThreshold ?? 800),
+    );
+  }
+
+  function fetchStarMapScore(card) {
+    if (!card.isConnected || card.dataset.aniScoreRequested || starMapLive.enabled === false) return;
+    const url = new URL(card.href);
+    if (url.origin !== location.origin || !/^\/anime(?:Ref|Video)\.php$/.test(url.pathname)) return;
+    card.dataset.aniScoreRequested = 'true';
+    aniFetch(url.href, { credentials: 'same-origin', signal: AbortSignal.timeout(8000) },
+      () => starMapLive.fetchInterval)
+      .then(response => response.ok ? response.text() : '')
+      .then(html => {
+        const rawScore = Number(html.match(/"ratingValue"\s*:\s*"?([\d.]+)/)?.[1]);
+        const score = Number.isFinite(rawScore) ? (rawScore > 5 ? rawScore / 2 : rawScore).toFixed(2) : parseScoreFromVideoHtml(html);
+        if (!score || !card.isConnected) return;
+        card.dataset.aniRelatedScore = score;
+        const count = html.match(/"ratingCount"\s*:\s*"?(\d+)/)?.[1];
+        if (count) card.dataset.aniRatingCount = count;
+        starMapRatingCache[url.searchParams.get('sn')] = { score, count, timestamp: Date.now() };
+        pruneStarMapRatingCache();
+        scheduleStarMapCardRefresh();
+      }).catch(() => {});
+  }
+
+  function scheduleStarMapCardRefresh() {
+    if (starMapLiveFrame) return;
+    starMapLiveFrame = requestAnimationFrame(() => {
+      starMapLiveFrame = 0;
+      enhancePosterRails();
+    });
+  }
+
+  function syncStarMapDisplay() {
+    const body = document.body;
+    body.classList.toggle('ani-starmap-rating-off', starMapLive.enabled === false);
+    body.classList.toggle('ani-disable-masking', starMapLive.enabled === false || starMapLive.maskEnabled === false);
+    body.classList.toggle('ani-disable-blocking', starMapLive.enabled === false || starMapLive.blockEnabled === false);
+    body.classList.toggle('ani-watched-fade-enabled', Boolean(starMapLive.fadeWatched));
+    if (starMapLive.fontSize !== undefined) body.style.setProperty('--ani-starmap-badge-size', `${starMapLive.fontSize}px`);
+    if (starMapLive.radius !== undefined) body.style.setProperty('--ani-starmap-badge-radius', `${starMapLive.radius}px`);
+    scheduleStarMapCardRefresh();
+  }
   const nativeWatch = new Map();
+  const nativeWatchPositions = new Map();
+  const localWatch = new Map();
+  const localWatchByTitle = new Map();
   const episodeOrdinals = new Map();
+  function loadLocalPosterProgress() {
+    const storageGet = globalThis.AniEnhancements?.storageGet;
+    if (!storageGet) return;
+    storageGet('aniPermanentHistoryV1', {}).then(records => {
+      localWatch.clear();
+      localWatchByTitle.clear();
+      for (const [id, record] of Object.entries(records || {})) {
+        const episodes = [record?.episode, ...Object.keys(record?.episodes || {})]
+          .map(Number).filter(n => Number.isFinite(n) && n > 0);
+        if (!episodes.length) continue;
+        const progress = Math.max(...episodes);
+        localWatch.set(String(record.sn || id), progress);
+        if (String(record.sn || id) === String(record.videoSn) && typeof record.title === 'string') {
+          const title = record.title.trim();
+          localWatchByTitle.set(title, Math.max(localWatchByTitle.get(title) || 0, progress));
+        }
+      }
+      if (settings.themeEnabled) enhancePosterRails();
+    }).catch(() => {});
+  }
+  document.addEventListener('ani-enhancements-ready', loadLocalPosterProgress, { once: true });
+  if (globalThis.AniEnhancements) loadLocalPosterProgress();
   function getHistoryEpisodes(card, animeId) {
     if (!/^\d+$/.test(animeId)) return [];
     const doc = card.ownerDocument;
@@ -1648,7 +1785,19 @@
       enhancePosterRails();
     }).catch(()=>{});
   }
-  let nativeWatchRequested = false;
+  function readNativeWatchPosition(card) {
+    const text = [...card.querySelectorAll('.history-lastwatch')].map(node => node.textContent).join(' ');
+    const time = text.match(/(?:(\d+)\s*時\s*)?(?:(\d+)\s*分\s*)?(\d+)\s*秒/);
+    const bar = card.querySelector('.progress-bar');
+    const elapsedSec = time
+      ? Number(time[1] || 0) * 3600 + Number(time[2] || 0) * 60 + Number(time[3])
+      : Number(bar?.getAttribute('aria-valuenow')) || undefined;
+    const durationSec = Number(bar?.getAttribute('aria-valuemax')) || undefined;
+    const width = bar?.querySelector('.progress')?.style.width.match(/^([\d.]+)%$/)?.[1];
+    const fraction = width ? clamp(Number(width) / 100, 0, 1) : undefined;
+    return { elapsedSec, durationSec, fraction, completed: /觀看結束/.test(text) };
+  }
+  let nativeWatchRequest;
   function syncNativeWatch() {
     const collect = doc => {
       for (const c of doc.querySelectorAll('.user-watch-list .anime-card')) {
@@ -1657,17 +1806,25 @@
         const episodes = getHistoryEpisodes(c, id).map(entry => Number(entry.episode));
         if (nativeEpisode && Number.isFinite(Number(nativeEpisode))) episodes.push(Number(nativeEpisode));
         if (id && episodes.length) nativeWatch.set(id, Math.max(...episodes));
+        const play = c.querySelector('.play-btn[href]') || c.querySelector('.click-area[href]');
+        const videoSn = play?.getAttribute('href')?.match(/[?&]sn=(\d+)/)?.[1];
+        if (videoSn) nativeWatchPositions.set(videoSn, readNativeWatchPosition(c));
       }
+      return nativeWatchPositions;
     };
-    if (location.pathname === '/viewList.php') { collect(document); return; }
-    if (nativeWatchRequested) return;
+    if (location.pathname === '/viewList.php') return Promise.resolve(collect(document));
+    if (nativeWatchRequest) return nativeWatchRequest;
     const link = document.querySelector('.mainmenu a[href*="viewList.php"]');
-    if (!link || /[?&]u=guest(?:&|$)/.test(link.href)) return;
-    nativeWatchRequested = true;
-    aniFetch(link.href,{credentials:'include',signal:AbortSignal.timeout(12000)}).then(r=>r.ok?r.text():'').then(html=>{
+    if (!link || link.origin !== location.origin || link.pathname !== '/viewList.php' || /[?&]u=guest(?:&|$)/.test(link.href)) {
+      return Promise.resolve(nativeWatchPositions);
+    }
+    nativeWatchRequest = aniFetch(link.href,{credentials:'include',signal:AbortSignal.timeout(12000)}).then(r=>r.ok?r.text():'').then(html=>{
+      if (!html) return nativeWatchPositions;
       collect(new DOMParser().parseFromString(html,'text/html'));
       enhancePosterRails();
-    }).catch(()=>{});
+      return nativeWatchPositions;
+    }).catch(()=>nativeWatchPositions);
+    return nativeWatchRequest;
   }
   function measureReleaseTitle(nameEl) {
     scheduleRailMeasurement(() => {
@@ -1725,6 +1882,48 @@
     }
     enhancePosterRails(sections);
   }, { rootMargin: '500px 0px' });
+  function bindPosterRail(rail, list, cardSelector, label) {
+    const arrows = [];
+    for (const direction of [-1, 1]) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = `ani-rail-arrow ${direction < 0 ? 'ani-rail-prev' : 'ani-rail-next'}`;
+      button.setAttribute('aria-label', (direction < 0 ? '向左瀏覽' : '向右瀏覽') + label);
+      button.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${direction < 0 ? 'm14 6-6 6 6 6' : 'm10 6 6 6-6 6'}"/></svg>`;
+      button.addEventListener('click', () => list.scrollBy({ left: direction * list.clientWidth * .8, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' }));
+      rail.append(button);
+      arrows.push(button);
+    }
+    const measure = () => {
+      const cards = list.querySelectorAll(cardSelector);
+      const card = cards[0];
+      const image = card?.querySelector('.theme-img-block');
+      const imageHeight = image && Math.ceil(image.getBoundingClientRect().height) + 'px';
+      const bounds = card?.getBoundingClientRect();
+      const height = bounds && Math.ceil(bounds.height) + 'px';
+      const center = bounds && rail.classList.contains('ani-watch-poster-rail')
+        ? bounds.top - rail.getBoundingClientRect().top + bounds.height / 2
+        : null;
+      const left = list.scrollLeft > 2;
+      const right = list.scrollLeft + list.clientWidth < list.scrollWidth - 2;
+      return () => {
+        if (imageHeight) rail.style.setProperty('--ani-rail-image-height', imageHeight);
+        if (height) rail.style.setProperty('--ani-rail-card-height', height);
+        if (center !== null) rail.style.setProperty('--ani-rail-center', center + 'px');
+        rail.classList.toggle('ani-can-prev', left);
+        rail.classList.toggle('ani-can-next', right);
+        rail.classList.toggle('ani-rail-no-scroll', cards.length <= 1 || (!left && !right));
+        arrows[0].disabled = !left;
+        arrows[1].disabled = !right;
+      };
+    };
+    const sync = () => scheduleRailMeasurement(measure);
+    list.addEventListener('scroll', sync, { passive: true });
+    if (typeof ResizeObserver === 'function') new ResizeObserver(sync).observe(list);
+    new MutationObserver(sync).observe(list, { childList: true, subtree: true });
+    sync();
+  }
+
   function enhancePosterRails(sections) {
     syncNativeWatch();
     for (const section of sections || document.querySelectorAll('#BH_background .animate-theme-list, #BH_background .old_list:not(:has(.search_result))')) {
@@ -1735,6 +1934,9 @@
       if (section.matches('.old_list')) section.classList.add('ani-related-list');
       section.classList.toggle('ani-filtered-list', Boolean(section.querySelector(':scope > .filter-section')));
       const heading = section.querySelector('.theme-title, :scope > h2, .old_list-title > h2');
+      if (section.matches('.animate-wish') && heading && !heading.querySelector('.ani-section-icon')) {
+        heading.insertAdjacentHTML('afterbegin', '<span class="ani-section-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"/><path d="M9 8h6m-6 4h6"/></svg></span>');
+      }
       const headerIcon = section.id === 'blockHotAnime' ? 'hot' : section.id === 'blockAnimeNewArrive' ? 'new' : section.matches('.old_list') || /相關動畫/.test(heading?.textContent || '') ? 'related' : '';
       if (heading && headerIcon && !heading.querySelector('.ani-section-icon')) {
         const icon = document.createElement('span');
@@ -1749,10 +1951,48 @@
       }
       for (const card of section.querySelectorAll('.theme-list-main')) {
         if (!card.classList.contains('ani-poster-card')) card.classList.add('ani-poster-card');
+        if (card.matches('.wish-card[onclick]') && !card.querySelector('.ani-wish-vote')) {
+          const star = card.querySelector('.btn-card-block.btn-star');
+          if (star) {
+            card.removeAttribute('href');
+            const vote = document.createElement('button');
+            vote.type = 'button';
+            vote.className = 'ani-wish-vote';
+            vote.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg><span></span>';
+            card.append(vote);
+            card.addEventListener('click', event => {
+              if (!vote.contains(event.target)) event.stopImmediatePropagation();
+            }, true);
+            const syncVote = () => {
+              const active = star.classList.contains('btn-is-active');
+              vote.setAttribute('aria-pressed', String(active));
+              vote.querySelector('span').textContent = active ? '已投票' : '投票';
+            };
+            syncVote();
+            new MutationObserver(syncVote).observe(star, { attributes: true, attributeFilter: ['class'] });
+          }
+        }
         const image = card.querySelector('.theme-img-block');
         const score = [...card.querySelectorAll('.label-edition')].find(n => /^[0-5](?:\.\d+)?$/.test(n.textContent.trim()));
         const externalScore = card.querySelector('.tm-acg-rating,.ani-custom-rating');
-        const scoreText = score?.textContent.trim() || externalScore?.textContent.match(/(?:★\s*|^\s*)([0-5](?:\.\d+)?)(?=\s|\/|$)/)?.[1] || card.dataset.aniRelatedScore;
+        const id = card.getAttribute('href')?.match(/[?&]sn=(\d+)/)?.[1];
+        const cached = starMapRatingCache[id];
+        const freshScore = cached && Date.now() - cached.timestamp < (starMapLive.ttlHours ?? 24) * 3600000 ? cached.score : undefined;
+        const scoreText = score?.textContent.trim() || externalScore?.textContent.match(/(?:★\s*|^\s*)([0-5](?:\.\d+)?)(?=\s|\/|$)/)?.[1] ||
+          card.dataset.aniRelatedScore || card.dataset.ratingScore || freshScore;
+        if (!scoreText && image && starMapFetchMissing && starMapLive.enabled === true && !card.dataset.aniScoreRequested && card.matches('a[href]')) {
+          if (!starMapScoreObserver && typeof IntersectionObserver === 'function') {
+            starMapScoreObserver = new IntersectionObserver(entries => {
+              for (const { isIntersecting, target } of entries) {
+                if (!isIntersecting) continue;
+                starMapScoreObserver.unobserve(target);
+                fetchStarMapScore(target);
+              }
+            }, { rootMargin: '120px' });
+          }
+          if (starMapScoreObserver) starMapScoreObserver.observe(card);
+          else fetchStarMapScore(card);
+        }
         if (!scoreText && image && section.matches('.old_list,#blockHotAnime,[id^="blockAnimeNewArrive"]') && !card.dataset.aniScoreRequested && card.matches('a[href*="animeRef.php?sn="],a[href*="animeVideo.php?sn="]')) {
           card.dataset.aniScoreRequested = 'true';
           aniFetch(card.href).then(response => response.ok ? response.text() : '').then(html => {
@@ -1772,6 +2012,7 @@
         }
         const scorePill = image?.querySelector('.ani-poster-score');
         if (scoreText && scorePill && scorePill.textContent !== `★ ${scoreText}`) scorePill.textContent = `★ ${scoreText}`;
+        applyStarMapRatingToCard(card, scoreText, image);
         const footer=card.querySelector('.anime-detail-block');
         footer?.querySelectorAll(':scope > .ani-footer-frost').forEach(layer=>layer.remove());
         const favorite = card.querySelector('.btn-favorite');
@@ -1822,7 +2063,11 @@
           const watched = original.match(/看到第\s*(\d+)\s*[話集]/);
           const animeId = card.getAttribute('href')?.match(/[?&]sn=(\d+)/)?.[1];
           const native = nativeWatch.get(animeId);
-          const position = native ?? (watched ? Number(watched[1]) : undefined);
+          const title = card.querySelector('.theme-name')?.textContent.trim();
+          const saved = localWatch.get(animeId) ?? localWatchByTitle.get(title);
+          const position = native === undefined && saved === undefined
+            ? (watched ? Number(watched[1]) : undefined)
+            : Math.max(native ?? 0, saved ?? 0);
           if (position > Number(total)) mapSeasonEpisode(card,animeId,position,total);
           const normalized = episodeOrdinals.get(animeId)?.get(position);
           const label = position !== undefined && total ? (position > Number(total) && normalized === undefined ? `已看第 ${position} 集` : `${normalized ?? position} / ${total} 集`)
@@ -1859,51 +2104,28 @@
         }
         requestAnimationFrame(syncOldListScroll);
       }
-      if (!list || location.pathname === '/mygather.php' || section.closest('.old_list:has(.search_result)') || section.querySelector(':scope > .filter-section') || !list.querySelector('.theme-list-main') || list.closest('.ani-poster-rail')) continue;
+      const relatedTrack = location.pathname === '/animeVideo.php'
+        ? section.querySelector('.anime_slider > ul')
+        : null;
+      if (relatedTrack && !relatedTrack.parentElement.classList.contains('ani-poster-rail')) {
+        const rail = relatedTrack.parentElement;
+        rail.classList.add('ani-poster-rail', 'ani-watch-poster-rail');
+        bindPosterRail(rail, relatedTrack, '.theme-list-main', '動畫');
+      }
+      if (!list || location.pathname === '/mygather.php' || section.matches('.animate-wish') || section.closest('.old_list:has(.search_result)') || section.querySelector(':scope > .filter-section') || !list.querySelector('.theme-list-main') || list.closest('.ani-poster-rail')) continue;
       const rail = document.createElement('div');
       rail.className = 'ani-poster-rail';
       list.before(rail);
       rail.append(list);
-      const arrows = [];
-      for (const direction of [-1, 1]) {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = `ani-rail-arrow ${direction < 0 ? 'ani-rail-prev' : 'ani-rail-next'}`;
-        button.setAttribute('aria-label', direction < 0 ? '向左瀏覽動畫' : '向右瀏覽動畫');
-        button.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${direction < 0 ? 'm14 6-6 6 6 6' : 'm10 6 6 6-6 6'}"/></svg>`;
-        button.addEventListener('click', () => list.scrollBy({ left: direction * list.clientWidth * .8, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' }));
-        rail.append(button);
-        arrows.push(button);
-      }
-      const measure = () => {
-        const cards = list.querySelectorAll('.theme-list-main');
-        const card = cards[0];
-        const image = card?.querySelector('.theme-img-block');
-        const imageHeight = image && Math.ceil(image.getBoundingClientRect().height) + 'px';
-        const height = card && Math.ceil(card.getBoundingClientRect().height) + 'px';
-        const left = list.scrollLeft > 2;
-        const right = list.scrollLeft + list.clientWidth < list.scrollWidth - 2;
-        return () => {
-          if (imageHeight) rail.style.setProperty('--ani-rail-image-height', imageHeight);
-          if (height) rail.style.setProperty('--ani-rail-card-height', height);
-          rail.classList.toggle('ani-can-prev', left);
-          rail.classList.toggle('ani-can-next', right);
-          rail.classList.toggle('ani-rail-no-scroll', cards.length <= 1 || (!left && !right));
-          arrows[0].disabled = !left;
-          arrows[1].disabled = !right;
-        };
-      };
-      const sync = () => scheduleRailMeasurement(measure);
-      list.addEventListener('scroll', sync, { passive: true });
-      if (typeof ResizeObserver === 'function') new ResizeObserver(sync).observe(list);
-      sync();
+      bindPosterRail(rail, list, '.theme-list-main', '動畫');
     }
     for (const actions of document.querySelectorAll('.ani-section-actions')) {
+      if (actions.closest('.animate-wish')) continue;
       let input = actions.querySelector('input.ani-owned-rating-toggle');
       const externalToggle = actions.querySelector('input[type="checkbox"]:not(.ani-owned-rating-toggle)');
       if (!input) {
         input = document.createElement('input'); input.type='checkbox'; input.hidden=true;
-        input.className='ani-owned-rating-toggle'; input.checked=Boolean(externalToggle?.checked);
+        input.className='ani-owned-rating-toggle'; input.checked=starMapLive.sortEnabled ?? Boolean(externalToggle?.checked);
         // The external helper otherwise sorts on every individual response.
         // Its data stays readable; the shared control owns ordering only.
         if (externalToggle) externalToggle.checked=false;
@@ -2082,6 +2304,15 @@
     }, 1800);
   }
   function syncLastWatchedEpisodes() {
+    if (location.pathname === '/animeVideo.php') {
+      for (const control of document.querySelectorAll('#BH_background .container-player .ani-season-more > .ani-season-more-btn')) {
+        control.remove();
+      }
+      for (const control of document.querySelectorAll('#BH_background .container-player :is(button, a, input[type="button"], [role="button"], .btn-show-more)')) {
+        const label = control.value || control.textContent.trim();
+        if (label === '全部展開' || label === '全部收合') control.remove();
+      }
+    }
     for (const root of document.querySelectorAll('#BH_background :is(.ani-episode-shelf, .anime-title, .season)')) {
       for (const epLi of root.querySelectorAll('.season li, ul.season > li, li')) {
         if (!epLi.closest('.season')) continue;
@@ -2724,7 +2955,7 @@
         if(shareBtn){
           if(!shareBtn.closest('.ani-title-actions'))actions.append(shareBtn);
           if(!shareBtn.querySelector('.ani-share-pill-label')){
-            shareBtn.insertAdjacentHTML('afterbegin','<span class="ani-share-pill-label">分享</span>');
+            shareBtn.insertAdjacentHTML('beforeend','<span class="ani-share-pill-label">分享</span>');
           }
         }
       const plusBarForShortcut = document.querySelector('.plus_imagetool_box');
@@ -3075,6 +3306,7 @@
       const rawTxt = (el.textContent || '').replace(/\s+/g, ' ').trim();
       if (!rawTxt || rawTxt.length > 90) continue;
       if (!/觀看[記紀]錄/.test(rawTxt)) continue;
+      if (el.closest('[role="tablist"]') || el.querySelector('[role="tablist"]')) continue;
       if (el.closest('.vjs-control-bar') && !/^(?:[✓✔✅]\s*)?(?:已)?儲存觀看[記紀]錄/.test(rawTxt)) continue;
       const csToast = getComputedStyle(el);
       const isOuterColoredBox =
@@ -3380,47 +3612,71 @@
       const rightGrp = controlBar.querySelector('.control-bar-rightbtn');
       const seasonRoot = document.querySelector('.season');
       if (rightGrp && seasonRoot && seasonRoot.querySelector('.season ul li a, ul li a') && !rightGrp.querySelector('.ani-episodes-control')) {
+        const displayTitle = (title) => globalThis.AniEnhancements?.traditionalTitle(title) ?? title;
         const epBtn = document.createElement('button');
         epBtn.type = 'button';
         epBtn.className = 'vjs-control vjs-button ani-episodes-control';
         epBtn.setAttribute('aria-label', '選集');
-        epBtn.dataset.aniTip = '選集';
         epBtn.innerHTML = '<svg class="ani-player-glyph" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3.5" y="4" width="7" height="7" rx="1.6"/><rect x="13.5" y="4" width="7" height="7" rx="1.6"/><rect x="3.5" y="13" width="7" height="7" rx="1.6"/><rect x="13.5" y="13" width="7" height="7" rx="1.6"/></svg>';
         const ambBtn = rightGrp.querySelector('.ani-ambientlight-toggle');
         if (ambBtn) ambBtn.after(epBtn);
         else rightGrp.prepend(epBtn);
 
         let epDrawer = playerEl.querySelector('.ani-player-episodes-drawer');
+        let hoverPreview = false;
+        const setEpisodeDrawerOpen = (open) => {
+          if (!open) hoverPreview = false;
+          epDrawer.classList.toggle('is-open', open);
+          epDrawer.inert = !open;
+          epDrawer.setAttribute('aria-hidden', String(!open));
+          epBtn.setAttribute('aria-expanded', String(open));
+        };
+        const closeEpisodeDrawer = () => {
+          setEpisodeDrawerOpen(false);
+          epBtn.focus();
+        };
         if (!epDrawer) {
           epDrawer = document.createElement('div');
           epDrawer.className = 'ani-player-episodes-drawer';
+          epDrawer.inert = true;
           epDrawer.setAttribute('aria-hidden', 'true');
-          epDrawer.innerHTML = '<div class="ani-ep-drawer-backdrop"></div><aside class="ani-ep-drawer-panel" aria-label="集數選擇"><div class="ani-ep-drawer-tabs" role="tablist"></div><div class="ani-ep-drawer-body"></div></aside>';
+          epDrawer.innerHTML = '<div class="ani-ep-drawer-backdrop"></div><aside class="ani-ep-drawer-panel" aria-label="集數選擇"><div class="ani-ep-drawer-tabs" role="tablist"></div><div class="ani-ep-drawer-scroll"><div class="ani-ep-drawer-body"></div></div></aside>';
           playerEl.append(epDrawer);
           const stopEvt = (ev) => ev.stopPropagation();
           epDrawer.addEventListener('dblclick', stopEvt);
           epDrawer.addEventListener('keydown', (ev) => {
             if (ev.key === 'Escape') {
-              epDrawer.classList.remove('is-open');
-              epDrawer.setAttribute('aria-hidden', 'true');
-              epBtn.setAttribute('aria-expanded', 'false');
+              closeEpisodeDrawer();
             }
             ev.stopPropagation();
           });
           epDrawer.querySelector('.ani-ep-drawer-backdrop')?.addEventListener('click', (ev) => {
             ev.stopPropagation();
-            epDrawer.classList.remove('is-open');
-            epDrawer.setAttribute('aria-hidden', 'true');
-            epBtn.setAttribute('aria-expanded', 'false');
+            closeEpisodeDrawer();
           });
         }
+        const clockText = seconds => `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`;
+        const setEpisodeDate = (element, date) => {
+          element.textContent = date.replaceAll('-', '/');
+          element.dateTime = date.replaceAll('/', '-');
+        };
+        let visibleEpisodes;
+        const bodyEl = epDrawer.querySelector('.ani-ep-drawer-body');
+        const scrollArea = epDrawer.querySelector('.ani-ep-drawer-scroll');
+        const updateScrollEdges = () => {
+          const remaining = bodyEl.scrollHeight - bodyEl.clientHeight - bodyEl.scrollTop;
+          scrollArea.classList.toggle('can-scroll-up', bodyEl.scrollTop > 1);
+          scrollArea.classList.toggle('can-scroll-down', remaining > 1);
+        };
+        bodyEl.addEventListener('scroll', updateScrollEdges, { passive: true });
+        const scrollObserver = typeof ResizeObserver === 'function' ? new ResizeObserver(updateScrollEdges) : null;
         const renderEpDrawer = () => {
           const tabsEl = epDrawer.querySelector('.ani-ep-drawer-tabs');
-          const bodyEl = epDrawer.querySelector('.ani-ep-drawer-body');
-          if (!tabsEl || !bodyEl) return;
+          if (!tabsEl) return;
           const sections = [];
           let pendingTitle = '';
           for (const child of seasonRoot.children) {
+            if (child.matches('.ani-ep-group-bar')) continue;
             if (/^(P|H[1-6]|DIV|SPAN)$/i.test(child.tagName) && !child.querySelector('ul')) {
               const t = child.textContent.replace(/[:：\s]+$/g, '').trim();
               if (t) pendingTitle = t;
@@ -3428,7 +3684,8 @@
               const ulEl = child.tagName === 'UL' ? child : child.querySelector('ul');
               const items = [...ulEl.querySelectorAll('li a')];
               if (items.length) {
-                sections.push({ title: pendingTitle || (sections.length === 0 ? '本篇' : '特別篇'), items });
+                const heading = child.querySelector(':scope > :is(p, h2, h3, h4)')?.textContent?.trim().replace(/[:：\s]+$/g, '');
+                sections.push({ title: heading || pendingTitle || (sections.length === 0 ? '本篇' : '特別篇'), items });
                 pendingTitle = '';
               }
             }
@@ -3436,6 +3693,11 @@
           if (!sections.length) {
             const allItems = [...seasonRoot.querySelectorAll('ul li a')];
             if (allItems.length) sections.push({ title: '本篇', items: allItems });
+          }
+          const dub = sections.find(section => /^(?:中文配音|中配|國語配音|國語)(?:版)?$/.test(section.title));
+          if (dub) {
+            dub.title = '中文配音';
+            if (sections[0] !== dub) sections[0].title = '日文配音';
           }
           let activeIdx = sections.findIndex((s) => s.items.some((a) => a.closest('li')?.classList.contains('playing')));
           if (activeIdx < 0) activeIdx = 0;
@@ -3446,28 +3708,184 @@
               tabBtn.classList.toggle('is-active', act);
               tabBtn.setAttribute('aria-selected', String(act));
             }
+            visibleEpisodes?.disconnect();
+            scrollObserver?.disconnect();
+            const nativeHistory = syncNativeWatch();
+            const history = Promise.resolve(globalThis.AniEnhancements?.storageGet('aniPermanentHistoryV1', {}))
+              .then(records => {
+                const byVideo = new Map();
+                for (const record of Object.values(records || {})) {
+                  for (const ep of Object.values(record?.episodes || {})) byVideo.set(String(ep.videoSn), ep);
+                  if (record?.videoSn) {
+                    const sn = String(record.videoSn);
+                    byVideo.set(sn, {
+                      elapsedSec: byVideo.get(sn)?.elapsedSec || record.elapsedSec,
+                      durationSec: byVideo.get(sn)?.durationSec || record.durationSec,
+                    });
+                  }
+                }
+                return byVideo;
+              }).catch(() => new Map());
+            visibleEpisodes = new IntersectionObserver((entries, observer) => {
+              for (const entry of entries) {
+                if (!entry.isIntersecting || !entry.target.isConnected) continue;
+                const row = entry.target;
+                observer.unobserve(row);
+                const sn = row.dataset.videoSn;
+                Promise.all([getEpisodeDetails(sn), history]).then(([details, records]) => {
+                  if (!row.isConnected) return;
+                  const media = row.classList.contains('is-playing') && !playerEl.matches('.vjs-ad-playing, .vjs-ad-loading')
+                    ? playerEl.querySelector('video') : null;
+                  const record = records.get(sn);
+                  const mediaReady = Number.isFinite(media?.duration) && media.duration > 0;
+                  if (details?.date) setEpisodeDate(row.querySelector('time'), details.date);
+                  const views = details?.views;
+                  if (views != null && views !== '' && Number.isFinite(Number(views))) {
+                    const count = Number(views).toLocaleString('zh-TW');
+                    const viewsElement = row.querySelector('.ani-ep-views');
+                    viewsElement.textContent = count;
+                    viewsElement.setAttribute('aria-label', `播放數 ${count}`);
+                  }
+                  if (details?.cover) {
+                    const img = document.createElement('img');
+                    img.alt = '';
+                    img.loading = 'lazy';
+                    img.src = details.cover;
+                    img.onerror = () => img.remove();
+                    row.querySelector('.ani-ep-thumb').prepend(img);
+                  }
+                  const updatePlayback = (native) => {
+                    if (!row.isConnected) return;
+                    const duration = mediaReady ? media.duration : record?.durationSec || native?.durationSec || details?.duration;
+                    const elapsed = mediaReady ? media.currentTime : record?.elapsedSec ||
+                      (native?.completed ? duration : native?.elapsedSec ?? (native?.fraction || 0) * duration);
+                    if (duration > 0) {
+                      const position = clamp(Number(elapsed) || 0, 0, duration);
+                      row.querySelector('.ani-ep-time').textContent = `${clockText(position)} / ${clockText(duration)}`;
+                      const progress = row.querySelector('progress');
+                      progress.max = duration;
+                      progress.value = position;
+                      row.querySelector('.ani-ep-playback').hidden = false;
+                    }
+                  };
+                  updatePlayback();
+                  if (!mediaReady && !record?.elapsedSec) {
+                    nativeHistory.then(records => updatePlayback(records.get(sn)));
+                  }
+                });
+              }
+            }, { root: bodyEl });
             bodyEl.innerHTML = '';
             const grid = document.createElement('div');
             grid.className = 'ani-ep-drawer-grid';
             const sec = sections[idx];
             if (sec) {
-              for (const srcLink of sec.items) {
+              for (const [index, srcLink] of sec.items.entries()) {
+                const row = document.createElement('div');
                 const epBtnItem = document.createElement('button');
                 epBtnItem.type = 'button';
-                const epLi = srcLink.closest('li');
-                const isPlaying = !!epLi?.classList.contains('playing');
-                const isLastWatched = !!epLi?.classList.contains('ani-last-watched');
-                epBtnItem.className = `ani-ep-drawer-btn${isPlaying ? ' is-playing' : ''}${isLastWatched ? ' is-last-watched' : ''}`;
-                epBtnItem.textContent = srcLink.textContent.trim();
-                epBtnItem.title = `第 ${srcLink.textContent.trim()} 集`;
+                epBtnItem.className = 'ani-ep-drawer-btn';
+                const isPlaying = Boolean(srcLink.closest('li')?.classList.contains('playing'));
+                row.className = isPlaying ? 'ani-ep-row is-playing' : 'ani-ep-row';
+                row.append(epBtnItem);
+                const sn = srcLink.dataset.aniVideoSn || new URL(srcLink.href, location.href).searchParams.get('sn');
+                const thumb = document.createElement('span');
+                thumb.className = 'ani-ep-thumb';
+                if (isPlaying) {
+                  const badge = document.createElement('span');
+                  badge.className = 'ani-ep-playing-label';
+                  badge.textContent = '播放中';
+                  const bars = document.createElement('span');
+                  bars.className = 'ani-ep-bars';
+                  bars.setAttribute('aria-hidden', 'true');
+                  for (let i = 0; i < 4; i++) bars.append(document.createElement('i'));
+                  badge.prepend(bars);
+                  thumb.append(badge);
+                }
+                const label = document.createElement('span');
+                label.className = 'ani-ep-copy';
+                label.id = `ani-ep-row-title-${index}`;
+                epBtnItem.setAttribute('aria-labelledby', label.id);
+                const name = document.createElement('strong');
+                const number = srcLink.textContent.trim();
+                name.textContent = /^\d+(?:\.\d+)?$/.test(number) ? `EP.${number}` : displayTitle(number);
+                const info = document.createElement('small');
+                info.className = 'ani-ep-time';
+                if (isPlaying) epBtnItem.setAttribute('aria-current', 'true');
+                const subtitle = document.createElement('span');
+                const date = document.createElement('time');
+                subtitle.textContent = srcLink.dataset.aniEpTitle || '';
+                if (srcLink.dataset.aniEpAirdate) setEpisodeDate(date, srcLink.dataset.aniEpAirdate);
+                subtitle.className = 'ani-ep-name';
+                const meta = document.createElement('span');
+                meta.className = 'ani-ep-meta';
+                const progress = document.createElement('progress');
+                progress.setAttribute('aria-label', '觀看進度');
+                const playback = document.createElement('span');
+                playback.className = 'ani-ep-playback';
+                playback.hidden = true;
+                playback.append(progress, info);
+                meta.append(name, subtitle);
+                const details = document.createElement('span');
+                details.className = 'ani-ep-details';
+                const views = document.createElement('span');
+                views.className = 'ani-ep-views';
+                views.setAttribute('role', 'img');
+                const stats = document.createElement('span');
+                stats.className = 'ani-ep-stats';
+                stats.append(views, date);
+                details.append(playback, stats);
+                label.append(meta);
+                const description = document.createElement('span');
+                description.className = 'ani-ep-description';
+                description.textContent = srcLink.dataset.aniEpDescription || '';
+                row.append(label, thumb, details, description);
+                epBtnItem.setAttribute('aria-expanded', String(isPlaying));
+                if (/^\d+$/.test(sn)) {
+                  row.dataset.videoSn = sn;
+                  visibleEpisodes.observe(row);
+                }
+                const playEpisode = (ev) => {
+                  ev.stopPropagation();
+                  closeEpisodeDrawer();
+                  srcLink.click();
+                };
+                if (!isPlaying) {
+                  const play = document.createElement('button');
+                  play.type = 'button';
+                  play.className = 'ani-ep-play';
+                  play.setAttribute('aria-label', `播放 ${name.textContent}`);
+                  play.innerHTML = '<svg aria-hidden="true" viewBox="0 0 24 24"><path fill="currentColor" d="M8 4v16l13-8z"/></svg>';
+                  play.addEventListener('click', playEpisode);
+                  row.append(play);
+                }
                 epBtnItem.addEventListener('click', (ev) => {
                   ev.stopPropagation();
-                  srcLink.click();
+                  const expanded = epBtnItem.getAttribute('aria-expanded') === 'true';
+                  if (isPlaying) {
+                    epBtnItem.setAttribute('aria-expanded', String(!expanded));
+                    return;
+                  }
+                  if (expanded) {
+                    playEpisode(ev);
+                    return;
+                  }
+                  grid.querySelector('.ani-ep-row:not(.is-playing) > [aria-expanded="true"]')?.setAttribute('aria-expanded', 'false');
+                  epBtnItem.setAttribute('aria-expanded', 'true');
                 });
-                grid.append(epBtnItem);
+                grid.append(row);
               }
             }
             bodyEl.append(grid);
+            bodyEl.scrollTop = 0;
+            const playingRow = grid.querySelector('.is-playing');
+            if (playingRow) {
+              const inset = Number.parseFloat(getComputedStyle(bodyEl).scrollPaddingBlockStart) || 0;
+              bodyEl.scrollTop = playingRow.getBoundingClientRect().top - bodyEl.getBoundingClientRect().top - inset;
+            }
+            scrollObserver?.observe(bodyEl);
+            scrollObserver?.observe(grid);
+            updateScrollEdges();
           };
 
           tabsEl.innerHTML = '';
@@ -3476,7 +3894,7 @@
             tabBtn.type = 'button';
             tabBtn.role = 'tab';
             tabBtn.className = 'ani-ep-drawer-tab';
-            tabBtn.textContent = sec.title;
+            tabBtn.textContent = displayTitle(sec.title);
             tabBtn.addEventListener('click', (ev) => {
               ev.stopPropagation();
               showSection(idx);
@@ -3485,18 +3903,50 @@
           });
           showSection(activeIdx);
         };
+        seasonRoot.addEventListener('ani-episode-titles-ready', () => {
+          for (const link of seasonRoot.querySelectorAll('li a')) {
+            const sn = link.dataset.aniVideoSn || new URL(link.href, location.href).searchParams.get('sn');
+            if (!/^\d+$/.test(sn)) continue;
+            const row = epDrawer.querySelector(`[data-video-sn="${sn}"]`);
+            if (!row) continue;
+            row.querySelector('.ani-ep-name').textContent = link.dataset.aniEpTitle || '';
+            row.querySelector('.ani-ep-description').textContent = link.dataset.aniEpDescription || '';
+            const date = row.querySelector('time');
+            if (!date.dateTime && link.dataset.aniEpAirdate) {
+              setEpisodeDate(date, link.dataset.aniEpAirdate);
+            }
+          }
+        });
         epBtn.setAttribute('aria-expanded', 'false');
+        epBtn.addEventListener('pointerenter', (ev) => {
+          if (ev.pointerType !== 'mouse' || epDrawer.classList.contains('is-open')) return;
+          renderEpDrawer();
+          hoverPreview = true;
+          setEpisodeDrawerOpen(true);
+        });
+        playerEl.addEventListener('pointerleave', () => {
+          if (hoverPreview && !epDrawer.contains(document.activeElement)) setEpisodeDrawerOpen(false);
+        });
+        epBtn.addEventListener('keydown', (ev) => {
+          if (ev.key !== 'Escape' || !epDrawer.classList.contains('is-open')) return;
+          ev.stopPropagation();
+          closeEpisodeDrawer();
+        });
         epBtn.addEventListener('click', (ev) => {
           ev.stopPropagation();
+          if (hoverPreview) {
+            hoverPreview = false;
+            epDrawer.querySelector('[aria-selected="true"]')?.focus();
+            return;
+          }
           const opening = !epDrawer.classList.contains('is-open');
           if (opening) renderEpDrawer();
-          epDrawer.classList.toggle('is-open', opening);
-          epDrawer.setAttribute('aria-hidden', String(!opening));
-          epBtn.setAttribute('aria-expanded', String(opening));
+          setEpisodeDrawerOpen(opening);
+          if (opening && ev.detail === 0) epDrawer.querySelector('[aria-selected="true"]')?.focus();
         });
       }
-      const fallbackTips={'.vjs-pre-button':'上一集','.vjs-next-button':'下一集','.vjs-res-button':'畫質','.vjs-playback-rate':'播放速度','.ani-ambientlight-toggle':'環境光','.ani-episodes-control':'選集'};
-      for(const btn of controlBar.querySelectorAll('.vjs-play-control,.vjs-mute-control,.vjs-pre-button,.vjs-next-button,.vjs-danmu-button,.vjs-res-button,.vjs-playback-rate,.vjs-indent-button,.plus_picture_in_picture_icon,.vjs-fullscreen-control,.ani-ambientlight-toggle,.ani-episodes-control')){
+      const fallbackTips={'.vjs-pre-button':'上一集','.vjs-next-button':'下一集','.vjs-res-button':'畫質','.vjs-playback-rate':'播放速度','.ani-ambientlight-toggle':'環境光'};
+      for(const btn of controlBar.querySelectorAll('.vjs-play-control,.vjs-mute-control,.vjs-pre-button,.vjs-next-button,.vjs-danmu-button,.vjs-res-button,.vjs-playback-rate,.vjs-indent-button,.plus_picture_in_picture_icon,.vjs-fullscreen-control,.ani-ambientlight-toggle')){
         if(btn.dataset.aniTipBound)continue;
         btn.dataset.aniTipBound='true';
         const syncTip=()=>{
@@ -3607,9 +4057,7 @@
           if (id) state.catalogMatches.add(id);
         }
         state.apply();
-        const hasNext = [...doc.querySelectorAll('.page_number a[href]')]
-          .some(link => Number(link.dataset.aniListPage || link.textContent) === page + 1);
-        if (!hasNext || !results.querySelector('.theme-list-main')) break;
+        if (!nextBrowsePage(doc, new URL(`/animeList.php?${params}`, location.href), page)) break;
       }
       if (request.signal.aborted) return;
       state.catalogCache.set(cacheKey, state.catalogMatches);
@@ -3670,6 +4118,7 @@
           enhancePosterRails();
           enhanceCollectionFilters();
           enhanceInfiniteCatalog();
+          globalThis.AniEnhancements?.initBrowseFilters?.();
         } catch {
           // Keep the current results and leave the selected sort unchanged.
         } finally {
@@ -3712,6 +4161,7 @@
       const dates = createBroadcastDateFilters(filter => {
         state.dateFilter = filter;
         state.apply();
+        list.dispatchEvent(new CustomEvent('ani-catalog-date-change', {detail: filter}));
       });
       const rows = collectionCatalogGroups.map(([key, label, values], index) =>
         createCollectionFilterRow(key, label, values, index, state));
@@ -3719,6 +4169,8 @@
       list.before(panel);
       collectionFilters.set(list,state);
       search.addEventListener('input',()=>state.apply());
+      list.addEventListener('ani-origin-results-change', () => state.apply());
+      list.addEventListener('ani-collection-status-change', () => state.apply());
     }
     state.apply = () => {
       const cards = [...list.querySelectorAll('.theme-list-main')];
@@ -3737,7 +4189,7 @@
           && (state.selected.status === '全部' || status === state.selected.status)
           && name.toLocaleLowerCase().includes(search);
         if (card.hidden === visible) card.hidden = !visible;
-        if (visible) shown++;
+        if (visible && !card.matches('.ani-origin-hidden, .ani-col-status-hidden')) shown++;
       }
       const progress = state.catalogStatus ? `，${state.catalogStatus}` : '';
       const text = `顯示 ${shown} / ${cards.length} 部收藏${progress}`;
@@ -3754,28 +4206,69 @@
     const year = document.createElement('select');
     year.setAttribute('aria-label', '播出年份');
     year.add(new Option('全部年份', ''));
-    const currentYear = Number(new Intl.DateTimeFormat('en', {year: 'numeric', timeZone: 'Asia/Taipei'}).format(new Date()));
-    for (let n = currentYear; n >= 1960; n--) year.add(new Option(`${n} 年`, String(n)));
+    const taiwanDate = new Intl.DateTimeFormat('en', {
+      year: 'numeric', month: 'numeric', timeZone: 'Asia/Taipei',
+    });
+    const readCurrentSeason = () => {
+      const parts = taiwanDate.formatToParts(new Date());
+      const year = parts.find(part => part.type === 'year').value;
+      const month = Number(parts.find(part => part.type === 'month').value);
+      const quarter = Math.floor((month - 1) / 3);
+      return { year, season: broadcastSeasons[quarter], label: `${year} ${['冬番','春番','夏番','秋番'][quarter]}` };
+    };
+    let current = readCurrentSeason();
+    for (let n = Number(current.year); n >= 1960; n--) year.add(new Option(`${n} 年`, String(n)));
     const seasons = document.createElement('div');
     seasons.className = 'ani-catalog-seasons';
     seasons.setAttribute('role', 'group');
     seasons.setAttribute('aria-label', '播出季度');
     let season = '';
-    const update = () => onChange({year: year.value, season});
-    for (const [label, value] of [['全部季度',''],['春番','spring'],['夏番','summer'],['秋番','autumn'],['冬番','winter']]) {
+    let previousYear = '';
+    const update = () => onChange(season === 'current'
+      ? {year: current.year, season: current.season}
+      : {year: year.value, season});
+    for (const [label, value] of [['全部季度',''],[current.label,'current'],['春番','spring'],['夏番','summer'],['秋番','autumn'],['冬番','winter']]) {
       const choice = document.createElement('button');
       choice.type = 'button';
       choice.value = value;
       choice.textContent = label;
+      if (value === 'current') choice.title = '當前季番（台灣時間）';
       choice.setAttribute('aria-pressed', String(value === season));
       choice.addEventListener('click', () => {
         if (season === value) return;
+        if (season === 'current') year.value = previousYear;
+        if (value === 'current') {
+          previousYear = year.value;
+          year.value = current.year;
+        }
         season = value;
+        year.disabled = value === 'current';
         for (const option of seasons.children) option.setAttribute('aria-pressed', String(option === choice));
         update();
       });
       seasons.append(choice);
     }
+    const currentChoice = seasons.querySelector('[value="current"]');
+    const syncCurrentSeason = () => {
+      if (!dates.isConnected) {
+        clearInterval(seasonTimer);
+        document.removeEventListener('visibilitychange', syncCurrentSeason);
+        return;
+      }
+      const next = readCurrentSeason();
+      if (next.label === current.label) return;
+      for (let n = Number(current.year) + 1; n <= Number(next.year); n++) {
+        year.add(new Option(`${n} 年`, String(n)), 1);
+      }
+      current = next;
+      currentChoice.textContent = current.label;
+      if (season === 'current') {
+        year.value = current.year;
+        update();
+      }
+    };
+    const seasonTimer = setInterval(syncCurrentSeason, 60000);
+    document.addEventListener('visibilitychange', syncCurrentSeason);
     const options = document.createElement('div');
     options.className = 'ani-catalog-date-options';
     const field = document.createElement('span');
@@ -3788,14 +4281,14 @@
     return dates;
   }
 
+  const broadcastSeasons = ['winter', 'spring', 'summer', 'autumn'];
   function broadcastDate(card) {
     const time = card.querySelector('.theme-time');
     const value = time?.getAttribute('title') || time?.textContent || '';
     const match = value.match(/(\d{4})(?:\s*[\/年.\-]\s*(\d{1,2}))?/);
     const month = Number(match?.[2]);
-    const seasons = ['winter', 'spring', 'summer', 'autumn'];
     const namedSeason = ['冬', '春', '夏', '秋'].indexOf(value.match(/([冬春夏秋])番/)?.[1]);
-    const season = month >= 1 && month <= 12 ? seasons[Math.floor((month - 1) / 3)] : seasons[namedSeason];
+    const season = month >= 1 && month <= 12 ? broadcastSeasons[Math.floor((month - 1) / 3)] : broadcastSeasons[namedSeason];
     return {year: match?.[1], season};
   }
 
@@ -3841,39 +4334,69 @@
     });
     body.prepend(dates);
   }
+  function nextBrowsePage(doc, currentUrl, currentPage) {
+    for (const link of doc.querySelectorAll('.page_control a[href], .page_number a[href]')) {
+      const href = link.getAttribute('href');
+      if (!URL.canParse(href, currentUrl)) continue;
+      const url = new URL(href, currentUrl);
+      if (url.origin !== currentUrl.origin || url.pathname !== currentUrl.pathname) continue;
+      const page = Number(url.searchParams.get('page') || link.dataset.aniListPage || link.textContent.trim());
+      if (page === currentPage + 1) {
+        if (!url.searchParams.has('page')) url.searchParams.set('page', String(page));
+        url.hash = '';
+        return url.href;
+      }
+    }
+    return null;
+  }
   function enhanceInfiniteCatalog() {
     if (!['/animeList.php','/mygather.php'].includes(location.pathname)) return;
     const list = document.querySelector('.animate-theme-list .theme-list-block');
     const pages = document.querySelector('.page_control');
-    if (!list || !pages || pages.dataset.aniInfinite) return;
-    pages.dataset.aniInfinite = 'true';
-    const nextLink = doc => {
-      const current = Number(doc.querySelector('.page_number .now')?.textContent || new URL(location.href).searchParams.get('page') || 1);
-      return [...doc.querySelectorAll('.page_number a[href]')].find(a => Number(a.textContent) === current + 1)?.getAttribute('href');
+    if (!list || list.dataset.aniInfinite) return;
+    list.dataset.aniInfinite = 'true';
+    const initialUrl = new URL(location.href);
+    const initialPage = Number(initialUrl.searchParams.get('page') || document.querySelector('.page_number .now')?.textContent.trim()) || 1;
+    let next = nextBrowsePage(document, initialUrl, initialPage), busy = false;
+    const urlPage = url => Number(new URL(url).searchParams.get('page')) || 1;
+    const nextByPage = new Map([[initialPage, next]]);
+    const firstPageUrl = new URL(initialUrl);
+    firstPageUrl.searchParams.set('page', '1');
+    const findUnloaded = url => {
+      while (url && nextByPage.has(urlPage(url))) url = nextByPage.get(urlPage(url));
+      return url;
     };
-    let next = nextLink(document), busy = false;
-    const loadedPages=new Set();
     const endLabel = () => `已顯示全部動畫（共 ${list.querySelectorAll('.theme-list-main').length} 部）`;
     const button = document.createElement('button'); button.type = 'button'; button.className = 'ani-load-more';
     button.textContent = next ? '繼續往下瀏覽' : endLabel();
     button.disabled = !next;
-    pages.after(button);
-    pages.hidden = true;
+    if (pages) {
+      pages.dataset.aniInfinite = 'true';
+      pages.after(button);
+      pages.hidden = true;
+    }
     const seen = new Set([...list.querySelectorAll('.theme-list-main')].map(c => new URL(c.getAttribute('href'),location.href).href));
-    let dateFilter = {year: '', season: ''}, failed = false, paused = false;
+    let dateFilter = {year: '', season: ''}, failed = false, originActive = false;
+    let resumeAt = 0;
     const hasDateFilter = () => Boolean(dateFilter.year || dateFilter.season);
+    const shouldSearchAllPages = () => hasDateFilter() || originActive;
+    const syncPageStatus = () => {
+      const status = next ? (resumeAt > Date.now() ? 'cooldown' : failed ? 'failed' : 'pending') : 'complete';
+      if (list.dataset.aniBrowsePages !== status) list.dataset.aniBrowsePages = status;
+    };
     const matchesDate = card => {
       const {year, season} = broadcastDate(card);
       return (!dateFilter.year || year === dateFilter.year) && (!dateFilter.season || season === dateFilter.season);
     };
     const applyDates = () => {
+      syncPageStatus();
       if (location.pathname !== '/animeList.php') return;
       const active = hasDateFilter();
       let shown = 0;
       const cards = [...list.querySelectorAll('.theme-list-main')];
       for (const card of cards) {
         const visible = !active || matchesDate(card);
-        card.hidden = !visible;
+        if (card.hidden === visible) card.hidden = !visible;
         if (visible) shown++;
       }
       const status = document.querySelector('.ani-catalog-date-status');
@@ -3881,63 +4404,86 @@
       let progress = '已搜尋全部頁面';
       if (next) {
         if (failed) progress = '載入失敗，請重試';
-        else if (paused) progress = '下一頁無符合結果，已暫停';
         else progress = '正在搜尋其餘頁面…';
       }
-      status.textContent = active ? `顯示 ${shown} 部，${progress}` : '';
+      const text = active ? `顯示 ${shown} 部，${progress}` : '';
+      if (status.textContent !== text) status.textContent = text;
     };
-    document.addEventListener('ani-catalog-date-change', event => {
-      dateFilter = event.detail; failed = false; paused = false; applyDates();
-      if (hasDateFilter() && next && !busy) load();
+    const onFilterChange = () => {
+      failed = false;
+      if (pages && !busy && shouldSearchAllPages()) next = findUnloaded(firstPageUrl.href);
+      applyDates();
+      if (shouldSearchAllPages() && next && !busy) load();
       else if (next && !busy) {
         button.textContent = '繼續往下瀏覽';
         requestAnimationFrame(checkBottom);
       }
+    };
+    const dateEventTarget = location.pathname === '/mygather.php' ? list : document;
+    dateEventTarget.addEventListener('ani-catalog-date-change', event => {
+      if (!list.isConnected) return;
+      dateFilter = event.detail;
+      onFilterChange();
+    });
+    list.addEventListener('ani-origin-filter-change', event => {
+      originActive = event.detail;
+      onFilterChange();
     });
     const load = async (manual = false) => {
-      if (busy || !next || (!manual && (paused || failed))) return;
-      busy = true; failed = false; paused = false; button.disabled = true; button.textContent = '載入動畫中…';
+      if (!list.isConnected || busy || !next || resumeAt > Date.now() || (!manual && failed)) return;
+      busy = true; failed = false; button.disabled = true; button.textContent = '載入動畫中…';
       applyDates();
       let succeeded=false;
       try {
         const url = new URL(next,location.href);
-        if(loadedPages.has(url.href)){next=null;button.textContent=endLabel();return;}
         if (url.origin !== location.origin || url.pathname !== location.pathname) throw new Error('invalid catalog page');
-        const response = await aniFetch(url.href,{credentials:'include',signal:AbortSignal.timeout(12000)});
+        const response = await aniFetch(url.href, { credentials: 'include', timeoutMs: 12000 });
         if (!response.ok) throw new Error('catalog unavailable');
         const doc = new DOMParser().parseFromString(await response.text(),'text/html');
+        if (!list.isConnected) return;
         const cards = [...doc.querySelectorAll('.theme-list-block .theme-list-main')];
         if (!cards.length && !doc.querySelector('.theme-list-block')) throw new Error('catalog unavailable');
-        let addedMatch = false;
+        const batch = document.createDocumentFragment();
         for (const card of cards) {
           const key = new URL(card.getAttribute('href'),url).href;
           if (seen.has(key)) continue;
           seen.add(key); card.querySelectorAll('script,iframe,object').forEach(n=>n.remove());
-          const imported = document.importNode(card,true);
-          if (hasDateFilter() && matchesDate(imported)) addedMatch = true;
-          list.append(imported);
+          batch.append(document.importNode(card,true));
         }
-        const current = Number(url.searchParams.get('page') || 1);
-        next = cards.length ? [...doc.querySelectorAll('.page_number a[href]')].find(a=>Number(a.textContent)===current+1)?.getAttribute('href') : null;
-        paused = Boolean(next && hasDateFilter() && !addedMatch);
-        loadedPages.add(url.href);succeeded=true;
-        button.textContent = paused ? '搜尋後續頁面' : next ? '繼續往下瀏覽' : endLabel();
+        list.append(batch);
+        const current = urlPage(url);
+        nextByPage.set(current, nextBrowsePage(doc, url, current));
+        next = findUnloaded(shouldSearchAllPages() ? firstPageUrl.href : nextByPage.get(current));
+        succeeded = true;
+        button.textContent = next ? '繼續往下瀏覽' : endLabel();
         enhancePosterRails();
         enhanceCollectionFilters();
-      } catch { failed = true; button.textContent = '載入失敗，點此重試'; }
+      } catch (error) {
+        console.warn('[AniAmbient] Catalog page load failed', next, error);
+        failed = true;
+        resumeAt = Number(sessionStorage.getItem('aniRequestCooldown')) || 0;
+        button.textContent = resumeAt > Date.now() ? '巴哈暫時限制請求，稍後自動接續' : '載入失敗，點此重試';
+        if (resumeAt > Date.now()) setTimeout(() => {
+          if (list.isConnected) load(true);
+        }, resumeAt - Date.now() + 100);
+      }
       finally {
-        busy = false; button.disabled = !next; applyDates();
-        if (succeeded && next && !paused) {
-          if (hasDateFilter()) setTimeout(() => { if (hasDateFilter()) load(); }, 100);
+        busy = false; button.disabled = !next || resumeAt > Date.now(); applyDates();
+        if (succeeded && next) {
+          if (shouldSearchAllPages()) setTimeout(function continueSearch() {
+            if (!list.isConnected || !shouldSearchAllPages()) return;
+            if (originActive && list.dataset.aniOriginBusy === 'true') setTimeout(continueSearch, 1000);
+            else load();
+          }, originActive && location.pathname === '/animeList.php' ? 5000 : 100);
           else requestAnimationFrame(checkBottom);
         }
       }
     };
-    const checkBottom=()=>{if(busy||!next||!button.isConnected||document.hidden)return;const rect=button.getBoundingClientRect();if(rect.top<=window.innerHeight+600&&rect.bottom>=-600)load();};
+    const checkBottom=()=>{if(shouldSearchAllPages()||busy||!next||!button.isConnected||document.hidden)return;const rect=button.getBoundingClientRect();if(rect.top<=window.innerHeight+600&&rect.bottom>=-600)load();};
     button.addEventListener('click', () => load(true));
-    if (typeof IntersectionObserver === 'function') new IntersectionObserver(entries=>{if(entries.some(e=>e.isIntersecting))load();},{rootMargin:'600px'}).observe(button);
+    if (pages && typeof IntersectionObserver === 'function') new IntersectionObserver(entries=>{if(!shouldSearchAllPages() && entries.some(e=>e.isIntersecting))load();},{rootMargin:'600px'}).observe(button);
     let scrollFrame=0;window.addEventListener('scroll',()=>{if(scrollFrame)return;scrollFrame=requestAnimationFrame(()=>{scrollFrame=0;checkBottom();});},{passive:true});
-
+    syncPageStatus();
   }
   function enhanceAccountPages() {
     const accountIcon=path=>`<svg class="ani-account-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${path}</svg>`;
@@ -4318,11 +4864,13 @@
     if(location.pathname!=='/viewList.php'||!settings.themeEnabled)return;
     for(const card of document.querySelectorAll('.user-watch-list > .anime-card')) {
       card.classList.add('ani-history-card');
-      const historyCover=card.querySelector('.postimg img');
-      const historyCoverUrl=historyCover?.dataset.src||historyCover?.getAttribute('src');
-      if(historyCoverUrl&&/^https:\/\/(?:p2|i2|truth)\.bahamut\.com\.tw\//.test(historyCoverUrl)){const cover=`url("${historyCoverUrl.replace(/["\\\n\r]/g,'')}")`;if(card.style.getPropertyValue('--ani-card-cover')!==cover)card.style.setProperty('--ani-card-cover',cover);}
       const title=card.querySelector('.history-anime-title');
       title?.removeAttribute('title');
+      if (title) {
+        const original = title.textContent;
+        const localized = globalThis.AniEnhancements?.traditionalTitle(original);
+        if (localized && localized !== original) title.textContent = localized;
+      }
       const source=card.querySelector('.tm-acg-rating,.ani-custom-rating');
       const score=source?.textContent.match(/★\s*([0-5](?:\.\d+)?)/)?.[1];
       if(score&&title){let pill=card.querySelector('.ani-history-score');if(!pill){pill=document.createElement('span');pill.className='ani-history-score';title.after(pill);}const text=`★ ${score}`;if(pill.textContent!==text)pill.textContent=text;}
@@ -4336,14 +4884,15 @@
         if(data?.tags?.length)rows.push(`動畫類型：${data.tags.join('、')}`);
         if(data?.studio)rows.push(`製作組：${data.studio}`);
         const text=rows.join('\n');if(meta.textContent!==text)meta.textContent=text;
-        const nativeText=[...info.querySelectorAll('.history-lastwatch')].map(n=>n.textContent).join(' '),minutes=nativeText.match(/(\d+)\s*分\s*(\d+)\s*秒/),hours=nativeText.match(/(\d+)\s*時/),completed=/觀看結束/.test(nativeText);
-        const elapsed=minutes?Number(hours?.[1]||0)*3600+Number(minutes[1])*60+Number(minutes[2]):completed&&data?.duration?data.duration:undefined;
+        const nativeText=[...info.querySelectorAll('.history-lastwatch')].map(n=>n.textContent).join(' ');
+        const nativePosition = readNativeWatchPosition(card);
+        const elapsed = nativePosition.completed && data?.duration ? data.duration : nativePosition.elapsedSec;
         const progress=info.querySelector('.progress-bar'),fill=progress?.querySelector('.progress');
         if(progress&&data?.duration&&Number.isFinite(elapsed)){
           progress.setAttribute('role','progressbar');progress.setAttribute('aria-label','播放進度');progress.setAttribute('aria-valuemin','0');progress.setAttribute('aria-valuemax',String(data.duration));progress.setAttribute('aria-valuenow',String(Math.min(elapsed,data.duration)));
           const width=`${clamp(elapsed/data.duration*100,0,100)}%`;if(fill&&fill.style.width!==width)fill.style.width=width;
         }
-        let progressText=info.querySelector('.ani-history-progress-text');if(!progressText){progressText=document.createElement('p');progressText.className='ani-history-progress-text';progress?.after(progressText);}
+        let progressText=info.querySelector('.ani-history-progress-text');if(!progressText){progressText=document.createElement('p');progressText.className='ani-history-progress-text';}
         const remaining=data?.duration&&Number.isFinite(elapsed)?Math.max(0,data.duration-elapsed):undefined;
         const progressLabel=remaining===0?'已看完':Number.isFinite(remaining)?`已看 ${Math.round(clamp(elapsed/data.duration*100,0,100))}% · 剩餘 ${Math.floor(remaining/60)}分${String(Math.floor(remaining%60)).padStart(2,'0')}秒`:'';
         if(progressText.textContent!==progressLabel)progressText.textContent=progressLabel;
@@ -4352,9 +4901,13 @@
         let timing=info.querySelector('.ani-history-timing');if(!timing){timing=document.createElement('p');timing.className='ani-history-timing';title?.after(timing);}
         const timeLabel=`${Number.isFinite(elapsed)?formatContinueTime(elapsed):'—'} / ${data?.duration?formatContinueTime(data.duration):'—'}`;if(timing.dataset.aniLabel!==timeLabel){timing.dataset.aniLabel=timeLabel;const position=document.createElement('span');position.className='ani-history-elapsed';position.textContent=Number.isFinite(elapsed)?formatContinueTime(elapsed):'—';timing.replaceChildren(position,document.createTextNode(' / '+(data?.duration?formatContinueTime(data.duration):'—')));}
         let playback=info.querySelector('.ani-history-playback');if(!playback){playback=document.createElement('div');playback.className='ani-history-playback';timing.before(playback);}
-        if(timing.parentElement!==playback)playback.append(timing);
+        let position=playback.querySelector('.ani-history-position');
+        if(!position){position=document.createElement('div');position.className='ani-history-position';playback.prepend(position);}
+        if(timing.parentElement!==position)position.prepend(timing);
+        if(progress&&progress.parentElement!==position)position.append(progress);
         let ep=playback.querySelector('.ani-history-episode');if(!ep){ep=document.createElement('span');ep.className='ani-history-episode';playback.append(ep);}const epLabel=episode?`EP.${episode}`:'';if(ep.textContent!==epLabel)ep.textContent=epLabel;
         let secondary=info.querySelector('.ani-history-secondary');if(!secondary){secondary=document.createElement('div');secondary.className='ani-history-secondary';playback.after(secondary);}
+        if(progressText.parentElement!==info)playback.after(progressText);
         let updated=info.querySelector('.ani-history-update');if(!updated){updated=document.createElement('p');updated.className='ani-history-update';}if(updated.parentElement!==secondary)secondary.append(updated);
         const scorePill=card.querySelector('.ani-history-score'),poster=card.querySelector('.postimg');if(scorePill&&poster&&scorePill.parentElement!==poster)poster.append(scorePill);
         const latest=nativeText.match(/已更新至\s*第?\s*(\d+)\s*集/),updateText=latest?`已更新至 EP.${latest[1]}`:'';if(updated.textContent!==updateText)updated.textContent=updateText;
@@ -4371,37 +4924,60 @@
         control.setAttribute('aria-label',selector==='.more-btn'&&card.classList.contains('is-open')?'收合每集紀錄':label);control.removeAttribute('title');
         if(control.tagName!=='A'&&!control.dataset.aniHistoryKey){control.dataset.aniHistoryKey='true';control.setAttribute('role','button');control.tabIndex=0;control.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();control.click();}});}
       }
-      if(more?.dataset.listCode&&!more.dataset.aniNativeFold){more.dataset.aniNativeFold='true';more.addEventListener('click',event=>{
-        const details=[...document.querySelectorAll(`[id="sub-list-${more.dataset.anime}"]`)].find(n=>!n.classList.contains('tmp-list'));
-        if(!details?.querySelector('a'))return;
-        event.preventDefault();event.stopImmediatePropagation();const open=!card.classList.contains('is-open');
-        document.querySelectorAll('.tmp-list').forEach(n=>n.remove());document.querySelectorAll('.ani-history-card.is-open').forEach(n=>n.classList.remove('is-open'));document.querySelectorAll('.user-watchTime-list').forEach(n=>n.style.display='none');
-        card.classList.toggle('is-open',open);
-        const reduced = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
-        if (open) {
-          details.style.display = 'block';
-          if (!reduced && typeof details.animate === 'function') {
-            const h = details.scrollHeight || 220;
-            details.animate([{ opacity: 0, maxHeight: '0px', transform: 'translateY(-6px)' }, { opacity: 1, maxHeight: `${h}px`, transform: 'translateY(0)' }], { duration: 220, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' });
-          }
-        } else if (!reduced && typeof details.animate === 'function') {
-          const h = details.scrollHeight || 220;
-          const anim = details.animate([{ opacity: 1, maxHeight: `${h}px`, transform: 'translateY(0)' }, { opacity: 0, maxHeight: '0px', transform: 'translateY(-6px)' }], { duration: 190, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' });
-          anim.onfinish = () => { if (!card.classList.contains('is-open')) details.style.display = 'none'; };
-        } else {
-          details.style.display = 'none';
+      if (more) {
+        const getDetails = () => card.parentElement?.querySelector(':scope > .user-watchTime-list:not(.tmp-list):not(.ani-perm-ep-drawer)');
+        more.setAttribute('aria-expanded', String(card.classList.contains('is-open')));
+        more.setAttribute('aria-controls', getDetails()?.id || `sub-list-${more.dataset.anime}`);
+        if (!more.dataset.aniNativeFold) {
+          more.dataset.aniNativeFold = 'true';
+          more.addEventListener('click', (event) => {
+            const details = getDetails();
+            const wasOpen = card.classList.contains('is-open');
+            const toggle = () => {
+              document.querySelectorAll('.tmp-list').forEach((node) => node.remove());
+              for (const other of document.querySelectorAll('.user-watch-list > .user-watchTime-list')) {
+                if (other !== details) {
+                  other.style.display = 'none';
+                  other.parentElement.querySelector('.ani-history-card')?.classList.remove('is-open');
+                }
+              }
+              card.classList.toggle('is-open', !wasOpen);
+              details.getAnimations?.().forEach((animation) => animation.cancel());
+              if (!wasOpen) {
+                details.style.display = 'block';
+              } else if (!matchMedia('(prefers-reduced-motion: reduce)').matches && typeof details.animate === 'function') {
+                const animation = details.animate(
+                  [{ opacity: 1, transform: 'translateY(0)' }, { opacity: 0, transform: 'translateY(-6px)' }],
+                  { duration: 190, easing: 'ease-in' },
+                );
+                animation.onfinish = () => { details.style.display = 'none'; };
+              } else {
+                details.style.display = 'none';
+              }
+              enhanceWatchHistory();
+            };
+            if (more.dataset.listCode && details?.querySelector('a')) {
+              event.preventDefault();
+              event.stopImmediatePropagation();
+              toggle();
+              return;
+            }
+            requestAnimationFrame(() => {
+              if (details?.querySelector('a') && card.classList.contains('is-open') === wasOpen) toggle();
+              else enhanceWatchHistory();
+            });
+          }, true);
         }
-        enhanceWatchHistory();
-      },true);}
-      if(more){more.setAttribute('aria-expanded',String(card.classList.contains('is-open')));more.setAttribute('aria-controls',`sub-list-${more.dataset.anime}`);if(!more.dataset.aniHistoryToggle){more.dataset.aniHistoryToggle='true';more.addEventListener('click',()=>requestAnimationFrame(enhanceWatchHistory));}}
+      }
     }
     // Keep the native episode list in the same grid item as its card.
-    for (const details of document.querySelectorAll('.user-watchTime-list:not(.tmp-list)')) {
+    for (const details of document.querySelectorAll('.user-watchTime-list:not(.tmp-list):not(.ani-perm-ep-drawer)')) {
       const id = details.dataset.animeSn || details.id.match(/sub-list-(\d+)/)?.[1];
       if (!id || !/^\d+$/.test(id)) continue;
       const owner = document.querySelector(`.more-btn[data-anime="${id}"]`)?.closest('.user-watch-list');
       if (!owner) continue;
       if (details.parentElement !== owner) owner.append(details);
+      if (details.id) owner.querySelector('.more-btn')?.setAttribute('aria-controls', details.id);
         for(const name of details.querySelectorAll('.history-list-anime-title')){
           if(!name.dataset.aniOriginalTitle)name.dataset.aniOriginalTitle=name.textContent.trim();
           const original=name.dataset.aniOriginalTitle,episode=original.match(/\[\s*(\d+(?:\.\d+)?)\s*\]\s*$/)?.[1];
@@ -4421,10 +4997,6 @@
       }
       details.dataset.aniRevealed = String(Boolean(open));
       details.dataset.aniOwner = id;
-      const cover = owner.querySelector('.ani-history-card')?.style.getPropertyValue('--ani-card-cover');
-      if (cover && details.style.getPropertyValue('--ani-card-cover') !== cover) {
-        details.style.setProperty('--ani-card-cover', cover);
-      }
     }
   }
   function stylePlayerConsent() {
@@ -5095,7 +5667,8 @@
           (el) => el !== buyBtn && !buyBtn?.contains(el) && !el.querySelector('*') && el.textContent.trim()
         );
         const priceEl =
-          card.querySelector('.store_price, [class*="price" i]') ||
+          card.querySelector('.store_price, .products-price') ||
+          card.querySelector('[class*="price" i]') ||
           leafNodes.find((el) => /^(?:NT\$|＄|\$)\s*[\d,]+/.test(el.textContent.trim()));
         if (priceEl) priceEl.classList.add('ani-merch-price');
         const bonusEl =
@@ -5106,10 +5679,26 @@
           const metaRow = document.createElement('div');
           metaRow.className = 'ani-merch-meta-row';
           if (bonusEl && bonusEl !== priceEl) metaRow.append(bonusEl);
-          metaRow.append(priceEl);
+          const discount = card.querySelector('.products-discount') ||
+            leafNodes.find(element => /^\d{1,2}(?:\.\d+)?\s*折$/.test(element.textContent.trim()));
+          const priceLine = document.createElement('div');
+          priceLine.className = 'ani-merch-price-line';
+          priceLine.append(priceEl);
+          if (discount) {
+            discount.classList.add('ani-merch-discount');
+            priceLine.append(discount);
+          }
+          metaRow.append(priceLine);
           if (buyBtn && card.contains(buyBtn)) { buyBtn.before(metaRow); metaRow.append(buyBtn); }
           else card.append(metaRow);
         }
+      }
+      if (mItems.length && mList && !mList.parentElement.classList.contains('ani-poster-rail')) {
+        const rail = document.createElement('div');
+        rail.className = 'ani-poster-rail ani-watch-poster-rail';
+        mList.before(rail);
+        rail.append(mList);
+        bindPosterRail(rail, mList, '.ani-merch-card', '商品');
       }
       const canScroll = mItems.length > 1 && mList && mList.scrollWidth > mList.clientWidth + 4;
       merchSec.classList.toggle('ani-merch-no-scroll', !canScroll);
@@ -5249,7 +5838,7 @@
         if (/複製/.test(label)) btn.addEventListener('click', () => showAniToast('已複製彈幕內容'));
       }
     }
-    for (const reloadBtn of document.querySelectorAll('.subtitle :is(button, a, [role="button"], .reload, .danmu-reload, .sub-reload):not([data-ani-reload-icon])')) {
+    for (const reloadBtn of document.querySelectorAll('.subtitle :is(button, a, [role="button"], .reload, .danmu-reload, .sub-reload):not([data-ani-reload-icon], .ani-dm-refresh-btn)')) {
       const txt = reloadBtn.textContent.trim();
       const cls = reloadBtn.className || '';
       if (!/^(?:refresh|autorenew|sync|重整|重新整理)$/i.test(txt) && !/reload|refresh/i.test(cls) && !/reload|refresh/i.test(reloadBtn.getAttribute('onclick') || '')) continue;
@@ -7144,19 +7733,21 @@
     const close = () => {
       panel.hidden = true;
       button.setAttribute('aria-expanded', 'false');
+      panel.dispatchEvent(new Event('ani-settings-close'));
     };
     button.addEventListener('click', () => {
-      const open = panel.hidden;
-      panel.hidden = !open;
-      button.setAttribute('aria-expanded', String(open));
-      if (open) {
-        panel.dispatchEvent(new Event('ani-settings-open'));
-        const detail = panel.querySelector('[data-settings-detail]');
-        (detail && !detail.hidden
-          ? panel.querySelector('[data-settings-back]')
-          : panel.querySelector('input')
-        )?.focus();
+      if (!panel.hidden) {
+        close();
+        return;
       }
+      panel.hidden = false;
+      button.setAttribute('aria-expanded', 'true');
+      panel.dispatchEvent(new Event('ani-settings-open'));
+      const detail = panel.querySelector('[data-settings-detail]');
+      (detail && !detail.hidden
+        ? panel.querySelector('[data-settings-back]')
+        : panel.querySelector('input')
+      )?.focus();
     });
     panel.querySelector('.ani-settings-close').addEventListener('click', () => {
       close();
@@ -7180,6 +7771,7 @@
     header.append(button);
     document.body.append(panel);
     settingsPanel = panel;
+    mountStarMapCategory();
     syncSettingsPanel();
   }
 
@@ -7881,6 +8473,231 @@
     active = video ? attach(video) : null;
   }
 
+  function mountStarMapCategory() {
+    if (!settingsPanel || settingsPanel.querySelector('[data-settings-page="rating"]') ||
+        !document.querySelector('.top_btn_rating_setting')) return;
+    const panel = settingsPanel;
+    const page = document.createElement('section');
+    page.dataset.settingsPage = 'rating';
+    page.setAttribute('aria-label', '評分顯示設定');
+    page.hidden = true;
+    panel.querySelector('[data-settings-detail]').append(page);
+    panel.querySelector('[data-category="credit"]').insertAdjacentHTML('beforebegin',
+      '<button type="button" class="ani-settings-category" data-category="rating" aria-label="評分顯示設定"><span><strong>評分顯示設定</strong><small>評分徽章、自動排序與快取</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>');
+    panel.querySelector('[data-category-shortcut="credit"]').insertAdjacentHTML('beforebegin',
+      '<button type="button" data-category-shortcut="rating"><svg class="ani-settings-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/></svg><span>評分顯示設定</span></button>');
+
+    const closeRating = () => page.replaceChildren();
+    panel.addEventListener('ani-settings-close', closeRating);
+    panel.addEventListener('ani-settings-navigate', ({ detail }) => {
+      if (detail !== 'rating') {
+        closeRating();
+        return;
+      }
+      if (page.querySelector('#ani-rating-overlay')) return;
+      const launcher = document.querySelector('.top_btn_rating_setting');
+      (launcher?.querySelector('a') || launcher)?.click();
+      const overlay = document.getElementById('ani-rating-overlay');
+      const modal = overlay?.querySelector('#ani-rating-modal');
+      if (!modal?.querySelector('#arm-save')) {
+        page.textContent = '評分顯示設定目前無法開啟。';
+        return;
+      }
+      styleStarMapSettings(overlay);
+      overlay.dataset.aniStarmapEmbedded = 'true';
+      // The upstream modal and backdrop set their geometry with inline !important.
+      overlay.removeAttribute('style');
+      for (const attribute of ['style', 'aria-modal', 'role', 'aria-labelledby']) modal.removeAttribute(attribute);
+      organizeStarMapSettings(modal);
+      wireStarMapAutosave(modal);
+      page.replaceChildren(overlay);
+    });
+    document.documentElement.dataset.aniRatingIntegrated = 'true';
+  }
+
+  const starMapFields = {
+    'arm-toggle': ['enabled'],
+    'arm-sort-toggle': ['sortEnabled'],
+    'arm-mask-toggle': ['maskEnabled'],
+    'arm-block-toggle': ['blockEnabled'],
+    'arm-fade-watched-toggle': ['fadeWatched'],
+    'arm-threshold': ['threshold'],
+    'arm-block-threshold': ['blockThreshold'],
+    'arm-fs': ['fontSize', 'fs'],
+    'arm-rad': ['radius', 'rad'],
+    'arm-sample-threshold': ['sampleThreshold'],
+    'arm-fetch-interval': ['fetchInterval'],
+    'arm-cache-limit': ['cacheLimit', 'cache_limit'],
+    'arm-ttl': ['ttlHours', 'ttl_hours'],
+  };
+
+  function wireStarMapAutosave(modal) {
+    const status = document.createElement('p');
+    status.className = 'ani-rating-save-status';
+    status.setAttribute('role', 'status');
+    modal.querySelector('.ani-rating-toolbar')?.after(status);
+    const runtimeOnly = new Set(['fetchInterval', 'cacheLimit', 'ttlHours']);
+    try { starMapRatingCache = JSON.parse(localStorage.getItem('aniRating_cache') || '{}') || {}; } catch {}
+    for (const [id, [key, storageName = key]] of Object.entries(starMapFields)) {
+      const control = modal.querySelector(`#${id}`);
+      if (!control) continue;
+      const storageKey = `aniRating_${storageName}`;
+      const save = value => {
+        const handled = !document.dispatchEvent(new CustomEvent('ani-starmap-setting-change', {
+          cancelable: true, detail: JSON.stringify({ key, value }),
+        }));
+        try {
+          const persisted = localStorage.getItem(storageKey);
+          if (!handled || (persisted !== null && persisted !== String(value))) {
+            localStorage.setItem(storageKey, String(value));
+          }
+          starMapLive[key] = value;
+          if (key === 'enabled') starMapFetchMissing = value;
+          if (key === 'sortEnabled') {
+            for (const toggle of document.querySelectorAll('.ani-owned-rating-toggle')) {
+              if (toggle.checked === value) continue;
+              toggle.checked = value;
+              toggle.dispatchEvent(new Event('change'));
+            }
+          }
+          if (runtimeOnly.has(key)) {
+            pruneStarMapRatingCache();
+            if (!handled) starMapFetchMissing = true;
+            scheduleStarMapCardRefresh();
+          } else {
+            syncStarMapDisplay();
+          }
+          const message = !handled && runtimeOnly.has(key)
+            ? '已套用至本頁整合的評分請求與快取。'
+            : '已套用。';
+          if (status.textContent !== message) status.textContent = message;
+          return true;
+        } catch {
+          status.textContent = '無法儲存這項設定，請重試。';
+          return false;
+        }
+      };
+      let stored = null;
+      try { stored = localStorage.getItem(storageKey); } catch {}
+      if (control.classList.contains('arm-toggle-pill')) {
+        const sync = enabled => {
+          control.classList.toggle('on', enabled);
+          control.setAttribute('aria-checked', String(enabled));
+        };
+        if (stored !== null) sync(stored === 'true');
+        starMapLive[key] = control.classList.contains('on');
+        control.addEventListener('click', event => {
+          event.stopImmediatePropagation();
+          const enabled = !control.classList.contains('on');
+          if (save(enabled)) sync(enabled);
+        }, true);
+      } else {
+        if (stored !== null && Number.isFinite(Number(stored))) control.value = stored;
+        if (Number.isFinite(control.valueAsNumber)) starMapLive[key] = control.valueAsNumber;
+        let committed = control.value;
+        control.addEventListener('input', () => {
+          if (control.value && control.validity.valid && save(control.valueAsNumber)) committed = control.value;
+        });
+        control.addEventListener('change', () => {
+          if (!control.value || !control.validity.valid) control.value = committed;
+          else if (committed !== control.value && save(control.valueAsNumber)) committed = control.value;
+        });
+      }
+    }
+    pruneStarMapRatingCache();
+    syncStarMapDisplay();
+  }
+
+  function organizeStarMapSettings(modal) {
+    const body = modal.querySelector('.arm-body');
+    if (!body) return;
+    const sections = [...body.querySelectorAll(':scope > .arm-section')];
+    const labels = ['顯示與篩選', '徽章外觀', '效能與快取'];
+    const icons = [
+      '<path d="M4 6h16l-6 7v4l-4 2v-6Z"/>',
+      '<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/>',
+      '<path d="M4 18a8 8 0 1 1 16 0M12 14l4-4"/><circle cx="12" cy="14" r="1.5"/>',
+      '<path d="M4 7h16v13H4zM3 4h18v3H3zM9 11h6"/>',
+    ];
+    const maintenance = document.createElement('section');
+    maintenance.className = 'arm-section ani-rating-maintenance';
+    for (const [selector, title, description, action] of [
+      ['#arm-export-history', '觀看紀錄', '下載觀看紀錄備份。', '匯出 JSON'],
+      ['#arm-restart-tour', '操作引導', '重新播放首次使用的功能導覽。', '重新導覽'],
+      ['#arm-reset', '恢復預設設定', '清除自訂的評分設定。', '恢復預設'],
+    ]) {
+      const button = body.querySelector(selector);
+      const container = button?.closest('.arm-section > div');
+      if (!button || !container) continue;
+      const row = document.createElement('div');
+      row.className = 'arm-list-item';
+      row.innerHTML = `<div class="arm-list-left"><div class="arm-list-title">${title}</div><div class="arm-list-desc">${description}</div></div>`;
+      button.textContent = action;
+      row.append(button);
+      maintenance.append(row);
+      container.remove();
+    }
+    if (maintenance.childElementCount) {
+      body.append(maintenance);
+      sections.push(maintenance);
+      labels[sections.length - 1] = '資料與維護';
+    }
+    body.querySelector('.ani-starmap-tip')?.remove();
+
+    const toolbar = document.createElement('div');
+    toolbar.className = 'ani-rating-toolbar';
+    body.before(toolbar);
+    const tabs = document.createElement('div');
+    tabs.className = 'ani-rating-tabs';
+    tabs.setAttribute('role', 'tablist');
+    tabs.setAttribute('aria-label', '評分設定分類');
+    toolbar.append(tabs);
+    modal.querySelector('.arm-footer')?.remove();
+
+    const buttons = sections.map((section, index) => {
+      const button = document.createElement('button');
+      const label = labels[index] || section.querySelector('.arm-section-header')?.textContent.trim();
+      button.type = 'button';
+      button.id = `ani-star-map-tab-${index}`;
+      if (icons[index]) {
+        button.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[index]}</svg>`;
+      }
+      button.append(label);
+      button.setAttribute('role', 'tab');
+      section.id = `ani-star-map-section-${index}`;
+      section.setAttribute('role', 'tabpanel');
+      section.setAttribute('aria-labelledby', button.id);
+      button.setAttribute('aria-controls', section.id);
+      tabs.append(button);
+      return button;
+    });
+    const select = index => {
+      buttons.forEach((button, i) => {
+        const active = i === index;
+        button.setAttribute('aria-selected', String(active));
+        button.tabIndex = active ? 0 : -1;
+        sections[i].hidden = !active;
+      });
+    };
+    if (!buttons.length) {
+      tabs.remove();
+      return;
+    }
+    select(0);
+    buttons.forEach((button, index) => button.addEventListener('click', () => select(index)));
+    tabs.addEventListener('keydown', event => {
+      const index = buttons.indexOf(event.target);
+      if (index < 0) return;
+      const last = buttons.length - 1;
+      const move = { ArrowLeft: index ? index - 1 : last, ArrowRight: index === last ? 0 : index + 1, Home: 0, End: last };
+      if (!Object.hasOwn(move, event.key)) return;
+      event.preventDefault();
+      const next = move[event.key];
+      select(next);
+      buttons[next].focus();
+    });
+  }
+
   function styleStarMapSettings(overlay) {
     if (overlay?.dataset.aniStarmap) return;
     const modal = overlay?.querySelector('#ani-rating-modal');
@@ -7948,6 +8765,11 @@
   }
 
   const observer = new MutationObserver((records) => {
+    if (!document.documentElement.dataset.aniRatingIntegrated && settingsPanel &&
+        records.some(record => [...record.addedNodes].some(node => node.nodeType === 1 &&
+          (node.matches('.top_btn_rating_setting') || node.querySelector('.top_btn_rating_setting'))))) {
+      mountStarMapCategory();
+    }
     if (records.some(record => record.target === document.body)) {
       styleStarMapSettings(document.getElementById('ani-rating-overlay'));
     }

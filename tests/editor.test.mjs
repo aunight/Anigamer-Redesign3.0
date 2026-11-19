@@ -18,7 +18,7 @@ let mutations=0;const OriginalObserver=w.MutationObserver;
 w.MutationObserver=class extends OriginalObserver{constructor(fn){super((entries,observer)=>{mutations++;if(mutations>100)throw new Error('Observer feedback loop');fn(entries,observer);});}};
 fixtures.insertAdjacentHTML('beforeend', '<div id="blockVideoInSeason"><div class="newanime-nav"><div class="btn-newanime-filter"><p class="newanime-filter-text">依更新日排列</p><ul class="filter-items"><li class="item-newupdate">依更新日排列</li><li class="item-famous">依平均人氣排列</li></ul></div></div></div>');
 for (const item of w.document.querySelectorAll('.filter-items li')) item.addEventListener('click', () => { w.document.querySelector('.newanime-filter-text').textContent = item.textContent; });
-for(const file of ['settings.js','content.js'])w.eval(fs.readFileSync('src/'+file,'utf8'));
+for(const file of ['settings.js','topbar-bridge.js','content.js'])w.eval(fs.readFileSync('src/'+file,'utf8'));
 assert.equal(w.document.body.dataset.aniBackground,'silk','extension/page reload retains this tab random background');
 const sendButton=playerBar.querySelector('.danmu-send_btn');
 assert.equal(sendButton.getAttribute('aria-label'),'發送彈幕');
@@ -147,4 +147,101 @@ for(const backup of [{version:1,settings:{intensity:75}}, {format:'anigamer-ambi
   assert.equal(panel.querySelector('[data-setting="swirlAmount"]').value,'35');
   assert.match(panel.querySelector('.ani-settings-status').textContent,/已匯入/);
 }
-dom.window.close();console.log('Passed: native geometry, bounded observer, reversible layouts, themes, per-setting reset, eight grouped methods, old and newer backup import.');
+const ratingLauncher = w.document.createElement('div');
+ratingLauncher.className = 'top_btn_rating_setting';
+ratingLauncher.innerHTML = '<a href="#">評分設定</a>';
+let ratingSaves = 0;
+let ratingExports = 0;
+ratingLauncher.addEventListener('click', event => {
+  event.preventDefault();
+  const overlay = w.document.createElement('div');
+  overlay.id = 'ani-rating-overlay';
+  overlay.style.cssText = 'position:fixed!important;background:#000!important;';
+  overlay.innerHTML = `<div id="ani-rating-modal" style="width:420px!important;display:block!important">
+    <header class="arm-header"><h2 class="arm-title">評分顯示設定</h2></header>
+    <div class="arm-body">
+      <div class="arm-section"><div class="arm-section-header">核心功能</div>
+        <div class="arm-list-item"><span class="arm-list-title">評分徽章</span><div class="arm-toggle-pill on" id="arm-toggle"></div></div>
+        <div class="arm-list-item"><span class="arm-list-title">防雷遮罩</span><div class="arm-toggle-pill" id="arm-mask-toggle"></div></div>
+        <input id="arm-threshold" type="number" min="0" max="5" step="0.1" value="3.5">
+        <div style="background:#000!important">💡 <strong>功能提示：</strong>快捷功能如下：<br>排序；遮罩；屏蔽。<br>自動排序會立即更新。</div></div>
+      <div class="arm-section"><div class="arm-section-header">徽章外觀樣式</div><input id="arm-fs" type="number" min="8" max="24" value="14"></div>
+      <div class="arm-section"><div class="arm-section-header">系統效能與快取</div>
+        <div><button id="arm-export-history">匯出觀看紀錄</button></div>
+        <div><button id="arm-restart-tour">開啟導覽</button></div>
+        <div><button id="arm-reset">復原預設</button><p>警告</p></div>
+      </div>
+    </div>
+    <footer class="arm-footer"><button id="arm-cancel">取消</button><button id="arm-save">儲存設定</button></footer>
+  </div>`;
+  overlay.querySelector('#arm-save').addEventListener('click', () => { ratingSaves++; overlay.remove(); });
+  overlay.querySelector('#arm-cancel').addEventListener('click', () => overlay.remove());
+  overlay.querySelector('#arm-export-history').addEventListener('click', () => ratingExports++);
+  w.document.body.append(overlay);
+});
+w.document.querySelector('.top_sky .sky').append(ratingLauncher);
+await Promise.resolve();
+assert.equal(w.document.documentElement.dataset.aniRatingIntegrated, 'true');
+const ratingPage = panel.querySelector('[data-settings-page="rating"]');
+const openRating = () => panel.querySelector('[data-category-shortcut="rating"]').click();
+if (panel.hidden) w.document.querySelector('.ani-view-settings').click();
+openRating();
+assert.equal(ratingPage.hidden, false);
+assert.equal(panel.querySelector('[data-category-title]').textContent, '評分顯示設定');
+assert.equal(panel.querySelector('[data-reset-category]').hidden, true);
+const embedded = ratingPage.querySelector('#ani-rating-overlay');
+fixtures.insertAdjacentHTML('beforeend', '<div class="animate-theme-list"><div class="theme-list-block"><a class="theme-list-main" href="animeRef.php?sn=99744" data-rating-score="3.2"><div class="theme-img-block"><img></div></a></div></div>');
+const ratedCard = fixtures.querySelector('[data-rating-score="3.2"]');
+assert.equal(embedded.dataset.aniStarmapEmbedded, 'true');
+assert.equal(embedded.querySelector('#ani-rating-modal').hasAttribute('aria-modal'), false);
+assert.equal(embedded.hasAttribute('style'), false, 'the external backdrop cannot cover settings');
+assert.equal(embedded.querySelector('#ani-rating-modal').hasAttribute('style'), false);
+assert(panel.querySelector('[data-category-shortcut="rating"] svg'));
+const ratingTabs = [...embedded.querySelectorAll('.ani-rating-tabs [role="tab"]')];
+assert.deepEqual(ratingTabs.map(button => button.textContent), ['顯示與篩選', '徽章外觀', '效能與快取', '資料與維護']);
+assert(ratingTabs.every(button => button.querySelector('svg')));
+assert.equal(embedded.querySelector('.ani-starmap-tip'), null);
+embedded.querySelector('#arm-mask-toggle').click();
+assert.equal(w.localStorage.getItem('aniRating_maskEnabled'), 'true');
+assert.equal(embedded.querySelector('#arm-mask-toggle').getAttribute('aria-checked'), 'true');
+assert.equal(embedded.querySelector('.ani-rating-save-status').textContent, '已套用。');
+await new Promise(resolve => w.requestAnimationFrame(resolve));
+assert.equal(w.document.body.classList.contains('ani-disable-masking'), false);
+assert(ratedCard.querySelector('img').classList.contains('ani-low-rating-masked'));
+const threshold = embedded.querySelector('#arm-threshold');
+threshold.value = '3';
+threshold.dispatchEvent(new w.Event('input', {bubbles: true}));
+await new Promise(resolve => w.requestAnimationFrame(resolve));
+assert.equal(ratedCard.querySelector('img').classList.contains('ani-low-rating-masked'), false);
+embedded.querySelector('#arm-toggle').click();
+assert(w.document.body.classList.contains('ani-starmap-rating-off'));
+embedded.querySelector('#arm-toggle').click();
+assert.equal(w.document.body.classList.contains('ani-starmap-rating-off'), false);
+ratingTabs[1].click();
+const fontSize = embedded.querySelector('#arm-fs');
+assert.equal(fontSize.closest('[role="tabpanel"]').hidden, false);
+const liveRating = {};
+w.__aniConfig = { setBatch: values => Object.assign(liveRating, values), get: key => liveRating[key] };
+fontSize.value = '18';
+fontSize.dispatchEvent(new w.Event('input', {bubbles: true}));
+assert.equal(liveRating.fontSize, 18);
+assert.equal(w.document.body.style.getPropertyValue('--ani-starmap-badge-size'), '18px');
+fontSize.value = '1';
+fontSize.dispatchEvent(new w.Event('change', {bubbles: true}));
+assert.equal(fontSize.value, '18');
+ratingTabs[1].dispatchEvent(new w.KeyboardEvent('keydown', {key: 'End', bubbles: true}));
+assert.equal(ratingTabs[3].getAttribute('aria-selected'), 'true');
+assert.equal(embedded.querySelector('#arm-fs').closest('[role="tabpanel"]').hidden, true);
+assert.equal(embedded.querySelector('#arm-export-history').closest('[role="tabpanel"]').hidden, false);
+assert.equal(embedded.querySelectorAll('.ani-rating-maintenance .arm-list-item').length, 3);
+embedded.querySelector('#arm-export-history').click();
+assert.equal(ratingExports, 1);
+assert.equal(embedded.querySelector('#arm-save, #arm-cancel'), null);
+assert.equal(ratingSaves, 0);
+assert.equal(ratingPage.hidden, false);
+w.document.querySelector('.ani-view-settings').click();
+assert.equal(w.document.getElementById('ani-rating-overlay'), null);
+w.document.querySelector('.ani-view-settings').click();
+openRating();
+assert.equal(ratingPage.querySelector('#arm-mask-toggle').getAttribute('aria-checked'), 'true', 'storage fallback survives reopening');
+dom.window.close();console.log('Passed: native geometry, bounded observer, reversible layouts, themes, per-setting reset, eight grouped methods, old and newer backup import, embedded rating settings.');

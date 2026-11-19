@@ -13,7 +13,9 @@
         const delay = Math.max(0, 400 - (Date.now() - last));
         if (delay) await new Promise(resolve => setTimeout(resolve, delay));
         last = Date.now();
-        const response = await globalThis.fetch(input, init);
+        const { timeoutMs, ...requestInit } = init || {};
+        if (timeoutMs) requestInit.signal = AbortSignal.timeout(timeoutMs);
+        const response = await globalThis.fetch(input, requestInit);
         if (response.status === 429 || response.status === 503) {
           blockedUntil = Date.now() + 10 * 60 * 1000;
           try { sessionStorage.setItem('aniRequestCooldown', String(blockedUntil)); } catch {}

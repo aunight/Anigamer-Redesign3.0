@@ -29,4 +29,19 @@
       globalThis.TOPBAR_close();
     } catch {}
   });
+
+  const ratingBooleanKeys = new Set(['enabled', 'sortEnabled', 'maskEnabled', 'blockEnabled', 'fadeWatched']);
+  const ratingNumberKeys = new Set(['threshold', 'blockThreshold', 'fontSize', 'radius', 'sampleThreshold', 'fetchInterval', 'cacheLimit', 'ttlHours']);
+  document.addEventListener('ani-starmap-setting-change', event => {
+    const config = globalThis.__aniConfig;
+    if (event.defaultPrevented || typeof config?.setBatch !== 'function') return;
+    try {
+      const { key, value } = JSON.parse(event.detail);
+      const valid = ratingBooleanKeys.has(key) && typeof value === 'boolean' ||
+        ratingNumberKeys.has(key) && Number.isFinite(value);
+      if (!valid) return;
+      config.setBatch({ [key]: value });
+      if (config.get(key) === value) event.preventDefault();
+    } catch {}
+  });
 })();

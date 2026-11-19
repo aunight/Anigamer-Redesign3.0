@@ -59,6 +59,19 @@ test('history keeps native controls and keeps each episode list inside its ownin
   assert.equal(d.querySelectorAll('.ani-history-score').length,1,'enhancement is idempotent');
   more.dataset.listCode='1';w.dispatchEvent(new w.Event('resize'));await new Promise(r=>setTimeout(r,40));
   const beforeNative=nativeClicks;more.click();assert.equal(nativeClicks,beforeNative,'native clone/slide handler is bypassed for native history cards');assert.equal(details.style.display,'block');assert.equal(d.querySelectorAll('.tmp-list').length,0);more.click();assert.equal(details.style.display,'none');
+  const fallback = more.cloneNode(true);
+  delete fallback.dataset.aniHistoryKey;
+  delete fallback.dataset.aniNativeFold;
+  delete fallback.dataset.listCode;
+  details.id = 'native-episodes-101';
+  more.replaceWith(fallback);
+  w.dispatchEvent(new w.Event('resize'));
+  await new Promise(r=>setTimeout(r,40));
+  fallback.click();
+  await new Promise(r=>setTimeout(r,40));
+  assert.equal(fallback.getAttribute('aria-controls'), details.id);
+  assert.equal(fallback.getAttribute('aria-expanded'), 'true');
+  assert.equal(details.style.display, 'block', 'the owning drawer opens when the native button does nothing');
   w.close();
 });
 

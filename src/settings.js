@@ -1113,14 +1113,16 @@
           item.setAttribute('aria-current', 'page');
         else item.removeAttribute('aria-current');
       }
-      root.querySelector('[data-category-title]').textContent =
-        categories.find((c) => c.id === id)?.name || '';
-      root.querySelector('[data-reset-category]').hidden = id === 'credit';
+      const category = categories.find((item) => item.id === id);
+      const page = [...root.querySelectorAll('[data-settings-page]')].find((item) => item.dataset.settingsPage === id);
+      root.querySelector('[data-category-title]').textContent = category?.name || page?.getAttribute('aria-label') || '';
+      root.querySelector('[data-reset-category]').hidden = !category?.keys.length;
       (root.nodeType === 9
         ? root.scrollingElement || root.documentElement
         : root.querySelector('.ani-settings-scroll') || root
       ).scrollTop = 0;
       status.textContent = '';
+      root.dispatchEvent(new CustomEvent('ani-settings-navigate', { detail: id }));
     };
     const firstCat = categories[0]?.id || 'general';
     navigate(firstCat);
