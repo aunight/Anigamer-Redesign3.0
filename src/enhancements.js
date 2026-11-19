@@ -2105,9 +2105,12 @@
           </div>
           <span class="ani-danmu-count" role="status"></span>
           <div class="ani-dm-muted-host">
-            <button type="button" class="ani-danmu-muted-pill" aria-expanded="false">已消音 0 人</button>
+            <button type="button" class="ani-danmu-muted-pill" aria-expanded="false" title="已消音發送者">0 人</button>
             <div class="ani-danmu-muted-popover" hidden></div>
           </div>
+          <button type="button" class="ani-dm-refresh-btn" title="重新載入彈幕" aria-label="重新載入彈幕">
+            ${enhIcon('<path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/>', 15)}
+          </button>
         </div>
         <div class="ani-danmu-sort-row" role="group" aria-label="彈幕排序">
           <button type="button" class="ani-dm-sort-btn" data-dm-sort="time" aria-pressed="true">動畫時間 ↑</button>
@@ -2171,7 +2174,8 @@
 
     const renderMutedPopover = () => {
       const senders = Object.keys(mutedMap);
-      mutedPill.innerHTML = `${enhIcon(DM_MUTE_ICON, 13)}<span>已消音 ${senders.length} 人</span>`;
+      mutedPill.innerHTML = `${enhIcon(DM_MUTE_ICON, 14)}<span>${senders.length} 人</span>`;
+      mutedPill.title = `已消音 ${senders.length} 人`;
       if (!senders.length) {
         mutedPopover.innerHTML = '<p class="ani-dm-muted-empty">尚未消音任何發送者</p>';
         return;
@@ -2302,6 +2306,15 @@
           animateFilterSwitch(b, subList, '.sub-list-li');
         });
       }
+      bar.querySelector('.ani-dm-refresh-btn')?.addEventListener('click', (e) => {
+        const btn = e.currentTarget;
+        const nativeRefresh = document.querySelector('#ani-tab-content-1 button.refresh, .subtitle button.refresh, .ani-danmu-reload-pill');
+        if (nativeRefresh) nativeRefresh.click();
+        btn.classList.remove('is-spinning');
+        void btn.offsetWidth;
+        btn.classList.add('is-spinning');
+        setTimeout(() => btn.classList.remove('is-spinning'), 500);
+      });
       mutedPill.addEventListener('click', (e) => {
         e.stopPropagation();
         const nextOpen = mutedPopover.hidden;
