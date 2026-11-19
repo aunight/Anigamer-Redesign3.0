@@ -1076,7 +1076,6 @@
               wide.onload = () => {
                 if (Math.abs(wide.naturalWidth / wide.naturalHeight - 16 / 9) > 0.04) return;
                 const poster = link.querySelector('.ani-rec-poster');
-                poster.classList.add('is-landscape');
                 poster.querySelector('img').replaceWith(wide);
               };
               wide.src = artwork;

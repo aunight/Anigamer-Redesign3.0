@@ -9349,7 +9349,7 @@ body.ani-layout-comments #BH_background #w-post-box .reply-content__footer butto
 body.ani-layout-comments #BH_background #w-post-box .c-more-msg {color:var(--ani-muted,#a5b4c4) !important}
 body.ani-layout-comments #w-post-box .ani-comment-recommendations a {font-size:18px;line-height:1.4}
 .ani-comment-recommendations .ani-rec-poster {position:relative;flex:none;width:clamp(90px,8vw,138px)}
-.ani-comment-recommendations .ani-rec-poster img {width:100%;display:block}
+.ani-comment-recommendations .ani-rec-poster img {width:100%;display:block;aspect-ratio:16/9;object-fit:cover}
 .ani-rec-poster .ani-rec-episodes {position:absolute;bottom:5px;right:5px;border-radius:999px;color:white;background:#294355ed;font-size:12px;padding:3px 6px}
 .ani-rec-poster :is(.ani-history-score,.ani-rec-episodes):empty,
 .ani-comment-recommendations small:empty {display:none}
@@ -9638,4 +9638,3 @@ body.ani-layout-comments #w-post-box .ani-comment-recommendations > a:not([hidde
     }
   }
 }
-.ani-comment-recommendations .ani-rec-poster.is-landscape img { aspect-ratio:16/9; }
