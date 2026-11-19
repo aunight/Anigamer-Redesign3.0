@@ -249,10 +249,15 @@
     const widths = new WeakMap();
     let pixelsDirty = true;
     const sizes = typeof ResizeObserver === 'function' && new ResizeObserver(entries => {
-      for (const entry of entries) widths.set(entry.target, entry.contentRect.width);
+      for (const entry of entries) {
+        if (entry.target === member) {
+          wrap.style.setProperty('--ani-member-height', member.getBoundingClientRect().height + 'px');
+        } else widths.set(entry.target, entry.contentRect.width);
+      }
       pixelsDirty = true;
     });
     if (sizes) {
+      sizes.observe(member);
       sizes.observe(trackPixels);
       sizes.observe(lensPixels);
     }

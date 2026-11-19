@@ -1,6 +1,7 @@
 :root {
   --ani-base: #0f1621;
   --ani-panel: #172332;
+  --ani-settings-active-bg: #426271;
   --ani-card-bg: #172332;
   --ani-panel-soft: #1e2d40;
   --ani-text: #f1f7f8;
@@ -2886,7 +2887,7 @@ body.ani-layout-comments #w-post-box .webview_commendlist {
   cursor: pointer;
 }
 .ani-settings-actions button:hover {
-  background: #426271;
+  background: var(--ani-settings-active-bg);
 }
 .ani-settings-status {
   margin: 12px 0 0;
@@ -5942,7 +5943,7 @@ body.ani-ambientlight-ui #BH_background .animate-theme-list .ani-rating-source,
 body.ani-ambientlight-ui #BH_background .animate-theme-list .ani-custom-rating {
   display: none !important;
 }
-body.ani-ambientlight-ui #BH_background .animate-theme-list .ani-poster-score,
+body.ani-ambientlight-ui #BH_background :is(.animate-theme-list,.old_list) .ani-poster-score,
 body.ani-ambientlight-ui #BH_background .animate-theme-list .show-view-number,
 body.ani-ambientlight-ui #BH_background .animate-theme-list .theme-number {
   display: inline-flex !important;
@@ -5961,7 +5962,7 @@ body.ani-ambientlight-ui #BH_background .animate-theme-list .theme-number {
   line-height: 1.2 !important;
   white-space: nowrap;
 }
-body.ani-ambientlight-ui #BH_background .animate-theme-list .ani-poster-score {
+body.ani-ambientlight-ui #BH_background :is(.animate-theme-list,.old_list) .ani-poster-score {
   position: absolute;
   top: 8px;
   left: 8px;
@@ -6238,7 +6239,7 @@ body.ani-ambientlight-ui #BH_background .ani-poster-rail .theme-list-main:hover 
   border-color: var(--ani-accent, #3dafb6) !important;
   box-shadow: 0 3px 10px #0003, inset 0 0 0 1px #3dafb633 !important;
 }
-body.ani-ambientlight-ui #BH_background .animate-theme-list .ani-poster-score {
+body.ani-ambientlight-ui #BH_background :is(.animate-theme-list,.old_list) .ani-poster-score {
   box-shadow: inset 0 1px 0 #ffffff38, 0 2px 8px #0003 !important;
 }
 /* Visible rail-edge shading; arrows remain above this decorative layer. */
@@ -6413,7 +6414,7 @@ body.ani-layout-related.ani-home-page #BH_background > .container > .animate-the
   line-height: 1.5 !important;
   min-height: 22px;
 }
-body.ani-ambientlight-ui #BH_background .animate-theme-list .ani-poster-score {
+body.ani-ambientlight-ui #BH_background :is(.animate-theme-list,.old_list) .ani-poster-score {
   font-size: 13px !important;
   font-weight: 700 !important;
 }

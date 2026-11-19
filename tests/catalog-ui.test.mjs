@@ -23,10 +23,10 @@ test('catalog retains native actions, sorts loaded and late scores, and folds fi
   assert.equal(d.querySelectorAll('.ani-filter-body .class-header svg').length, 3);
   assert.equal(d.querySelector('.ani-poster-score').textContent, '★ 5.0');
   assert(d.querySelector('.theme-list-main').href.endsWith('sn=2'));
-  const sort = d.querySelector('.ani-rating-sort');
-  sort.click();
+  const [nativeOrder, ratingOrder] = d.querySelectorAll('.ani-rating-sort');
+  nativeOrder.click();
   assert(d.querySelector('.theme-list-main').href.endsWith('sn=1'), 'turning sorting off restores original order');
-  sort.click();
+  ratingOrder.click();
   assert(d.querySelector('.theme-list-main').href.endsWith('sn=2'), 'turning sorting on orders the actual card nodes');
   d.querySelector('a[href$="sn=2"] .tm-acg-rating').textContent = '★ 3.0';
   await new Promise(resolve => setTimeout(resolve, 180));

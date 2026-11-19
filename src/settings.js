@@ -906,7 +906,7 @@
     const creditCard =
       '<div class="ani-credit-card">'
       + '<div class="ani-credit-head">'
-      + '<div><h4 class="ani-credit-title">動畫瘋沉浸重製版 3.0</h4><p class="ani-credit-sub">Anigamer-Redesign 3.0 · v3.0.1 · MIT</p></div>'
+      + '<div><h4 class="ani-credit-title">動畫瘋沉浸重製版 3.0</h4><p class="ani-credit-sub">Anigamer-Redesign 3.0 · v3.0.2 · MIT</p></div>'
       + '<div class="ani-credit-actions">'
       + '<button type="button" class="ani-pill-btn is-accent" data-action="check-update"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg><span>檢測更新</span></button>'
       + '<a class="ani-pill-btn" href="https://github.com/aunight/Anigamer-Redesign3.0" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg><span>GitHub</span></a>'
@@ -1234,7 +1234,7 @@
       const msgEl = root.querySelector('[data-update-status]');
       if (!msgEl) return;
       msgEl.textContent = '正在檢測最新版本…';
-      const curVer = '3.0.1';
+      const curVer = '3.0.2';
       const parseVer = (v) => String(v || '').replace(/^v/i, '').split('.').map((n) => Number.parseInt(n, 10) || 0);
       const cmp = (a, b) => {
         const pa = parseVer(a), pb = parseVer(b);

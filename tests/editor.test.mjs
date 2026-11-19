@@ -69,7 +69,7 @@ for(const key of ['cinema','charcoal','paper','forest','violet','reading']){pane
 
 assert.equal(w.AniAmbientSettings.defaults.quickCollapse,true);
 assert.equal(w.AniAmbientSettings.defaults.commentArrangement,'single');
-change('commentArrangement','double');assert.ok(w.document.body.classList.contains('ani-comments-double'));
+change('commentArrangement','double');assert.equal(w.document.body.classList.contains('ani-comments-double'),false);
 change('commentArrangement','single');assert.equal(w.document.body.classList.contains('ani-comments-double'),false);
 assert.ok(w.document.querySelector('.ani-watch-tools').previousElementSibling.matches('section.player'),'Viewing tools follow the native player');
 assert.equal(w.AniAmbientSettings.defaults.hideDanmuScrollbar,true);
@@ -87,7 +87,7 @@ const shelf=w.document.querySelector('.ani-episode-shelf'),episodeButton=shelf.q
 assert.equal(season.hidden,true);assert.equal(episodeButton.getAttribute('aria-expanded'),'false');
 episodeButton.click();assert.equal(season.hidden,false);assert.equal(episodeButton.getAttribute('aria-expanded'),'true');
 change('episodeStyle','wrap');assert.equal(shelf.querySelector('.ani-region-toggle'),null);assert.equal(season.hidden,false);
-for(const [flag,selector] of [['foldInfo','section.data'],['foldRelated','.old_list'],['foldNews','.animate-theme-list'],['foldComments','#w-post-box']]){
+for(const [flag,selector] of [['foldInfo','section.data'],['foldRelated','.old_list'],['foldNews','.animate-theme-list']]){
   change(flag,true);const target=w.document.querySelector(selector),button=w.document.querySelector('[aria-controls="'+target.id+'"]');
   assert.ok(button,'Enabled section must provide a control');button.click();assert.equal(target.hidden,true);assert.equal(button.getAttribute('aria-expanded'),'false');
   change(flag,false);assert.equal(target.hidden,false);assert.equal(button.isConnected,false);
