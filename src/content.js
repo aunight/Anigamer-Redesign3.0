@@ -1038,7 +1038,7 @@
   async function renderCommentRecommendations(aside) {
     try {
       const response = await aniFetch('/');
-      if (!response.ok) return;
+      if (!response.ok) throw new Error('Recommendations unavailable');
       const home = new DOMParser().parseFromString(await response.text(), 'text/html');
       const cards = new Map();
       for (const card of home.querySelectorAll('a.theme-list-main[href*="animeRef.php"]')) {
@@ -1048,7 +1048,7 @@
         if (url.origin === location.origin && title && image) cards.set(url.href, {title, views:card.querySelector('.show-view-number p')?.textContent.trim(), episodes:card.querySelector('.theme-number')?.textContent.trim(), src:image.dataset.src || image.getAttribute('src')});
       }
       const pool = [...cards.entries()];
-      if (!pool.length) return;
+      if (!pool.length) throw new Error('No recommendations');
       const heading = document.createElement('h3');
       heading.className = 'ani-recommend-heading';
       heading.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linejoin="round" d="m9 3 1.9 5.6L16.5 11l-5.6 2.4L9 19l-2-5.6L1.5 11 7 8.6Z M19 2l1 3 3 1-3 1-1 3-1-3-3-1 3-1Z"/></svg>推薦動畫';
@@ -1069,16 +1069,25 @@
             const score = parseScoreFromVideoHtml(html);
             if (score) link.querySelector('.ani-history-score').textContent = '★ ' + score;
             const doc = new DOMParser().parseFromString(html, 'text/html');
+            const artwork = doc.querySelector('meta[property="og:image"]')?.content;
+            if (artwork && /^https:\/\/p2\.bahamut\.com\.tw\//.test(artwork)) {
+              const wide = new Image();
+              wide.alt = '';
+              wide.onload = () => {
+                if (Math.abs(wide.naturalWidth / wide.naturalHeight - 16 / 9) > 0.04) return;
+                const poster = link.querySelector('.ani-rec-poster');
+                poster.classList.add('is-landscape');
+                poster.querySelector('img').replaceWith(wide);
+              };
+              wide.src = artwork;
+            }
             const release = doc.querySelector('.anime_info_detail')?.textContent.match(/上架(?:時間|日期)\s*[：:]\s*(\d{4}\/\d{1,2}\/\d{1,2})/)?.[1];
-            const studio = [...doc.querySelectorAll('li.type .title')]
-              .find(node => node.textContent.trim() === '製作廠商')?.parentElement.querySelector('.content')?.textContent.trim();
             const genres = [...doc.querySelectorAll('li.type .tag-list .tag')].map(node => node.textContent.trim()).filter(Boolean);
             const date = link.querySelector('.ani-rec-release');
             if (release) {
               date.querySelector('span').textContent = release;
               date.hidden = false;
             }
-            link.querySelector('.ani-rec-studio').textContent = studio || '';
             link.querySelector('.ani-rec-genres').textContent = genres.join(' · ');
           }).catch(() => {});
         }
@@ -1096,11 +1105,11 @@
         facts.className = 'ani-rec-facts';
         facts.innerHTML = '<span class="ani-rec-view" title="觀看數"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 5c5 0 9 4 11 7-2 3-6 7-11 7S3 15 1 12c2-3 6-7 11-7Zm0 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4Z"/></svg><span></span></span><span class="ani-rec-release" title="上架日期" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 11h18"/></svg><span></span></span>';
         facts.querySelector('.ani-rec-view span').textContent = item.views || '統計中';
-        const studio = document.createElement('small');
-        studio.className = 'ani-rec-studio';
+        const title = document.createElement('strong');
+        title.textContent = item.title;
         const genres = document.createElement('small');
         genres.className = 'ani-rec-genres';
-        copy.append(item.title, facts, studio, genres);
+        copy.append(title, facts, genres);
         const poster = document.createElement('span');
         poster.className = 'ani-rec-poster';
         const score = document.createElement('b');
@@ -1128,7 +1137,7 @@
       placeHeading();
       desktop.addEventListener('change',placeHeading);
       aside.hidden = false;
-    } catch { /* Leave the native comment list full width if recommendations are unavailable. */ }
+    } catch { aside.parentElement?.classList.add('ani-recs-unavailable'); }
   }
 
   function parseScoreFromVideoHtml(html) {
@@ -2299,10 +2308,12 @@
       if (!/本動畫共\s*[\d,]+\s*筆彈幕/.test(txt)) continue;
       if ([...el.children].some(c => /本動畫共/.test(c.textContent || ''))) continue;
       const tipHost = el.closest('.anime-tip, .danmu-tip, .sub-list-tip') || el.parentElement;
-      if (!tipHost) continue;
+      if (!tipHost || tipHost.closest('.ani-danmu-count-lines') && !tipHost.matches('.anime-tip')) continue;
       tipHost.classList.add('ani-danmu-count-box');
+      const refresh = tipHost.closest('#ani-tab-content-1')?.querySelector(':scope > button.refresh');
+      if (refresh) tipHost.append(refresh);
       for (const icon of tipHost.querySelectorAll('i, svg, img, .material-icons, .material-icons-round, .qa-icon')) {
-        if (!icon.classList.contains('ani-danmu-count-icon') && !icon.closest('.ani-danmu-count-icon')) {
+        if (!icon.closest('button.refresh') && !icon.classList.contains('ani-danmu-count-icon') && !icon.closest('.ani-danmu-count-icon')) {
           icon.classList.add('ani-danmu-hidden-info');
           icon.style.setProperty('display', 'none', 'important');
         }
@@ -2317,7 +2328,7 @@
         tipHost.append(linesBox);
       }
       for (const node of [...tipHost.childNodes]) {
-        if (node === linesBox || (node.nodeType === 1 && (node.classList.contains('ani-danmu-count-icon') || node.classList.contains('ani-danmu-hidden-info')))) continue;
+        if (node === linesBox || node.matches?.('button.refresh') || (node.nodeType === 1 && (node.classList.contains('ani-danmu-count-icon') || node.classList.contains('ani-danmu-hidden-info')))) continue;
         if (node.nodeType === 3 && !node.nodeValue.trim()) continue;
         if (node.nodeType === 3) {
           const sp = document.createElement('span');
