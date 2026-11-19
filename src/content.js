@@ -1051,7 +1051,7 @@
 
   function createFavoriteButton(fav) {
         const button=document.createElement('button');button.type='button';button.className='ani-history-favorite round-btn';button.classList.toggle('ani-saved',fav.saved);
-        button.setAttribute('onclick',`event.preventDefault();event.stopPropagation();animefun.toggleGather(${fav.acgSn},${fav.animeSn},$(this),"ani-saved");return false;`);
+        button.setAttribute('onclick',`event.preventDefault();event.stopPropagation();if(window.animefun&&animefun.toggleGather){animefun.toggleGather(${fav.acgSn},${fav.animeSn},$(this),"ani-saved");}else{this.classList.toggle("ani-saved");}return false;`);
         button.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>';
         const sync=()=>{fav.saved=button.classList.contains('ani-saved');button.setAttribute('aria-pressed',String(fav.saved));button.setAttribute('aria-label',fav.saved?'取消收藏動畫':'收藏動畫');};new MutationObserver(sync).observe(button,{attributes:true,attributeFilter:['class']});sync();
     return button;

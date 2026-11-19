@@ -70,6 +70,56 @@
     }
   };
 
+  // ── Filter Switch Motion Helper (emilkowalski-motion + WAAPI skill) ──
+  const activeFilterAnims = new WeakMap();
+  const animateFilterSwitch = (pillBtn, container, itemSelector) => {
+    try {
+      if (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      if (pillBtn && typeof pillBtn.animate === 'function') {
+        pillBtn.animate(
+          [
+            { transform: 'scale(0.95)' },
+            { transform: 'scale(1.03)', offset: 0.55 },
+            { transform: 'scale(1)' },
+          ],
+          { duration: 180, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
+        );
+      }
+      if (!container || !itemSelector) return;
+      const items = [...container.querySelectorAll(itemSelector)]
+        .filter((el) => {
+          if (el.hidden) return false;
+          for (const cls of [
+            'ani-col-status-hidden',
+            'ani-catalog-excluded',
+            'ani-origin-hidden',
+            'ani-dm-filtered-hidden',
+            'ani-ep-chunk-hidden',
+          ]) {
+            if (el.classList.contains(cls)) return false;
+          }
+          return true;
+        })
+        .slice(0, 12);
+      items.forEach((el, idx) => {
+        if (typeof el.animate !== 'function') return;
+        activeFilterAnims.get(el)?.cancel?.();
+        const anim = el.animate(
+          [
+            { opacity: 0, transform: 'translateY(8px) scale(0.985)' },
+            { opacity: 1, transform: 'translateY(0) scale(1)' },
+          ],
+          {
+            duration: 200,
+            delay: idx * 14,
+            easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+          },
+        );
+        activeFilterAnims.set(el, anim);
+      });
+    } catch {}
+  };
+
   const escapeHtml = (str) =>
     String(str ?? '').replace(/[&<>"']/g, (ch) => ({
       '&': '&amp;',
@@ -235,15 +285,15 @@
 
   let toastTimer = 0;
   const showToast = (message) => {
-    let toast = document.querySelector('.ani-bgm-toast');
+    let toast = document.querySelector('.ani-enh-toast');
     if (!toast) {
       toast = document.createElement('div');
-      toast.className = 'ani-bgm-toast ani-enh-toast';
+      toast.className = 'ani-enh-toast';
       toast.setAttribute('role', 'status');
       toast.setAttribute('aria-live', 'polite');
       document.body.append(toast);
     }
-    toast.textContent = String(message || '');
+    toast.innerHTML = `${enhIcon('<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/>', 18)}<span>${escapeHtml(message || '')}</span>`;
     toast.hidden = false;
     toast.classList.add('is-visible');
     clearTimeout(toastTimer);
@@ -356,6 +406,11 @@
             const iconKey = st || 'add';
             chipEl.innerHTML = `${enhIcon(COL_STATUS_ICONS[iconKey] || COL_STATUS_ICONS.add, 13)}<span>${escapeHtml(labelTxt)}</span>`;
             chipEl.setAttribute('aria-label', st ? `收藏分類：${COL_STATUS_MAP[st]}` : '標記收藏分類');
+            for (const opt of bar.querySelectorAll('.ani-col-status-menu button[data-choice]')) {
+              const isAct = Boolean(st && opt.dataset.choice === st);
+              opt.classList.toggle('is-active', isAct);
+              opt.setAttribute('aria-pressed', String(isAct));
+            }
           }
         }
 
@@ -377,6 +432,7 @@
             btn.addEventListener('click', () => {
               colActiveFilter = key;
               applyAndSync();
+              animateFilterSwitch(btn, list, '.theme-list-main');
             });
             li.append(btn);
             ul.append(li);
@@ -483,6 +539,11 @@
       const iconKey = st || 'add';
       chip.innerHTML = `${enhIcon(COL_STATUS_ICONS[iconKey] || COL_STATUS_ICONS.add, 13)}<span>${escapeHtml(labelTxt)}</span>`;
       chip.setAttribute('aria-label', st ? `收藏分類：${COL_STATUS_MAP[st]}` : '標記收藏分類');
+      for (const opt of menu.querySelectorAll('button[data-choice]')) {
+        const isAct = Boolean(st && opt.dataset.choice === st);
+        opt.classList.toggle('is-active', isAct);
+        opt.setAttribute('aria-pressed', String(isAct));
+      }
     };
     syncChip();
 
@@ -579,6 +640,9 @@
     return job;
   };
 
+  const isLandscapeOgBanner = (url) =>
+    !url || /\/OG\/|og_image|\/B\/2KU\/d/i.test(String(url));
+
   const extractCleanVideoInfo = () => {
     const videoSn = getSnFromHref(location.href);
     const refLink = document.querySelector('a[href*="animeRef.php?sn="]');
@@ -588,14 +652,18 @@
     const epFromNav = document.querySelector('.season li.playing a')?.textContent?.trim();
     const epFromTitle = rawTitle.match(/(?:\[\s*|EP\.?\s*)(\d+(?:\.\d+)?)\s*\]?\s*$/i)?.[1];
     const episode = epFromNav || epFromTitle || '1';
-    const cover = safeImageUrl(
-      document.querySelector('meta[property="og:image"]')?.getAttribute('content') ||
-      document.querySelector('#ani_video video')?.getAttribute('poster'),
+    const allEpEls = [...document.querySelectorAll('.season li a')];
+    const latestEp = allEpEls.length ? (allEpEls[allEpEls.length - 1].textContent || '').trim() : '';
+    const rawCover = safeImageUrl(
+      document.querySelector('.data-img, .data-file img, .anime_info_detail img')?.getAttribute('src') || '',
     );
+    const cover = isLandscapeOgBanner(rawCover) ? '' : rawCover;
+    const score =
+      document.querySelector('.acg-score .score-overall-number, .score-overall-number')?.textContent?.trim() || '';
     const video = document.querySelector('#ani_video video');
     const elapsedSec = video && Number.isFinite(video.currentTime) ? Math.floor(video.currentTime) : 0;
     const durationSec = video && Number.isFinite(video.duration) && video.duration > 0 ? Math.floor(video.duration) : 0;
-    return { sn, videoSn, title, episode, cover, elapsedSec, durationSec };
+    return { sn, videoSn, title, episode, latestEp, cover, score, elapsedSec, durationSec };
   };
 
   const recordVideoProgress = () => {
@@ -613,11 +681,15 @@
           elapsedSec: info.elapsedSec || prevEps[info.episode]?.elapsedSec || 0,
         };
       }
+      const prevCover = isLandscapeOgBanner(prev.cover) ? '' : (prev.cover || '');
       data[info.sn] = {
+        ...prev,
         sn: info.sn,
         videoSn: info.videoSn || prev.videoSn || info.sn,
         title: info.title || prev.title || '',
-        cover: info.cover || prev.cover || '',
+        cover: info.cover || prevCover || '',
+        score: info.score || prev.score || '',
+        latestEp: info.latestEp || prev.latestEp || '',
         episode: info.episode || prev.episode || '',
         elapsedSec: info.elapsedSec > 0 ? info.elapsedSec : (prev.elapsedSec || 0),
         durationSec: info.durationSec > 0 ? info.durationSec : (prev.durationSec || 0),
@@ -720,11 +792,31 @@
         if (episode && !eps[episode]) {
           eps[episode] = { videoSn: videoSn || sn, watchedAt: latestMs || Date.now(), elapsedSec };
         }
+        const scoreTxt =
+          card.querySelector('.ani-history-score, .tm-acg-rating, .ani-custom-rating')?.textContent?.match(/([0-5](?:\.\d+)?)/)?.[1] || '';
+        const latestMatch =
+          nativeTxt.match(/已更新至\s*第?\s*(\d+)\s*集/)?.[1] ||
+          card.querySelector('.ani-history-update')?.textContent?.match(/EP\.(\d+)/)?.[1] ||
+          '';
+        let cachedTags = prev?.tags || [];
+        let cachedStudio = prev?.studio || '';
+        try {
+          const rawMeta = localStorage.getItem(`ani-history-meta:${sn}:${videoSn || sn}`);
+          const parsedMeta = rawMeta ? JSON.parse(rawMeta)?.value : null;
+          if (parsedMeta?.tags?.length) cachedTags = parsedMeta.tags;
+          if (parsedMeta?.studio) cachedStudio = parsedMeta.studio;
+          if (!durationSec && parsedMeta?.duration > 0) durationSec = parsedMeta.duration;
+        } catch {}
         const merged = {
+          ...prev,
           sn,
           videoSn: videoSn || prev?.videoSn || sn,
           title: title || prev?.title || '',
-          cover: cover || prev?.cover || '',
+          cover: cover || (!isLandscapeOgBanner(prev?.cover) ? prev?.cover : '') || '',
+          score: scoreTxt || prev?.score || '',
+          latestEp: latestMatch || prev?.latestEp || '',
+          tags: cachedTags,
+          studio: cachedStudio,
           episode: episode || prev?.episode || '',
           elapsedSec: elapsedSec || prev?.elapsedSec || 0,
           durationSec: durationSec || prev?.durationSec || 0,
@@ -772,12 +864,12 @@
     tabNative.type = 'button';
     tabNative.className = 'ani-perm-tab';
     tabNative.setAttribute('role', 'tab');
-    tabNative.innerHTML = `${enhIcon('<circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/>', 15)}<span>官方觀看紀錄</span>`;
+    tabNative.innerHTML = `<span>官方觀看紀錄</span>`;
     const tabPerm = document.createElement('button');
     tabPerm.type = 'button';
     tabPerm.className = 'ani-perm-tab';
     tabPerm.setAttribute('role', 'tab');
-    tabPerm.innerHTML = `${enhIcon('<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>', 15)}<span class="ani-perm-tab-label">永久本地紀錄 (0)</span>`;
+    tabPerm.innerHTML = `<span class="ani-perm-tab-label">永久本地紀錄 (0)</span>`;
     tabs.append(tabNative, tabPerm);
     sourceRow.append(sourceHead, tabs);
 
@@ -864,6 +956,106 @@
       }
     };
 
+    const enrichInflight = new Set();
+    const enrichPermHistoryItem = async (it) => {
+      if (!it?.sn || enrichInflight.has(it.sn) || typeof fetch !== 'function') return;
+      const needsCover = !it.cover || isLandscapeOgBanner(it.cover);
+      const needsMeta = !Array.isArray(it.tags) || !it.tags.length || !it.studio;
+      if (!needsCover && !needsMeta) return;
+      enrichInflight.add(it.sn);
+      try {
+        let fetchedCover = '';
+        for (const nativeCard of document.querySelectorAll('.user-watch-list > .anime-card')) {
+          const nativeSn =
+            nativeCard.querySelector('.more-btn')?.dataset?.anime ||
+            nativeCard.querySelector('[data-anime-sn]')?.dataset?.animeSn ||
+            getSnFromHref(nativeCard.querySelector('.play-btn, .click-area')?.getAttribute('href'));
+          if (nativeSn === String(it.sn)) {
+            const cEl = nativeCard.querySelector('.postimg img');
+            const cUrl = safeImageUrl(cEl?.dataset?.src || cEl?.getAttribute('src') || '');
+            if (cUrl && !isLandscapeOgBanner(cUrl)) {
+              fetchedCover = cUrl;
+              break;
+            }
+          }
+        }
+        let fetchedTags = Array.isArray(it.tags) ? it.tags : [];
+        let fetchedStudio = it.studio || '';
+        let fetchedScore = it.score || '';
+        let fetchedLatest = it.latestEp || '';
+        let fetchedDuration = it.durationSec || 0;
+
+        try {
+          const rawMeta = localStorage.getItem(`ani-history-meta:${it.sn}:${it.videoSn || it.sn}`);
+          const parsedMeta = rawMeta ? JSON.parse(rawMeta)?.value : null;
+          if (parsedMeta?.tags?.length) fetchedTags = parsedMeta.tags;
+          if (parsedMeta?.studio) fetchedStudio = parsedMeta.studio;
+          if (!fetchedDuration && parsedMeta?.duration > 0) fetchedDuration = parsedMeta.duration;
+        } catch {}
+
+        const targetUrl = new URL(`animeVideo.php?sn=${encodeURIComponent(it.videoSn || it.sn)}`, location.origin);
+        if (targetUrl.origin === location.origin) {
+          const resp = await fetch(targetUrl.href, { credentials: 'include' });
+          if (resp.ok) {
+            const doc = new DOMParser().parseFromString(await resp.text(), 'text/html');
+            const imgEl = doc.querySelector('.data-img, .data-file img, .anime_info_detail img');
+            const rawSrc = safeImageUrl(imgEl?.dataset?.src || imgEl?.getAttribute('src') || '');
+            if (rawSrc && !isLandscapeOgBanner(rawSrc)) fetchedCover = rawSrc;
+            if (!fetchedTags.length) {
+              fetchedTags = [...doc.querySelectorAll('li.type .tag-list .tag')]
+                .map((n) => n.textContent.trim())
+                .filter((t) => t && t.length < 30);
+            }
+            if (!fetchedStudio) {
+              const stNode = [...doc.querySelectorAll('.title')]
+                .find((n) => n.textContent.trim() === '製作廠商')
+                ?.parentElement?.cloneNode(true);
+              stNode?.querySelector('.title')?.remove();
+              fetchedStudio = (stNode?.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 80);
+            }
+            if (!fetchedScore) {
+              fetchedScore =
+                doc.querySelector('.acg-score .score-overall-number, .score-overall-number')?.textContent?.trim() || '';
+            }
+            const epLinks = [...doc.querySelectorAll('.season li a')];
+            if (epLinks.length) {
+              fetchedLatest = (epLinks[epLinks.length - 1].textContent || '').trim();
+            }
+            if (!fetchedCover) {
+              const refHref = doc.querySelector('.anime_name a[href*="animeRef.php?sn="]')?.getAttribute('href');
+              if (refHref) {
+                const refUrl = new URL(refHref, location.origin);
+                if (refUrl.origin === location.origin) {
+                  const rResp = await fetch(refUrl.href, { credentials: 'include' });
+                  if (rResp.ok) {
+                    const rDoc = new DOMParser().parseFromString(await rResp.text(), 'text/html');
+                    const rImg = rDoc.querySelector('.data-img, .data-file img');
+                    const rSrc = safeImageUrl(rImg?.dataset?.src || rImg?.getAttribute('src') || '');
+                    if (rSrc && !isLandscapeOgBanner(rSrc)) fetchedCover = rSrc;
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        if (fetchedCover || fetchedTags.length || fetchedStudio || fetchedScore || fetchedLatest || fetchedDuration) {
+          await mutatePermanentHistory((data) => {
+            const cur = data[it.sn];
+            if (!cur) return false;
+            if (fetchedCover) cur.cover = fetchedCover;
+            if (fetchedTags.length) cur.tags = fetchedTags;
+            if (fetchedStudio) cur.studio = fetchedStudio;
+            if (fetchedScore) cur.score = fetchedScore;
+            if (fetchedLatest) cur.latestEp = fetchedLatest;
+            if (!cur.durationSec && fetchedDuration > 0) cur.durationSec = fetchedDuration;
+            return true;
+          });
+          if (permActiveTab === 'perm') renderGrid();
+        }
+      } catch {}
+    };
+
     const renderGrid = async () => {
       const records = await storageGet(PERM_HIST_KEY, {});
       syncTabState(records);
@@ -886,73 +1078,119 @@
       }
 
       gridEl.innerHTML = items.map((it) => {
-        const pct = it.durationSec > 0 ? Math.min(100, Math.max(0, Math.round((it.elapsedSec / it.durationSec) * 100))) : 0;
-        const cover = safeImageUrl(it.cover);
-        const epKeys = Object.keys(it.episodes || {}).sort((a, b) => Number(b) - Number(a)).slice(0, 8);
-        const epPills = epKeys.map((ep) => {
-          const epSn = encodeURIComponent(it.episodes[ep]?.videoSn || it.videoSn || it.sn);
-          return `<a class="ani-perm-ep-pill" href="animeVideo.php?sn=${epSn}">EP.${escapeHtml(ep)}</a>`;
-        }).join('');
+        const hasDur = Number(it.durationSec) > 0;
+        const hasElapsed = Number(it.elapsedSec) > 0;
+        const pct = hasDur ? Math.min(100, Math.max(0, Math.round((it.elapsedSec / it.durationSec) * 100))) : 0;
+        const remSec = hasDur && hasElapsed ? Math.max(0, it.durationSec - it.elapsedSec) : null;
+        const progressLabel =
+          remSec === 0
+            ? '已看完'
+            : remSec !== null
+            ? `已看 ${pct}% · 剩餘 ${Math.floor(remSec / 60)}分${String(Math.floor(remSec % 60)).padStart(2, '0')}秒`
+            : '';
+        const rawCover = safeImageUrl(it.cover);
+        const cover = isLandscapeOgBanner(rawCover) ? '' : rawCover;
+        const coverCssVar = cover ? ` style="--ani-card-cover:url(&quot;${escapeHtml(cover)}&quot;)"` : '';
+        const epKeys = Object.keys(it.episodes || {}).sort((a, b) => Number(b) - Number(a));
+        const epListHtml = epKeys
+          .map((ep) => {
+            const epObj = it.episodes[ep] || {};
+            const epSn = encodeURIComponent(epObj.videoSn || it.videoSn || it.sn);
+            const epDate = formatDateTime(epObj.watchedAt || it.watchedAt);
+            return `<li><a href="animeVideo.php?sn=${epSn}"><span class="history-list-anime-title">EP.${escapeHtml(ep)}</span><span class="date">${escapeHtml(epDate)}</span></a></li>`;
+          })
+          .join('');
         const resumeSn = encodeURIComponent(it.videoSn || it.sn);
         const watchedDate = formatDateTime(it.watchedAt);
+        const updateTxt = it.latestEp
+          ? `已更新至 EP.${it.latestEp}`
+          : watchedDate
+          ? `上次觀看 ${watchedDate}`
+          : '';
+        const metaLines = [];
+        if (Array.isArray(it.tags) && it.tags.length) metaLines.push(`動畫類型：${it.tags.join('、')}`);
+        if (it.studio) metaLines.push(`製作組：${it.studio}`);
+        const metaTxt = metaLines.join('\n');
+
         return `
           <div class="ani-perm-watch-slot">
-            <article class="anime-card ani-history-card ani-perm-card" data-perm-sn="${escapeHtml(it.sn)}">
+            <article class="anime-card ani-history-card ani-perm-card" data-perm-sn="${escapeHtml(it.sn)}"${coverCssVar}>
               <a class="click-area" href="animeVideo.php?sn=${resumeSn}" aria-label="${escapeHtml(it.title)}"></a>
+              <button type="button" class="delete-btn ani-perm-del-btn" data-perm-delete="${escapeHtml(it.sn)}" aria-label="刪除「${escapeHtml(it.title)}」的本地紀錄" title="刪除此筆紀錄">×</button>
               <div class="postimg ani-perm-cover-wrap">
                 ${cover ? `<img src="${escapeHtml(cover)}" alt="${escapeHtml(it.title)}" loading="lazy">` : ''}
+                ${it.score ? `<span class="ani-history-score">★ ${escapeHtml(it.score)}</span>` : ''}
               </div>
               <div class="anime-info ani-perm-info">
-                <p class="history-anime-title ani-perm-title" title="${escapeHtml(it.title)}"><span class="ani-marquee-track">${escapeHtml(it.title)}</span></p>
+                <p class="history-anime-title ani-perm-title"><span class="ani-marquee-track">${escapeHtml(it.title)}</span></p>
                 <div class="ani-history-playback">
-                  ${it.episode ? `<span class="ani-history-episode ani-perm-ep-badge">EP.${escapeHtml(it.episode)}</span>` : '<span></span>'}
-                  <p class="ani-history-timing"><span class="ani-history-elapsed">${formatMmSs(it.elapsedSec)}</span> / ${formatMmSs(it.durationSec)}</p>
+                  <p class="ani-history-timing"><span class="ani-history-elapsed">${hasElapsed ? formatMmSs(it.elapsedSec) : '—'}</span> / ${hasDur ? formatMmSs(it.durationSec) : '—'}</p>
+                  ${it.episode ? `<span class="ani-history-episode ani-perm-ep-badge">EP.${escapeHtml(it.episode)}</span>` : ''}
                 </div>
                 <div class="ani-history-secondary">
-                  ${watchedDate ? `<p class="ani-history-update">${escapeHtml(watchedDate)}</p>` : ''}
+                  ${updateTxt ? `<p class="ani-history-update">${escapeHtml(updateTxt)}</p>` : ''}
                 </div>
-                <div class="progress-bar" aria-valuenow="${Math.round(it.elapsedSec || 0)}" aria-valuemax="${Math.round(it.durationSec || 0)}">
-                  <div class="progress ani-perm-bar-fill" style="width:${pct}%"></div>
-                </div>
-                ${epPills ? `<div class="ani-perm-eps">${epPills}</div>` : ''}
+                ${hasDur && hasElapsed ? `<div class="progress-bar" aria-valuenow="${Math.round(it.elapsedSec || 0)}" aria-valuemax="${Math.round(it.durationSec || 0)}"><div class="progress ani-perm-bar-fill" style="width:${pct}%"></div></div>` : ''}
+                ${progressLabel ? `<p class="ani-history-progress-text">${escapeHtml(progressLabel)}</p>` : ''}
+                <div class="ani-history-meta">${escapeHtml(metaTxt)}</div>
               </div>
               <div class="btn-set ani-perm-actions">
                 <a class="play-btn round-btn ani-perm-resume" href="animeVideo.php?sn=${resumeSn}">
                   <svg class="ani-history-play-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8Z"/></svg>
                   <span class="ani-history-play-label">繼續觀看</span>
                 </a>
-                <button type="button" class="round-btn ani-perm-del-btn" data-perm-delete="${escapeHtml(it.sn)}" aria-label="刪除「${escapeHtml(it.title)}」的本地紀錄" title="刪除此筆紀錄">
-                  ${enhIcon(COL_STATUS_ICONS.clear, 18)}
-                </button>
+                ${epListHtml ? `<button type="button" class="more-btn round-btn ani-perm-more-btn" data-perm-more="${escapeHtml(it.sn)}" aria-expanded="false" aria-label="展開每集紀錄">${enhIcon('<path d="m6 9 6 6 6-6"/>', 18)}</button>` : ''}
               </div>
             </article>
+            ${epListHtml ? `<div class="user-watchTime-list ani-perm-ep-drawer" id="perm-sub-list-${escapeHtml(it.sn)}" style="display:none"><div class="watch-list-card"><ul class="user-watch-textlist">${epListHtml}</ul></div></div>` : ''}
           </div>
         `;
       }).join('');
       for (const titleEl of gridEl.querySelectorAll('.ani-perm-title')) {
         applyShadowMarquee(titleEl);
       }
+      for (const it of items.slice(0, 12)) {
+        enrichPermHistoryItem(it);
+      }
     };
 
     tabNative.addEventListener('click', () => {
       permActiveTab = 'native';
       renderGrid();
+      animateFilterSwitch(tabNative, document.querySelector('.history'), '.anime-card');
     });
-    tabPerm.addEventListener('click', () => {
+    tabPerm.addEventListener('click', async () => {
       permActiveTab = 'perm';
-      renderGrid();
+      await renderGrid();
+      animateFilterSwitch(tabPerm, gridEl, '.ani-perm-card');
     });
     searchEl.addEventListener('input', () => { renderGrid(); });
     for (const pb of filterCard.querySelectorAll('[data-perm-prog]')) {
-      pb.addEventListener('click', () => {
+      pb.addEventListener('click', async () => {
         progFilter = pb.dataset.permProg;
         for (const b of filterCard.querySelectorAll('[data-perm-prog]')) {
           b.setAttribute('aria-pressed', String(b === pb));
         }
-        renderGrid();
+        await renderGrid();
+        animateFilterSwitch(pb, gridEl, '.ani-perm-card');
       });
     }
     gridEl.addEventListener('click', async (ev) => {
+      const moreBtn = ev.target.closest('[data-perm-more]');
+      if (moreBtn) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        const slot = moreBtn.closest('.ani-perm-watch-slot');
+        const card = slot?.querySelector('.ani-perm-card');
+        const drawer = slot?.querySelector('.ani-perm-ep-drawer');
+        if (card && drawer) {
+          const open = !card.classList.contains('is-open');
+          card.classList.toggle('is-open', open);
+          moreBtn.setAttribute('aria-expanded', String(open));
+          drawer.style.display = open ? 'block' : 'none';
+        }
+        return;
+      }
       const del = ev.target.closest('[data-perm-delete]');
       if (!del) return;
       ev.preventDefault();
@@ -1222,20 +1460,26 @@
     const listBlock = document.querySelector('.animate-theme-list .theme-list-block');
     if (!listBlock) return;
 
-    // Collect native tags before injecting extra panels
+    // Collect ALL native 屬性 tags before injecting extra panels
     const tagLinks = new Map();
     if (filterSection) {
-      for (const a of filterSection.querySelectorAll('.class_list a')) {
+      const tagAnchors = [
+        ...filterSection.querySelectorAll('.class_list a[href*="tags="]'),
+        ...filterSection.querySelectorAll('.class_list a'),
+      ];
+      for (const a of tagAnchors) {
         const label = (a.textContent || '').trim();
         const href = a.getAttribute('href') || '';
         if (!label || label === '全部' || label.length > 16 || /^javascript:/i.test(href)) continue;
+        // Skip year/target/audio filter links unless they are actual tag links
+        if (href && !/tags=/i.test(href) && /(?:year|target|audio|sort)=/i.test(href)) continue;
         if (!tagLinks.has(label)) tagLinks.set(label, href);
       }
     }
     for (const dt of DEFAULT_CATALOG_TAGS) {
       if (!tagLinks.has(dt)) tagLinks.set(dt, '');
     }
-    const availableTags = [...tagLinks.keys()].slice(0, 24);
+    const availableTags = [...tagLinks.keys()];
 
     const savedEx = readJsonLocal(CAT_EXCLUDE_KEY, { tags: [], keyword: '' });
     const excludedTags = new Set(Array.isArray(savedEx.tags) ? savedEx.tags.map((t) => String(t).trim()).filter(Boolean) : []);
@@ -1307,21 +1551,29 @@
 
           const cached = title ? metaCache[title] : null;
           const validMeta = cached && now - Number(cached.ts || 0) < WORK_META_TTL_MS ? cached : null;
-          if (validMeta) ensureOriginBadge(card, validMeta);
-          else if (activeOrigin !== 'all' && title && !metaPending.has(title)) {
+          const nativeBadgesTxt = [...card.querySelectorAll('.label-edition, .theme-time, .theme-number')]
+            .map((n) => n.textContent || '')
+            .join(' ');
+          const hintShort = /泡麵番|輕動畫|短篇/.test(`${title} ${nativeBadgesTxt}`);
+          const isShortWork = Boolean(validMeta?.isShort || hintShort);
+          const effectiveOrigin = isShortWork ? 'short' : (validMeta?.source || '');
+
+          if (validMeta || isShortWork) {
+            ensureOriginBadge(card, validMeta ? { ...validMeta, isShort: isShortWork } : { source: 'short', isShort: true });
+          } else if (activeOrigin !== 'all' && title && !metaPending.has(title)) {
             missingTitles.push(title);
           }
 
           let hideByOrigin = false;
           if (activeOrigin !== 'all') {
-            if (activeOrigin === 'short') {
-              const hintShort = /泡麵番|輕動畫|短篇/.test(card.textContent || '');
-              hideByOrigin = validMeta ? !validMeta.isShort && !hintShort : !hintShort;
-            } else {
-              hideByOrigin = validMeta ? validMeta.source !== activeOrigin : true;
-            }
+            hideByOrigin = effectiveOrigin !== activeOrigin;
           }
           card.classList.toggle('ani-origin-hidden', hideByOrigin);
+          if (isEx || hideByOrigin) {
+            card.style.setProperty('display', 'none', 'important');
+          } else {
+            card.style.removeProperty('display');
+          }
           if (!isEx && !hideByOrigin) originShown++;
         }
 
@@ -1415,6 +1667,7 @@
           btn.setAttribute('aria-pressed', String(nowEx));
           saveExcludeState();
           applyCatalogFilters();
+          animateFilterSwitch(btn, listBlock, '.theme-list-main');
         });
         pillsWrap.append(btn);
       }
@@ -1428,7 +1681,8 @@
         clearTimeout(kwTimer);
         kwTimer = setTimeout(applyCatalogFilters, 80);
       });
-      exPanel.querySelector('.ani-exclude-clear').addEventListener('click', () => {
+      const clearExBtn = exPanel.querySelector('.ani-exclude-clear');
+      clearExBtn.addEventListener('click', () => {
         excludedTags.clear();
         excludeKeyword = '';
         kwInput.value = '';
@@ -1438,6 +1692,7 @@
         }
         saveExcludeState();
         applyCatalogFilters();
+        animateFilterSwitch(clearExBtn, listBlock, '.theme-list-main');
       });
       filterBody.append(exPanel);
     }
@@ -1461,12 +1716,13 @@
         btn.dataset.origin = key;
         btn.setAttribute('aria-pressed', String(key === activeOrigin));
         btn.textContent = label;
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', async () => {
           activeOrigin = key;
           for (const b of oWrap.querySelectorAll('.ani-origin-pill')) {
             b.setAttribute('aria-pressed', String(b === btn));
           }
-          applyCatalogFilters();
+          await applyCatalogFilters();
+          animateFilterSwitch(btn, listBlock, '.theme-list-main');
         });
         oWrap.append(btn);
       }
@@ -1568,7 +1824,7 @@
 
   const renderBlurToggleInner = (btn, enabled) => {
     btn.setAttribute('aria-pressed', String(enabled));
-    btn.innerHTML = `${enhIcon(enabled ? BLUR_EYE_ON_SVG : BLUR_EYE_OFF_SVG, 15)}<span>${enabled ? '避雷遮罩：開' : '避雷遮罩：關'}</span>`;
+    btn.innerHTML = `${enhIcon(enabled ? BLUR_EYE_ON_SVG : BLUR_EYE_OFF_SVG, 17)}<span class="ani-blur-toggle-label">避雷遮罩</span><span class="ani-blur-switch-track" aria-hidden="true"><span class="ani-blur-switch-thumb"></span></span>`;
   };
 
   const applySpoilerBlur = async () => {
@@ -1859,7 +2115,7 @@
             .map(
               (id) => `
             <div class="ani-dm-muted-item">
-              <span title="${escapeHtml(id)}">${escapeHtml(id)}</span>
+              <span class="ani-dm-muted-id" title="${escapeHtml(id)}"><small>ID</small> ${escapeHtml(id)}</span>
               <button type="button" class="ani-dm-unmute-one" data-unmute-sender="${escapeHtml(id)}" title="解除消音">${enhIcon('<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>', 12)}<span>解除</span></button>
             </div>`,
             )
@@ -1973,6 +2229,7 @@
           }
           updateSortLabels();
           applyDanmuListState();
+          animateFilterSwitch(b, subList, '.sub-list-li');
         });
       }
       mutedPill.addEventListener('click', (e) => {
@@ -2089,6 +2346,7 @@
         btn.addEventListener('click', () => {
           season.dataset.aniEpActiveGroup = String(idx);
           renderVisibility();
+          animateFilterSwitch(btn, ul, 'li');
         });
         bar.append(btn);
       });
@@ -2101,6 +2359,7 @@
       allBtn.addEventListener('click', () => {
         season.dataset.aniEpActiveGroup = 'all';
         renderVisibility();
+        animateFilterSwitch(allBtn, ul, 'li');
       });
       bar.append(allBtn);
 
