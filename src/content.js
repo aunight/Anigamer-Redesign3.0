@@ -21,6 +21,9 @@
         return response;
       });
       pending.set(key, task); tail = task.then(() => {}, () => {});
+      task.then(response => {
+        if (!response.ok) pending.delete(key);
+      }, () => pending.delete(key));
       return task.then(r => r.clone ? r.clone() : r);
     };
   })());
@@ -3507,6 +3510,116 @@
       }
     }
   }
+  function browseFilterIcon(index) {
+    const paths = ['<path d="m3 3 9 0 9 9-9 9-9-9Z"/><circle cx="8" cy="8" r="1"/>', '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 4v16M3 9h5M3 15h5"/>', '<circle cx="9" cy="8" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3m1-16a3 3 0 0 1 0 6m2 4a5 5 0 0 1 3 5"/>'];
+    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[index] || paths[0]}</svg>`;
+  }
+
+  const collectionCatalogGroups = [
+    ['tags', '屬性', '動作 冒險 奇幻 異世界 魔法 超能力 科幻 機甲 校園 喜劇 戀愛 青春 勵志 溫馨 悠閒 料理 親情 感人 運動 競技 偶像 音樂 職場 推理 懸疑 時間穿越 歷史 戰爭 血腥暴力 靈異神怪 黑暗 特攝 BL GL'],
+    ['category', '類型', '電影 OVA 雙語 泡麵番 真人演出'],
+    ['target', '對象', '闔家觀賞 付費會員 年齡限制'],
+    ['status', '觀看狀態', '未觀看 觀看中 已追完 未同步'],
+  ];
+
+  function createCollectionFilterRow(key, label, values, index, state) {
+    const row = document.createElement('section');
+    row.className = 'class_list';
+    row.setAttribute('role', 'group');
+    row.setAttribute('aria-label', label);
+    const heading = document.createElement('div');
+    heading.className = 'class-header';
+    const title = document.createElement('h3');
+    title.innerHTML = browseFilterIcon(index);
+    title.append(label);
+    heading.append(title);
+    const counter = key === 'tags' ? document.createElement('span') : null;
+    if (counter) heading.append(counter);
+    const list = document.createElement('ul');
+    for (const value of ['全部', ...values.split(' ')]) {
+      const item = document.createElement('li');
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.value = value;
+      button.textContent = value;
+      item.append(button);
+      list.append(item);
+      button.addEventListener('click', () => {
+        const selected = state.selected[key];
+        if (key !== 'tags') state.selected[key] = value;
+        else if (value === '全部') selected.clear();
+        else if (!selected.delete(value) && selected.size < 5) selected.add(value);
+        sync();
+        if (key === 'status') state.apply();
+        else loadCollectionCatalogMatches(state);
+      });
+    }
+    function sync() {
+      const selected = state.selected[key];
+      if (counter) counter.textContent = `(${selected.size}/5)`;
+      for (const button of list.querySelectorAll('button')) {
+        const chosen = key === 'tags'
+          ? (button.value === '全部' ? !selected.size : selected.has(button.value))
+          : button.value === selected;
+        button.setAttribute('aria-pressed', String(chosen));
+        button.parentElement.classList.toggle('now', chosen);
+        button.disabled = key === 'tags' && button.value !== '全部' && !chosen && selected.size >= 5;
+      }
+    }
+    sync();
+    row.append(heading, list);
+    return row;
+  }
+
+  async function loadCollectionCatalogMatches(state) {
+    state.catalogRequest?.abort();
+    const {tags, category, target} = state.selected;
+    const active = tags.size || category !== '全部' || target !== '全部';
+    const params = new URLSearchParams({tags: [...tags].sort().join(',') || '全部', category, target, sort: '1'});
+    const cacheKey = params.toString();
+    state.catalogMatches = active ? (state.catalogCache.get(cacheKey) || new Set()) : null;
+    state.catalogStatus = '';
+    if (!active || state.catalogCache.has(cacheKey)) {
+      state.apply();
+      return;
+    }
+
+    const request = new AbortController();
+    state.catalogRequest = request;
+    state.catalogStatus = '正在比對動畫瘋分類…';
+    state.apply();
+    try {
+      await new Promise(resolve => setTimeout(resolve, 180));
+      for (let page = 1; !request.signal.aborted; page++) {
+        params.set('page', page);
+        // Let an in-flight shared request finish; stale filters ignore the response.
+        const signal = AbortSignal.timeout?.(12000);
+        const response = await aniFetch(`/animeList.php?${params}`, {credentials: 'same-origin', signal});
+        if (!response.ok) throw new Error('catalog unavailable');
+        const html = await response.text();
+        if (request.signal.aborted) return;
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const results = doc.querySelector('.theme-list-block');
+        if (!results) throw new Error('catalog results missing');
+        for (const card of results.querySelectorAll('.theme-list-main[href]')) {
+          const id = new URL(card.getAttribute('href'), location.href).searchParams.get('sn');
+          if (id) state.catalogMatches.add(id);
+        }
+        state.apply();
+        const hasNext = [...doc.querySelectorAll('.page_number a[href]')]
+          .some(link => Number(link.dataset.aniListPage || link.textContent) === page + 1);
+        if (!hasNext || !results.querySelector('.theme-list-main')) break;
+      }
+      if (request.signal.aborted) return;
+      state.catalogCache.set(cacheKey, state.catalogMatches);
+      state.catalogStatus = '';
+    } catch {
+      if (request.signal.aborted) return;
+      state.catalogStatus = '分類載入失敗，點選分類可重試';
+    }
+    state.apply();
+  }
+
   const collectionFilters = new WeakMap();
   function enhanceCollectionFilters() {
     if(location.pathname!=='/mygather.php')return;
@@ -3567,16 +3680,15 @@
     if(!settings.themeEnabled){if(state)state.panel.hidden=true;for(const card of list.querySelectorAll('.theme-list-main[hidden]'))card.hidden=false;return;}
     if(state)state.panel.hidden=false;
     if(!state){
-      const panel=document.createElement('div');panel.className='ani-collection-filters';
+      const panel=document.createElement('div');panel.className='ani-collection-filters filter-section';
       panel.setAttribute('aria-label','篩選收藏動畫');
       const search=document.createElement('input');search.type='search';search.placeholder='搜尋收藏動畫';search.setAttribute('aria-label','搜尋收藏動畫');
-      const groups=document.createElement('div');groups.className='ani-collection-groups';
       const count=document.createElement('p');count.className='ani-collection-count';count.setAttribute('role','status');
       const field = document.createElement('div');
       field.className = 'ani-collection-search-field';
       const label = document.createElement('label');
       label.htmlFor = search.id = 'ani-collection-search';
-      label.textContent = '搜尋動畫';
+      label.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 8.8c0 4.6-8.8 9.6-8.8 9.6s-8.8-5-8.8-9.6a4.4 4.4 0 0 1 8.8-.3 4.4 4.4 0 0 1 8.8.3Z"/></svg>搜尋收藏動畫';
       search.placeholder = '請輸入動畫名稱';
       search.removeAttribute('aria-label');
       const capsule = document.createElement('div');
@@ -3585,79 +3697,117 @@
       icon.type = 'button';
       icon.className = 'anime_search-icon';
       icon.setAttribute('aria-label', '搜尋動畫');
-      icon.innerHTML = '<svg class="ani-search-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="7"/><path d="m16 16 5 5"/></svg>';
+      icon.innerHTML = '<svg class="ani-search-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="m14.4 14.4 5.6 5.6"/></svg>';
       icon.addEventListener('click', () => search.focus());
       capsule.append(search, icon);
       field.append(label, capsule);
-      panel.append(field, groups, count);
+      const body = mountBrowseFilterPanel(panel, 'ani-collection-filter-body');
+      state = {
+        panel, search, count,
+        selected: {status:'全部', tags:new Set(), category:'全部', target:'全部'},
+        dateFilter: {year:'', season:''},
+        catalogMatches: null, catalogCache: new Map(), catalogStatus: '',
+      };
+      const dates = createBroadcastDateFilters(filter => {
+        state.dateFilter = filter;
+        state.apply();
+      });
+      const rows = collectionCatalogGroups.map(([key, label, values], index) =>
+        createCollectionFilterRow(key, label, values, index, state));
+      body.append(field, dates, ...rows, count);
       list.before(panel);
-      state={panel,search,groups,count,selected:{status:'全部',year:'全部',genre:'全部'},genres:new Map(),requested:new Set(),signature:''};
       collectionFilters.set(list,state);
       search.addEventListener('input',()=>state.apply());
     }
-    const cards=[...list.querySelectorAll('.theme-list-main')];
-    const meta=card=>{
-      const progress=card.querySelector('.theme-number')?.textContent.match(/(\d+)\s*\/\s*(\d+)/);
-      return {card,id:card.getAttribute('href')?.match(/[?&]sn=(\d+)/)?.[1],name:card.querySelector('.theme-name')?.textContent.trim()||'',year:card.querySelector('.theme-time')?.textContent.match(/\d{4}/)?.[0]||'未標示',status:progress?(Number(progress[1])===0?'未觀看':Number(progress[1])>=Number(progress[2])?'已追完':'觀看中'):'未同步'};
-    };
-    const items=cards.map(meta);
-    state.apply=()=>{
-      let shown=0;
-      for(const item of [...list.querySelectorAll('.theme-list-main')].map(meta)){
-        const visible=(!state.search.value||item.name.toLocaleLowerCase().includes(state.search.value.trim().toLocaleLowerCase()))&&Object.entries(state.selected).every(([key,value])=>value==='全部'||(key==='genre'?(state.genres.get(item.id)||[]).includes(value):item[key]===value));
-        if(item.card.hidden===visible)item.card.hidden=!visible;
-        if(visible)shown++;
+    state.apply = () => {
+      const cards = [...list.querySelectorAll('.theme-list-main')];
+      const {year, season} = state.dateFilter;
+      const search = state.search.value.trim().toLocaleLowerCase();
+      let shown = 0;
+      for (const card of cards) {
+        const id = card.getAttribute('href')?.match(/[?&]sn=(\d+)/)?.[1];
+        const name = card.querySelector('.theme-name')?.textContent || '';
+        const date = broadcastDate(card);
+        const progress = card.querySelector('.theme-number')?.textContent.match(/(\d+)\s*\/\s*(\d+)/);
+        const status = !progress ? '未同步' : Number(progress[1]) === 0 ? '未觀看'
+          : Number(progress[1]) >= Number(progress[2]) ? '已追完' : '觀看中';
+        const visible = (!year || date.year === year) && (!season || date.season === season)
+          && (!state.catalogMatches || state.catalogMatches.has(id))
+          && (state.selected.status === '全部' || status === state.selected.status)
+          && name.toLocaleLowerCase().includes(search);
+        if (card.hidden === visible) card.hidden = !visible;
+        if (visible) shown++;
       }
-      const text=`顯示 ${shown} / ${list.querySelectorAll('.theme-list-main').length} 部收藏`;if(state.count.textContent!==text)state.count.textContent=text;
+      const progress = state.catalogStatus ? `，${state.catalogStatus}` : '';
+      const text = `顯示 ${shown} / ${cards.length} 部收藏${progress}`;
+      if (state.count.textContent !== text) state.count.textContent = text;
     };
-    const signature=JSON.stringify(items.map(i=>[i.id,i.status,i.year,state.genres.get(i.id)]));
-    if(signature!==state.signature){
-      state.signature=signature;state.groups.replaceChildren();
-      for(const [key,label,values] of [['status','觀看狀態',['未觀看','觀看中','已追完','未同步']],['year','年份',[...new Set(items.map(i=>i.year))].sort().reverse()],['genre','作品類型',[...new Set(items.flatMap(i=>state.genres.get(i.id)||[]))].sort()]]){
-        const row=document.createElement('div');row.className='ani-collection-filter-row';row.setAttribute('role','group');row.setAttribute('aria-label',label);
-        const heading=document.createElement('span');heading.textContent=label;row.append(heading);
-        for(const value of ['全部',...values]){
-          const button=document.createElement('button');button.type='button';button.textContent=value;button.setAttribute('aria-pressed',String(state.selected[key]===value));
-          button.addEventListener('click',()=>{state.selected[key]=value;for(const b of row.querySelectorAll('button'))b.setAttribute('aria-pressed',String(b===button));state.apply();});row.append(button);
-        }
-        const options=document.createElement('div');options.className='ani-filter-options';for(const button of [...row.querySelectorAll('button')])options.append(button);row.append(options);state.groups.append(row);
-      }
-    }
     state.apply();
-    // Cache only public genre labels; never infer a genre from a title.
-    const pending=items.filter(i=>i.id&&!state.requested.has(i.id));
-    for(const item of pending)state.requested.add(item.id);
-    const run=async()=>{
-      while(pending.length&&list.isConnected){
-        const item=pending.shift(),key=`ani-collection-genre:${item.id}`;
-        try{
-          let cached;try{cached=JSON.parse(localStorage.getItem(key)||'null');}catch{}
-          let genres=cached?.expires>Date.now()&&Array.isArray(cached.tags)?cached.tags:null;
-          if(!genres){
-            const response=await aniFetch(new URL(`animeRef.php?sn=${item.id}`,location.href),{credentials:'include',signal:AbortSignal.timeout(10000)});if(!response.ok)continue;
-            const doc=new DOMParser().parseFromString(await response.text(),'text/html');
-            genres=[...doc.querySelectorAll('li.type .tag-list .tag')].map(n=>n.textContent.trim()).filter(t=>t&&t.length<30);
-            if(genres.length)try{localStorage.setItem(key,JSON.stringify({tags:genres,expires:Date.now()+7*86400000}));}catch{}
-          }
-          state.genres.set(item.id,genres);enhanceCollectionFilters();
-        }catch{}
-      }
-    };
-    if(pending.length)run();
   }
-  function enhanceCatalogFilters() {
-    if (location.pathname !== '/animeList.php') return;
-    if (!document.body.classList.contains('ani-catalog-page')) document.body.classList.add('ani-catalog-page');
-    const filter = document.querySelector('.filter-section');
-    if (!filter || filter.querySelector('.ani-filter-toggle')) return;
+  function createBroadcastDateFilters(onChange, status) {
+    const dates = document.createElement('section');
+    dates.className = 'class_list ani-catalog-dates';
+    const heading = document.createElement('div');
+    heading.className = 'class-header';
+    heading.innerHTML = '<h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M8 3v4m8-4v4M4 11h16"/></svg>年份</h3>';
+    const year = document.createElement('select');
+    year.setAttribute('aria-label', '播出年份');
+    year.add(new Option('全部年份', ''));
+    const currentYear = Number(new Intl.DateTimeFormat('en', {year: 'numeric', timeZone: 'Asia/Taipei'}).format(new Date()));
+    for (let n = currentYear; n >= 1960; n--) year.add(new Option(`${n} 年`, String(n)));
+    const seasons = document.createElement('div');
+    seasons.className = 'ani-catalog-seasons';
+    seasons.setAttribute('role', 'group');
+    seasons.setAttribute('aria-label', '播出季度');
+    let season = '';
+    const update = () => onChange({year: year.value, season});
+    for (const [label, value] of [['全部季度',''],['春番','spring'],['夏番','summer'],['秋番','autumn'],['冬番','winter']]) {
+      const choice = document.createElement('button');
+      choice.type = 'button';
+      choice.value = value;
+      choice.textContent = label;
+      choice.setAttribute('aria-pressed', String(value === season));
+      choice.addEventListener('click', () => {
+        if (season === value) return;
+        season = value;
+        for (const option of seasons.children) option.setAttribute('aria-pressed', String(option === choice));
+        update();
+      });
+      seasons.append(choice);
+    }
+    const options = document.createElement('div');
+    options.className = 'ani-catalog-date-options';
+    const field = document.createElement('span');
+    field.className = 'ani-catalog-date-field';
+    field.append(year);
+    options.append(field, seasons);
+    if (status) options.append(status);
+    dates.append(heading, options);
+    year.addEventListener('change', update);
+    return dates;
+  }
+
+  function broadcastDate(card) {
+    const time = card.querySelector('.theme-time');
+    const value = time?.getAttribute('title') || time?.textContent || '';
+    const match = value.match(/(\d{4})(?:\s*[\/年.\-]\s*(\d{1,2}))?/);
+    const month = Number(match?.[2]);
+    const seasons = ['winter', 'spring', 'summer', 'autumn'];
+    const namedSeason = ['冬', '春', '夏', '秋'].indexOf(value.match(/([冬春夏秋])番/)?.[1]);
+    const season = month >= 1 && month <= 12 ? seasons[Math.floor((month - 1) / 3)] : seasons[namedSeason];
+    return {year: match?.[1], season};
+  }
+
+  function mountBrowseFilterPanel(filter, id) {
     const body = document.createElement('div');
     body.className = 'ani-filter-body';
-    body.id = 'ani-catalog-filters';
+    body.id = id;
+    filter.classList.add('ani-browse-filters');
     while (filter.firstChild) body.append(filter.firstChild);
     const button = document.createElement('button');
     button.type = 'button'; button.className = 'ani-filter-toggle';
     button.setAttribute('aria-expanded', 'true'); button.setAttribute('aria-controls', body.id);
-    button.innerHTML = '<span>篩選動畫</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 15 6-6 6 6"/></svg>';
+    button.innerHTML = '<span>篩選動畫</span><svg class="ani-filter-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg>';
     let animation;
     button.addEventListener('click', () => {
       const open = button.getAttribute('aria-expanded') !== 'true';
@@ -3670,11 +3820,28 @@
       animation = body.animate?.([{height: `${from}px`, opacity: open ? 0 : 1}, {height: `${to}px`, opacity: open ? 1 : 0}], {duration: matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 280, easing: 'ease-out'});
     });
     filter.append(button, body);
-    const paths = ['<path d="m3 3 9 0 9 9-9 9-9-9Z"/><circle cx="8" cy="8" r="1"/>', '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 4v16M3 9h5M3 15h5"/>', '<circle cx="9" cy="8" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3m1-16a3 3 0 0 1 0 6m2 4a5 5 0 0 1 3 5"/>'];
-    [...body.querySelectorAll('.class-header h3')].forEach((h, i) => h.insertAdjacentHTML('afterbegin', `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[i] || paths[0]}</svg>`));
+    return body;
+  }
+
+  function enhanceCatalogFilters() {
+    if (location.pathname !== '/animeList.php') return;
+    if (!document.body.classList.contains('ani-catalog-page')) document.body.classList.add('ani-catalog-page');
+    const filter = document.querySelector('.filter-section');
+    if (!filter || filter.querySelector('.ani-filter-toggle')) return;
+    const body = mountBrowseFilterPanel(filter, 'ani-catalog-filters');
+    const status = document.createElement('span');
+    status.className = 'ani-catalog-date-status';
+    status.setAttribute('role', 'status');
+    const dates = createBroadcastDateFilters(detail => {
+      document.dispatchEvent(new CustomEvent('ani-catalog-date-change', {detail}));
+    }, status);
+    [...body.querySelectorAll('.class-header h3')].forEach((heading, index) => {
+      heading.insertAdjacentHTML('afterbegin', browseFilterIcon(index));
+    });
+    body.prepend(dates);
   }
   function enhanceInfiniteCatalog() {
-    if (!['/animeList.php','/mygather.php'].includes(location.pathname) || typeof IntersectionObserver !== 'function') return;
+    if (!['/animeList.php','/mygather.php'].includes(location.pathname)) return;
     const list = document.querySelector('.animate-theme-list .theme-list-block');
     const pages = document.querySelector('.page_control');
     if (!list || !pages || pages.dataset.aniInfinite) return;
@@ -3690,9 +3857,44 @@
     pages.after(button);
     pages.hidden = true;
     const seen = new Set([...list.querySelectorAll('.theme-list-main')].map(c => new URL(c.getAttribute('href'),location.href).href));
-    const load = async () => {
-      if (busy || !next) return;
-      busy = true; button.disabled = true; button.textContent = '載入動畫中…';
+    let dateFilter = {year: '', season: ''}, failed = false, paused = false;
+    const hasDateFilter = () => Boolean(dateFilter.year || dateFilter.season);
+    const matchesDate = card => {
+      const {year, season} = broadcastDate(card);
+      return (!dateFilter.year || year === dateFilter.year) && (!dateFilter.season || season === dateFilter.season);
+    };
+    const applyDates = () => {
+      if (location.pathname !== '/animeList.php') return;
+      const active = hasDateFilter();
+      let shown = 0;
+      const cards = [...list.querySelectorAll('.theme-list-main')];
+      for (const card of cards) {
+        const visible = !active || matchesDate(card);
+        card.hidden = !visible;
+        if (visible) shown++;
+      }
+      const status = document.querySelector('.ani-catalog-date-status');
+      if (!status) return;
+      let progress = '已搜尋全部頁面';
+      if (next) {
+        if (failed) progress = '載入失敗，請重試';
+        else if (paused) progress = '下一頁無符合結果，已暫停';
+        else progress = '正在搜尋其餘頁面…';
+      }
+      status.textContent = active ? `顯示 ${shown} 部，${progress}` : '';
+    };
+    document.addEventListener('ani-catalog-date-change', event => {
+      dateFilter = event.detail; failed = false; paused = false; applyDates();
+      if (hasDateFilter() && next && !busy) load();
+      else if (next && !busy) {
+        button.textContent = '繼續往下瀏覽';
+        requestAnimationFrame(checkBottom);
+      }
+    });
+    const load = async (manual = false) => {
+      if (busy || !next || (!manual && (paused || failed))) return;
+      busy = true; failed = false; paused = false; button.disabled = true; button.textContent = '載入動畫中…';
+      applyDates();
       let succeeded=false;
       try {
         const url = new URL(next,location.href);
@@ -3702,25 +3904,35 @@
         if (!response.ok) throw new Error('catalog unavailable');
         const doc = new DOMParser().parseFromString(await response.text(),'text/html');
         const cards = [...doc.querySelectorAll('.theme-list-block .theme-list-main')];
-        if (!cards.length) throw new Error('catalog unavailable');
+        if (!cards.length && !doc.querySelector('.theme-list-block')) throw new Error('catalog unavailable');
+        let addedMatch = false;
         for (const card of cards) {
           const key = new URL(card.getAttribute('href'),url).href;
           if (seen.has(key)) continue;
           seen.add(key); card.querySelectorAll('script,iframe,object').forEach(n=>n.remove());
-          list.append(document.importNode(card,true));
+          const imported = document.importNode(card,true);
+          if (hasDateFilter() && matchesDate(imported)) addedMatch = true;
+          list.append(imported);
         }
         const current = Number(url.searchParams.get('page') || 1);
-        next = [...doc.querySelectorAll('.page_number a[href]')].find(a=>Number(a.textContent)===current+1)?.getAttribute('href');
+        next = cards.length ? [...doc.querySelectorAll('.page_number a[href]')].find(a=>Number(a.textContent)===current+1)?.getAttribute('href') : null;
+        paused = Boolean(next && hasDateFilter() && !addedMatch);
         loadedPages.add(url.href);succeeded=true;
-        button.textContent = next ? '繼續往下瀏覽' : '已顯示全部動畫';
+        button.textContent = paused ? '搜尋後續頁面' : next ? '繼續往下瀏覽' : '已顯示全部動畫';
         enhancePosterRails();
         enhanceCollectionFilters();
-      } catch { button.textContent = '載入失敗，點此重試'; }
-      finally { busy = false; button.disabled = !next;if(succeeded&&next)requestAnimationFrame(checkBottom); }
+      } catch { failed = true; button.textContent = '載入失敗，點此重試'; }
+      finally {
+        busy = false; button.disabled = !next; applyDates();
+        if (succeeded && next && !paused) {
+          if (hasDateFilter()) setTimeout(() => { if (hasDateFilter()) load(); }, 100);
+          else requestAnimationFrame(checkBottom);
+        }
+      }
     };
     const checkBottom=()=>{if(busy||!next||!button.isConnected||document.hidden)return;const rect=button.getBoundingClientRect();if(rect.top<=window.innerHeight+600&&rect.bottom>=-600)load();};
-    button.addEventListener('click',load);
-    new IntersectionObserver(entries=>{if(entries.some(e=>e.isIntersecting))load();},{rootMargin:'600px'}).observe(button);
+    button.addEventListener('click', () => load(true));
+    if (typeof IntersectionObserver === 'function') new IntersectionObserver(entries=>{if(entries.some(e=>e.isIntersecting))load();},{rootMargin:'600px'}).observe(button);
     let scrollFrame=0;window.addEventListener('scroll',()=>{if(scrollFrame)return;scrollFrame=requestAnimationFrame(()=>{scrollFrame=0;checkBottom();});},{passive:true});
 
   }
@@ -4473,6 +4685,11 @@
       };
       card.addEventListener('mouseenter', measure);
       card.addEventListener('focusin', measure);
+      const resetOutline = () => {
+        if (!card.matches(':hover, :focus-within')) outline.style.removeProperty('height');
+      };
+      card.addEventListener('mouseleave', resetOutline);
+      card.addEventListener('focusout', () => requestAnimationFrame(resetOutline));
     }
     for (const pic of document.querySelectorAll('#BH_background .extend-card .extend-pic-block')) {
       const img = pic.querySelector('img');
@@ -6499,7 +6716,7 @@
         html += `<div class="ani-rating-ring-wrap"><svg viewBox="-8 -8 132 132" class="ani-rating-ring-svg"><circle class="ani-ring-bg" cx="58" cy="58" r="${r}"/><circle class="ani-ring-fg" cx="58" cy="58" r="${r}" stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${dashOffset.toFixed(1)}"/></svg><div class="ani-ring-center"><strong>${scoreNum ? scoreNum.toFixed(1) : '-'}</strong><span>${escHtml(peopleText)}</span></div></div>`;
         html += '<div class="ani-rating-bars">';
         for (const item of dist) {
-          html += `<div class="ani-rating-bar-row"><span class="ani-rating-bar-label">${renderStarsHtml(item.stars)}</span><div class="ani-rating-bar-track"><div class="ani-rating-bar-fill" style="width:${item.pctNum}%"></div></div><span class="ani-rating-bar-pct">${item.pctNum}%</span></div>`;
+          html += `<div class="ani-rating-bar-row"><span class="ani-rating-bar-label">${renderStarsHtml(item.stars)}</span><div class="ani-rating-bar-track"><div class="ani-rating-bar-fill" style="width:${item.pctNum}%"></div></div><span class="ani-rating-bar-pct"><span>${item.pctNum}</span> <span class="ani-rating-bar-unit">%</span></span></div>`;
         }
         html += '</div></div>';
         html += '<div class="ani-side-divider"></div>';
@@ -7638,7 +7855,76 @@
     active = video ? attach(video) : null;
   }
 
+  function styleStarMapSettings(overlay) {
+    if (overlay?.dataset.aniStarmap) return;
+    const modal = overlay?.querySelector('#ani-rating-modal');
+    if (!modal?.querySelector('#arm-save')) return;
+    overlay.dataset.aniStarmap = 'true';
+    const title = modal.querySelector('.arm-title');
+    if (title) {
+      title.id = 'ani-starmap-title';
+      modal.setAttribute('aria-labelledby', title.id);
+    }
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+
+    // The upstream template hardcodes its palette in inline styles.
+    for (const element of [modal, ...modal.querySelectorAll('[style]')]) {
+      for (const prop of ['background', 'color', 'border', 'border-top', 'border-bottom', 'box-shadow', 'text-shadow']) {
+        element.style.removeProperty(prop);
+      }
+    }
+    const symbols = {
+      '核心功能': '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M4 9h16M9 9v11"/>',
+      '⭐': '<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/>',
+      '🎨': '<path d="M12 3a9 9 0 1 0 0 18h1a2 2 0 0 0 1.5-3.3 1.4 1.4 0 0 1 1-2.3H18a3 3 0 0 0 3-3A9 9 0 0 0 12 3Z"/><path d="M7 11h.01M10 7h.01M15 7h.01M18 11h.01"/>',
+      '⚙️': '<path d="M4 7h16M4 12h16M4 17h16M8 5v4m8 1v4m-6 1v4"/>',
+      '💡': '<path d="M9 18h6m-5 3h4M8 13a6 6 0 1 1 8 0c-1 1-1 2-1 2H9s0-1-1-2Z"/>',
+      '⇅ / ★↓': '<path d="M8 19V5m-4 4 4-4 4 4m4-4v14m-4-4 4 4 4-4"/>',
+      '🛡️': '<path d="M12 22s7-4 7-10V5l-7-3-7 3v7c0 6 7 10 7 10Z"/>',
+      '🚫': '<circle cx="12" cy="12" r="9"/><path d="m6 6 12 12"/>',
+      '🗄️': '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 12h16m-10-4h4m-4 8h4"/>',
+      '📥': '<path d="M12 3v12m-4-4 4 4 4-4M4 16v4h16v-4"/>',
+      '⚠️': '<path d="M12 3 2 21h20ZM12 9v5m0 3h.01"/>',
+      '↺': '<path d="m5 12 4 4L19 6"/>',
+      '✕': '<path d="m6 6 12 12M18 6 6 18"/>',
+    };
+    const icons = Object.keys(symbols);
+    const walker = document.createTreeWalker(modal, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    for (const node of nodes) {
+      const symbol = icons.find(icon => node.data.trimStart().startsWith(icon));
+      if (!symbol) continue;
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('class', 'ani-starmap-icon');
+      svg.setAttribute('viewBox', '0 0 24 24');
+      svg.setAttribute('aria-hidden', 'true');
+      svg.innerHTML = symbols[symbol];
+      if (symbol !== '核心功能') node.data = node.data.trimStart().slice(symbol.length);
+      node.before(svg);
+      if (symbol === '💡') node.parentElement.classList.add('ani-starmap-tip');
+    }
+    for (const toggle of modal.querySelectorAll('.arm-toggle-pill')) {
+      toggle.tabIndex = 0;
+      toggle.setAttribute('role', 'switch');
+      const label = toggle.closest('.arm-list-item')?.querySelector('.arm-list-title');
+      if (label) toggle.setAttribute('aria-label', label.textContent.trim());
+      const sync = () => toggle.setAttribute('aria-checked', String(toggle.classList.contains('on')));
+      toggle.addEventListener('click', sync);
+      toggle.addEventListener('keydown', event => {
+        if (event.key !== ' ' && event.key !== 'Enter') return;
+        event.preventDefault();
+        if (!event.repeat) toggle.click();
+      });
+      sync();
+    }
+  }
+
   const observer = new MutationObserver((records) => {
+    if (records.some(record => record.target === document.body)) {
+      styleStarMapSettings(document.getElementById('ani-rating-overlay'));
+    }
     if (isBindingPlayer) return;
     // Apply the rating screen in the mutation microtask, before the browser paints.
     const consentChanged = records.some(record => [...record.addedNodes].some(node => {
@@ -7689,5 +7975,6 @@
     childList: true,
     subtree: true,
   });
+  styleStarMapSettings(document.getElementById('ani-rating-overlay'));
   bindPlayer();
 })();

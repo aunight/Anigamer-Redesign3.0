@@ -105,8 +105,14 @@ body.ani-ambientlight-ui #BH_background .theme-list-main.ani-poster-card > .ani-
 body.ani-ambientlight-ui #BH_background .theme-list-main.ani-poster-card:is(:hover,:focus-within) > .ani-hover-outline { border-color: var(--ani-accent) !important; }
 body.ani-catalog-page #BH_background .class-header { display: flex !important; flex-direction: column !important; align-items: flex-start !important; gap: 4px; }
 body.ani-catalog-page #BH_background .class-header > span { display: block !important; padding-left: 28px; }
-body.ani-catalog-page.ani-layout-related.ani-ambientlight-page #BH_background .filter-section:has(> .ani-filter-toggle[aria-expanded='false']) { min-height: 0 !important; padding: 16px 24px !important; }
-body.ani-catalog-page #BH_background .ani-filter-toggle[aria-expanded='false'] { min-height: 40px; padding: 0 !important; margin: 0 !important; align-items: center; }
+body.ani-layout-related.ani-ambientlight-page #BH_background .filter-section.ani-browse-filters:has(> .ani-filter-toggle[aria-expanded='false']),
+body #BH_background .filter-section.ani-browse-filters:has(> .ani-filter-toggle[aria-expanded='false']) {
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 16px 24px !important;
+  gap: 0 !important;
+}
+body #BH_background .ani-browse-filters .ani-filter-toggle[aria-expanded='false'] { min-height: 40px; padding: 0 !important; margin: 0 !important; align-items: center; }
 /* Banner headings keep the same readable size; only excess text is elided. */
 body.ani-ambientlight-page .ani-hero-heading { flex-wrap: nowrap !important; }
 body.ani-ambientlight-page .ani-hero-heading h2 { min-width: 0; flex: 1 1 auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -152,27 +158,26 @@ body.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background
 body.ani-ambientlight-ui #BH_background #blockVideoInSeason .anime-card-block .anime-name { font-size: 16px !important; }
 @media (prefers-reduced-motion: reduce) { body.ani-ambientlight-ui #BH_background .ani-poster-card .anime-detail-block { transition: none !important; } }
 body.ani-catalog-page.ani-layout-related.ani-ambientlight-page #BH_background .filter-section { display: block !important; }
-body.ani-catalog-page #BH_background .ani-filter-toggle {
+body #BH_background .ani-browse-filters .ani-filter-toggle {
   display: flex; align-items: center; justify-content: space-between; width: 100%;
-  padding: 0 0 16px; border: 0; background: transparent; color: var(--ani-text); cursor: pointer; font-size: 16px; font-weight: 600;
+  min-height: 40px; padding: 0; margin-bottom: 12px; border: 0;
+  background: transparent; color: var(--ani-text); cursor: pointer;
+  font: 700 20px/1.25 var(--ani-font, system-ui, sans-serif);
 }
-.ani-filter-toggle svg { width: 24px; height: 24px; transition: transform .2s; }
-.ani-filter-toggle[aria-expanded='false'] svg { transform: rotate(180deg); }
+.ani-filter-chevron { display: block; width: 24px; height: 24px; flex: none; transition: transform .2s; }
+.ani-filter-toggle[aria-expanded='false'] .ani-filter-chevron { transform: rotate(180deg); }
 .ani-filter-body { overflow: hidden; }
-body.ani-catalog-page.ani-layout-related.ani-ambientlight-page #BH_background .filter-section .class-wrapper { display: contents !important; }
-body.ani-catalog-page.ani-layout-related.ani-ambientlight-page #BH_background .filter-section section.class_list {
-  display: grid !important; grid-template-columns: 88px minmax(0,1fr) !important;
+body #BH_background .ani-browse-filters .class-wrapper { display: contents !important; }
+body #BH_background .filter-section.ani-browse-filters section.class_list {
+  display: grid !important; grid-template-columns: var(--ani-filter-label-width, 88px) minmax(0,1fr) !important;
   gap: 16px !important; margin: 0 !important; padding: 16px 0 !important; width: 100% !important;
 }
-body.ani-catalog-page #BH_background .class-header h3 { display: flex; gap: 8px; align-items: center; }
-body.ani-catalog-page #BH_background .filter-section section.class_list::before,
-body.ani-catalog-page #BH_background .filter-section section.class_list::after { display: none !important; content: none !important; }
-body.ani-catalog-page #BH_background .filter-section section.class_list > .class-header { grid-column: 1; grid-row: 1; width: auto !important; margin: 0 !important; align-items: flex-start !important; }
-body.ani-catalog-page #BH_background .filter-section section.class_list > ul { grid-column: 2; grid-row: 1; width: auto !important; margin: 0 !important; }
-body.ani-catalog-page #BH_background .class-header h3 svg { width: 20px; height: 20px; flex-shrink: 0; }
-body.ani-catalog-page.ani-layout-related.ani-ambientlight-page #BH_background .filter-section section.class_list li.now a {
-  background: #285c68 !important; color: #d8ffff !important; border-color: #5ac3cb !important; box-shadow: none !important;
-}
+body #BH_background .ani-browse-filters .class-header h3 { display: flex; gap: 8px; align-items: center; min-height: 30px; }
+body #BH_background .filter-section.ani-browse-filters section.class_list::before,
+body #BH_background .filter-section.ani-browse-filters section.class_list::after { display: none !important; content: none !important; }
+body #BH_background .filter-section.ani-browse-filters section.class_list > .class-header { grid-column: 1; grid-row: 1; width: auto !important; margin: 0 !important; align-items: flex-start !important; padding-top: 0; }
+body #BH_background .filter-section.ani-browse-filters section.class_list > :is(ul, .ani-catalog-date-options) { grid-column: 2; grid-row: 1; width: auto !important; margin: 0 !important; }
+body #BH_background .ani-browse-filters .class-header h3 svg { width: 20px; height: 20px; flex-shrink: 0; }
 body.ani-catalog-page #BH_background .filter-section li a { position: relative; }
 body.ani-catalog-page #BH_background .filter-section li.now:not(:first-child) a { padding-right: 32px !important; }
 body.ani-catalog-page #BH_background .filter-section li.now:not(:first-child) a:hover::before,
@@ -287,8 +292,8 @@ body.ani-ambientlight-ui #BH_background #ani-info .grid { grid-template-columns:
 body.ani-ambientlight-ui #BH_background #ani-info a { color: #8fdde3 !important; }
 body.ani-ambientlight-ui #BH_background .anime-title .anime_name > #bgmtv { grid-column: 1 / -1; font-size: 13px; color: var(--ani-muted); justify-self: start; }
 @media (max-width: 600px) {
-  body.ani-catalog-page.ani-layout-related.ani-ambientlight-page #BH_background .filter-section section.class_list { grid-template-columns: 1fr !important; }
-  body.ani-catalog-page #BH_background .filter-section section.class_list > ul { grid-column: 1; grid-row: 2; }
+  body #BH_background .filter-section.ani-browse-filters section.class_list { grid-template-columns: 1fr !important; }
+  body #BH_background .filter-section.ani-browse-filters section.class_list > :is(ul, .ani-catalog-date-options) { grid-column: 1; grid-row: 2; }
   body.ani-ambientlight-ui #BH_background #ani-info .ani-tab-pane.active { grid-template-columns: 1fr; }
   body.ani-ambientlight-ui #ani_video .vjs-control-bar { flex-wrap: wrap; height: 96px !important; gap: 4px; padding: 4px 8px !important; }
   body.ani-ambientlight-ui #ani_video .danmutext_area { flex-basis: 100% !important; order: 3; max-width: none; }
@@ -697,9 +702,13 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #blockContinueWatc
 body.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,#blockAnimeNewArrive,.animate-theme-list) .theme-list-main.ani-poster-card .anime-detail-block { height: var(--ani-poster-footer,80px) !important; }
 body.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,#blockAnimeNewArrive,.animate-theme-list) .theme-list-main.ani-poster-card:is(:hover,:focus-within) { z-index: 8; padding-bottom: var(--ani-poster-footer,80px) !important; }
 body.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,#blockAnimeNewArrive,.animate-theme-list) .theme-list-main.ani-poster-card:is(:hover,:focus-within) .anime-detail-block { position: absolute !important; inset: calc(100% - var(--ani-poster-footer,80px)) 0 auto !important; height: auto !important; min-height: var(--ani-poster-footer,80px) !important; z-index: 5; }
-body.ani-catalog-page.ani-ambientlight-ui #BH_background .theme-list-main.ani-poster-card:is(:hover,:focus-within) .anime-detail-block {
-  -webkit-backdrop-filter: blur(24px) saturate(120%);
-  backdrop-filter: blur(24px) saturate(120%);
+body.ani-catalog-page.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,#blockAnimeNewArrive,.animate-theme-list) .theme-list-main.ani-poster-card:is(:hover,:focus-within) .anime-detail-block {
+  background: color-mix(in srgb, var(--ani-base, #172332) 84%, transparent) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(120%) !important;
+  backdrop-filter: blur(28px) saturate(120%) !important;
+}
+body.ani-catalog-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .theme-list-main.ani-poster-card .anime-detail-block::before {
+  filter: blur(18px) saturate(140%) !important;
 }
 body.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,#blockAnimeNewArrive,.animate-theme-list) .theme-list-main.ani-poster-card:is(:hover,:focus-within) .theme-name { height: auto !important; white-space: normal !important; overflow: visible !important; }
 .ani-poster-card:is(:hover,:focus-within) .theme-name .ani-title-marquee { white-space: normal; animation: none !important; transform: none !important; }
@@ -1161,8 +1170,6 @@ body.ani-collection-page #BH_background .ani-collection-sort-segment li { paddin
 body.ani-collection-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-collection-sort-segment .ani-collection-sort-item { border-color:transparent !important;background:transparent !important;box-shadow:none !important; }
 body.ani-collection-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-collection-sort-segment .ani-collection-sort-item[aria-current='true'] { background:#c4e6f323 !important;border-color:#ccefff40 !important; }
 .ani-collection-search-field { width:min(100%,420px);margin-bottom:20px; }
-.ani-collection-search-field > label { display:flex;align-items:center;gap:8px;margin-bottom:10px;color:var(--ani-text);font-size:14px; }
-.ani-collection-search-field > label svg { width:17px;height:17px; }
 .ani-collection-filters .ani-collection-search-field input { width:100%;margin:0; }
 body.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,#blockAnimeNewArrive,.animate-theme-list) .theme-list-main.ani-poster-card .anime-detail-block > .theme-info-block { position:relative;z-index:1; }
 /* Denser history rows, a continuous rail and soft scroll-edge shading. */
@@ -1433,18 +1440,36 @@ body.ani-membership-page #BH_background .ani-membership-plans :is(.ani-free-watc
 
 .ani-collection-search-field {
   display:grid;
-  grid-template-columns:88px minmax(0,420px);
+  grid-template-columns:var(--ani-filter-label-width, 88px) minmax(0,420px);
   align-items:center;
   width:100%;
-  gap:12px;
+  gap:16px;
 }
-.ani-collection-search-field > label { margin:0;color:var(--ani-muted);white-space:nowrap;cursor:text; }
-.ani-collection-filters .ani-collection-search-capsule {
+.ani-collection-search-field > label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--ani-text, #fff);
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: text;
+}
+.ani-collection-search-field > label svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+  flex: none;
+}
+body #BH_background .ani-collection-filters .ani-collection-search-capsule {
   display:grid;
-  grid-template-columns:minmax(0,1fr) 44px;
-  height:40px;
+  grid-template-columns:minmax(0,1fr) 38px;
+  grid-template-rows:minmax(0,1fr);
+  align-items:center;
+  height:var(--ani-filter-pill-height) !important;
   box-sizing:border-box;
-  border-radius:999px;
+  border-radius:var(--ani-filter-control-radius) !important;
   overflow:hidden;
 }
 body.ani-ambientlight-ui .ani-collection-search-capsule > #ani-collection-search {
@@ -1452,21 +1477,30 @@ body.ani-ambientlight-ui .ani-collection-search-capsule > #ani-collection-search
   width:100%;
   margin:0;
   padding:0 12px !important;
+  height:100% !important;
+  line-height:normal;
   background:transparent !important;
   border:0 !important;
   box-shadow:none !important;
   border-radius:0 !important;
   outline:none !important;
 }
-.ani-collection-search-capsule > button.anime_search-icon {
+.ani-collection-filters .ani-collection-search-capsule > button.anime_search-icon {
   width:100% !important;
   height:100% !important;
+  box-sizing:border-box;
+  padding:0 !important;
+  margin:0 !important;
   background:transparent !important;
   border:0 !important;
   border-left:1px solid #dbedff38 !important;
-  display:grid;
-  place-items:center;
+  display:grid !important;
+  place-items:center !important;
   cursor:pointer;
+}
+.ani-collection-search-capsule > button .ani-search-glyph { display:block; margin:0; }
+@media (max-width: 600px) {
+  .ani-collection-filters .ani-collection-search-field { grid-template-columns: minmax(0, 1fr); gap: 6px; }
 }
 .ani-collection-search-capsule > button::before,
 .ani-collection-search-capsule > button::after { content:none !important; }
@@ -3133,6 +3167,10 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .anime-title .ani-
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .anime-title .ani-title-actions > button :is(i, svg, .material-icons) {
   color: #f47a9c !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .anime-title .ani-title-actions > button.ordered i::before {
+  color: #f47a9c !important;
+  -webkit-text-fill-color: currentColor !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .anime-title .ani-title-actions > button:is(:hover, .is-active, .btn-is-active, [aria-pressed='true']) {
   background: rgba(244, 122, 156, 0.28) !important;
@@ -5479,7 +5517,7 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .su
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle .ani-rating-bar-row {
   display: grid !important;
-  grid-template-columns: 62px minmax(0, 1fr) 32px !important;
+  grid-template-columns: 72px minmax(0, 1fr) 40px !important;
   align-items: center !important;
   gap: 8px !important;
   font-size: 12px !important;
@@ -5495,8 +5533,8 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .su
   gap: 1.5px !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle .ani-dist-star {
-  width: 10.5px !important;
-  height: 10.5px !important;
+  width: 13px !important;
+  height: 13px !important;
   fill: #f5b82e !important;
   flex: none !important;
 }
@@ -5512,11 +5550,21 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .su
   background: var(--ani-accent, #3dafb6) !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle .ani-rating-bar-pct {
-  text-align: right !important;
-  color: rgba(226, 234, 242, 0.68) !important;
-  font-size: 11px !important;
+  display: flex;
+  align-items: center;
+  align-self: center;
+  justify-content: flex-end;
+  gap: 0.25em;
+  color: var(--ani-text, #edf7ff) !important;
+  font-size: 14px !important;
   font-weight: 500 !important;
   font-variant-numeric: tabular-nums !important;
+  line-height: 1;
+  white-space: nowrap;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle .ani-rating-bar-pct .ani-rating-bar-unit {
+  font-size: 10px !important;
+  opacity: 0.72;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle .ani-my-rating {
   display: flex !important;
@@ -9834,6 +9882,25 @@ body.ani-layout-comments.ani-ambientlight-ui #BH_background #w-post-box .reply-c
   button.reply-content__tag:is(:hover, :focus-visible)::before {
     background-color: var(--ani-comment-hover-color) !important;
   }
+
+  :is(button.reply-content__gp, button.reply-content__bp):is(:hover, :focus-visible) .gb-img {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 10h3v11H3zM8 10l5-7c2 0 3 1.6 2.4 3.6L14.5 10H19c2 0 2.7 1.3 2.1 3l-2 6c-.4 1.3-1.1 2-2.5 2H8z'/%3E%3C/svg%3E");
+  }
+
+  :is(button.reply-content__gp, button.reply-content__bp):is(:hover, :focus-visible) :is(p, span) {
+    color: var(--ani-comment-hover-color) !important;
+    -webkit-text-fill-color: currentColor !important;
+  }
+
+  button.reply-content__gp:is(:hover, :focus-visible) ~ p.reply-content__gp,
+  button.reply-content__bp:is(:hover, :focus-visible) ~ p.reply-content__bp {
+    color: var(--ani-comment-count-hover, var(--ani-accent, #3dafb6)) !important;
+    -webkit-text-fill-color: currentColor !important;
+  }
+
+  p.reply-content__bp {
+    --ani-comment-count-hover: #f87171;
+  }
 }
 
 body.ani-ambientlight-page.ani-ambientlight-ui .toast_box .toast_content.hint {
@@ -9867,22 +9934,23 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background
   -webkit-text-fill-color:currentColor !important;
 }
 /* Balance the visible year label and chevron as a group. */
-body.ani-catalog-page #BH_background .ani-catalog-date-field select {
-  padding-inline: 16px 32px;
+body:is(.ani-catalog-page, .ani-collection-page) #BH_background .ani-catalog-date-field select {
+  padding-inline: 14px 34px;
+  font-size: var(--ani-filter-pill-font-size) !important;
 }
-body.ani-catalog-page #BH_background .ani-catalog-date-field::after {
-  inset-inline-end: 24px;
+body:is(.ani-catalog-page, .ani-collection-page) #BH_background .ani-catalog-date-field::after {
+  inset-inline-end: 14px;
 }
 @supports (appearance: base-select) {
-  body.ani-catalog-page #BH_background .ani-catalog-date-field::after {
+  body:is(.ani-catalog-page, .ani-collection-page) #BH_background .ani-catalog-date-field::after {
     content: none;
   }
-  body.ani-catalog-page #BH_background .ani-catalog-date-field select {
+  body:is(.ani-catalog-page, .ani-collection-page) #BH_background .ani-catalog-date-field select {
     justify-content: center;
-    gap: 8px;
-    padding-inline: 16px;
+    gap: 10px;
+    padding-inline: 12px;
   }
-  body.ani-catalog-page #BH_background .ani-catalog-date-field select::picker-icon {
+  body:is(.ani-catalog-page, .ani-collection-page) #BH_background .ani-catalog-date-field select::picker-icon {
     display: block;
     content: "";
     width: 7px;
@@ -9958,3 +10026,166 @@ body.ani-membership-page.ani-light-mode.ani-ambientlight-ui {
     box-shadow:0 6px 16px rgb(24 51 73 / 24%);
   }
 }
+
+/* StarMap settings use the same surfaces and accent as the rest of the site. */
+#ani-rating-overlay[data-ani-starmap] {
+  padding: 16px;
+  box-sizing: border-box;
+}
+#ani-rating-overlay[data-ani-starmap] #ani-rating-modal {
+  display: flex !important;
+  flex-direction: column;
+  width: min(100%, 520px) !important;
+  max-width: 100% !important;
+  max-height: calc(100dvh - 32px);
+  overflow: hidden !important;
+  background: var(--ani-base, #0f1621) !important;
+  color: var(--ani-text, #edf5fa) !important;
+  border: 1px solid var(--ani-line, #344958) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 20px 56px #0006 !important;
+  font-family: var(--ani-font, system-ui, sans-serif) !important;
+}
+#ani-rating-overlay[data-ani-starmap] :is(.arm-header, .arm-footer) {
+  flex: none;
+  padding: 16px 20px;
+  background: var(--ani-base, #0f1621) !important;
+  border-color: var(--ani-line, #344958) !important;
+  border-width: 1px !important;
+  box-shadow: none !important;
+}
+#ani-rating-overlay[data-ani-starmap] .arm-body {
+  min-height: 0;
+  max-height: none;
+  padding: 8px 20px 20px;
+  gap: 0;
+  scrollbar-color: var(--ani-muted, #92a7b6) transparent;
+}
+#ani-rating-overlay[data-ani-starmap] .arm-section {
+  gap: 0;
+  padding: 16px 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+#ani-rating-overlay[data-ani-starmap] .arm-section + .arm-section {
+  border-top: 1px solid var(--ani-line, #344958) !important;
+}
+#ani-rating-overlay[data-ani-starmap] :is(.arm-title, .arm-list-title, .arm-input) {
+  color: var(--ani-text, #edf5fa) !important;
+}
+#ani-rating-overlay[data-ani-starmap] .arm-title { font-size: 17px; font-weight: 700; }
+#ani-rating-overlay[data-ani-starmap] :is(.arm-subtitle, .arm-list-desc, .arm-field-unit, .arm-cache-left, .arm-section p) {
+  color: var(--ani-muted, #a2b3bf) !important;
+  line-height: 1.5;
+}
+#ani-rating-overlay[data-ani-starmap] .arm-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ani-accent, #3dafb6) !important;
+  font-size: 14px;
+  letter-spacing: 0;
+  margin-bottom: 5px;
+}
+#ani-rating-overlay[data-ani-starmap] .arm-list-item {
+  gap: 12px;
+  padding-block: 10px;
+  border-bottom: 1px solid var(--ani-line, #344958) !important;
+}
+#ani-rating-overlay[data-ani-starmap] .arm-list-left { min-width: 0; }
+#ani-rating-overlay[data-ani-starmap] .arm-field-row { flex-shrink: 0; }
+#ani-rating-overlay[data-ani-starmap] .ani-starmap-icon {
+  display: inline-block;
+  width: 1.2em;
+  height: 1.2em;
+  flex: none;
+  vertical-align: -0.22em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+#ani-rating-overlay[data-ani-starmap] .arm-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  color: var(--ani-accent, #3dafb6);
+  font-size: 19px;
+  border-radius: 12px;
+  animation: none;
+}
+#ani-rating-overlay[data-ani-starmap] :is(.arm-icon, .arm-close, .arm-btn, .arm-cache-clear, .arm-cache-badge, .arm-field-row input, .ani-starmap-tip) {
+  background: var(--ani-soft, #233443) !important;
+  border: 1px solid var(--ani-line, #344958) !important;
+  box-shadow: none !important;
+}
+#ani-rating-overlay[data-ani-starmap] :is(.arm-close, .arm-btn, .arm-cache-clear, .arm-cache-badge, .arm-field-row input) {
+  color: var(--ani-text, #edf5fa) !important;
+}
+#ani-rating-overlay[data-ani-starmap] :is(.arm-close, .arm-btn, .arm-cache-clear) {
+  transform: none !important;
+}
+#ani-rating-overlay[data-ani-starmap] .arm-btn .ani-starmap-icon { margin-inline-end: 4px; }
+#ani-rating-overlay[data-ani-starmap] .arm-toggle-pill {
+  background: var(--ani-soft, #233443) !important;
+  border: 1px solid var(--ani-line, #344958) !important;
+  box-shadow: none !important;
+}
+#ani-rating-overlay[data-ani-starmap] .arm-toggle-pill::after {
+  background: var(--ani-text, #edf5fa) !important;
+  box-shadow: none !important;
+}
+#ani-rating-overlay[data-ani-starmap] :is(.arm-toggle-pill.on, #arm-save) {
+  background: var(--ani-accent, #3dafb6) !important;
+  color: #071b20 !important;
+  border-color: transparent !important;
+}
+#ani-rating-overlay[data-ani-starmap] .arm-toggle-pill.on::after { background: #071b20 !important; }
+#ani-rating-overlay[data-ani-starmap] :is(.arm-btn, .arm-close, .arm-cache-clear):hover {
+  border-color: var(--ani-accent, #3dafb6) !important;
+}
+#ani-rating-overlay[data-ani-starmap] #arm-save:hover {
+  background: color-mix(in srgb, var(--ani-accent, #3dafb6) 85%, white) !important;
+}
+#ani-rating-overlay[data-ani-starmap] :is(button, input, [role="switch"]):focus-visible {
+  outline: 2px solid var(--ani-accent, #3dafb6) !important;
+  outline-offset: 2px;
+}
+#ani-rating-overlay[data-ani-starmap] .ani-starmap-tip {
+  margin-top: 12px !important;
+  color: var(--ani-muted, #a2b3bf) !important;
+}
+#ani-rating-overlay[data-ani-starmap] .ani-starmap-tip .ani-starmap-icon {
+  color: var(--ani-accent, #3dafb6);
+  margin-inline-end: 4px;
+}
+
+#ani-rating-overlay[data-ani-starmap] .arm-list-item:hover {
+  background: var(--ani-soft, #233443);
+}
+#ani-rating-overlay[data-ani-starmap] .arm-cache-row {
+  border-top: 1px solid var(--ani-line, #344958) !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  #ani-rating-overlay[data-ani-starmap] *,
+  #ani-rating-overlay[data-ani-starmap] *::after { transition: none !important; }
+}
+
+body #BH_background .ani-collection-filters.ani-browse-filters {
+  --ani-filter-label-width: 126px;
+  position: static;
+  height: auto;
+  width: 100%;
+  max-height: none;
+  box-sizing: border-box;
+  padding: 16px 24px;
+}
+body #BH_background .ani-collection-filters.ani-browse-filters .class-header h3 {
+  min-height: var(--ani-filter-pill-height);
+}
+.ani-collection-filters.ani-browse-filters[hidden] { display: none !important; }
+.ani-browse-filters .class_list button:disabled { opacity: .45; cursor: default; }
+.ani-browse-filters .ani-catalog-date-field select { white-space: nowrap; }

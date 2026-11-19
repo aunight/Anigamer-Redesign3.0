@@ -197,7 +197,7 @@ body.ani-layout-watch :is(:fullscreen, :-webkit-full-screen, .vjs-fullscreen, .v
     background: var(--ani-card-bg, #172332) !important;
     border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
     gap: 8px !important;
-    padding: 56px 0 12px !important;
+    padding: 40px 0 12px !important;
     overflow-y: auto !important;
     scrollbar-width: none !important;
     contain: layout style;
@@ -4598,6 +4598,18 @@ body.ani-ambientlight-ui .anime_dialogify .dialogify__close::after {
 }
 
 /* ── 十二、所有動畫：篩選器改為頂部橫向膠囊列，卡片區拉滿寬度 ── */
+.ani-browse-filters {
+  --ani-filter-pill-height: 38px;
+  --ani-filter-pill-padding: 14px;
+  --ani-filter-control-radius: 10px;
+  --ani-filter-pill-font-size: 13px;
+  --ani-filter-pill-gap: 16px 12px;
+  --ani-filter-pill-bg: #30475d52;
+  --ani-filter-pill-border: #bdd7ec1f;
+  --ani-filter-pill-selected-bg: #719eb940;
+  --ani-filter-pill-selected-border: #b9dff57a;
+  --ani-filter-pill-selected-text: #edf7ff;
+}
 body.ani-ambientlight-ui #BH_background .animate-theme-list:has(> .filter-section) {
   grid-template-columns: minmax(0, 1fr) !important;
   gap: 18px 0 !important;
@@ -4616,12 +4628,12 @@ body.ani-ambientlight-ui #BH_background .animate-theme-list:has(> .filter-sectio
   background: var(--ani-panel);
   box-sizing: border-box;
 }
-body.ani-ambientlight-ui #BH_background .animate-theme-list:has(> .filter-section) .class-wrapper {
+body.ani-ambientlight-ui #BH_background .ani-browse-filters .class-wrapper {
   display: grid;
   gap: 12px;
   height: auto !important;
 }
-body.ani-ambientlight-ui #BH_background .animate-theme-list:has(> .filter-section) section.class_list {
+body.ani-ambientlight-ui #BH_background .ani-browse-filters section.class_list {
   display: flex !important;
   flex-direction: row;
   align-items: flex-start;
@@ -4632,7 +4644,7 @@ body.ani-ambientlight-ui #BH_background .animate-theme-list:has(> .filter-sectio
   width: 100% !important;
   float: none !important;
 }
-body.ani-ambientlight-ui #BH_background .animate-theme-list:has(> .filter-section) .class-header {
+body.ani-ambientlight-ui #BH_background .ani-browse-filters .class-header {
   display: flex;
   flex: 0 0 64px;
   flex-direction: column;
@@ -4641,58 +4653,63 @@ body.ani-ambientlight-ui #BH_background .animate-theme-list:has(> .filter-sectio
   margin: 0;
   height: auto !important;
 }
-body.ani-ambientlight-ui #BH_background .animate-theme-list:has(> .filter-section) .class-header h3 {
+body.ani-ambientlight-ui #BH_background .ani-browse-filters .class-header h3 {
   margin: 0;
   font-size: 14px;
   font-weight: 700;
   color: var(--ani-text) !important;
 }
-body.ani-ambientlight-ui #BH_background .animate-theme-list:has(> .filter-section) .class-header span {
+body.ani-ambientlight-ui #BH_background .ani-browse-filters .class-header span {
   font-size: 12px;
   color: var(--ani-muted) !important;
 }
-body.ani-ambientlight-ui #BH_background .animate-theme-list:has(> .filter-section) section.class_list > ul {
+body.ani-ambientlight-ui #BH_background .ani-browse-filters section.class_list > ul {
   display: flex !important;
   flex: 1 1 auto;
   min-width: 0;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--ani-filter-pill-gap);
   max-height: none !important;
   overflow: visible !important;
   margin: 0 !important;
   padding: 0 !important;
   list-style: none;
 }
-body.ani-ambientlight-ui #BH_background .animate-theme-list:has(> .filter-section) section.class_list li {
+body.ani-ambientlight-ui #BH_background .ani-browse-filters section.class_list li {
   float: none !important;
   margin: 0 !important;
   width: auto !important;
 }
-body.ani-ambientlight-ui #BH_background .animate-theme-list:has(> .filter-section) section.class_list li a {
+body.ani-ambientlight-ui #BH_background .ani-browse-filters :is(section.class_list li :is(a, button), .ani-catalog-seasons button) {
   display: inline-flex;
   align-items: center;
-  height: 30px;
-  padding: 0 12px;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  background: var(--ani-soft) !important;
+  box-sizing: border-box;
+  height: var(--ani-filter-pill-height);
+  padding: 0 var(--ani-filter-pill-padding) !important;
+  border: 1px solid var(--ani-filter-pill-border) !important;
+  border-radius: var(--ani-filter-control-radius) !important;
+  background: var(--ani-filter-pill-bg) !important;
   color: var(--ani-muted) !important;
-  font-size: 13px;
+  font-size: var(--ani-filter-pill-font-size);
   line-height: 1;
   white-space: nowrap;
   text-decoration: none;
+  font-family: inherit;
+  cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
 }
-body.ani-ambientlight-ui #BH_background .animate-theme-list:has(> .filter-section) section.class_list li a:hover {
+body.ani-ambientlight-ui #BH_background .ani-browse-filters :is(section.class_list li :is(a, button), .ani-catalog-seasons button):hover {
   color: var(--ani-text) !important;
-  border-color: var(--ani-line);
+  border-color: var(--ani-line) !important;
 }
-body.ani-ambientlight-ui #BH_background .animate-theme-list:has(> .filter-section) section.class_list li.now a {
-  background: var(--ani-accent) !important;
-  color: var(--ani-base) !important;
+body.ani-ambientlight-ui #BH_background .ani-browse-filters :is(section.class_list li.now :is(a, button), .ani-catalog-seasons button[aria-pressed="true"]) {
+  background: var(--ani-filter-pill-selected-bg) !important;
+  color: var(--ani-filter-pill-selected-text) !important;
+  border-color: var(--ani-filter-pill-selected-border) !important;
+  box-shadow: inset 0 1px 0 #ffffff20;
   font-weight: 700;
 }
-body.ani-ambientlight-ui #BH_background .animate-theme-list:has(> .filter-section) section.class_list li a:focus-visible {
+body.ani-ambientlight-ui #BH_background .ani-browse-filters section.class_list li :is(a, button):focus-visible {
   outline: 2px solid var(--ani-accent);
   outline-offset: 2px;
 }
@@ -6609,23 +6626,6 @@ body.ani-layout-related.ani-ambientlight-page #BH_background .animate-theme-list
 body.ani-layout-related.ani-ambientlight-page #BH_background .animate-theme-list:has(> .filter-section) section.class_list {
   gap: 20px !important;
 }
-body.ani-layout-related.ani-ambientlight-page #BH_background .animate-theme-list:has(> .filter-section) section.class_list > ul {
-  gap: 10px !important;
-}
-body.ani-layout-related.ani-ambientlight-page #BH_background .animate-theme-list:has(> .filter-section) section.class_list li a {
-  min-height: 34px;
-  padding: 0 14px !important;
-  border-radius: 999px !important;
-  background: #30475d52 !important;
-  border: 1px solid #bdd7ec1f !important;
-  color: var(--ani-muted) !important;
-}
-body.ani-layout-related.ani-ambientlight-page #BH_background .animate-theme-list:has(> .filter-section) section.class_list li.now a {
-  background: #719eb940 !important;
-  border-color: #b9dff57a !important;
-  color: #edf7ff !important;
-  box-shadow: inset 0 1px 0 #ffffff20;
-}
 body.ani-layout-related.ani-ambientlight-page #BH_background .animate-theme-list:has(> .filter-section) > .theme-list-block {
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 190px), 1fr)) !important;
   gap: 32px 20px !important;
@@ -6749,10 +6749,6 @@ body.ani-layout-related.ani-ambientlight-page #BH_background .animate-theme-list
   padding: 8px 0 !important;
   min-height: 0 !important;
 }
-body.ani-layout-related.ani-ambientlight-page #BH_background .animate-theme-list:has(> .filter-section) section.class_list > ul {
-  row-gap: 16px !important;
-  column-gap: 12px !important;
-}
 body.ani-layout-related.ani-ambientlight-page #BH_background .animate-theme-list:has(> .filter-section) {
   width: 100% !important;
   grid-template-columns: minmax(0, 1fr) !important;
@@ -6796,10 +6792,14 @@ body.ani-layout-nav.ani-ambientlight-ui .top_sky .anime_search-icon {
   display: grid !important;
   place-items: center;
 }
-body.ani-layout-nav.ani-ambientlight-ui .top_sky .anime_search-icon .ani-search-glyph,
-body.ani-ambientlight-ui .ani-collection-search-capsule .ani-search-glyph {
+body.ani-layout-nav.ani-ambientlight-ui .top_sky .anime_search-icon .ani-search-glyph {
   width: 23px !important;
   height: 23px !important;
+  color: #fff !important;
+}
+body.ani-ambientlight-ui .ani-collection-search-capsule .ani-search-glyph {
+  width: 18px !important;
+  height: 18px !important;
   color: #fff !important;
 }
 body.ani-layout-nav.ani-ambientlight-ui .top_sky .anime_search-icon::before,
@@ -6825,4 +6825,125 @@ body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card
 body.ani-ambientlight-page #BH_background #blockContinueWatch #continueWatch .slick-list {
   padding-bottom: 60px !important;
   margin-bottom: -60px !important;
+}
+
+/* 目錄播出時間篩選 */
+.ani-browse-filters .ani-catalog-dates > .class-header {
+  align-self: center;
+  padding-top: 0;
+}
+.ani-catalog-date-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ani-filter-pill-gap);
+  min-width: 0;
+}
+.ani-catalog-date-field {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  color: var(--ani-muted, inherit);
+}
+.ani-catalog-date-field::after {
+  content: '';
+  position: absolute;
+  inset-inline-end: 16px;
+  width: 7px;
+  height: 7px;
+  border: solid currentColor;
+  border-width: 0 1.5px 1.5px 0;
+  transform: translateY(-2px) rotate(45deg);
+  pointer-events: none;
+}
+.ani-catalog-seasons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ani-filter-pill-gap);
+}
+.ani-catalog-date-field select,
+.ani-catalog-seasons button {
+  appearance: none;
+  max-width: 100%;
+  box-sizing: border-box;
+  height: var(--ani-filter-pill-height);
+  padding: 0 var(--ani-filter-pill-padding);
+  border: 1px solid var(--ani-filter-pill-border);
+  border-radius: var(--ani-filter-control-radius);
+  background: var(--ani-filter-pill-bg, ButtonFace);
+  color: var(--ani-muted, ButtonText);
+  font: inherit;
+  font-size: var(--ani-filter-pill-font-size);
+  line-height: 1;
+  cursor: pointer;
+}
+.ani-catalog-date-field select {
+  field-sizing: content;
+  min-width: 108px;
+  text-align: center;
+}
+.ani-catalog-date-field:hover select {
+  background-color: var(--ani-panel, ButtonFace);
+}
+.ani-catalog-date-field:hover select,
+.ani-catalog-seasons button:hover {
+  color: var(--ani-text, ButtonText);
+  border-color: var(--ani-line, ButtonText);
+}
+.ani-catalog-date-field select:focus-visible,
+.ani-catalog-seasons button:focus-visible {
+  outline: 2px solid var(--ani-accent, Highlight);
+  outline-offset: -2px;
+}
+.ani-catalog-date-field option {
+  background: var(--ani-base, Canvas);
+  color: var(--ani-text, CanvasText);
+  line-height: 1.5;
+}
+@supports (appearance: base-select) {
+  .ani-catalog-date-field select,
+  .ani-catalog-date-field select::picker(select) {
+    appearance: base-select;
+  }
+  .ani-catalog-date-field select::picker-icon { display: none; }
+  .ani-catalog-date-field select {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ani-catalog-date-field select::picker(select) {
+    margin-block: 6px;
+    padding: 6px;
+    border: 1px solid var(--ani-line, ButtonBorder);
+    border-radius: 12px;
+    background: var(--ani-base, Canvas);
+    color: var(--ani-text, CanvasText);
+  }
+  .ani-catalog-date-field option {
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 8px 12px;
+    border-radius: 8px;
+  }
+  .ani-catalog-date-field option::checkmark { display: none; }
+  .ani-catalog-date-field option + option { margin-block-start: 2px; }
+  .ani-catalog-date-field option:checked {
+    background: var(--ani-soft, ButtonFace);
+  }
+  .ani-catalog-date-field option:is(:hover, :focus-visible) {
+    background: color-mix(in srgb, var(--ani-accent, Highlight) 26%, var(--ani-base, Canvas));
+    color: var(--ani-text, CanvasText);
+  }
+}
+body.ani-catalog-page .ani-catalog-date-status {
+  color: var(--ani-muted);
+  font-size: 13px;
+}
+/* Hidden catalog cards take precedence over unlayered poster layout rules. */
+@layer ani-catalog-visibility {
+  body:is(.ani-catalog-page, .ani-collection-page) #BH_background .theme-list-block .theme-list-main[hidden] {
+    display: none !important;
+  }
 }

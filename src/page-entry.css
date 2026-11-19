@@ -88,3 +88,10 @@ body.ani-ambientlight-ui #ani_video .ncc-choosebar:not(.ani-age-ready) {
   font-size: 24px !important;
   line-height: 1 !important;
 }
+
+/* The rating helper adds its controls before the themed sorter initializes. */
+#BH_background .theme-title-block label[style*="padding-left"]:has(> input[type="checkbox"][style*="1.5em"]),
+#BH_background .theme-title-block span[style*="padding-left"]:has(+ label[style*="padding-left"] > input[type="checkbox"][style*="1.5em"]),
+.ani-legacy-rating-progress {
+  display: none !important;
+}

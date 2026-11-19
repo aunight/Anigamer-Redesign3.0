@@ -3,12 +3,13 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { JSDOM } from 'jsdom';
 
-test('catalog retains native actions, sorts loaded and late scores, and folds filters', async () => {
+test('catalog retains native actions, sorts loaded and late scores, and folds filters', async t => {
   const card = `<a class="theme-list-main" href="animeRef.php?sn=1"><div class="theme-img-block"><img class="theme-img" alt="作品"><div class="btn-favorite"></div><div class="tm-acg-rating">★ 4.9 / 5<span>(100 人評價)</span></div><div class="ani-watch-progress-badge">看到第 6 話（最新第 7 話）</div></div><div class="anime-detail-block"><div class="anime-tag-row"><div class="anime-label-block"></div></div><div class="theme-info-block"><p class="theme-name">測試動畫</p><div class="theme-detail-info-block"><p class="theme-time">年份：2026/10</p><span class="theme-number">共7集</span></div></div></div></a>`;
   const group = (name) => `<section class="class_list"><div class="class-header"><h3>${name}</h3></div><ul><li class="now"><a href="#">全部</a></li><li><a href="#">動作</a></li></ul></section>`;
   const second = card.replace('sn=1','sn=2').replace('★ 4.9','★ 5.0');
   const html = `<body><div id="BH_background"><div class="big_banner">Banner</div><div class="container"><div class="animate-theme-list"><div class="ani-section-actions"><label><input type="checkbox" checked>依評分排序</label></div><div class="filter-section">${group('屬性')}<div class="class-wrapper">${group('類型')}${group('對象')}</div></div><div class="theme-list-block">${card}${second}</div></div><div class="page_control"><div class="page_number"><a class="now">1</a><a href="?page=2">2</a></div></div></div></div></body>`;
   const dom = new JSDOM(html, { url: 'https://ani.gamer.com.tw/animeList.php', runScripts: 'outside-only', pretendToBeVisual: true });
+  t.after(() => dom.window.close());
   const w = dom.window;
   w.matchMedia = () => ({ matches: false, addEventListener() {} });
   w.IntersectionObserver = class { observe() {} };
@@ -20,7 +21,7 @@ test('catalog retains native actions, sorts loaded and late scores, and folds fi
   assert(d.body.classList.contains('ani-catalog-page'));
   assert.equal(d.querySelectorAll('.ani-hover-outline').length,2,'shared card outlines initialize on the first render');
   assert.equal(d.querySelectorAll('.ani-filter-toggle').length, 1);
-  assert.equal(d.querySelectorAll('.ani-filter-body .class-header svg').length, 3);
+  assert.equal(d.querySelectorAll('.ani-filter-body .class-header svg').length, 4);
   assert.equal(d.querySelector('.ani-poster-score').textContent, '★ 5.0');
   assert(d.querySelector('.theme-list-main').href.endsWith('sn=2'));
   const [nativeOrder, ratingOrder] = d.querySelectorAll('.ani-rating-sort');
@@ -59,5 +60,44 @@ test('catalog retains native actions, sorts loaded and late scores, and folds fi
   seasonal.querySelector('.ani-watch-progress-badge').textContent = '看到第 50 話（最新第 50 話）';
   await new Promise(resolve=>setTimeout(resolve,1800));
   assert.equal(seasonal.querySelector('.theme-number').textContent,'10 / 10 集','cross-season episode labels map to this season instead of 50/10');
-  w.close();
+});
+
+test('catalog dates filter all pages and combine year with broadcast season', async t => {
+  const card = (id, date) => `<a class="theme-list-main" href="animeRef.php?sn=${id}"><p class="theme-time">年份：${date}</p></a>`;
+  const dom = new JSDOM(`<body><div id="BH_background"><div class="animate-theme-list"><div class="filter-section"></div><div class="theme-list-block">${card(1,'2026/01')}${card(2,'2025/04')}${card(3,'2026')}</div></div><div class="page_control"><div class="page_number"><a class="now">1</a><a href="?page=2">2</a></div></div></div></body>`, {url:'https://ani.gamer.com.tw/animeList.php',runScripts:'outside-only',pretendToBeVisual:true});
+  t.after(()=>dom.window.close());
+  const w=dom.window; w.matchMedia=()=>({matches:false,addEventListener(){}}); w.AbortSignal.timeout=()=>undefined;
+  let intersect;
+  w.IntersectionObserver=class { constructor(callback){ intersect=callback; } observe(){} };
+  const fetchedPages = [];
+  w.fetch=async url=>{
+    const page = new URL(url).searchParams.get('page');
+    fetchedPages.push(page);
+    const html = page === '2'
+      ? `<div class="theme-list-block">${card(5,'2025/10')}</div><div class="page_number"><a class="now">2</a><a href="?page=3">3</a></div>`
+      : `<div class="theme-list-block">${card(4,'2026/10')}</div><div class="page_number"><a class="now">3</a></div>`;
+    return {ok:true,text:async()=>html};
+  };
+  for(const file of ['settings.js','content.js']) w.eval(fs.readFileSync(`src/${file}`,'utf8'));
+  const d=w.document, year=d.querySelector('[aria-label="播出年份"]'), seasons=d.querySelector('[aria-label="播出季度"]');
+  const currentYear = new Intl.DateTimeFormat('en', {year:'numeric', timeZone:'Asia/Taipei'}).format(new Date());
+  assert.equal(year.options[1].value, currentYear, 'the newest choice is the current year in Taiwan');
+  assert.equal(d.querySelector('.ani-filter-body').firstElementChild.querySelector('h3').textContent, '年份');
+  year.value='2026'; year.dispatchEvent(new w.Event('change'));
+  seasons.querySelector('[value="autumn"]').click();
+  assert.equal(seasons.querySelector('[aria-pressed="true"]').textContent, '秋番');
+  await new Promise(resolve=>setTimeout(resolve,250));
+  assert.match(d.querySelector('.ani-catalog-date-status').textContent,/無符合結果，已暫停/);
+  intersect([{isIntersecting:true}]);
+  w.dispatchEvent(new w.Event('scroll'));
+  await new Promise(resolve=>setTimeout(resolve,150));
+  assert.deepEqual(fetchedPages,['2'],'empty filtered page pauses automatic loading even at the bottom');
+  d.querySelector('.ani-load-more').click();
+  await new Promise(resolve=>setTimeout(resolve,400));
+  assert.deepEqual([...d.querySelectorAll('.theme-list-main')].filter(c=>!c.hidden).map(c=>c.getAttribute('href')),['animeRef.php?sn=4']);
+  assert.match(d.querySelector('.ani-catalog-date-status').textContent,/已搜尋全部頁面/);
+  seasons.querySelector('[value=""]').click();
+  assert.equal([...d.querySelectorAll('.theme-list-main')].filter(c=>!c.hidden).length,3,'year-only includes dates without a month');
+  year.value=''; year.dispatchEvent(new w.Event('change'));
+  assert.equal([...d.querySelectorAll('.theme-list-main')].filter(c=>!c.hidden).length,5);
 });
