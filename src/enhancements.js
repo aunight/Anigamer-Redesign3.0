@@ -662,7 +662,24 @@
       document.querySelector('.acg-score .score-overall-number, .score-overall-number')?.textContent?.trim() || '';
     const video = document.querySelector('#ani_video video');
     const elapsedSec = video && Number.isFinite(video.currentTime) ? Math.floor(video.currentTime) : 0;
-    const durationSec = video && Number.isFinite(video.duration) && video.duration > 0 ? Math.floor(video.duration) : 0;
+    let durationSec = video && Number.isFinite(video.duration) && video.duration >= 60 ? Math.floor(video.duration) : 0;
+    if (!durationSec) {
+      for (const script of document.querySelectorAll('script[type="application/ld+json"]')) {
+        try {
+          const val = JSON.parse(script.textContent);
+          for (const item of Array.isArray(val) ? val : val?.['@graph'] || [val]) {
+            const m = item?.duration?.match?.(/^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/);
+            if (m) {
+              const sec = Number(m[1] || 0) * 3600 + Number(m[2] || 0) * 60 + Number(m[3] || 0);
+              if (sec >= 60) durationSec = sec;
+            }
+          }
+        } catch {}
+      }
+    }
+    if (!durationSec && video && Number.isFinite(video.duration) && video.duration > 0 && elapsedSec > 0) {
+      durationSec = Math.floor(video.duration);
+    }
     return { sn, videoSn, title, episode, latestEp, cover, score, elapsedSec, durationSec };
   };
 
@@ -850,12 +867,7 @@
     const filterCard = document.createElement('div');
     filterCard.className = 'filter-section ani-browse-filters ani-perm-filter-card';
     filterCard.setAttribute('aria-label', '觀看紀錄分類與篩選');
-
-    const sourceRow = document.createElement('div');
-    sourceRow.className = 'ani-perm-filter-row';
-    const sourceHead = document.createElement('div');
-    sourceHead.className = 'ani-extra-filter-header';
-    sourceHead.innerHTML = `<h3>${enhIcon('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', 20)}紀錄來源</h3>`;
+    filterCard.hidden = true;
 
     const tabs = document.createElement('div');
     tabs.className = 'ani-perm-tabs';
@@ -864,14 +876,29 @@
     tabNative.type = 'button';
     tabNative.className = 'ani-perm-tab';
     tabNative.setAttribute('role', 'tab');
-    tabNative.innerHTML = `<span>官方觀看紀錄</span>`;
+    tabNative.innerHTML = `${enhIcon('<circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8"/><path d="M12 3a14.5 14.5 0 0 0 0 18 14.5 14.5 0 0 0 0-18"/>', 16)}<span>官方觀看紀錄</span>`;
     const tabPerm = document.createElement('button');
     tabPerm.type = 'button';
     tabPerm.className = 'ani-perm-tab';
     tabPerm.setAttribute('role', 'tab');
-    tabPerm.innerHTML = `<span class="ani-perm-tab-label">永久本地紀錄 (0)</span>`;
+    tabPerm.innerHTML = `${enhIcon('<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>', 16)}<span class="ani-perm-tab-label">永久本地紀錄 (0)</span>`;
     tabs.append(tabNative, tabPerm);
-    sourceRow.append(sourceHead, tabs);
+
+    const titleBlock = document.querySelector('#BH_background .theme-title-block');
+    if (titleBlock) {
+      let actions = titleBlock.querySelector('.ani-section-actions');
+      if (!actions) {
+        actions = document.createElement('div');
+        actions.className = 'ani-section-actions';
+        titleBlock.append(actions);
+      }
+      actions.prepend(tabs);
+    } else {
+      const topBar = document.createElement('div');
+      topBar.className = 'ani-perm-top-actions';
+      topBar.append(tabs);
+      shell.append(topBar);
+    }
 
     const toolbar = document.createElement('div');
     toolbar.className = 'ani-perm-toolbar';
@@ -908,7 +935,7 @@
       </div>
     `;
 
-    filterCard.append(sourceRow, toolbar);
+    filterCard.append(toolbar);
 
     const panel = document.createElement('div');
     panel.className = 'ani-perm-history-panel';
@@ -934,6 +961,7 @@
       const isPerm = permActiveTab === 'perm';
       tabNative.setAttribute('aria-selected', String(!isPerm));
       tabPerm.setAttribute('aria-selected', String(isPerm));
+      filterCard.hidden = !isPerm;
       toolbar.hidden = !isPerm;
       panel.hidden = !isPerm;
       const nativeTargets = new Set([
@@ -1073,11 +1101,11 @@
         });
 
       if (!items.length) {
-        gridEl.innerHTML = '<div class="ani-perm-empty">尚無符合條件的永久本地紀錄。觀看影片時將自動寫入，超過 180 天也不會消失。</div>';
+        panel.innerHTML = '<div class="ani-perm-empty">尚無符合條件的永久本地紀錄。觀看影片時將自動寫入，超過 180 天也不會消失。</div>';
         return;
       }
 
-      gridEl.innerHTML = items.map((it) => {
+      const renderPermCardHtml = (it) => {
         const hasDur = Number(it.durationSec) > 0;
         const hasElapsed = Number(it.elapsedSec) > 0;
         const pct = hasDur ? Math.min(100, Math.max(0, Math.round((it.elapsedSec / it.durationSec) * 100))) : 0;
@@ -1102,11 +1130,7 @@
           .join('');
         const resumeSn = encodeURIComponent(it.videoSn || it.sn);
         const watchedDate = formatDateTime(it.watchedAt);
-        const updateTxt = it.latestEp
-          ? `已更新至 EP.${it.latestEp}`
-          : watchedDate
-          ? `上次觀看 ${watchedDate}`
-          : '';
+        const updateTxt = it.latestEp ? `已更新至 EP.${it.latestEp}` : '';
         const metaLines = [];
         if (Array.isArray(it.tags) && it.tags.length) metaLines.push(`動畫類型：${it.tags.join('、')}`);
         if (it.studio) metaLines.push(`製作組：${it.studio}`);
@@ -1128,7 +1152,8 @@
                   ${it.episode ? `<span class="ani-history-episode ani-perm-ep-badge">EP.${escapeHtml(it.episode)}</span>` : ''}
                 </div>
                 <div class="ani-history-secondary">
-                  ${updateTxt ? `<p class="ani-history-update">${escapeHtml(updateTxt)}</p>` : ''}
+                  ${updateTxt ? `<p class="ani-history-update">${escapeHtml(updateTxt)}</p>` : '<span></span>'}
+                  ${watchedDate ? `<span class="ani-perm-watched-at">${escapeHtml(watchedDate)}</span>` : ''}
                 </div>
                 ${hasDur && hasElapsed ? `<div class="progress-bar" aria-valuenow="${Math.round(it.elapsedSec || 0)}" aria-valuemax="${Math.round(it.durationSec || 0)}"><div class="progress ani-perm-bar-fill" style="width:${pct}%"></div></div>` : ''}
                 ${progressLabel ? `<p class="ani-history-progress-text">${escapeHtml(progressLabel)}</p>` : ''}
@@ -1145,8 +1170,26 @@
             ${epListHtml ? `<div class="user-watchTime-list ani-perm-ep-drawer" id="perm-sub-list-${escapeHtml(it.sn)}" style="display:none"><div class="watch-list-card"><ul class="user-watch-textlist">${epListHtml}</ul></div></div>` : ''}
           </div>
         `;
-      }).join('');
-      for (const titleEl of gridEl.querySelectorAll('.ani-perm-title')) {
+      };
+
+      const monthGroups = new Map();
+      for (const it of items) {
+        const d = new Date(Number(it.watchedAt) || Date.now());
+        const label = Number.isNaN(d.getTime()) ? '較早紀錄' : `${d.getFullYear()}年${d.getMonth() + 1}月`;
+        if (!monthGroups.has(label)) monthGroups.set(label, []);
+        monthGroups.get(label).push(it);
+      }
+
+      panel.innerHTML = [...monthGroups.entries()]
+        .map(
+          ([monthLabel, groupItems]) => `
+          <div class="history-year-month-block ani-perm-month-block">
+            <div class="date-title">${escapeHtml(monthLabel)}</div>
+            <div class="ani-perm-grid">${groupItems.map(renderPermCardHtml).join('')}</div>
+          </div>`,
+        )
+        .join('');
+      for (const titleEl of panel.querySelectorAll('.ani-perm-title')) {
         applyShadowMarquee(titleEl);
       }
       for (const it of items.slice(0, 12)) {
@@ -1162,7 +1205,7 @@
     tabPerm.addEventListener('click', async () => {
       permActiveTab = 'perm';
       await renderGrid();
-      animateFilterSwitch(tabPerm, gridEl, '.ani-perm-card');
+      animateFilterSwitch(tabPerm, panel, '.ani-perm-card');
     });
     searchEl.addEventListener('input', () => { renderGrid(); });
     for (const pb of filterCard.querySelectorAll('[data-perm-prog]')) {
@@ -1172,10 +1215,10 @@
           b.setAttribute('aria-pressed', String(b === pb));
         }
         await renderGrid();
-        animateFilterSwitch(pb, gridEl, '.ani-perm-card');
+        animateFilterSwitch(pb, panel, '.ani-perm-card');
       });
     }
-    gridEl.addEventListener('click', async (ev) => {
+    panel.addEventListener('click', async (ev) => {
       const moreBtn = ev.target.closest('[data-perm-more]');
       if (moreBtn) {
         ev.preventDefault();
@@ -1592,22 +1635,31 @@
         }
 
         if (activeOrigin !== 'all' && missingTitles.length) {
-          const batch = [...new Set(missingTitles)].slice(0, 15);
-          batch.forEach((t) => metaPending.add(t));
-          const resp = await sendWorkerMessage({ type: 'ani-fetch-work-meta', titles: batch });
+          const uniqueMissing = [...new Set(missingTitles)];
+          uniqueMissing.forEach((t) => metaPending.add(t));
+          const chunks = [];
+          for (let i = 0; i < uniqueMissing.length; i += 15) {
+            chunks.push(uniqueMissing.slice(i, i + 15));
+          }
+          const responses = await Promise.all(
+            chunks.map((batch) => sendWorkerMessage({ type: 'ani-fetch-work-meta', titles: batch })),
+          );
           const tsNow = Date.now();
           let updated = false;
-          for (const t of batch) {
-            const hit = resp?.items?.[t];
-            if (hit) {
-              metaCache[t] = { ...hit, ts: tsNow };
-              updated = true;
-            } else {
-              // Cache miss briefly (1 hour) to avoid spinning repeated requests
-              metaCache[t] = { source: 'other', isShort: false, ts: tsNow - WORK_META_TTL_MS + 3600000 };
-              updated = true;
+          chunks.forEach((batch, idx) => {
+            const resp = responses[idx];
+            for (const t of batch) {
+              const hit = resp?.items?.[t];
+              if (hit) {
+                metaCache[t] = { ...hit, ts: tsNow };
+                updated = true;
+              } else {
+                // Cache miss briefly (1 hour) to avoid spinning repeated requests
+                metaCache[t] = { source: 'other', isShort: false, ts: tsNow - WORK_META_TTL_MS + 3600000 };
+                updated = true;
+              }
             }
-          }
+          });
           if (updated) {
             const keys = Object.keys(metaCache);
             if (keys.length > 400) {
@@ -1729,72 +1781,8 @@
       filterBody.append(originPanel);
     }
 
-    // 2C Page Elevator (.ani-page-elevator) mounted after .ani-load-more / .page_control
-    const pagesEl = document.querySelector('.page_control');
-    if (pagesEl && !document.querySelector('.ani-page-elevator')) {
-      const currentPage =
-        Number(pagesEl.querySelector('.page_number .now')?.textContent?.trim() || new URL(location.href).searchParams.get('page') || 1) || 1;
-      const pageNums = [currentPage];
-      for (const a of pagesEl.querySelectorAll('.page_number a')) {
-        const txtNum = Number(a.textContent?.trim());
-        if (Number.isFinite(txtNum) && txtNum > 0) pageNums.push(txtNum);
-        try {
-          const href = a.getAttribute('href');
-          if (href) {
-            const qPage = Number(new URL(href, location.origin).searchParams.get('page'));
-            if (Number.isFinite(qPage) && qPage > 0) pageNums.push(qPage);
-          }
-        } catch {}
-      }
-      const totalPages = Math.max(...pageNums);
-      if (totalPages > 1) {
-        const el = document.createElement('nav');
-        el.className = 'ani-page-elevator';
-        el.setAttribute('aria-label', '分頁快速跳轉');
-
-        const jumpToPage = (targetPage) => {
-          const clamped = Math.min(totalPages, Math.max(1, Math.floor(Number(targetPage) || 1)));
-          const url = buildCatalogPageUrl(clamped);
-          const ev = new CustomEvent('ani-page-jump', { cancelable: true, detail: { page: clamped, url } });
-          if (document.dispatchEvent(ev)) {
-            location.assign(url);
-          }
-        };
-
-        const quickWrap = document.createElement('div');
-        quickWrap.className = 'ani-page-quick';
-        const candidates = [...new Set([1, Math.max(1, currentPage - 1), currentPage, Math.min(totalPages, currentPage + 1), totalPages])].sort((a, b) => a - b);
-        for (const p of candidates) {
-          const btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = 'ani-page-quick-btn';
-          btn.dataset.page = String(p);
-          btn.dataset.href = buildCatalogPageUrl(p);
-          if (p === currentPage) btn.setAttribute('aria-current', 'page');
-          btn.textContent = String(p);
-          btn.addEventListener('click', () => jumpToPage(p));
-          quickWrap.append(btn);
-        }
-
-        const form = document.createElement('form');
-        form.className = 'ani-page-jump-form';
-        form.innerHTML = `
-          <span>第</span>
-          <input type="number" class="ani-page-input" min="1" max="${totalPages}" value="${currentPage}" aria-label="輸入頁碼">
-          <span>/ ${totalPages} 頁</span>
-          <button type="submit" class="ani-page-go-btn" title="前往頁碼" aria-label="前往">${enhIcon('<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>', 15)}<span>前往</span></button>
-        `;
-        form.addEventListener('submit', (e) => {
-          e.preventDefault();
-          const val = Number(form.querySelector('.ani-page-input')?.value);
-          if (Number.isFinite(val) && val >= 1) jumpToPage(val);
-        });
-
-        el.append(quickWrap, form);
-        const anchor = document.querySelector('.ani-load-more') || pagesEl;
-        anchor.after(el);
-      }
-    }
+    // Remove any stale page elevator if present (infinite scroll only)
+    document.querySelectorAll('.ani-page-elevator').forEach((el) => el.remove());
 
     applyCatalogFilters();
 
@@ -2055,7 +2043,14 @@
           <button type="button" class="ani-dm-sort-btn" data-dm-sort="sn" aria-pressed="false">發送時間</button>
         </div>
       `;
-      subList.before(bar);
+      const tabContent = subList.closest('#ani-tab-content-1') || subList.closest('.ani-tab-content__item');
+      const scrollWrap = subList.closest('.danmu-scroll');
+      if (tabContent && scrollWrap) {
+        tabContent.classList.add('ani-has-dm-tools');
+        tabContent.prepend(bar);
+      } else {
+        subList.before(bar);
+      }
     }
 
     const searchInput = bar.querySelector('.ani-danmu-search');
@@ -2113,11 +2108,14 @@
         <div class="ani-dm-muted-list">
           ${senders
             .map(
-              (id) => `
+              (id) => {
+                const displayId = String(id).replace(/^ID\s*[:：]?\s*/i, '').trim() || id;
+                return `
             <div class="ani-dm-muted-item">
-              <span class="ani-dm-muted-id" title="${escapeHtml(id)}"><small>ID</small> ${escapeHtml(id)}</span>
+              <span class="ani-dm-muted-id" title="${escapeHtml(displayId)}"><small>ID</small> ${escapeHtml(displayId)}</span>
               <button type="button" class="ani-dm-unmute-one" data-unmute-sender="${escapeHtml(id)}" title="解除消音">${enhIcon('<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>', 12)}<span>解除</span></button>
-            </div>`,
+            </div>`;
+              },
             )
             .join('')}
         </div>

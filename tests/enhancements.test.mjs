@@ -255,21 +255,8 @@ test('Phase 2: catalog negative tags, keyword exclude, origin classification, pa
   assert.equal(cards[2].classList.contains('ani-origin-hidden'), false);
   assert.equal(cards[2].querySelector('.ani-origin-badge')?.textContent, '原創');
 
-  // 2C: Page elevator builds preserved query URLs & dispatches cancelable ani-page-jump
-  const jumps = [];
-  d.addEventListener('ani-page-jump', (e) => {
-    e.preventDefault();
-    jumps.push(e.detail);
-  });
-  const input = d.querySelector('.ani-page-input');
-  assert(input, 'page elevator rendered');
-  assert.equal(input.max, '12');
-  input.value = '7';
-  d.querySelector('.ani-page-jump-form').dispatchEvent(new w.Event('submit', { cancelable: true }));
-  assert.equal(jumps.length, 1);
-  assert.equal(jumps[0].page, 7);
-  assert.match(jumps[0].url, /tags=%E5%8B%95%E4%BD%9C/);
-  assert.match(jumps[0].url, /page=7/);
+  // 2C: Page elevator removed (infinite scroll only)
+  assert.equal(d.querySelector('.ani-page-elevator'), null, 'page elevator removed in favor of infinite scroll');
 });
 
 test('Phase 3: spoiler blur matches keywords/tags or blurs all when filters are empty, supports click reveal/rehide, and tears down cleanly when disabled', async (t) => {

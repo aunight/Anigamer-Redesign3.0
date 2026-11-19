@@ -3853,8 +3853,10 @@
     };
     let next = nextLink(document), busy = false;
     const loadedPages=new Set();
+    const endLabel = () => `已顯示全部動畫（共 ${list.querySelectorAll('.theme-list-main').length} 部）`;
     const button = document.createElement('button'); button.type = 'button'; button.className = 'ani-load-more';
-    button.textContent = next ? '繼續往下瀏覽' : '已顯示全部動畫';
+    button.textContent = next ? '繼續往下瀏覽' : endLabel();
+    button.disabled = !next;
     pages.after(button);
     pages.hidden = true;
     const seen = new Set([...list.querySelectorAll('.theme-list-main')].map(c => new URL(c.getAttribute('href'),location.href).href));
@@ -3899,7 +3901,7 @@
       let succeeded=false;
       try {
         const url = new URL(next,location.href);
-        if(loadedPages.has(url.href)){next=null;button.textContent='已顯示全部動畫';return;}
+        if(loadedPages.has(url.href)){next=null;button.textContent=endLabel();return;}
         if (url.origin !== location.origin || url.pathname !== location.pathname) throw new Error('invalid catalog page');
         const response = await aniFetch(url.href,{credentials:'include',signal:AbortSignal.timeout(12000)});
         if (!response.ok) throw new Error('catalog unavailable');
@@ -3919,7 +3921,7 @@
         next = cards.length ? [...doc.querySelectorAll('.page_number a[href]')].find(a=>Number(a.textContent)===current+1)?.getAttribute('href') : null;
         paused = Boolean(next && hasDateFilter() && !addedMatch);
         loadedPages.add(url.href);succeeded=true;
-        button.textContent = paused ? '搜尋後續頁面' : next ? '繼續往下瀏覽' : '已顯示全部動畫';
+        button.textContent = paused ? '搜尋後續頁面' : next ? '繼續往下瀏覽' : endLabel();
         enhancePosterRails();
         enhanceCollectionFilters();
       } catch { failed = true; button.textContent = '載入失敗，點此重試'; }

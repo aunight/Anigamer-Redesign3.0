@@ -277,11 +277,14 @@ body #BH_background :is(
   .ani-page-quick-btn,
   .ani-page-go-btn,
   .ani-blur-quick-toggle,
-  .ani-ep-group-btn
+  .ani-ep-group-btn,
+  .ani-dm-sort-btn,
+  .ani-danmu-muted-pill
 ):hover {
   color: var(--ani-text, #ffffff) !important;
   -webkit-text-fill-color: var(--ani-text, #ffffff) !important;
-  border-color: var(--ani-line, #c4e1f545) !important;
+  border-color: rgba(205, 232, 255, 0.62) !important;
+  box-shadow: 0 0 0 1px rgba(205, 232, 255, 0.16) !important;
 }
 
 body #BH_background :is(
@@ -317,14 +320,20 @@ body #BH_background .ani-exclude-pill.is-excluded {
   text-decoration: line-through !important;
 }
 
-body #BH_background .ani-perm-btn.is-danger {
-  border-color: rgba(248, 113, 113, 0.42) !important;
+body #BH_background .ani-perm-btn.is-danger:hover,
+body #BH_background .ani-perm-btn.is-danger.is-armed {
+  background: rgba(239, 68, 68, 0.2) !important;
+  border-color: rgba(248, 113, 113, 0.72) !important;
   color: #fca5a5 !important;
   -webkit-text-fill-color: #fca5a5 !important;
+  box-shadow: 0 0 0 1px rgba(248, 113, 113, 0.18) !important;
+}
+body #BH_background .ani-perm-btn.is-danger:hover svg,
+body #BH_background .ani-perm-btn.is-danger.is-armed svg {
+  color: #fca5a5 !important;
 }
 body #BH_background .ani-perm-btn.is-danger.is-armed {
-  background: rgba(239, 68, 68, 0.28) !important;
-  border-color: rgba(248, 113, 113, 0.75) !important;
+  background: rgba(239, 68, 68, 0.3) !important;
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
 }
@@ -799,8 +808,42 @@ body.ani-history-page.ani-ambientlight-page #BH_background .ani-history-card .po
 .ani-perm-card.is-open .more-btn.ani-perm-more-btn svg {
   transform: rotate(180deg);
 }
-.ani-perm-watch-slot > .ani-perm-ep-drawer {
-  margin-top: 12px !important;
+.ani-perm-watch-slot > .ani-perm-ep-drawer,
+body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .user-watch-list > .user-watchTime-list {
+  margin-top: 16px !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+}
+body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .watch-list-card {
+  border-radius: 16px !important;
+  padding-bottom: 14px !important;
+}
+body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .user-watchTime-list::after {
+  border-radius: 0 0 16px 16px !important;
+}
+body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .user-watch-textlist li a {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+}
+body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .user-watch-textlist li a .history-list-anime-title {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 28px !important;
+  line-height: 1 !important;
+  padding: 0 14px !important;
+}
+.ani-perm-watched-at {
+  font-size: 12.5px;
+  color: var(--ani-muted, rgba(212, 226, 240, 0.72));
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.ani-perm-top-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 14px;
 }
 
 /* ── Feature 2: 片庫反向排除、原作分類與分頁電梯 (/animeList.php) ── */
@@ -983,10 +1026,11 @@ body.ani-ambientlight-ui #BH_background :is(.filter-title-block, .theme-title-bl
   display: inline-flex !important;
   align-items: center !important;
 }
-body.ani-ambientlight-ui #BH_background :is(.filter-title-block, .theme-title-block) .ani-section-actions {
+body.ani-ambientlight-ui #BH_background :is(.filter-title-block, .theme-title-block) .ani-section-actions,
+body.ani-collection-page #BH_background .ani-collection-sort-host {
   display: inline-flex !important;
   align-items: center !important;
-  gap: 10px !important;
+  gap: 12px !important;
   margin: 0 !important;
 }
 html body #BH_background :is(.ani-catalog-sort, .ani-rating-options, .ani-collection-sort-menu.ani-collection-sort-segment, .ani-perm-tabs) {
@@ -1119,21 +1163,37 @@ body #BH_background .filter-section.has-top-right-blur-toggle > .ani-blur-quick-
 }
 
 /* ── Feature 4: 彈幕列表置頂搜尋（右放大鏡）、毛玻璃模糊底與 B 站風格三欄膠囊排序 (/animeVideo.php) ── */
+#ani-tab-content-1.ani-has-dm-tools[data-ani-tab-active='true'] {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  padding: 8px 10px 0 !important;
+  box-sizing: border-box !important;
+}
+#ani-tab-content-1.ani-has-dm-tools > .danmu-scroll {
+  position: relative !important;
+  inset: auto !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  height: auto !important;
+  padding-top: 0 !important;
+  box-sizing: border-box !important;
+}
 .ani-danmu-tools-bar,
 body #BH_background .ani-danmu-tools-bar {
-  position: sticky !important;
-  top: 0 !important;
+  position: relative !important;
+  flex: none !important;
   z-index: 50 !important;
   display: flex !important;
   flex-direction: column !important;
   gap: 12px !important;
   padding: 14px 16px !important;
-  margin-bottom: 12px !important;
+  margin-bottom: 0 !important;
   border-radius: 14px !important;
-  background: rgba(13, 22, 34, 0.88) !important;
+  background: rgba(13, 22, 34, 0.78) !important;
   border: 1px solid rgba(255, 255, 255, 0.16) !important;
-  backdrop-filter: blur(26px) saturate(145%) !important;
-  -webkit-backdrop-filter: blur(26px) saturate(145%) !important;
+  backdrop-filter: blur(26px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(26px) saturate(150%) !important;
   box-shadow: 0 12px 28px rgba(5, 10, 18, 0.58) !important;
 }
 .ani-danmu-search-row {
@@ -1368,7 +1428,13 @@ body.ani-layout-comments #BH_background #w-post-box .c-reply__editor .ani-commen
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
-  transition: color 150ms ease, opacity 150ms ease;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms ease, color 150ms ease;
+}
+.ani-dm-muted-item:is(:hover, :focus-within) .ani-dm-unmute-one {
+  opacity: 1;
+  pointer-events: auto;
 }
 .ani-dm-unmute-one:hover {
   color: #ffffff;

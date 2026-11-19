@@ -83,5 +83,5 @@ test('collection loads the next page in place and reapplies active filters',asyn
  w.fetch=async(url)=>({ok:true,text:async()=>String(url).includes('page=2')?`<div class="theme-list-block">${card(2,2025,3)}</div>`:'<li class="type"><ul class="tag-list"><li class="tag">校園</li></ul></li>'});
  for(const f of ['settings.js','content.js'])w.eval(fs.readFileSync('src/'+f,'utf8'));
  const d=w.document;[...d.querySelectorAll('[role="group"][aria-label="觀看狀態"] button')].find(b=>b.textContent==='已追完').click();d.querySelector('.ani-load-more').click();await new Promise(r=>setTimeout(r,1800));
- assert.equal(d.querySelectorAll('.theme-list-main').length,2);assert(d.querySelector('a[href="animeRef.php?sn=2"]').hidden);assert(d.querySelector('.page_control').hidden);assert.equal(d.querySelector('.ani-load-more').textContent,'已顯示全部動畫');dom.window.close();
+ assert.equal(d.querySelectorAll('.theme-list-main').length,2);assert(d.querySelector('a[href="animeRef.php?sn=2"]').hidden);assert(d.querySelector('.page_control').hidden);assert.equal(d.querySelector('.ani-load-more').textContent,'已顯示全部動畫（共 2 部）');dom.window.close();
 });
