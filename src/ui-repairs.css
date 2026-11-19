@@ -9815,3 +9815,18 @@ body.ani-layout-comments.ani-ambientlight-ui #BH_background #w-post-box
   color: var(--ani-accent, #3dafb6) !important;
   -webkit-text-fill-color: currentColor !important;
 }
+
+body.ani-layout-comments.ani-ambientlight-ui #BH_background #w-post-box .reply-content__footer {
+  button:is(:hover, :focus-visible) {
+    --ani-comment-hover-color: var(--ani-accent, #3dafb6);
+  }
+
+  button.reply-content__bp:is(:hover, :focus-visible) {
+    --ani-comment-hover-color: #f87171;
+  }
+
+  button:is(:hover, :focus-visible) .gb-img,
+  button.reply-content__tag:is(:hover, :focus-visible)::before {
+    background-color: var(--ani-comment-hover-color) !important;
+  }
+}
