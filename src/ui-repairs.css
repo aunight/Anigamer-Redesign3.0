@@ -9228,7 +9228,7 @@ body.ani-layout-comments #BH_background .commend-title #w-anime-comment-count {
 }
 .ani-comment-recommendations {display:none}
 body.ani-layout-comments .ani-comment-recommendations:not([hidden]) {
-  display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-content:start; row-gap:26px; column-gap:clamp(20px,1.6vw,36px); padding:16px;
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%, 300px),1fr)); align-content:start; row-gap:32px; column-gap:clamp(32px,2vw,48px); padding:16px;
 }
 .ani-comment-recommendations > h3 {grid-column:1/-1}
 .ani-comment-recommendations > a {min-width:0; flex-wrap:wrap; align-content:start; overflow-wrap:anywhere}
@@ -9359,8 +9359,8 @@ body.ani-layout-comments #w-post-box .ani-comment-recommendations a {font-size:1
 .ani-rec-poster :is(.ani-history-score,.ani-rec-episodes):empty,
 .ani-comment-recommendations small:empty {display:none}
 .ani-rec-facts {display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:8px}
-.ani-rec-facts > span:not([hidden]) {display:inline-flex;align-items:center;gap:5px;color:var(--ani-muted);font-size:12px;white-space:nowrap}
-.ani-rec-facts svg {width:14px;height:14px;flex:none}
+.ani-rec-facts > span:not([hidden]) {display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border:1px solid var(--ani-line);border-radius:999px;background:var(--ani-panel-soft);color:var(--ani-muted);font-size:12px;white-space:nowrap}
+.ani-rec-facts svg {width:12px;height:12px;flex:none}
 @media(min-width:900px) {
   body.ani-layout-comments #w-post-box :has(> .webview_commendlist + .ani-comment-recommendations:not([hidden])) {grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:24px}
   body.ani-layout-comments #BH_background .commend-title .commend-segment-wrapper {width:calc((100% - 24px)*2/3) !important}

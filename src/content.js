@@ -1045,7 +1045,7 @@
         const url = new URL(card.getAttribute('href'), location.origin);
         const title = card.querySelector('.theme-name')?.textContent.trim();
         const image = card.querySelector('img.theme-img');
-        if (url.origin === location.origin && title && image) cards.set(url.href, {title, views:card.querySelector('.show-view-number p')?.textContent.trim(), episodes:card.querySelector('.theme-number')?.textContent.trim(), favorite:card.querySelector('.btn-favorite'), src:image.dataset.src || image.getAttribute('src')});
+        if (url.origin === location.origin && title && image) cards.set(url.href, {title, views:card.querySelector('.show-view-number p')?.textContent.trim(), episodes:card.querySelector('.theme-number')?.textContent.trim(), src:image.dataset.src || image.getAttribute('src')});
       }
       const pool = [...cards.entries()];
       if (!pool.length) return;
@@ -1109,8 +1109,6 @@
         episodes.className = 'ani-rec-episodes';
         episodes.textContent = item.episodes || '';
         poster.append(image, score, episodes);
-        const ids = item.favorite?.getAttribute('onclick')?.match(/toggleGather\(\s*(\d+)\s*,\s*(\d+)/);
-        if (ids) poster.append(createFavoriteButton({acgSn:ids[1], animeSn:ids[2], saved:item.favorite.classList.contains('btn-is-active')}));
         link.append(poster, copy);
         metadata.observe(link);
         aside.append(link);
