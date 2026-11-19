@@ -1,8 +1,8 @@
 /* Anigamer Redesign 3.0 Enhancements — Unified Rounded-Rectangle Filter Design, White SVG Icons, Official-Parity History Cards & Fullscreen Subtitle Marquee */
 
 /* ── Utility hiding classes (never overwrite card.hidden so native filters compose cleanly) ── */
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.animate-theme-list, .old_list) .theme-list-main:is(.ani-col-status-hidden, .ani-catalog-excluded, .ani-exclude-hidden, .ani-origin-hidden),
-#BH_background .theme-list-main:is(.ani-col-status-hidden, .ani-catalog-excluded, .ani-exclude-hidden, .ani-origin-hidden),
+html body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.animate-theme-list, .old_list) .theme-list-main.ani-poster-card:is(.ani-col-status-hidden, .ani-catalog-excluded, .ani-exclude-hidden, .ani-origin-hidden),
+html body #BH_background :is(.animate-theme-list, .old_list) .theme-list-main:is(.ani-col-status-hidden, .ani-catalog-excluded, .ani-exclude-hidden, .ani-origin-hidden),
 .ani-col-status-hidden,
 .ani-perm-native-hidden,
 .ani-catalog-excluded,
@@ -412,6 +412,18 @@ body #BH_background .ani-perm-btn.is-danger.is-armed {
   backdrop-filter: blur(18px);
   z-index: 30;
 }
+.ani-col-status-menu::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 10px;
+}
+.ani-col-status-bar.is-watch-chip .ani-col-status-menu::before {
+  top: auto;
+  bottom: 100%;
+}
 .ani-col-status-menu[hidden] {
   display: none !important;
 }
@@ -423,22 +435,56 @@ body #BH_background .ani-perm-btn.is-danger.is-armed {
 .theme-list-main .theme-img-block:has(.ani-col-status-bar:is(:hover, :focus-within)) {
   overflow: visible !important;
 }
+.anime-title:has(.ani-col-status-bar.is-watch-chip),
+.anime_name:has(.ani-col-status-bar.is-watch-chip),
+.anime-option:has(.ani-col-status-bar.is-watch-chip) {
+  overflow: visible !important;
+}
 .ani-col-status-bar.is-watch-chip {
   position: relative !important;
   display: inline-flex !important;
   align-items: center !important;
   margin: 0 !important;
-  z-index: 30 !important;
+  z-index: 90 !important;
 }
 #BH_background .ani-col-status-bar.is-watch-chip .ani-col-status-chip {
   height: 36px !important;
   padding: 0 14px !important;
   font-size: 13px !important;
+  background: var(--ani-panel, rgba(255, 255, 255, 0.08)) !important;
+  border: 1px solid var(--ani-line, rgba(255, 255, 255, 0.16)) !important;
+  color: var(--ani-text, #f0f6fc) !important;
+  backdrop-filter: blur(14px) !important;
+}
+#BH_background .ani-col-status-bar.is-watch-chip .ani-col-status-chip:hover {
+  background: var(--ani-panel-hover, rgba(255, 255, 255, 0.16)) !important;
+  border-color: var(--ani-accent, #3dafb6) !important;
+}
+#BH_background .ani-col-status-bar.is-watch-chip button::before,
+#BH_background .ani-col-status-bar.is-watch-chip button::after {
+  content: none !important;
+  display: none !important;
 }
 .ani-col-status-bar.is-watch-chip .ani-col-status-menu {
   top: calc(100% + 6px);
   bottom: auto;
   left: 0;
+  z-index: 9999 !important;
+}
+#BH_background .ani-col-status-bar.is-watch-chip .ani-col-status-menu button {
+  border: 0 !important;
+  background: transparent !important;
+  color: #e6eff8 !important;
+  padding: 6px 10px !important;
+  border-radius: 8px !important;
+}
+#BH_background .ani-col-status-bar.is-watch-chip .ani-col-status-menu button:hover {
+  background: rgba(113, 158, 185, 0.26) !important;
+  color: #ffffff !important;
+}
+#BH_background .ani-col-status-bar.is-watch-chip .ani-col-status-menu button.is-clear {
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #fca5a5 !important;
 }
 .ani-col-status-menu button {
   display: inline-flex;
@@ -819,7 +865,7 @@ body #BH_background .filter-section.has-top-right-blur-toggle > .ani-blur-quick-
   z-index: 4;
 }
 
-/* ── Feature 4: 彈幕列表置頂搜尋與 B 站風格三欄膠囊排序 (/animeVideo.php) ── */
+/* ── Feature 4: 彈幕列表置頂搜尋（右放大鏡）、毛玻璃模糊底與 B 站風格三欄膠囊排序 (/animeVideo.php) ── */
 .ani-danmu-tools-bar {
   position: sticky;
   top: 0;
@@ -830,15 +876,75 @@ body #BH_background .filter-section.has-top-right-blur-toggle > .ani-blur-quick-
   padding: 10px 12px;
   margin-bottom: 8px;
   border-radius: 12px;
-  background: rgba(14, 24, 36, 0.92);
+  background: rgba(14, 24, 36, 0.72);
   border: 1px solid rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(16px);
+  backdrop-filter: blur(22px) saturate(135%);
+  -webkit-backdrop-filter: blur(22px) saturate(135%);
 }
 .ani-danmu-search-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+}
+body #BH_background .ani-danmu-search-capsule {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  width: auto !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 34px !important;
+  align-items: center !important;
+  height: 32px !important;
+  border-radius: 999px !important;
+  border: 1px solid var(--ani-filter-pill-border, rgba(255, 255, 255, 0.18)) !important;
+  background: var(--ani-filter-pill-bg, rgba(48, 71, 93, 0.35)) !important;
+  overflow: hidden !important;
+}
+body #BH_background .ani-danmu-search-capsule > .ani-danmu-search {
+  min-width: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 10px 0 14px !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: #f0f6fc !important;
+  font-size: 12.5px !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+body #BH_background .ani-danmu-search-capsule > button.ani-danmu-search-icon {
+  width: 34px !important;
+  height: 100% !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-left: 1px solid rgba(219, 237, 255, 0.16) !important;
+  background: transparent !important;
+  color: #ffffff !important;
+  display: grid !important;
+  place-items: center !important;
+  cursor: pointer !important;
+}
+.ani-dm-muted-host {
+  position: relative;
+  flex: none;
+}
+.ani-danmu-muted-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid var(--ani-filter-pill-border, rgba(255, 255, 255, 0.16));
+  background: var(--ani-filter-pill-bg, rgba(48, 71, 93, 0.35));
+  color: #dbe8f6;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.ani-danmu-muted-pill[aria-expanded='true'] {
+  border-color: rgba(248, 113, 113, 0.6);
+  color: #fecaca;
 }
 .ani-danmu-sort-row {
   display: grid;
@@ -848,17 +954,6 @@ body #BH_background .filter-section.has-top-right-blur-toggle > .ani-blur-quick-
 }
 .ani-danmu-sort-row > [data-dm-sort='length'] {
   justify-self: center;
-}
-.ani-danmu-search {
-  flex: 1 1 auto;
-  min-width: 0;
-  height: 32px;
-  padding: 0 12px;
-  border-radius: 999px;
-  border: 1px solid var(--ani-filter-pill-border, rgba(255, 255, 255, 0.18));
-  background: var(--ani-filter-pill-bg, rgba(48, 71, 93, 0.35));
-  color: #f0f6fc;
-  font-size: 12.5px;
 }
 .ani-danmu-count {
   flex: none;
@@ -887,19 +982,28 @@ body #BH_background .filter-section.has-top-right-blur-toggle > .ani-blur-quick-
   color: var(--ani-filter-pill-selected-text, #edf7ff);
 }
 
-/* ── Comment Input Send Icon (matching danmu send button) ── */
+/* ── Comment Input Send Icon (matching danmu send button, sized to capsule height) ── */
 body.ani-layout-comments #BH_background #w-post-box .c-reply__editor .comment_icon {
-  gap: 6px;
+  right: 4px !important;
+  gap: 6px !important;
+}
+body.ani-layout-comments #BH_background #w-post-box .c-reply__editor .comment_icon > a {
+  flex: none !important;
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  border-radius: 999px !important;
 }
 body.ani-layout-comments #BH_background #w-post-box .c-reply__editor .input-article-content {
-  padding-right: 88px !important;
+  padding-right: 96px !important;
 }
 body.ani-layout-comments #BH_background #w-post-box .c-reply__editor .ani-comment-send-btn {
+  flex: none !important;
   display: grid !important;
   place-items: center !important;
-  width: 32px !important;
-  height: 32px !important;
-  min-width: 32px !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
   padding: 0 !important;
   margin: 0 !important;
   border: 1px solid #ffffffd9 !important;
@@ -914,10 +1018,17 @@ body.ani-layout-comments #BH_background #w-post-box .c-reply__editor .ani-commen
   filter: brightness(1.1);
   transform: scale(1.04);
 }
+body.ani-layout-comments #BH_background #w-post-box .c-reply__editor .ani-comment-send-btn svg,
 body.ani-layout-comments #BH_background #w-post-box .c-reply__editor .ani-comment-send-btn .ani-send-glyph {
-  width: 20px;
-  height: 20px;
+  display: block !important;
+  width: 22px !important;
+  height: 22px !important;
+  color: #ffffff !important;
+  fill: #ffffff !important;
   pointer-events: none;
+}
+body.ani-layout-comments #BH_background #w-post-box .c-reply__editor .ani-comment-send-btn path {
+  fill: #ffffff !important;
 }
 .ani-dm-muted-host {
   position: relative;

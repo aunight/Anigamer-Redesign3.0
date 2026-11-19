@@ -9870,7 +9870,8 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-watch-col-mer
     min-height: 0 !important;
     max-height: none !important;
     margin-block: 6px 2px !important;
-    overflow: auto !important;
+    overflow: hidden !important;
+    scrollbar-width: none !important;
   }
   .products-name p {
     display: block !important;

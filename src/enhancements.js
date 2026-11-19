@@ -1767,6 +1767,9 @@
     const subList = document.querySelector('#sub_list');
     if (!subList) return;
 
+    let mutedMap = await storageGet(LOCAL_MUTE_KEY, {});
+    if (!mutedMap || typeof mutedMap !== 'object' || Array.isArray(mutedMap)) mutedMap = {};
+
     let searchQuery = '';
     let sortKey = 'time';
     let sortDir = 'asc';
@@ -1778,30 +1781,96 @@
       bar.className = 'ani-danmu-tools-bar';
       bar.innerHTML = `
         <div class="ani-danmu-search-row">
-          <input type="search" class="ani-danmu-search" placeholder="搜尋彈幕或發送者…" aria-label="搜尋彈幕或發送者">
+          <div class="anime_search-input ani-collection-search-capsule ani-danmu-search-capsule">
+            <input type="search" class="ani-danmu-search" placeholder="搜尋彈幕或發送者…" aria-label="搜尋彈幕或發送者">
+            <button type="button" class="anime_search-icon ani-danmu-search-icon" aria-label="搜尋彈幕" tabindex="-1">
+              ${enhIcon('<circle cx="10" cy="10" r="6"/><path d="m14.4 14.4 5.6 5.6"/>', 15)}
+            </button>
+          </div>
           <span class="ani-danmu-count" role="status"></span>
+          <div class="ani-dm-muted-host">
+            <button type="button" class="ani-danmu-muted-pill" aria-expanded="false">已消音 0 人</button>
+            <div class="ani-danmu-muted-popover" hidden></div>
+          </div>
         </div>
         <div class="ani-danmu-sort-row" role="group" aria-label="彈幕排序">
-          <button type="button" class="ani-dm-sort-btn" data-dm-sort="time" aria-pressed="true">時間 ↑</button>
-          <button type="button" class="ani-dm-sort-btn" data-dm-sort="length" aria-pressed="false">彈幕內容</button>
-          <button type="button" class="ani-dm-sort-btn" data-dm-sort="sn" aria-pressed="false">發送順序</button>
+          <button type="button" class="ani-dm-sort-btn" data-dm-sort="time" aria-pressed="true">動畫時間 ↑</button>
+          <button type="button" class="ani-dm-sort-btn" data-dm-sort="length" aria-pressed="false">彈幕長度</button>
+          <button type="button" class="ani-dm-sort-btn" data-dm-sort="sn" aria-pressed="false">發送時間</button>
         </div>
       `;
       subList.before(bar);
     }
 
     const searchInput = bar.querySelector('.ani-danmu-search');
+    bar.querySelector('.ani-danmu-search-icon')?.addEventListener('click', () => searchInput?.focus());
     const countEl = bar.querySelector('.ani-danmu-count');
     const sortBtns = [...bar.querySelectorAll('.ani-dm-sort-btn')];
+    const mutedPill = bar.querySelector('.ani-danmu-muted-pill');
+    const mutedPopover = bar.querySelector('.ani-danmu-muted-popover');
+
+    const syncLiveOverlayMute = () => {
+      const hasMutes = Object.keys(mutedMap).length > 0;
+      const overlay = document.querySelector('.danmu-container, .vjs-danmu-layer');
+      const sweepOverlay = () => {
+        if (!overlay) return;
+        for (const item of overlay.querySelectorAll('[data-userid], [data-user], .danmu-item')) {
+          const u = item.getAttribute('data-userid') || item.getAttribute('data-user') || '';
+          const muted = Boolean(u && mutedMap[u]);
+          item.classList.toggle('ani-dm-filtered-hidden', muted);
+        }
+      };
+      if (hasMutes && overlay) {
+        sweepOverlay();
+        if (!dmOverlayObserver) {
+          dmOverlayObserver = new MutationObserver(() => {
+            if (Object.keys(mutedMap).length > 0) sweepOverlay();
+          });
+          dmOverlayObserver.observe(overlay, { childList: true });
+        }
+      } else if (dmOverlayObserver) {
+        dmOverlayObserver.disconnect();
+        dmOverlayObserver = null;
+        if (overlay) {
+          for (const item of overlay.querySelectorAll('.ani-dm-filtered-hidden')) {
+            item.classList.remove('ani-dm-filtered-hidden');
+          }
+        }
+      }
+    };
 
     const DM_SORT_ICONS = {
       time: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
       length: '<path d="M4 7h16M4 12h12M4 17h8"/>',
       sn: '<path d="M3 6h13M3 12h10M3 18h7"/><path d="m17 15 3 3 3-3M20 6v12"/>',
     };
+    const DM_MUTE_ICON = '<path d="M11 5 6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>';
+
+    const renderMutedPopover = () => {
+      const senders = Object.keys(mutedMap);
+      mutedPill.innerHTML = `${enhIcon(DM_MUTE_ICON, 13)}<span>已消音 ${senders.length} 人</span>`;
+      if (!senders.length) {
+        mutedPopover.innerHTML = '<p class="ani-dm-muted-empty">尚未消音任何發送者</p>';
+        return;
+      }
+      mutedPopover.innerHTML = `
+        <div class="ani-dm-muted-list">
+          ${senders
+            .map(
+              (id) => `
+            <div class="ani-dm-muted-item">
+              <span title="${escapeHtml(id)}">${escapeHtml(id)}</span>
+              <button type="button" class="ani-dm-unmute-one" data-unmute-sender="${escapeHtml(id)}" title="解除消音">${enhIcon('<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>', 12)}<span>解除</span></button>
+            </div>`,
+            )
+            .join('')}
+        </div>
+        <button type="button" class="ani-dm-unmute-all">${enhIcon(COL_STATUS_ICONS.clear, 13)}<span>全部解除</span></button>
+      `;
+    };
 
     const updateSortLabels = () => {
-      const names = { time: '時間', length: '彈幕內容', sn: '發送順序' };
+      const names = { time: '動畫時間', length: '彈幕長度', sn: '發送時間' };
       for (const b of sortBtns) {
         const key = b.dataset.dmSort;
         const active = key === sortKey;
@@ -1818,6 +1887,8 @@
         const rows = [...subList.querySelectorAll('.sub-list-li')];
         if (!rows.length) {
           countEl.textContent = '0 / 0';
+          renderMutedPopover();
+          syncLiveOverlayMute();
           return;
         }
 
@@ -1827,6 +1898,17 @@
           }
           const sender = row.dataset.aniSender || extractDanmuSender(row);
           if (sender) row.dataset.aniSender = sender;
+          const nativeMute = row.querySelector('.edit.mute');
+          if (sender && nativeMute && !nativeMute.dataset.aniMuteBound) {
+            nativeMute.dataset.aniMuteBound = '1';
+            nativeMute.addEventListener('click', async () => {
+              const targetSender = row.dataset.aniSender;
+              if (!targetSender) return;
+              mutedMap[targetSender] = { mutedAt: Date.now() };
+              await storageSet(LOCAL_MUTE_KEY, mutedMap);
+              applyDanmuListState();
+            });
+          }
         }
 
         const q = searchQuery.trim().toLocaleLowerCase();
@@ -1834,13 +1916,17 @@
         for (const row of rows) {
           const sender = row.dataset.aniSender || '';
           const txt = getDanmuRowText(row);
+          const isMuted = Boolean(sender && mutedMap[sender]);
           const matchesQuery =
             !q || txt.toLocaleLowerCase().includes(q) || sender.toLocaleLowerCase().includes(q);
-          row.classList.toggle('ani-dm-filtered-hidden', !matchesQuery);
-          if (matchesQuery) shown++;
+          const hidden = isMuted || !matchesQuery;
+          row.classList.toggle('ani-dm-filtered-hidden', hidden);
+          if (!hidden) shown++;
         }
 
         countEl.textContent = `${shown} / ${rows.length}`;
+        renderMutedPopover();
+        syncLiveOverlayMute();
 
         const sorted = [...rows].sort((a, b) => {
           let cmp = 0;
@@ -1889,6 +1975,36 @@
           applyDanmuListState();
         });
       }
+      mutedPill.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const nextOpen = mutedPopover.hidden;
+        mutedPopover.hidden = !nextOpen;
+        mutedPill.setAttribute('aria-expanded', String(nextOpen));
+      });
+      mutedPopover.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const unmuteBtn = e.target.closest('.ani-dm-unmute-one');
+        if (unmuteBtn) {
+          const id = unmuteBtn.dataset.unmuteSender;
+          if (id && mutedMap[id]) {
+            delete mutedMap[id];
+            await storageSet(LOCAL_MUTE_KEY, mutedMap);
+            applyDanmuListState();
+          }
+          return;
+        }
+        if (e.target.closest('.ani-dm-unmute-all')) {
+          mutedMap = {};
+          await storageSet(LOCAL_MUTE_KEY, mutedMap);
+          applyDanmuListState();
+        }
+      });
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.ani-dm-muted-host')) {
+          mutedPopover.hidden = true;
+          mutedPill.setAttribute('aria-expanded', 'false');
+        }
+      });
     }
 
     updateSortLabels();
