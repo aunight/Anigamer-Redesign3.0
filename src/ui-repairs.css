@@ -9621,7 +9621,19 @@ body.ani-layout-comments #w-post-box .ani-comment-recommendations:not([hidden]) 
 body.ani-layout-comments #w-post-box .ani-comment-recommendations > a:not([hidden]) {
   display:flex; flex-flow:column nowrap; align-items:stretch; justify-content:flex-start; gap:8px;
 }
-.ani-comment-recommendations > a > .ani-rec-poster { width:100%; }
+.ani-comment-recommendations > a > .ani-rec-poster {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 7px;
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .ani-comment-recommendations .ani-rec-poster img {
+    transition: transform 200ms ease-out;
+  }
+  .ani-comment-recommendations > a:is(:hover, :focus-visible) .ani-rec-poster img {
+    transform: scale(1.045);
+  }
+}
 .ani-comment-recommendations > a > span:last-child { flex:none; }
 .ani-comment-recommendations > a strong { display:block; font-weight:700; }
 @container (max-width:340px) {
