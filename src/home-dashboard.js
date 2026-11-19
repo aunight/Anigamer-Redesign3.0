@@ -478,7 +478,7 @@
     let view = 'year';
     try { if (localStorage.getItem(FP_VIEW_KEY) === 'month') view = 'month'; } catch {}
     let monthAt = new Date(); monthAt.setDate(1); monthAt.setHours(0, 0, 0, 0);
-    let picked = null, syncMsg = '本機紀錄即時統計 · 僅保存於此裝置瀏覽器';
+    let picked = null, syncMsg = '（本機紀錄即時統計 · 僅保存於此裝置瀏覽器）';
     let activity = {}, ro = null, syncing = false;
 
     const paint = (data) => {
@@ -595,7 +595,7 @@
       el.replaceChildren(
         h('div', { class: 'ani-fp-side' },
           h('div', { class: 'ani-fp-top' },
-            h('div', { class: 'ani-fp-eyebrow' }, h('span', { class: 'en' }, 'Footprint'), h('span', {}, view === 'year' ? '近一年' : '按月')),
+            h('div', { class: 'ani-fp-eyebrow' }, h('strong', {}, '動畫瘋足跡'), h('span', {}, view === 'year' ? '近一年' : '按月')),
             h('div', { class: 'ani-fp-seg', role: 'group', 'aria-label': '視圖' }, segBtn('year', '年'), segBtn('month', '月'))),
           h('h3', { class: 'ani-fp-head' }, String(active), h('span', { class: 'ani-fp-head-unit' }, ' 天打開過動畫瘋')),
           h('div', { class: 'ani-fp-stats' },

@@ -277,8 +277,8 @@
       return ctx;
     }
 
-    function pixel(ctx, x, y, side, a, fl) {
-      const c = PIXEL_COLD.map((v, i) => Math.round(v + (PIXEL_WARM[i] - v) * fl));
+    function pixel(ctx, x, y, side, a, fl, trackMoon = false) {
+      const c = (trackMoon ? [27, 122, 138] : PIXEL_COLD).map((v, i) => Math.round(v + (PIXEL_WARM[i] - v) * fl));
       ctx.fillStyle = `rgba(${c[0]}, ${c[1]}, ${c[2]}, ${a})`;
       ctx.beginPath();
       ctx.roundRect(x - side / 2, y - side / 2, side, side, DOT_RADIUS * (side / DOT));
@@ -341,6 +341,13 @@
 
       const tCtx = prepare(trackPixels, TRACK_W, TRACK_H);
       if (tCtx) {
+        for (const [glyph, center, light, opacity] of [[SUN_PIXELS, SUN_X, 1, 1 - f.fl], [MOON_PIXELS, MOON_X, 0, f.fl]]) {
+          if (opacity <= 0) continue;
+          for (const point of glyph) {
+            const dot = place(point, center);
+            pixel(tCtx, dot.x, dot.y, DOT, dot.a * opacity * (light ? 0.55 : 0.9), light, !light);
+          }
+        }
         const shade = PIXEL_TRACK + (PIXEL_TRACK_LIT - PIXEL_TRACK) * f.fl;
         for (const dot of f.dots) if (dot.a > 0) pixel(tCtx, dot.x, dot.y, DOT * dot.s, dot.a * shade, f.fl);
       }

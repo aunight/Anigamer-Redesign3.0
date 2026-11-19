@@ -78,6 +78,20 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
     })();
     return true;
   }
+  if (message?.type === 'ani-fetch-acg-credits') {
+    (async () => {
+      try {
+        const url = new URL(message.url);
+        if (!sender.tab?.url?.startsWith('https://ani.gamer.com.tw/') ||
+            url.origin !== 'https://acg.gamer.com.tw' || url.pathname !== '/acgDetail.php' ||
+            !/^\d+$/.test(url.searchParams.get('s') || '')) throw new Error('Invalid ACG page');
+        const response = await fetch(url, { credentials: 'omit', signal: AbortSignal.timeout(8000) });
+        const html = response.ok ? await response.text() : '';
+        reply({ credits: html.match(/<b>[＜<]\s*(?:製作團隊|製作人員|STAFF)[＞>]<\/b>[\s\S]{1,32000}?(?=<script|$)/i)?.[0] || '' });
+      } catch { reply({}); }
+    })();
+    return true;
+  }
   if (message?.type === 'ani-fetch-infoplus') {
     (async () => {
       try {

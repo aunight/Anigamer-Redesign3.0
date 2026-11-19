@@ -1,7 +1,6 @@
 html[data-ani-booting='true'] { background:#111c2b !important;overflow:hidden !important; }
 /* The opaque intro covers the live page until the crossfade begins. */
-#ani_video:not(.video-js, .ani-has-consent, .ani-age-player) > *,
-#ani_video:not(.ani-has-consent, .ani-age-player) .R18 { opacity:0 !important; visibility:hidden !important; }
+#ani_video .vjs-poster { filter:blur(6px); }
 .ani-home-intro {
   position: fixed;
   inset: 0;

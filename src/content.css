@@ -196,8 +196,8 @@ body.ani-layout-watch :is(:fullscreen, :-webkit-full-screen, .vjs-fullscreen, .v
   body.ani-layout-nav .top_sky .mainmenu > .container-player > ul {
     background: var(--ani-card-bg, #172332) !important;
     border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
-    gap: 4px !important;
-    padding: 68px 0 12px !important;
+    gap: 8px !important;
+    padding: 56px 0 12px !important;
     overflow-y: auto !important;
     scrollbar-width: none !important;
     contain: layout style;

@@ -54,7 +54,7 @@ body.ani-ambientlight-ui #BH_background :is(.ani-fp-card, .ani-wx-card) {
 /* ── Footprint Card ── */
 body.ani-ambientlight-ui #BH_background .ani-fp-card {
   display: grid !important;
-  grid-template-columns: 236px minmax(0, 1fr) !important;
+  grid-template-columns: 268px minmax(0, 1fr) !important;
   gap: 28px !important;
   align-items: center !important;
   padding: 20px 24px 18px !important;
@@ -80,8 +80,8 @@ body.ani-ambientlight-ui #BH_background .ani-fp-eyebrow {
   color: rgba(210, 224, 238, 0.72);
   white-space: nowrap;
 }
-body.ani-ambientlight-ui #BH_background .ani-fp-eyebrow .en {
-  color: var(--ani-accent, #5ee2ea);
+body.ani-ambientlight-ui #BH_background .ani-fp-eyebrow strong {
+  font-size: clamp(18px, 1.25vw, 22px);
   font-weight: 700;
   font-style: italic;
 }
@@ -220,6 +220,7 @@ body.ani-ambientlight-ui #BH_background .ani-fp-foot {
   color: rgba(206, 222, 238, 0.68);
 }
 body.ani-ambientlight-ui #BH_background .ani-fp-status {
+  text-align: center;
   flex: 1 1 160px;
   min-width: 0;
 }

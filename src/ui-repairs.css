@@ -675,9 +675,12 @@ body.ani-ambientlight-ui #BH_background .ani-poster-card .ani-paid-label-source 
 body.ani-ambientlight-ui #BH_background .ani-poster-card .theme-number.ani-member-episodes { background: linear-gradient(135deg,rgba(112,105,170,.76),rgba(67,65,112,.72)) !important; border-color: rgba(202,198,245,.6) !important; color: #fff !important; }
 body.ani-ambientlight-ui #BH_background .ani-poster-card .ani-poster-score { display: inline-flex !important; visibility: visible !important; opacity: 1 !important; z-index: 4; }
 body.ani-history-page.ani-ambientlight-page #BH_background .ani-history-card .postimg { position: relative !important; overflow: hidden; }
-body.ani-history-page.ani-ambientlight-page #BH_background .ani-history-card .postimg .ani-history-score { position: absolute; left: 7px; top: 8px; z-index: 2; margin: 0; padding: 4px 8px; border: 1px solid #ffe4a65c; border-radius: 999px; background: linear-gradient(135deg,#d6a158eb,#a97735eb); color: #fff; backdrop-filter: blur(14px); font: 700 13px/1.3 system-ui,sans-serif; }
-body.ani-history-page.ani-ambientlight-page #BH_background .ani-history-card .postimg .ani-history-favorite { position: absolute !important; right: 7px !important; top: 8px !important; z-index: 3; display: grid !important; place-items: center; width: 30px !important; height: 30px !important; padding: 5px !important; border: 1px solid #e0efff55 !important; border-radius: 999px !important; background: #263f527a !important; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); color: #e78aa6 !important; }
-body.ani-history-page.ani-ambientlight-page #BH_background .ani-history-card .postimg .ani-history-favorite svg { width: 19px; height: 19px; }
+body.ani-history-page.ani-ambientlight-page #BH_background .ani-history-card .postimg .ani-history-score,
+body.ani-layout-comments #w-post-box .ani-rec-poster .ani-history-score { position: absolute; left: 7px; top: 8px; z-index: 2; margin: 0; padding: 4px 8px; border: 1px solid #ffe4a65c; border-radius: 999px; background: linear-gradient(135deg,#d6a158eb,#a97735eb); color: #fff; backdrop-filter: blur(14px); font: 700 13px/1.3 system-ui,sans-serif; }
+body.ani-history-page.ani-ambientlight-page #BH_background .ani-history-card .postimg .ani-history-favorite,
+body.ani-layout-comments #w-post-box .ani-rec-poster .ani-history-favorite { position: absolute !important; right: 7px !important; top: 8px !important; z-index: 3; display: grid !important; place-items: center; width: 30px !important; height: 30px !important; padding: 5px !important; border: 1px solid #e0efff55 !important; border-radius: 999px !important; background: #263f527a !important; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); color: #e78aa6 !important; }
+body.ani-history-page.ani-ambientlight-page #BH_background .ani-history-card .postimg .ani-history-favorite svg,
+body.ani-layout-comments #w-post-box .ani-rec-poster .ani-history-favorite svg { width: 19px; height: 19px; }
 
 /* Paid palettes inherit through the same high-specificity episode rule. */
 body.ani-ambientlight-ui #BH_background .ani-poster-card.ani-member-anime { --ani-episode-glass: linear-gradient(135deg,rgba(135,117,195,.88),rgba(91,72,151,.82)); --ani-episode-rim: rgba(221,208,255,.72); }
@@ -1333,12 +1336,9 @@ body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .
 body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .user-watchTime-list::after { content:'';position:absolute;left:1px;right:1px;height:30px;z-index:4;pointer-events:none;border-radius:inherit; }
 body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .user-watchTime-list::before { top:1px;background:linear-gradient(#182338aa,transparent); }
 body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .user-watchTime-list::after { bottom:1px;background:linear-gradient(transparent,#182338aa); }
-/* Prevent FOUC of native age-consent screen before .ani-age-screen is mounted */
-body.ani-ambientlight-page.ani-ambientlight-ui #ani_video:not(.video-js, .ani-age-screen-ready, .ani-has-consent) > *,
-body.ani-ambientlight-page.ani-ambientlight-ui #ani_video:not(.ani-age-screen-ready, .ani-has-consent) .R18,
-body.ani-ambientlight-page.ani-ambientlight-ui #ani_video .ani-age-screen:not(.ani-age-ready) {
-  opacity: 0 !important;
-  visibility: hidden !important;
+/* Style the native poster as soon as the player mounts, before consent markup arrives. */
+body.ani-ambientlight-page.ani-ambientlight-ui #ani_video:not(.vjs-has-started) .vjs-poster {
+  filter:blur(6px);
 }
 /* Resolve the notice against the actual video frame, preserving Video.js geometry. */
 body.ani-ambientlight-page.ani-ambientlight-ui #ani_video.ani-age-player:not(.video-js):has(.ani-age-screen) {
@@ -6384,9 +6384,9 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settin
   border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body .ani-plus-cap-row {
-  display: grid !important;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  gap: 14px !important;
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 8px 20px !important;
   width: 100% !important;
   padding: 8px 0 !important;
   background: transparent !important;
@@ -6396,7 +6396,9 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settin
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body .ani-plus-cap-row > .ani-plus-cap-opt {
   display: flex !important;
   align-items: center !important;
-  justify-content: space-between !important;
+  width: auto !important;
+  flex: 0 0 auto !important;
+  justify-content: flex-start !important;
   gap: 8px !important;
   min-width: 0 !important;
   margin: 0 !important;
@@ -7179,7 +7181,7 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.ani-section-t
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  width: 18px !important;
+  width: 22px !important;
   height: 18px !important;
   flex: none !important;
   color: #f0f6fc !important;
@@ -7189,8 +7191,8 @@ body.ani-ambientlight-page.ani-ambientlight-ui:is(.ani-light-mode, .ani-theme-li
   color: #142232 !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.ani-section-toggle strong, .ani-episode-heading h2, .old_list > h2, .ani-merch-section h2) .ani-section-icon svg {
-  width: 18px !important;
-  height: 18px !important;
+  width: 22px !important;
+  height: 22px !important;
   display: block !important;
   color: inherit !important;
   transform: none !important;
@@ -7356,7 +7358,7 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-merch-section
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
   border-radius: 18px !important;
   padding: 12px !important;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.32) !important;
+  box-shadow: none !important;
   box-sizing: border-box !important;
   transition: transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease !important;
 }
@@ -7677,7 +7679,8 @@ html body.ani-ambientlight-ui .user-setting-toolbox a.btn-account-manage svg.ani
   width: 17px !important;
   height: 17px !important;
 }
-html body.ani-ambientlight-ui .user-setting-toolbox a.btn-account-manage[data-ani-sec-tip]:hover::after {
+html body.ani-ambientlight-ui .user-setting-toolbox a.btn-account-manage[data-ani-sec-tip]:is(:hover,:focus-visible)::after {
+  display:block !important; visibility:visible !important; opacity:1 !important;
   content: attr(data-ani-sec-tip) !important;
   position: absolute !important;
   top: calc(100% + 8px) !important;
@@ -8863,8 +8866,7 @@ body.ani-ambientlight-ui #BH_background #plusbox .plus_time_body.ani-plus-jump-c
 }
 @container ani-plus (max-width: 330px) {
   body.ani-ambientlight-ui #BH_background #plusbox .ani-plus-cap-row {
-    grid-template-columns: minmax(0, 1fr) !important;
-    gap: 4px !important;
+    column-gap: 12px !important;
   }
 }
 body.ani-ambientlight-ui #BH_background #plusbox :is(.ani-setting-item,div):has(> div > .ani-keyword-header),
@@ -9040,7 +9042,7 @@ body.ani-ambientlight-ui #BH_background #plusbox .plus-toast-wrapper .plus-toast
   body.ani-ambientlight-ui #BH_background .ani-unified-settings-grid :is(#ani-tab-content-2,#plusbox) {
     flex:1 1 auto !important;
     height:auto !important;
-    justify-content:space-between;
+    justify-content:flex-start;
     box-sizing:border-box;
   }
 }
@@ -9065,9 +9067,6 @@ body.ani-home-page .ani-owned-card-order > .theme-list-main { order:0 !important
 body.ani-home-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,[id^="blockAnimeNewArrive"]) .ani-poster-card .theme-name,
 body.ani-home-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,[id^="blockAnimeNewArrive"]) .ani-poster-card .ani-title-marquee {
   font-size:16px !important; line-height:1.4 !important;
-}
-body.ani-home-page.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,[id^="blockAnimeNewArrive"]) .theme-list-main.ani-poster-card:not(.ani-card-has-overflow):is(:hover,:focus-within) .anime-detail-block {
-  height:var(--ani-poster-footer,68px) !important;
 }
 body.ani-light-mode.ani-home-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,[id^="blockAnimeNewArrive"]) .ani-poster-card .anime-detail-block {background:#edf3f8 !important}
 body.ani-light-mode.ani-home-page #BH_background .animate-theme-list:is(#blockHotAnime,[id^="blockAnimeNewArrive"]) .ani-poster-card .anime-detail-block::before,
@@ -9158,7 +9157,7 @@ body.ani-layout-comments.ani-ambientlight-page.ani-ambientlight-ui #BH_backgroun
   backdrop-filter:none !important;
 }
 body.ani-layout-comments.ani-ambientlight-page #BH_background .commend-title {padding-inline:0 !important}
-body.ani-layout-comments #BH_background .commend-title .ani-comment-icon {width:16px !important;height:16px !important}
+body.ani-layout-comments #BH_background .commend-title .ani-comment-icon {width:22px !important;height:22px !important}
 body.ani-ambientlight-ui #BH_background #ani-tab-content-2 .plus-keyword-header:has(select)::after {display:none !important}
 body.ani-ambientlight-ui #BH_background #ani-tab-content-2 select.plus-select {
   display:inline-flex !important;
@@ -9185,10 +9184,13 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-rating-option
   background:transparent !important; border-color:transparent !important; box-shadow:none !important;
 }
 body.ani-home-page.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,#blockAnimeNewArrive,.animate-theme-list) .theme-list-main.ani-poster-card {
-  align-self:start !important; padding-bottom:0 !important;
+  align-self:start !important; padding-bottom:var(--ani-poster-footer) !important;
 }
-body.ani-home-page.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,#blockAnimeNewArrive,.animate-theme-list) .theme-list-main.ani-poster-card:is(:hover,:focus-within) .anime-detail-block {
-  position:relative !important; inset:auto !important; height:auto !important;
+body.ani-home-page.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,#blockAnimeNewArrive,.animate-theme-list) .theme-list-main.ani-poster-card .anime-detail-block {
+  position:absolute !important; inset:auto 0 0 !important; height:auto !important;
+  width:auto !important; box-sizing:border-box !important;
+  transition:background-color .16s ease-out !important;
+  min-height:var(--ani-poster-footer,80px) !important;
 }
 body.ani-layout-comments.ani-ambientlight-page.ani-ambientlight-ui #BH_background .commend-title .filter-nav {
   background:transparent !important;
@@ -9226,8 +9228,11 @@ body.ani-layout-comments #BH_background .commend-title #w-anime-comment-count {
 }
 .ani-comment-recommendations {display:none}
 body.ani-layout-comments .ani-comment-recommendations:not([hidden]) {
-  display:grid; align-content:start; gap:12px; padding:16px;
+  display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-content:start; row-gap:26px; column-gap:clamp(20px,1.6vw,36px); padding:16px;
 }
+.ani-comment-recommendations > h3 {grid-column:1/-1}
+.ani-comment-recommendations > a {min-width:0; flex-wrap:wrap; align-content:start; overflow-wrap:anywhere}
+.ani-comment-recommendations > a > span:last-child {flex:1 1 110px}
 .ani-comment-recommendations h3 {margin:0;font:inherit;font-size:18px;font-weight:650}
 .ani-comment-recommendations a {display:flex;align-items:center;gap:12px;color:inherit;text-decoration:none}
 .ani-comment-recommendations img {width:52px;aspect-ratio:2/3;object-fit:cover;border-radius:7px}
@@ -9328,22 +9333,34 @@ body.ani-ambientlight-ui #BH_background #ani-tab-content-2 .ani-setting-item.ani
 body.ani-layout-comments #BH_background :is(#w-post-box,.commend-title) {
   padding-inline:clamp(16px,4vw,80px) !important;
 }
-body.ani-layout-comments #BH_background .webview_commendlist {display:flex;flex-direction:column}
-body.ani-layout-comments #BH_background .webview_commendlist > .c-reply__editor {order:2}
-body.ani-layout-comments #BH_background #w-post-box :is(.reply_menu,.reply_menu::before) {color:white !important}
+body.ani-layout-comments.ani-ambientlight-ui #BH_background #w-post-box .webview_commendlist {
+  display:flex;flex-direction:column;border-radius:16px;
+  background:color-mix(in srgb,var(--ani-panel,#182432) 65%,transparent) !important;
+}
+body.ani-layout-comments #BH_background #w-post-box .webview_commendlist .main-container_wall-post {background:transparent !important}
+body.ani-layout-comments #BH_background .webview_commendlist > .c-reply__editor {
+  order:2;position:sticky;bottom:0;z-index:5;padding-block:10px;
+  background:var(--ani-panel,#182432) !important;border-radius:12px;
+}
+body.ani-layout-comments #BH_background #w-post-box .reply-content__footer :is(.reply-content__gpbp, .reply-content__gpbp button, button.reply-content__tag) {
+  display:inline-flex !important;align-items:center;min-height:28px;height:28px !important;margin:0 !important;
+}
+body.ani-layout-comments #BH_background #w-post-box .reply-content__footer .reply-content__gpbp,
+body.ani-layout-comments #BH_background #w-post-box .reply-content__footer .reply-content__gpbp button {padding-inline-start:0 !important}
+body.ani-layout-comments #BH_background #w-post-box a.reply_menu::before {background:#edf4fa !important}
+body.ani-light-mode.ani-layout-comments #BH_background #w-post-box a.reply_menu::before {background:#284255 !important}
 body.ani-layout-comments #BH_background #w-post-box .reply-content__footer button.reply-content__tag {font-size:0 !important}
 body.ani-layout-comments #BH_background #w-post-box .reply-content__footer button.reply-content__tag::before {display:block !important}
 body.ani-layout-comments #BH_background #w-post-box .c-more-msg {color:var(--ani-muted,#a5b4c4) !important}
 body.ani-layout-comments #w-post-box .ani-comment-recommendations a {font-size:18px;line-height:1.4}
 .ani-comment-recommendations .ani-rec-poster {position:relative;flex:none;width:clamp(90px,8vw,138px)}
 .ani-comment-recommendations .ani-rec-poster img {width:100%;display:block}
-.ani-rec-poster :is(.ani-rec-score,.ani-rec-episodes,.ani-history-favorite) {position:absolute;border-radius:999px;color:white;background:#294355ed;font-size:12px;padding:3px 6px}
-.ani-rec-poster .ani-rec-score {top:5px;left:5px;background:#946126}
-.ani-rec-poster .ani-rec-episodes {bottom:5px;right:5px}
-.ani-rec-poster .ani-history-favorite {top:31px;left:5px;right:auto;width:26px;height:26px;border:0;cursor:pointer}
-.ani-rec-poster .ani-history-favorite svg {width:16px;height:16px;color:#ed94ad}
-.ani-rec-poster .ani-history-favorite.ani-saved svg {fill:currentColor}
-.ani-rec-poster :is(.ani-rec-score,.ani-rec-episodes):empty {display:none}
+.ani-rec-poster .ani-rec-episodes {position:absolute;bottom:5px;right:5px;border-radius:999px;color:white;background:#294355ed;font-size:12px;padding:3px 6px}
+.ani-rec-poster :is(.ani-history-score,.ani-rec-episodes):empty,
+.ani-comment-recommendations small:empty {display:none}
+.ani-rec-facts {display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:8px}
+.ani-rec-facts > span:not([hidden]) {display:inline-flex;align-items:center;gap:5px;color:var(--ani-muted);font-size:12px;white-space:nowrap}
+.ani-rec-facts svg {width:14px;height:14px;flex:none}
 @media(min-width:900px) {
   body.ani-layout-comments #w-post-box :has(> .webview_commendlist + .ani-comment-recommendations:not([hidden])) {grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:24px}
   body.ani-layout-comments #BH_background .commend-title .commend-segment-wrapper {width:calc((100% - 24px)*2/3) !important}
@@ -9367,8 +9384,14 @@ body.ani-light-mode #ani-download-dialog[open] {background:rgba(238,246,251,.83)
 #ani-download-dialog .store-row :is(img,svg) {filter:brightness(0) invert(1)}
 body.ani-light-mode #ani-download-dialog .store-row :is(img,svg) {filter:brightness(.25)}
 body.ani-layout-nav .ani-lens-theme-wrap {
-  height:var(--ani-member-height,48px);box-sizing:border-box;border-radius:999px;
-  background:var(--ani-panel-soft);border:1px solid var(--ani-line);transform:none;
+  --u: calc(var(--ani-member-height,52px) / 249);
+  width:calc(650 * var(--u));
+  height:var(--ani-member-height,52px);
+  transform:none;
+}
+body.ani-layout-nav .ani-lens-theme-wrap .stage {
+  width:100%;
+  height:100%;
 }
 body.ani-light-mode #ani-view-settings-panel {
   --ani-editor-surface: #d9e6ef;
@@ -9402,4 +9425,174 @@ body.ani-light-mode .share-button-img { filter: brightness(.25) !important; }
   display: grid; place-items: center; padding: 0; top: 10px; right: 10px;
   background: rgba(18,28,42,.94); color: #edf4f8;
   border: 1px solid rgba(255,255,255,.28); box-shadow: 0 6px 18px rgba(0,0,0,.35);
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body .ani-danmu-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px 24px;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body .ani-danmu-filter-row > .ani-setting-item {
+  display: flex;
+  align-items: center;
+  width: auto !important;
+  gap: 12px;
+  margin: 0 !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body .ani-danmu-filter-row .ani-setting-value {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ani-recommend-heading-desktop {display:none}
+body.ani-layout-comments #BH_background .ani-recommend-heading {margin:0;align-items:center;gap:8px;font-size:20px;font-weight:650;color:var(--ani-text)}
+.ani-comment-recommendations .ani-recommend-heading {display:flex}
+.ani-recommend-heading svg {width:22px;height:22px;flex:none}
+@media (min-width:900px) {
+  body.ani-layout-comments #BH_background .commend-title:has(.ani-recommend-heading-desktop) {display:grid !important;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:24px;align-items:center}
+  body.ani-layout-comments #BH_background .commend-title:has(.ani-recommend-heading-desktop) .commend-segment-wrapper {width:100% !important}
+  body.ani-layout-comments #BH_background .ani-recommend-heading-desktop {display:flex}
+  body.ani-layout-comments #BH_background .ani-comment-recommendations .ani-recommend-heading {display:none}
+  body.ani-layout-comments #BH_background .ani-comment-recommendations {padding-inline:0}
+}
+body.ani-layout-comments #BH_background #w-post-box .reply-content__gpbp {order:-1}
+body.ani-layout-comments #BH_background #w-post-box .c-reply__editor .comment_icon a {
+  width:32px;height:32px;border-radius:50%;background:var(--ani-panel-soft);color:var(--ani-text);
+}
+body.ani-layout-comments #BH_background #w-post-box .c-reply__editor .comment_icon img {display:none !important}
+body.ani-layout-comments #BH_background #w-post-box .c-reply__editor .comment_icon a::before {
+  content:'';width:18px;height:18px;background:currentColor;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='16' rx='3'/%3E%3Ccircle cx='8' cy='9' r='1'/%3E%3Cpath d='m4 17 5-5 4 4 3-5 4 5'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+body.ani-layout-comments.ani-ambientlight-ui #BH_background:has(#w-post-box .webview_commendlist) {
+  overflow-x:clip !important;
+  overflow-y:visible !important;
+}
+
+/* Horizontal scroll boundaries on the four home rails. */
+body.ani-home-page.ani-ambientlight-ui #BH_background :is(#blockContinueWatch .slick-list,#blockAnimePublisherChannel .slick-list,#blockHotAnime .ani-poster-rail,[id^="blockAnimeNewArrive"] .ani-poster-rail) {
+  position:relative;
+  &::before, &::after {
+    content:"" !important; display:block !important; position:absolute; top:0; bottom:0;
+    width:clamp(14px,2vw,32px); pointer-events:none; z-index:12;
+    background:rgb(0 0 0 / 12%); backdrop-filter:blur(4px);
+  }
+  &::before { left:0; opacity:var(--rail-left,0); mask-image:linear-gradient(to right,black,transparent); }
+  &::after { right:0; opacity:var(--rail-right,0); mask-image:linear-gradient(to left,black,transparent); }
+}
+body.ani-home-page #BH_background .slick-slider:has(.slick-prev:not(.slick-disabled,.slick-hidden)) .slick-list,
+body.ani-home-page #BH_background .ani-poster-rail.ani-can-prev { --rail-left:1; }
+body.ani-home-page #BH_background .slick-slider:has(.slick-next:not(.slick-disabled,.slick-hidden)) .slick-list,
+body.ani-home-page #BH_background .ani-poster-rail.ani-can-next { --rail-right:1; }
+
+body.ani-ambientlight-ui #BH_background .ani-danmu-keywords [data-ani-row-key="kw-filter"] { margin-inline-end:8px !important; }
+.ani-credit-switch { display:flex; gap:3px; padding:4px; margin:16px 0 10px; border:1px solid var(--ani-line); background:var(--ani-panel-soft); border-radius:999px; }
+.ani-credit-switch button { display:flex; align-items:center; justify-content:center; gap:6px; flex:1; padding:7px 2px; border:1px solid transparent; border-radius:999px; background:transparent; color:var(--ani-muted); font:inherit; cursor:pointer; }
+.ani-credit-switch button[aria-pressed=true] { color:var(--ani-text); border-color:var(--ani-line); background:color-mix(in srgb,currentColor 12%,transparent); font-weight:600; }
+.ani-sidebar-intro [data-credit-panel][hidden] { display:none !important; }
+@supports (appearance:base-select) {
+  body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body :is(.ani-plus-native-format,.ani-plus-format-moved,.ani-plus-format-subinline) select {
+    &::picker(select) { background:color-mix(in srgb,var(--ani-font-menu-surface,#243041) 88%,transparent); backdrop-filter:blur(16px); border-color:var(--ani-line); box-shadow:0 6px 18px #0002; }
+    option { background:transparent !important; color:inherit !important; border-radius:8px; padding:6px 12px; }
+    option::checkmark { display:none; }
+    option:checked { background:color-mix(in srgb,currentColor 14%,transparent) !important; font-weight:650; }
+    option:hover, option:focus-visible { background:color-mix(in srgb,currentColor 9%,transparent) !important; }
+  }
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani-tab-content-2 .ani-danmu-keywords .ani-row-icon[data-ani-row-key="kw-filter"] { margin-right:8px !important; }
+body.ani-layout-comments.ani-ambientlight-page.ani-ambientlight-ui #BH_background #w-post-box {
+  .webview_commendlist { border-radius:16px !important; overflow:clip !important; }
+  .webview_commendlist > .c-reply__editor { background:color-mix(in srgb,var(--ani-panel,#182432) 70%,transparent) !important; backdrop-filter:blur(16px); }
+  a.reply_menu:has(.ani-report-flag)::before { display:none !important; }
+  a.reply_menu:has(.ani-report-flag) { background-image:none !important; }
+  .ani-report-flag { color:white !important; stroke:white !important; display:block; pointer-events:none; }
+  .reply-content__footer, .reply-content__footer .reply-content__gpbp { display:flex !important; align-items:center; gap:6px !important; }
+  .reply-content__footer .reply-content__gpbp :is(button,p) { margin:0 !important; padding:0 !important; }
+  .reply-content__footer button.reply-content__tag { width:24px !important; padding:0 !important; }
+}
+body.ani-layout-comments.ani-ambientlight-page.ani-ambientlight-ui #BH_background {
+  :is(#w-post-box,.commend-title) { padding-inline:clamp(12px,1.2vw,24px) !important; }
+  .commend-title { min-height:0 !important; height:auto !important; padding-block:6px 10px !important; margin-bottom:0 !important; }
+  .commend-title::before,.commend-title::after { content:none !important; }
+  .commend-title :is(.commend-board p,.ani-recommend-heading) { font-size:clamp(24px,2vw,30px) !important; text-align:left; justify-content:flex-start; }
+  #w-post-box .webview_commendlist { padding-inline:0 !important; padding-bottom:0 !important; }
+  #w-post-box .webview_commendlist > :is(.main-container_wall-post,.c-reply__editor) { box-sizing:border-box; padding-inline:clamp(12px,1.7vw,24px) !important; }
+  #w-post-box .webview_commendlist > .c-reply__editor { width:100% !important; margin-inline:0 !important; border-radius:0 !important; }
+  #w-post-box .reply_right a.reply_menu .ani-report-flag path { stroke:#fff !important; fill:none !important; }
+  #w-post-box .c-reply__editor .comment_icon a { background:color-mix(in srgb,var(--ani-text) 18%,var(--ani-panel)) !important; border:1px solid var(--ani-line) !important; border-radius:50% !important; box-sizing:border-box; }
+  #w-post-box .c-reply__editor .comment_icon a::before { width:14px !important; height:14px !important; }
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #plusbox {
+  display:flex !important; flex-direction:column; justify-content:flex-start !important; gap:16px !important;
+  .ani-setting-section { margin-block:0 !important; padding-block:0 !important; }
+  .ani-setting-section > :is(.ani-plus-form-row,.ani-plus-cap-row) { margin-block:0 !important; }
+  .ani-setting-section:has(.ani-plus-cap-heading) { display:flex !important; flex-wrap:wrap; align-items:center; gap:8px 16px !important; }
+  .ani-setting-section > .ani-plus-cap-heading { flex:0 0 auto !important; width:auto !important; }
+  .ani-setting-section > .ani-plus-cap-row { flex:1 1 290px !important; width:auto !important; }
+  .ani-setting-section:has(.ani-plus-cap-heading) > .ani-setting-item { flex-basis:100% !important; }
+}
+@media(min-width:1150px) {
+  body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #plusbox .ani-setting-section:has([data-ani-row-key="dm-track"]) {
+    display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px 20px !important; align-items:center;
+  }
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani-tab-content-2 #plus_dan_keywords :is(.plus_k-label,.ani-plus-kw-chip),
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani-tab-content-2 #plus_dan_keywords > * {
+  background:#263d52 !important; color:#edf3fa !important; border-color:#546b80 !important;
+}
+@supports (appearance:base-select) {
+  body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani-tab-content-2 select::picker(select) {
+    border-radius:14px; padding:5px; background:color-mix(in srgb,var(--ani-font-menu-surface,#253849) 90%,transparent); backdrop-filter:blur(16px);
+  }
+  body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani-tab-content-2 select option {
+    border:0 !important; box-shadow:none !important; background:transparent !important; color:inherit !important; padding:7px 12px; border-radius:8px;
+  }
+  body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani-tab-content-2 select option:is(:checked,:hover,:focus-visible) { background:color-mix(in srgb,currentColor 12%,transparent) !important; }
+}
+
+html body.ani-ambientlight-ui .user-setting-toolbox .user-info { anchor-name:--ani-member-info; }
+@supports (top:anchor(center)) {
+  html body.ani-ambientlight-ui .user-setting-toolbox a.btn-account-manage {
+    position-anchor:--ani-member-info; top:anchor(center) !important; translate:0 -50%; overflow:visible !important;
+  }
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background {
+  .ani-watch-col:has(.ani-section-toggle) .ani-merch-native-heading,
+  .ani-merch-section .ani-merch-points { display:none !important; }
+  section.player .subtitle [data-credit-panel] { margin-block-start:0 !important; }
+  section.player .subtitle [data-credit-panel] .ani-side-meta-grid {
+    grid-template-columns:repeat(auto-fit,minmax(min(100%, 175px),1fr)) !important;
+    gap:6px 12px !important;
+  }
+  #w-post-box .webview_commendlist .main-container_wall-post { box-sizing:border-box; padding-inline:clamp(16px,2vw,32px) !important; }
+  .ani-player-settings-body .ani-danmu-keywords #plus_dan_keywords .plus_k-label {
+    background:#183656 !important; color:#edf3fa !important;
+  }
+  .ani-player-settings-body #plusbox .plus-settings-section { display:grid !important; gap:12px !important; align-content:start; }
+  .ani-player-settings-body #plusbox .plus-settings-section > .ani-setting-section { margin:0 !important; padding:0 !important; }
+}
+@media (prefers-reduced-motion:no-preference) {
+  .ani-credit-switch button { transition:background-color .18s,color .18s,border-color .18s; }
+  .ani-sidebar-intro [data-credit-panel]:not([hidden]) { animation:ani-credit-reveal .18s ease-out; }
+  @keyframes ani-credit-reveal { from { opacity:0; transform:translateY(3px); } to { opacity:1; transform:none; } }
+}
+body.ani-layout-comments #BH_background #w-post-box {
+  .webview_commendlist [data-w-comment-row] { padding-inline:clamp(16px,2vw,32px) !important; }
+  .reply-content:has(> article.reply-content__cont) { row-gap:4px !important; }
+  .reply-content > .reply-content__user { align-self:center; }
+  .reply-content > article.reply-content__cont { margin-block-start:0 !important; padding-block-start:0 !important; }
+  article.reply-content__cont > :first-child { margin-block-start:0 !important; }
+  .reply-content__footer { padding-inline-start:0 !important; margin-inline-start:0 !important; }
+  .reply-content__gpbp > button:first-child { display:flex !important; justify-content:flex-start !important; align-items:center; }
+  .reply-content__gpbp > button:first-child .gb-img { margin-inline:0 !important; }
+  .reply_right a.reply_menu { opacity:1 !important; filter:none !important; }
+  .reply_right a.reply_menu .ani-report-flag { filter:brightness(0) invert(1) !important; }
+}
+body.ani-layout-comments #BH_background .ani-recommend-heading svg { width:1em !important; height:1em !important; }
+.user-setting-toolbox .user-info[href*="home.gamer.com.tw"] { position:relative; }
+.user-setting-toolbox .user-info[href*="home.gamer.com.tw"] + .tooltip { display:none !important; }
+.user-setting-toolbox .user-info[href*="home.gamer.com.tw"]:is(:hover,:focus-visible)::after {
+  content:"我的小屋"; position:absolute; top:calc(100% + 4px); left:0; z-index:2; pointer-events:none;
+  padding:4px 8px; border-radius:6px; background:var(--ani-panel,#172332); color:var(--ani-text); font-size:12px;
 }

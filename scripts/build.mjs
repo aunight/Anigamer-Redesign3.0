@@ -31,6 +31,8 @@ const core =
   '\n' +
   fs.readFileSync(path.join(source, 'lens-switch.js'), 'utf8') +
   '\n' +
+  fs.readFileSync(path.join(source, 'topbar-bridge.js'), 'utf8') +
+  '\n' +
   fs.readFileSync(path.join(source, 'content.js'), 'utf8');
 const membershipBackground='data:image/png;base64,'+fs.readFileSync(path.join(source,'membership-background.png')).toString('base64');
 const settingsModule = fs.readFileSync(
