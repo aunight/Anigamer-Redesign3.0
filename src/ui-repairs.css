@@ -179,13 +179,6 @@ body #BH_background .filter-section.ani-browse-filters section.class_list > .cla
 body #BH_background .filter-section.ani-browse-filters section.class_list > :is(ul, .ani-catalog-date-options) { grid-column: 2; grid-row: 1; width: auto !important; margin: 0 !important; }
 body #BH_background .ani-browse-filters .class-header h3 svg { width: 20px; height: 20px; flex-shrink: 0; }
 body.ani-catalog-page #BH_background .filter-section li a { position: relative; }
-body.ani-catalog-page #BH_background .filter-section li.now:not(:first-child) a { padding-right: 32px !important; }
-body.ani-catalog-page #BH_background .filter-section li.now:not(:first-child) a:hover::before,
-body.ani-catalog-page #BH_background .filter-section li.now:not(:first-child) a:hover::after {
-  top: 50% !important; right: 12px !important; background: currentColor !important;
-  transform: translateY(-50%) rotate(45deg) !important;
-}
-body.ani-catalog-page #BH_background .filter-section li.now:not(:first-child) a:hover::after { transform: translateY(-50%) rotate(-45deg) !important; }
 body.ani-catalog-page #BH_background .filter-section li .delete { position: static !important; margin-left: 8px; }
 body.ani-catalog-page #BH_background :is(.ani-catalog-sort,.ani-rating-sort) { height: 44px !important; min-height: 44px !important; box-sizing: border-box !important; align-items: center !important; }
 body.ani-catalog-page #BH_background .ani-catalog-sort button { height: 34px; padding-block: 0; }
@@ -417,7 +410,6 @@ body.ani-ambientlight-ui #BH_background #blockVideoInSeason .today-list { border
 body.ani-ambientlight-ui #BH_background #blockVideoInSeason .day-title { text-align: center; color: var(--ani-text); margin: 0 0 16px; }
 body.ani-ambientlight-ui #BH_background #blockVideoInSeason .today-list .day-title { color: #efa644 !important; }
 body.ani-ambientlight-ui #BH_background #blockVideoInSeason .day-title { position: relative !important; width: max-content !important; min-height: 32px; padding: 4px 14px !important; margin: 0 auto 18px !important; border: 1px solid #ffffff16; border-radius: 999px; background: #ffffff06; box-shadow: none !important; overflow: visible !important; }
-body.ani-ambientlight-ui #BH_background #blockVideoInSeason [data-ani-week-day='5'] .day-title,body.ani-ambientlight-ui #BH_background #blockVideoInSeason [data-ani-week-day='6'] .day-title { color: #c5bddc; }
 body.ani-ambientlight-ui #BH_background #blockVideoInSeason .today-list .day-title::after { content: '今天'; position: absolute !important; inset: 0 auto auto calc(100% + 5px) !important; width: max-content !important; height: auto !important; padding: 2px 7px !important; margin: 0 !important; border: 1px solid #f4bb6b66; border-radius: 999px !important; color: #ffbf70 !important; background: linear-gradient(145deg,#ffffff24,#efa64414) !important; backdrop-filter: blur(16px); box-shadow: inset 0 1px 0 #ffffff20; font: 600 10px/1.4 system-ui,sans-serif !important; }
 body.ani-ambientlight-ui #BH_background #blockVideoInSeason :is(.programlist-wrap,.programlist-wrap_block) { max-height: none !important; height: auto; overflow-y: visible !important; box-shadow: none !important; }
 body.ani-ambientlight-ui #BH_background #blockVideoInSeason .programlist-wrap::before,
@@ -448,7 +440,7 @@ body.ani-ambientlight-ui #BH_background #blockVideoInSeason .text-anime-info {
   border: 1px solid var(--ani-line); border-radius: 12px; box-sizing: border-box; overflow: hidden;
   background: rgba(120,150,170,.15) !important; text-decoration: none;
 }
-body.ani-ambientlight-ui #BH_background #blockVideoInSeason .ani-week-cover { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; pointer-events: none; transition: transform 220ms ease-out; }
+body.ani-ambientlight-ui #BH_background #blockVideoInSeason .ani-week-cover { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(3px); z-index: -2; pointer-events: none; transition: transform 220ms ease-out; }
 body.ani-ambientlight-ui #BH_background #blockVideoInSeason .text-anime-info::after { content: ''; position: absolute; inset: 0; z-index: -1; background: #08101a55; }
 body.ani-ambientlight-ui #BH_background #blockVideoInSeason .text-anime-detail { width: 100% !important; padding: 0 !important; }
 body.ani-ambientlight-ui #BH_background #blockVideoInSeason .text-anime-name { color: #fff !important; font-size: clamp(13px,.38vw + 7px,18px) !important; line-height: 1.4; text-align: center; text-shadow: 0 1px 4px #0007; margin: 0 !important; width: 100% !important; display: -webkit-box !important; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
@@ -941,10 +933,6 @@ body.ani-account-page #BH_background .record-list-content:not(.is-more) { height
 .ani-membership-heading .ani-account-icon { width:28px;height:28px; }
 @keyframes aniPaymentReveal { from { opacity:0;translate:0 -6px; } to { opacity:1;translate:0 0; } }
 @media(prefers-reduced-motion:reduce) { .ani-membership-plans .userpaychose { animation:none !important; } }
-
-/* Selected filter uses its capsule border; focus must not draw a second ring. */
-body.ani-ambientlight-ui #BH_background .animate-theme-list:has(> .filter-section) section.class_list li a:focus { outline:none !important;box-shadow:none !important; }
-body.ani-ambientlight-ui #BH_background .animate-theme-list:has(> .filter-section) section.class_list li a:focus-visible { outline:none !important;box-shadow:inset 0 0 0 1px #e3f4ff !important; }
 
 /* Membership summary is three independent surfaces. */
 body.ani-account-page #BH_background .ani-status-shell { border:0 !important;background:transparent !important;box-shadow:none !important;padding:0 !important;backdrop-filter:none !important; }
@@ -7573,13 +7561,18 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .su
   overflow: hidden !important;
 }
 
-/* Search page (search.php): prevent .old_list 44px grid crush, stack sleek search pill + card grid */
+/* Search results use the shared poster cards in a bounded grid. */
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background > .container:has(> .old_list .search_result) {
+  width: 100% !important;
+  max-width: none !important;
+  box-sizing: border-box;
+}
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background > .container > .old_list:has(.search_result) {
   display: flex !important;
   flex-direction: column !important;
   align-items: stretch !important;
   gap: 24px !important;
-  max-width: 1240px !important;
+  max-width: none !important;
   width: calc(100% - 32px) !important;
   margin: 18px auto 42px !important;
   padding: 0 !important;
@@ -7588,6 +7581,12 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .old_list > form:h
   width: 100% !important;
   display: flex !important;
   justify-content: center !important;
+}
+/* The site hides its header search at this breakpoint. */
+@media (width > 576px) {
+  body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .old_list > form.ani-duplicate-search {
+    display: none !important;
+  }
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .search_result {
   display: flex !important;
@@ -7627,11 +7626,33 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .old_list:has(.sea
   margin: 0 !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .old_list:has(.search_result) > .animate-theme-list > .theme-list-block {
+  --ani-search-card-width: clamp(200px, 14vw, 232px);
   display: grid !important;
-  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)) !important;
+  grid-template-columns: repeat(auto-fill, min(100%, var(--ani-search-card-width))) !important;
   gap: 18px 16px !important;
   width: 100% !important;
 }
+@media (max-width: 480px) {
+  body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .old_list:has(.search_result) > .animate-theme-list > .theme-list-block {
+    --ani-search-card-width: 155px;
+  }
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .old_list:has(.search_result) .theme-list-main.ani-poster-card {
+  grid-column: auto !important;
+  width: 100% !important;
+  max-width: var(--ani-search-card-width, 232px) !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  float: none !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .old_list:has(.search_result) .ani-poster-card .btn-favorite svg {
+  color: #e58ca4 !important;
+  stroke: currentColor !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .old_list:has(.search_result) .ani-poster-card .btn-favorite:is(.btn-is-active, .is-active) svg {
+  fill: currentColor !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.ani-merch-section .store_item, .ani-merch-section .store_wrapper li, .ani-review-card, .ani-ep-drawer-btn, .ani-player-episodes-drawer, .ani-ep-drawer-panel, .ani-player-settings-body, .ani-player-settings-body::before) {
     transition: none !important;
@@ -8564,7 +8585,7 @@ body.ani-light-mode.ani-ambientlight-ui #BH_background :is(
 body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-player-settings-body::before,
 body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-player-settings-body #ani-tab-content-2 > .ani-setting-section:not(.ani-dup-hidden),
 body.ani-light-mode.ani-ambientlight-ui .bottom-announcement,
-body.ani-light-mode.ani-ambientlight-ui :is(.anime_search-content, .filter-items, .dialogify__content, .ani-fp-tip) {
+body.ani-light-mode.ani-ambientlight-ui :is(.filter-items, .dialogify__content, .ani-fp-tip) {
   background: rgba(255, 255, 255, 0.88) !important;
   border-color: rgba(18, 38, 60, 0.12) !important;
   color: #142232 !important;

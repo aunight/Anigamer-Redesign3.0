@@ -9,6 +9,15 @@ test('history keeps native controls and keeps each episode list inside its ownin
   w.matchMedia=()=>({matches:false,addEventListener(){}});
   w.fetch=async()=>({ok:true,text:async()=>'<li class="type"><span class="title">作品分類</span><ul class="tag-list"><li class="tag">奇幻</li><li class="tag">冒險</li></ul></li><li><span class="title">製作廠商</span><p>NUT</p></li><script type="application/ld+json">{"@type":"VideoObject","duration":"PT24M"}</script><button class="ordered" onclick="animefun.toggleGather(123,101,$(this))"></button>'});
   const more=d.querySelector('.more-btn'),details=d.querySelector('.user-watchTime-list');
+  d.querySelector('.user-lastwatch').textContent = '1';
+  d.querySelector('.click-area').setAttribute('href', 'animeVideo.php?sn=99');
+  details.insertAdjacentHTML('beforeend', '<a href="animeVideo.php?sn=7"><span class="history-list-anime-title">測試作品 [7]</span></a>');
+  d.querySelector('#BH_background').insertAdjacentHTML('beforeend', `
+    <div class="animate-theme-list">
+      <a class="theme-list-main" href="animeRef.php?sn=101">
+        <div class="theme-img-block"><span class="theme-number">共 12 集</span></div>
+      </a>
+    </div>`);
   d.querySelector('.center-container').append(details);
   let nativeClicks=0;
   more.addEventListener('click',()=>{nativeClicks++;const open=d.querySelector('.anime-card').classList.toggle('is-open');details.style.display=open?'block':'none';});
@@ -27,6 +36,7 @@ test('history keeps native controls and keeps each episode list inside its ownin
   assert.equal(nativeClicks,1,'native event remains attached');
   assert.equal(d.querySelector('.ani-history-timing').textContent,'6:00 / 24:00');
   assert.equal(d.querySelector('.ani-history-episode').textContent,'EP.6');
+  assert.equal(d.querySelector('.theme-number').textContent,'7 / 12 集');
   assert.equal(d.querySelector('.ani-history-progress-text').textContent,'已看 25% · 剩餘 18分00秒');
   assert(d.querySelector('.postimg .ani-history-score'),'rating shares the poster corner design');
   assert.equal(d.querySelector('.history-list-anime-title').textContent,'EP.6');

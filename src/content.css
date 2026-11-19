@@ -382,23 +382,13 @@ body.ani-layout-nav .anime_search-icon img {
   height: 20px;
 }
 body.ani-layout-nav .anime_search-content {
+  top: 100% !important;
+  margin-top: 6px !important;
   left: auto !important;
   right: 0 !important;
   width: max(100%, 300px) !important;
   max-width: calc(100vw - 32px);
   box-sizing: border-box;
-}
-body.ani-ambientlight-ui .anime_search-content {
-  background: var(--ani-card-bg, #172332) !important;
-  color: var(--ani-text) !important;
-  border-color: var(--ani-line) !important;
-}
-body.ani-ambientlight-ui .anime_search-content :is(p, .tip-title, .search-hint) {
-  color: var(--ani-muted) !important;
-}
-body.ani-ambientlight-ui .anime_search-content .search-tag {
-  color: var(--ani-text) !important;
-  background: var(--ani-panel-soft) !important;
 }
 body.ani-layout-nav .mainmenu .menu-payment {
   border: 0 !important;
@@ -2500,13 +2490,11 @@ body.ani-layout-nav .sky .member {
 body.ani-layout-nav .mainmenu li a {
   font-size: 14px !important;
 }
-body.ani-layout-nav .anime_search-content,
 body.ani-layout-nav .user-setting-toolbox,
 body.ani-layout-nav .filter-items {
   border: 1px solid var(--ani-line) !important;
   border-radius: 12px !important;
 }
-body.ani-ambientlight-ui .anime_search-content,
 body.ani-ambientlight-ui .user-setting-toolbox,
 body.ani-ambientlight-ui .filter-items {
   background: rgba(20, 32, 48, 0.78) !important;
@@ -2516,20 +2504,132 @@ body.ani-ambientlight-ui .filter-items {
   color: var(--ani-text) !important;
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.48) !important;
 }
-body.ani-ambientlight-ui .anime_search-content :is(p, a, .search-hint, .search-tag),
 body.ani-ambientlight-ui .filter-items li {
   color: var(--ani-text) !important;
 }
-body.ani-ambientlight-ui .anime_search-content .search-tag {
-  background: var(--ani-panel-soft) !important;
-}
-body.ani-ambientlight-ui .anime_search-content .search-tag:hover,
 body.ani-ambientlight-ui .filter-items li:hover {
   background: #304651 !important;
 }
-body.ani-ambientlight-ui .anime_search-content .btn-filter {
-  color: var(--ani-accent) !important;
-  background: transparent !important;
+
+body.ani-ambientlight-ui .anime_search .anime_search-content {
+  --ani-search-menu-text: #f4f8fc;
+  --ani-search-menu-bg: rgb(17 27 42 / 72%);
+  --ani-search-menu-line: rgb(219 239 255 / 19%);
+  --ani-search-chip-bg: rgb(240 248 255 / 8%);
+  --ani-search-filter-bg: rgb(240 248 255 / 13%);
+  max-height: min(68dvh, 560px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--ani-search-menu-bg) !important;
+  color: var(--ani-search-menu-text) !important;
+  border: 1px solid var(--ani-search-menu-line) !important;
+  border-radius: 16px !important;
+  backdrop-filter: blur(26px) saturate(145%) !important;
+  -webkit-backdrop-filter: blur(26px) saturate(145%) !important;
+  box-shadow: 0 14px 34px rgb(0 8 20 / 30%) !important;
+}
+body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui .anime_search .anime_search-content {
+  --ani-search-menu-text: #142232;
+  --ani-search-menu-bg: rgb(247 251 255 / 78%);
+  --ani-search-menu-line: rgb(18 38 60 / 17%);
+  --ani-search-chip-bg: rgb(18 38 60 / 6%);
+  --ani-search-filter-bg: rgb(18 38 60 / 9%);
+}
+body.ani-ambientlight-ui .top_sky .anime_search-input > #anime-search-sky {
+  font-size: 15px !important;
+}
+body.ani-ambientlight-ui .anime_search .anime_search-content .search-content-unit {
+  padding-block: 12px;
+  box-shadow: 0 1px 0 var(--ani-search-menu-line);
+}
+body.ani-ambientlight-ui .anime_search .anime_search-content .search-content-unit:last-child {
+  box-shadow: none;
+}
+body.ani-ambientlight-ui .anime_search .anime_search-content .tip-title {
+  gap: 7px;
+  margin-bottom: 8px;
+  color: var(--ani-search-menu-text);
+}
+body.ani-ambientlight-ui .anime_search .anime_search-content .tip-title p {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: inherit !important;
+}
+body.ani-ambientlight-ui .anime_search-content :is(.search-recent, .search-hot) .tip-title > img {
+  display: none;
+}
+body.ani-ambientlight-ui .anime_search-content .search-recent {
+  --ani-search-section-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7v5l3 2'/%3E%3C/svg%3E");
+}
+body.ani-ambientlight-ui .anime_search-content .search-hot {
+  --ani-search-section-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round'%3E%3Cpath d='M12 3c2 4-1 6 2 8 1-1 2-2 2-4 3 3 4 5 4 8a8 8 0 0 1-16 0c0-3 2-6 4-8 0 3 1 4 2 4 1-2 3-5 2-8Z'/%3E%3C/svg%3E");
+}
+body.ani-ambientlight-ui .anime_search-content :is(.search-recent, .search-hot) .tip-title::before {
+  content: '';
+  width: 15px;
+  height: 15px;
+  flex: none;
+  background: currentColor;
+  mask: var(--ani-search-section-icon) center / contain no-repeat;
+}
+body.ani-ambientlight-ui .anime_search .anime_search-content .tip-title .delete-record-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--ani-search-menu-line) !important;
+  border-radius: 50% !important;
+  background: var(--ani-search-filter-bg) !important;
+  backdrop-filter: blur(10px);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 12%);
+  color: var(--ani-search-menu-text);
+}
+body.ani-ambientlight-ui .anime_search-content .delete-record-btn svg {
+  display: block;
+  width: 10.5px;
+  height: 14px;
+}
+body.ani-ambientlight-ui .anime_search-content .delete-record-btn svg path {
+  fill: currentColor !important;
+}
+body.ani-ambientlight-ui .anime_search .anime_search-content .search-tag-wrap {
+  gap: 7px;
+}
+body.ani-ambientlight-ui .anime_search-content :is(.search-tag-wrap .search-tag, .search-content-unit.search-filter .btn-filter) {
+  padding: 5px 11px;
+  border: 1px solid var(--ani-search-menu-line) !important;
+  border-radius: 999px !important;
+  background: var(--ani-search-chip-bg) !important;
+  color: var(--ani-search-menu-text) !important;
+  font-size: 15px;
+  line-height: 20px;
+  transition: color .15s ease, border-color .15s ease, background-color .15s ease;
+}
+body.ani-ambientlight-ui .anime_search-content .search-content-unit.search-filter .btn-filter {
+  min-height: 40px;
+  height: auto;
+  margin: 0;
+  gap: 8px;
+  background: var(--ani-search-filter-bg) !important;
+  font-size: 16px;
+}
+body.ani-ambientlight-ui .anime_search .anime_search-content .search-content-unit.search-filter .btn-filter .img-filter {
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  color: inherit !important;
+  background-color: currentColor !important;
+  background-image: none !important;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M3 7h4m4 0h10M3 17h10m4 0h4'/%3E%3Ccircle cx='9' cy='7' r='2'/%3E%3Ccircle cx='15' cy='17' r='2'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+body.ani-ambientlight-ui .anime_search-content :is(.search-tag-wrap .search-tag, .search-content-unit.search-filter .btn-filter, .delete-record-btn:not(:disabled)):is(:hover, :focus-visible) {
+  color: var(--ani-search-hover-color, var(--ani-accent, #3dafb6)) !important;
+  border-color: currentColor !important;
+  background: color-mix(in srgb, currentColor 13%, transparent) !important;
+}
+body.ani-ambientlight-ui .anime_search-content .delete-record-btn {
+  --ani-search-hover-color: #f87171;
 }
 body.ani-ambientlight-ui .filter-nav .newanime-filter-text {
   color: var(--ani-muted) !important;
@@ -4696,6 +4796,7 @@ body.ani-ambientlight-ui #BH_background .ani-browse-filters :is(section.class_li
   text-decoration: none;
   font-family: inherit;
   cursor: pointer;
+  outline: none !important;
   transition: background 0.15s ease, color 0.15s ease;
 }
 body.ani-ambientlight-ui #BH_background .ani-browse-filters :is(section.class_list li :is(a, button), .ani-catalog-seasons button):hover {
@@ -4709,9 +4810,9 @@ body.ani-ambientlight-ui #BH_background .ani-browse-filters :is(section.class_li
   box-shadow: inset 0 1px 0 #ffffff20;
   font-weight: 700;
 }
-body.ani-ambientlight-ui #BH_background .ani-browse-filters section.class_list li :is(a, button):focus-visible {
-  outline: 2px solid var(--ani-accent);
-  outline-offset: 2px;
+body.ani-ambientlight-ui #BH_background .ani-browse-filters :is(section.class_list li :is(a, button), .ani-catalog-seasons button):focus-visible {
+  border-color: var(--ani-accent) !important;
+  box-shadow: inset 0 0 0 1px var(--ani-accent) !important;
 }
 body.ani-ambientlight-ui #BH_background .animate-theme-list:has(> .filter-section) > :is(.filter-section, .theme-list-block) {
   grid-area: auto !important;

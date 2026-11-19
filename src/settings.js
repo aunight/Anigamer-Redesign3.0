@@ -104,6 +104,11 @@
     hideSidebarAds: true,
     showFootprint: true,
     showWeather: true,
+    spoilerBlurEnabled: false,
+    spoilerBlurTags: '',
+    spoilerBlurKeywords: '',
+    episodeAutoGroup: true,
+    showOffshelfAlert: true,
   });
   const themeFields = [
     [
@@ -355,6 +360,11 @@
         ['hideSidebarAds', '隱藏右側頁面廣告', 'boolean'],
         ['showFootprint', '首頁顯示動畫瘋足跡（改作自 bilibili-margin）', 'boolean'],
         ['showWeather', '首頁顯示天氣實況卡片（改作自 bilibili-margin）', 'boolean'],
+        ['spoilerBlurEnabled', '啟用避雷薄碼遮罩（依標籤／關鍵字模糊封面）', 'boolean'],
+        ['spoilerBlurTags', '避雷遮罩標籤（以逗號分隔，如 BL,GL,血腥暴力,年齡限制）', 'text'],
+        ['spoilerBlurKeywords', '避雷遮罩作品關鍵字（以逗號分隔）', 'text'],
+        ['episodeAutoGroup', '長篇集數自動依每 25 集分組折疊（50 集以上）', 'boolean'],
+        ['showOffshelfAlert', '收藏與首頁標註即將下架作品提醒', 'boolean'],
       ],
     },
   ];
@@ -747,6 +757,14 @@
               .toLowerCase();
       } else if (key === 'pageBackgroundImage' && typeof value === 'string') {
         try { const url = new URL(value); result[key] = url.protocol === 'https:' ? url.href.slice(0,2048) : ''; } catch { result[key] = ''; }
+      } else if (key === 'spoilerBlurTags' || key === 'spoilerBlurKeywords') {
+        if (typeof value === 'string') {
+          result[key] = value
+            .replace(/[，、]/g, ',')
+            .slice(0, 300)
+            .replace(/[^\p{L}\p{N} ,+\-_.]/gu, '')
+            .trim();
+        }
       } else if (field?.[2] === 'text' && typeof value === 'string') {
         result[key] = value
           .slice(0, 80)
@@ -814,8 +832,17 @@
       if (key === 'pageBackgroundImage') return `<label class="ani-settings-select">${label}<input type="text" maxlength="2048" data-setting="${key}" placeholder="https://…"></label>`;
       if (type === 'color')
         return `<label class="ani-settings-color">${label}<span><input type="color" data-color-picker="${key}" aria-label="挑選${label}"><input type="text" maxlength="7" data-setting="${key}" aria-label="${label}色碼" placeholder="#112233" spellcheck="false"></span></label>`;
-      if (type === 'text')
-        return `<label class="ani-settings-select">${label}<input type="text" maxlength="80" data-setting="${key}" placeholder="例如 Noto Sans TC"></label>`;
+      if (type === 'text') {
+        const placeholder =
+          key === 'spoilerBlurTags'
+            ? '例如 BL,GL,血腥暴力,年齡限制'
+            : key === 'spoilerBlurKeywords'
+              ? '例如 關鍵字1,關鍵字2'
+              : '例如 Noto Sans TC';
+        const maxLen =
+          key === 'spoilerBlurTags' || key === 'spoilerBlurKeywords' ? 300 : 80;
+        return `<label class="ani-settings-select">${label}<input type="text" maxlength="${maxLen}" data-setting="${key}" placeholder="${placeholder}"></label>`;
+      }
       if (key === 'method') {
         const methods = methodGroups.flatMap((group) => group.methods);
         return (

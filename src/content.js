@@ -1497,31 +1497,16 @@
     }
   }
 
-  // These covers are deliberately soft behind schedule text. Rasterize a small
-  // copy once so revealing the tab doesn't filter dozens of full-size images.
-  function prepareWeekCover(tile, source, url) {
+  function prepareWeekCover(tile, url) {
     if (tile.dataset.aniCoverUrl === url) return;
     tile.dataset.aniCoverUrl = url;
-    const image = source.currentSrc === url && source.complete && source.naturalWidth ? source : new Image();
-    const draw = () => {
-      if (tile.dataset.aniCoverUrl !== url || !image.naturalWidth) return;
-      const cover = tile.querySelector('.ani-week-cover') || document.createElement('canvas');
-      cover.className = 'ani-week-cover';
-      cover.setAttribute('aria-hidden', 'true');
-      cover.width = 32;
-      cover.height = Math.max(1, Math.round(32 * image.naturalHeight / image.naturalWidth));
-      const ctx = cover.getContext('2d');
-      if (!ctx) return;
-      ctx.imageSmoothingQuality = 'high';
-      ctx.drawImage(image, 0, 0, cover.width, cover.height);
-      if (!cover.parentNode) tile.prepend(cover);
-    };
-    if (image === source) draw();
-    else {
-      image.onload = draw;
-      image.onerror = () => { if (tile.dataset.aniCoverUrl === url) delete tile.dataset.aniCoverUrl; };
-      image.src = url;
-    }
+    const cover = tile.querySelector('.ani-week-cover') || document.createElement('img');
+    cover.className = 'ani-week-cover';
+    cover.setAttribute('aria-hidden', 'true');
+    cover.alt = '';
+    cover.onerror = () => { if (tile.dataset.aniCoverUrl === url) delete tile.dataset.aniCoverUrl; };
+    cover.src = url;
+    if (!cover.parentNode) tile.prepend(cover);
   }
 
   function fitPremiumCard() {
@@ -1635,6 +1620,20 @@
   const posterSorters = new WeakMap();
   const nativeWatch = new Map();
   const episodeOrdinals = new Map();
+  function getHistoryEpisodes(card, animeId) {
+    if (!/^\d+$/.test(animeId)) return [];
+    const doc = card.ownerDocument;
+    const details = doc.getElementById(`sub-list-${animeId}`)
+      || doc.querySelector(`.user-watchTime-list[data-anime-sn="${animeId}"]:not(.tmp-list)`);
+    return Array.from(details?.querySelectorAll('a[href]') || []).flatMap(link => {
+      const title = link.querySelector('.history-list-anime-title');
+      const label = title?.dataset.aniOriginalTitle || title?.textContent.trim() || '';
+      const episode = label.match(/\[\s*(\d+(?:\.\d+)?)\s*\]\s*$/)?.[1]
+        || label.match(/^EP\.\s*(\d+(?:\.\d+)?)$/i)?.[1];
+      const videoSn = link.getAttribute('href').match(/[?&]sn=(\d+)/)?.[1];
+      return episode && videoSn ? [{ episode, videoSn }] : [];
+    });
+  }
   function mapSeasonEpisode(card,id,episode,total) {
     if (episodeOrdinals.has(id)) return;
     episodeOrdinals.set(id,null);
@@ -1653,9 +1652,11 @@
   function syncNativeWatch() {
     const collect = doc => {
       for (const c of doc.querySelectorAll('.user-watch-list .anime-card')) {
-        const id = c.querySelector('[data-anime-sn]')?.dataset.animeSn;
-        const n = Number(c.querySelector('.user-lastwatch')?.textContent);
-        if (id && Number.isFinite(n)) nativeWatch.set(id,n);
+        const id = c.querySelector('.more-btn')?.dataset.anime || c.querySelector('[data-anime-sn]')?.dataset.animeSn;
+        const nativeEpisode = c.querySelector('.user-lastwatch')?.textContent.trim();
+        const episodes = getHistoryEpisodes(c, id).map(entry => Number(entry.episode));
+        if (nativeEpisode && Number.isFinite(Number(nativeEpisode))) episodes.push(Number(nativeEpisode));
+        if (id && episodes.length) nativeWatch.set(id, Math.max(...episodes));
       }
     };
     if (location.pathname === '/viewList.php') { collect(document); return; }
@@ -1858,7 +1859,7 @@
         }
         requestAnimationFrame(syncOldListScroll);
       }
-      if (!list || location.pathname === '/mygather.php' || section.querySelector(':scope > .filter-section') || !list.querySelector('.theme-list-main') || list.closest('.ani-poster-rail')) continue;
+      if (!list || location.pathname === '/mygather.php' || section.closest('.old_list:has(.search_result)') || section.querySelector(':scope > .filter-section') || !list.querySelector('.theme-list-main') || list.closest('.ani-poster-rail')) continue;
       const rail = document.createElement('div');
       rail.className = 'ani-poster-rail';
       list.before(rail);
@@ -4324,7 +4325,8 @@
       const score=source?.textContent.match(/★\s*([0-5](?:\.\d+)?)/)?.[1];
       if(score&&title){let pill=card.querySelector('.ani-history-score');if(!pill){pill=document.createElement('span');pill.className='ani-history-score';title.after(pill);}const text=`★ ${score}`;if(pill.textContent!==text)pill.textContent=text;}
       const info=card.querySelector('.anime-info'),more=card.querySelector('.more-btn'),id=more?.dataset.anime||card.querySelector('[data-anime-sn]')?.dataset.animeSn;
-      const href=card.querySelector('.play-btn,.click-area')?.getAttribute('href'),videoSn=href?.match(/[?&]sn=(\d+)/)?.[1];
+      const playLink = card.querySelector('.play-btn[href]') || card.querySelector('.click-area[href]');
+      const href = playLink?.getAttribute('href'), videoSn = href?.match(/[?&]sn=(\d+)/)?.[1];
       const data=historyMetadata.get(`${id}:${videoSn||id}`);
       if(info){
         let meta=info.querySelector('.ani-history-meta');if(!meta){meta=document.createElement('div');meta.className='ani-history-meta';info.append(meta);}
@@ -4343,7 +4345,8 @@
         const remaining=data?.duration&&Number.isFinite(elapsed)?Math.max(0,data.duration-elapsed):undefined;
         const progressLabel=remaining===0?'已看完':Number.isFinite(remaining)?`已看 ${Math.round(clamp(elapsed/data.duration*100,0,100))}% · 剩餘 ${Math.floor(remaining/60)}分${String(Math.floor(remaining%60)).padStart(2,'0')}秒`:'';
         if(progressText.textContent!==progressLabel)progressText.textContent=progressLabel;
-        const episode=info.querySelector('.user-lastwatch')?.textContent.trim();
+        const episode = getHistoryEpisodes(card, id).find(entry => entry.videoSn === videoSn)?.episode
+          || info.querySelector('.user-lastwatch')?.textContent.trim();
         let timing=info.querySelector('.ani-history-timing');if(!timing){timing=document.createElement('p');timing.className='ani-history-timing';title?.after(timing);}
         const timeLabel=`${Number.isFinite(elapsed)?formatContinueTime(elapsed):'—'} / ${data?.duration?formatContinueTime(data.duration):'—'}`;if(timing.dataset.aniLabel!==timeLabel){timing.dataset.aniLabel=timeLabel;const position=document.createElement('span');position.className='ani-history-elapsed';position.textContent=Number.isFinite(elapsed)?formatContinueTime(elapsed):'—';timing.replaceChildren(position,document.createTextNode(' / '+(data?.duration?formatContinueTime(data.duration):'—')));}
         let playback=info.querySelector('.ani-history-playback');if(!playback){playback=document.createElement('div');playback.className='ani-history-playback';timing.before(playback);}
@@ -4559,7 +4562,7 @@
         const source = sourceByHref.get(tile.getAttribute('href')) || sourceByName.get(name);
         const image = source?.querySelector('.anime-blocker img');
         const url = image?.dataset.src || image?.src;
-        if (url && /^https:\/\/(?:p2|i2|truth)\.bahamut\.com\.tw\//.test(url)) prepareWeekCover(tile, image, url);
+        if (url && /^https:\/\/(?:p2|i2|truth)\.bahamut\.com\.tw\//.test(url)) prepareWeekCover(tile, url);
         if (!tile.querySelector('.ani-week-score')) {
           const score = [...(source?.querySelectorAll('.ani-score-badge-top-left,.label-edition') || [])].map(n=>n.textContent.trim()).find(t=>/^(?:★\s*)?[0-5](?:\.\d+)?$/.test(t));
           if (score) { const pill = document.createElement('span'); pill.className = 'ani-week-score'; pill.textContent = `★ ${score.replace(/★\s*/,'')}`; tile.append(pill); }
@@ -6961,6 +6964,12 @@
         menu.focus();
       });
       syncMenu();
+    }
+    const headerSearch = document.querySelector('.top_sky #anime-search-sky');
+    const pageSearch = document.querySelector('#BH_background .search_result input[name="keyword"]');
+    if (headerSearch?.form && pageSearch?.form && !pageSearch.form.classList.contains('ani-duplicate-search')) {
+      if (!headerSearch.value) headerSearch.value = pageSearch.value;
+      pageSearch.form.classList.add('ani-duplicate-search');
     }
     const search = document.querySelector('.anime_search-icon');
     if (search && !search.dataset.aniKeyboardReady) {

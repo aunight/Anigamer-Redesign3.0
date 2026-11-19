@@ -46,7 +46,8 @@
         "settings-ui.css",
         "hero-banner.css",
         "home-dashboard.css",
-        "ui-repairs.css"
+        "ui-repairs.css",
+        "enhancements.css"
       ],
       "js": [
         "hero-banner.js",
@@ -55,7 +56,8 @@
         "settings.js",
         "black-bars.js",
         "ambient-renderer.js",
-        "content.js"
+        "content.js",
+        "enhancements.js"
       ],
       "run_at": "document_end"
     },

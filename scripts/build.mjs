@@ -14,7 +14,7 @@ const motionCss = `/*! Animate.css 4.1.1 | https://animate.style/\n${animateLice
   ['_vars.css','_base.css','fading_entrances/fadeIn.css','fading_exits/fadeOut.css']
     .map(file=>fs.readFileSync(path.join(animateRoot,'source',file),'utf8').replace(/\.([a-z][\w-]*)/g,'.animate__$1')).join('\n');
 fs.writeFileSync(path.join(source,'motion.css'),motionCss);
-const css = ['content.css', 'effects.css', 'settings-ui.css', 'hero-banner.css', 'home-dashboard.css', 'ui-repairs.css']
+const css = ['content.css', 'effects.css', 'settings-ui.css', 'hero-banner.css', 'home-dashboard.css', 'ui-repairs.css', 'enhancements.css']
   .map((file) => fs.readFileSync(path.join(source, file), 'utf8'))
   .join('\n');
 const blackBars = fs.readFileSync(path.join(source, 'black-bars.js'), 'utf8');
@@ -33,7 +33,9 @@ const core =
   '\n' +
   fs.readFileSync(path.join(source, 'topbar-bridge.js'), 'utf8') +
   '\n' +
-  fs.readFileSync(path.join(source, 'content.js'), 'utf8');
+  fs.readFileSync(path.join(source, 'content.js'), 'utf8') +
+  '\n' +
+  fs.readFileSync(path.join(source, 'enhancements.js'), 'utf8');
 const membershipBackground='data:image/png;base64,'+fs.readFileSync(path.join(source,'membership-background.png')).toString('base64');
 const settingsModule = fs.readFileSync(
   path.join(source, 'settings.js'),
@@ -81,6 +83,7 @@ const metadata = `// ==UserScript==
 // @connect      acg.gamer.com.tw
 // @connect      cal.syoboi.jp
 // @connect      ja.wikipedia.org
+// @connect      api.bgm.tv
 // @connect      graphql.anilist.co
 // @connect      myanimelist.net
 // @connect      api.gamer.com.tw
@@ -130,6 +133,8 @@ for (const file of [
   'home-dashboard.css',
   'lens-switch.js',
   'ui-repairs.css',
+  'enhancements.js',
+  'enhancements.css',
   'hero-cache-worker.js',
   'content.css',
   'effects.css',

@@ -1,0 +1,500 @@
+/* Anigamer Redesign 3.0 Enhancements (Collection Status, Permanent History, Catalog Filters, Spoiler Blur, Danmu Tools, Episode Grouping & Off-shelf Alerts) */
+
+/* ── Utility hiding classes (never overwrite card.hidden so native filters compose cleanly) ── */
+.ani-col-status-hidden,
+.ani-perm-native-hidden,
+.ani-exclude-hidden,
+.ani-origin-hidden,
+.ani-dm-filtered,
+.ani-dm-sender-muted,
+.ani-ep-group-hidden {
+  display: none !important;
+}
+
+.ani-dm-live-muted {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* ── Toast notification fallback ── */
+.ani-enh-toast {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 2147483000;
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: rgba(18, 30, 44, 0.9);
+  border: 1px solid rgba(118, 224, 232, 0.35);
+  color: #f0f6fc;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.42);
+}
+
+/* ── Extra Filter Headers inside .ani-filter-body (distinct from .class-header SVG count contract) ── */
+.ani-extra-filter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.ani-extra-filter-header h3 {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ani-text, #e8f1fa);
+}
+.ani-extra-filter-header svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  color: var(--ani-accent, #3dafb6);
+}
+.ani-extra-filter-note {
+  font-size: 12px;
+  color: var(--ani-muted, rgba(212, 226, 240, 0.72));
+}
+
+/* ── Feature 1A: Collection Status Tags (/mygather.php) ── */
+.ani-custom-status-filter ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ani-custom-status-filter li button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--ani-text, #dce8f5);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+}
+.ani-custom-status-filter li button small {
+  opacity: 0.72;
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+.ani-custom-status-filter li button:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+.ani-custom-status-filter li.now button,
+.ani-custom-status-filter li button[aria-pressed='true'] {
+  background: rgba(61, 175, 182, 0.22);
+  border-color: rgba(94, 226, 234, 0.65);
+  color: #ffffff;
+}
+
+.ani-poster-card .theme-img-block > .ani-col-status-bar,
+.theme-list-main .theme-img-block > .ani-col-status-bar {
+  position: absolute !important;
+  left: 8px !important;
+  bottom: 8px !important;
+  margin-top: 0 !important;
+  z-index: 12 !important;
+}
+.ani-poster-card .theme-img-block:has(.ani-col-status-menu:not([hidden])),
+.theme-list-main .theme-img-block:has(.ani-col-status-menu:not([hidden])) {
+  overflow: visible !important;
+}
+.ani-poster-card .ani-col-status-bar,
+.theme-list-main .ani-col-status-bar {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  margin-top: 6px !important;
+  z-index: 12 !important;
+}
+#BH_background .ani-col-status-chip::before,
+#BH_background .ani-col-status-chip::after,
+#BH_background .ani-perm-tab::before,
+#BH_background .ani-perm-tab::after,
+#BH_background .ani-perm-btn::before,
+#BH_background .ani-perm-btn::after {
+  content: none !important;
+  display: none !important;
+}
+#BH_background .ani-col-status-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  padding: 3px 10px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  background: rgba(14, 22, 34, 0.82) !important;
+  backdrop-filter: blur(12px) !important;
+  color: rgba(240, 246, 252, 0.96) !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  line-height: 1.35 !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35) !important;
+  transition: transform 0.12s ease, background-color 0.15s ease, border-color 0.15s ease !important;
+}
+#BH_background .ani-col-status-chip:hover {
+  background: rgba(24, 36, 52, 0.94) !important;
+}
+#BH_background .ani-col-status-chip[data-status='plan'] {
+  background: rgba(14, 52, 78, 0.88) !important;
+  border-color: rgba(56, 189, 248, 0.72) !important;
+  color: #e0f2fe !important;
+}
+#BH_background .ani-col-status-chip[data-status='watching'] {
+  background: rgba(16, 62, 68, 0.9) !important;
+  border-color: rgba(94, 226, 234, 0.78) !important;
+  color: #aef7fc !important;
+}
+#BH_background .ani-col-status-chip[data-status='completed'] {
+  background: rgba(14, 62, 46, 0.88) !important;
+  border-color: rgba(52, 211, 153, 0.72) !important;
+  color: #d1fae5 !important;
+}
+#BH_background .ani-col-status-chip[data-status='paused'] {
+  background: rgba(74, 52, 14, 0.88) !important;
+  border-color: rgba(251, 191, 36, 0.72) !important;
+  color: #fef3c7 !important;
+}
+
+.ani-col-status-menu {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 6px);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 118px;
+  padding: 6px;
+  border-radius: 12px;
+  background: rgba(15, 23, 34, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.52);
+  backdrop-filter: blur(18px);
+  z-index: 30;
+}
+.ani-col-status-menu[hidden] {
+  display: none !important;
+}
+.ani-col-status-menu button {
+  text-align: left;
+  padding: 5px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #e6eff8;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.ani-col-status-menu button:hover {
+  background: rgba(61, 175, 182, 0.22);
+  color: #ffffff;
+}
+.ani-col-status-menu button.is-clear {
+  margin-top: 2px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fca5a5;
+}
+
+/* ── Feature 1B: Permanent Local Watch History (/viewList.php) ── */
+.ani-perm-history-shell {
+  margin: 0 0 18px;
+}
+#BH_background .ani-perm-tabs {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 4px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  margin-bottom: 14px !important;
+}
+#BH_background .ani-perm-tab {
+  padding: 7px 16px !important;
+  border-radius: 999px !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: rgba(226, 236, 246, 0.86) !important;
+  -webkit-text-fill-color: rgba(226, 236, 246, 0.86) !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: background-color 0.16s ease, color 0.16s ease !important;
+}
+#BH_background .ani-perm-tab[aria-selected='true'] {
+  background: var(--ani-accent, #3dafb6) !important;
+  color: #091521 !important;
+  -webkit-text-fill-color: #091521 !important;
+}
+.ani-perm-history-panel {
+  border-radius: 16px;
+  padding: 18px 20px;
+  background: rgba(18, 29, 42, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(18px);
+}
+.ani-perm-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.ani-perm-search {
+  flex: 1 1 200px;
+  min-width: 170px;
+  height: 34px;
+  padding: 4px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.07);
+  color: #f0f6fc;
+  font-size: 13px;
+}
+.ani-perm-filter-pills,
+.ani-perm-io-actions {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.ani-perm-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  color: #e6eff8;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.ani-perm-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+.ani-perm-btn[aria-pressed='true'] {
+  background: rgba(61, 175, 182, 0.24);
+  border-color: rgba(94, 226, 234, 0.6);
+  color: #ffffff;
+}
+.ani-perm-btn.is-danger {
+  border-color: rgba(248, 113, 113, 0.45);
+  color: #fca5a5;
+}
+.ani-perm-btn.is-danger.is-armed {
+  background: rgba(239, 68, 68, 0.28);
+  color: #ffffff;
+}
+
+.ani-perm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 14px;
+}
+.ani-perm-empty {
+  grid-column: 1 / -1;
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--ani-muted, rgba(212, 226, 240, 0.72));
+  font-size: 14px;
+}
+.ani-perm-card {
+  display: flex;
+  gap: 14px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-sizing: border-box;
+}
+.ani-perm-cover-wrap {
+  position: relative;
+  width: 84px;
+  height: 118px;
+  flex: none;
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.06);
+}
+.ani-perm-cover-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.ani-perm-ep-badge {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(11, 18, 29, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #82eef5;
+  font-size: 11px;
+  font-weight: 700;
+}
+.ani-perm-info {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ani-perm-title {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #f0f6fc;
+  line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ani-perm-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12px;
+  color: rgba(212, 226, 240, 0.78);
+  font-variant-numeric: tabular-nums;
+}
+.ani-perm-bar {
+  width: 100%;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+.ani-perm-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--ani-accent, #3dafb6);
+}
+.ani-perm-eps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.ani-perm-ep-pill {
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #dbe8f6;
+  font-size: 11px;
+  text-decoration: none;
+}
+.ani-perm-ep-pill:hover {
+  background: rgba(61, 175, 182, 0.3);
+  color: #ffffff;
+}
+.ani-perm-actions {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ani-perm-resume {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(61, 175, 182, 0.22);
+  border: 1px solid rgba(94, 226, 234, 0.55);
+  color: #e6fbff;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.ani-perm-resume:hover {
+  background: rgba(61, 175, 182, 0.38);
+}
+.ani-perm-del-btn {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: transparent;
+  color: rgba(220, 232, 245, 0.72);
+  cursor: pointer;
+}
+.ani-perm-del-btn:hover {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: rgba(248, 113, 113, 0.65);
+  color: #ffffff;
+}
+
+/* ── Light mode parity for Feature 1 ── */
+body.ani-light-mode.ani-ambientlight-ui .ani-extra-filter-header h3,
+body.ani-light-mode.ani-ambientlight-ui .ani-perm-title,
+body.ani-light-mode.ani-ambientlight-ui .ani-perm-btn {
+  color: #142232;
+}
+body.ani-light-mode.ani-ambientlight-ui .ani-perm-history-panel {
+  background: rgba(255, 255, 255, 0.78);
+  border-color: rgba(18, 38, 60, 0.16);
+}
+body.ani-light-mode.ani-ambientlight-ui .ani-perm-card,
+body.ani-light-mode.ani-ambientlight-ui .ani-perm-tabs,
+body.ani-light-mode.ani-ambientlight-ui .ani-custom-status-filter li button {
+  background: rgba(18, 38, 60, 0.06);
+  border-color: rgba(18, 38, 60, 0.16);
+  color: #142232;
+}
+body.ani-light-mode.ani-ambientlight-ui .ani-perm-tab {
+  color: #3c4e63;
+}
+body.ani-light-mode.ani-ambientlight-ui .ani-perm-tab[aria-selected='true'] {
+  background: #14939c;
+  color: #ffffff;
+}
+body.ani-light-mode.ani-ambientlight-ui .ani-perm-search {
+  background: rgba(18, 38, 60, 0.07);
+  border-color: rgba(18, 38, 60, 0.2);
+  color: #142232;
+}
+body.ani-light-mode.ani-ambientlight-ui .ani-perm-meta,
+body.ani-light-mode.ani-ambientlight-ui .ani-extra-filter-note {
+  color: #4b5e73;
+}
+body.ani-light-mode.ani-ambientlight-ui .ani-perm-resume {
+  background: rgba(20, 147, 156, 0.16);
+  border-color: rgba(20, 147, 156, 0.5);
+  color: #0b757d;
+}
+body.ani-light-mode.ani-ambientlight-ui .ani-col-status-chip {
+  background: rgba(18, 38, 60, 0.08);
+  border-color: rgba(18, 38, 60, 0.22);
+  color: #142232;
+}
+body.ani-light-mode.ani-ambientlight-ui .ani-col-status-menu {
+  background: rgba(248, 251, 255, 0.96);
+  border-color: rgba(18, 38, 60, 0.2);
+}
+body.ani-light-mode.ani-ambientlight-ui .ani-col-status-menu button {
+  color: #142232;
+}
