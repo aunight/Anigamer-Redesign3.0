@@ -5277,7 +5277,7 @@
         }
         // Normalize real 動畫瘋·Plus row DOM BEFORE icon & status placement so titles always align flush-left (matching 圖2)
         if (panelEl.closest('.ani-drawer-slot-extra')) {
-          const plusRowTitleRe = /^(?:自動同意分級警告|無縫連播下一集|跳過片頭曲|彈幕格式修改|彈幕軌跡|彈魂軌跡|截圖\s*按鍵設定|時間跳躍|過濾關鍵字)/;
+          const plusRowTitleRe = /^(?:自動同意分級警告|無縫連播下一集|跳過片頭曲|彈幕格式修改|彈幕軌跡|彈魂軌跡|彈幕熱度|截圖\s*按鍵設定|時間跳躍|過濾關鍵字)/;
           for (const cand of panelEl.querySelectorAll('span, label, div, p')) {
             if (cand.closest('.ani-plus-cap-row, .ani-plus-info-trigger, .ani-plus-pill-btn, .ani-plus-kw-chip, .ani-plus-status-pill, .ani-plus-format-subinline, .ani-plus-jump-editor-row, button')) continue;
             if (cand.matches('div') && cand.querySelector('span, label, p, input, button')) continue;
@@ -5381,7 +5381,7 @@
           ['無縫連播下一集', 'auto-next', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 5 15 12 5 19 5 5"/><line x1="19" y1="5" x2="19" y2="19"/></svg>'],
           ['跳過片頭曲', 'skip-op', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><polygon points="4 6 12 12 4 18 4 6"/><polygon points="13 6 21 12 13 18 13 6"/></svg>'],
           ['(?:彈幕格式修改|格式)$', 'dm-format', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="16" y2="12"/><line x1="4" y1="17" x2="12" y2="17"/></svg>'],
-          ['彈幕軌跡|彈魂軌跡', 'dm-track', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 12 7 12 10 6 14 18 17 12 21 12"/></svg>'],
+          ['彈幕軌跡|彈魂軌跡|彈幕熱度', 'dm-track', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 12 7 12 10 6 14 18 17 12 21 12"/></svg>'],
           ['截圖錄影附加項目', 'cap-extra', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3"/></svg>'],
           ['截圖\\s*按鍵設定|按鍵設定', 'cap-key', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h2M11 10h2M15 10h2M8 14h8"/></svg>'],
           ['時間跳躍', 'time-jump', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'],
@@ -5399,6 +5399,13 @@
             if (!lbl.classList.contains('ani-plus-row-title') && lbl.children.length > 3) continue;
             const txt = (lbl.textContent || '').replace(/\s+/g, ' ').trim();
             if (re.test(txt)) {
+              if (key === 'dm-track') {
+                for (const node of lbl.childNodes) {
+                  if (node.nodeType === Node.TEXT_NODE) {
+                    node.textContent = node.textContent.replace(/彈魂軌跡|彈幕軌跡/, '彈幕熱度');
+                  }
+                }
+              }
               const ic = document.createElement('span');
               ic.className = 'ani-row-icon';
               ic.dataset.aniRowKey = key;
@@ -5581,7 +5588,7 @@
               let probe = formatRow.nextElementSibling;
               while (probe) {
                 const pt = probe.textContent || '';
-                if (probe.matches('.ani-plus-form-row') || /彈魂軌跡|彈幕軌跡|截圖錄影|時間跳躍|過濾關鍵字/.test(pt)) break;
+                if (probe.matches('.ani-plus-form-row') || /彈魂軌跡|彈幕軌跡|彈幕熱度|截圖錄影|時間跳躍|過濾關鍵字/.test(pt)) break;
                 if (/字體修改|陰影深度|外框距離/.test(pt) && probe.querySelector('select, input[type="range"]')) return probe;
                 probe = probe.nextElementSibling;
               }
@@ -5590,7 +5597,7 @@
                   d !== formatRow &&
                   !d.closest('.ani-plus-format-subinline') &&
                   /字體修改|陰影深度|外框距離/.test(d.textContent || '') &&
-                  !/彈幕格式修改|彈魂軌跡|彈幕軌跡|時間跳躍|過濾關鍵字/.test(d.textContent || '') &&
+                  !/彈幕格式修改|彈魂軌跡|彈幕軌跡|彈幕熱度|時間跳躍|過濾關鍵字/.test(d.textContent || '') &&
                   Boolean(d.querySelector('select, input[type="range"]')) &&
                   d.querySelectorAll('select, input[type="range"]').length >= 2
               ) || null;
