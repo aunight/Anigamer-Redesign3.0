@@ -9697,10 +9697,15 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .su
   padding-block-start:12px !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle [data-credit-panel] .ani-side-pill {
-  background:#f5f7fa !important;
-  color:#273446 !important;
-  -webkit-text-fill-color:#273446 !important;
-  border-color:#fff !important;
+  background:rgb(255 255 255 / 18%) !important;
+  color:#fff !important;
+  -webkit-text-fill-color:currentColor !important;
+  border-color:rgb(255 255 255 / 46%) !important;
+  box-shadow:inset 0 1px 0 rgb(255 255 255 / 28%);
+  backdrop-filter:blur(12px);
+}
+body.ani-light-mode.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle [data-credit-panel] .ani-side-pill {
+  color:#233245 !important;
 }
 
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-watch-related-row {
@@ -9745,7 +9750,7 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-watch-col-mer
   .ani-merch-card::before { content:""; position:absolute; inset:0; z-index:-1; pointer-events:none; background:var(--ani-merch-cover) center/cover; filter:blur(25px); opacity:.22; }
   .ani-merch-card > a { display:flex; flex-direction:column; height:100%; min-height:0; }
   .ani-merch-card .ani-merch-meta-row { flex-direction:column; align-items:stretch !important; gap:4px !important; }
-  .ani-merch-meta-row .ani-merch-price { margin:0 !important; text-align:left !important; }
+  .ani-merch-meta-row .ani-merch-price { margin:0 !important; text-align:center !important; }
   .ani-merch-card .ani-merch-buy-btn { display:flex !important; align-items:center; justify-content:center; gap:6px; width:100% !important; }
   .ani-merch-card .ani-merch-buy-btn svg { width:16px; height:16px; }
   &:not(.ani-merch-no-scroll) .store > :is(.next,.prev),
@@ -9786,16 +9791,18 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-watch-col-mer
     width: auto !important;
     height: auto !important;
     max-width: 100% !important;
-    max-height: 122px !important;
+    max-height: 148px !important;
     aspect-ratio: auto !important;
     object-fit: contain !important;
     background: transparent !important;
     flex: none;
   }
+  .products-info:not(:has(> :not(.ani-merch-points))) { display:none !important; }
   .products-name { display:block !important; flex:1 1 auto !important;
     height: auto !important;
     min-height: 0 !important;
     max-height: none !important;
+    margin-block: 6px 2px !important;
     overflow: auto !important;
   }
   .products-name p {
@@ -9829,4 +9836,28 @@ body.ani-layout-comments.ani-ambientlight-ui #BH_background #w-post-box .reply-c
   button.reply-content__tag:is(:hover, :focus-visible)::before {
     background-color: var(--ani-comment-hover-color) !important;
   }
+}
+
+body.ani-ambientlight-page.ani-ambientlight-ui .toast_box .toast_content.hint {
+  border-radius: 999px !important;
+  background-color: rgb(10 68 81 / 66%) !important;
+  backdrop-filter: blur(16px) saturate(125%);
+  -webkit-backdrop-filter: blur(16px) saturate(125%);
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-watch-col-merch .ani-merch-card .products-card-img {
+    transition: transform 200ms ease-out;
+  }
+
+  body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-watch-col-merch .ani-merch-card:is(:hover, :focus-within) .products-card-img {
+    transform: scale(1.045);
+  }
+}
+
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .plus_imagetool_box
+  :is(.ani-tools-toggle-btn, .shortcut-button, .ani-player-settings-toggle, .plus_button_box.ani-tool-hover-pill):is(:hover, :focus-within)
+  :is(.ani-tool-glyph, .ani-tool-hover-label, .ani-shortcut-btn-glyph, .ani-shortcut-label, .ani-tools-toggle-icon, .ani-tools-toggle-label) {
+  color:var(--ani-accent, #3dafb6) !important;
+  -webkit-text-fill-color:currentColor !important;
 }

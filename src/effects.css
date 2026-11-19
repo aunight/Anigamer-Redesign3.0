@@ -1716,7 +1716,7 @@ body.ani-focus-mode #BH_background .ani-watch-tools:is(:hover, :focus-within) {
     justify-content: flex-start !important;
     align-items: center !important;
     gap: 8px !important;
-    padding: 56px 0 12px !important;
+    padding: 40px 0 12px !important;
     margin: 0 !important;
     overflow-y: auto !important;
     scrollbar-width: none !important;
