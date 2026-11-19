@@ -213,6 +213,7 @@
         schedule(); return;
       }
       if (version !== renderVersion) return;
+      host.style.setProperty('--ani-hero-cover', 'url(' + JSON.stringify(src) + ')');
       const previous = [...images.children];
       const ambient = img.cloneNode(); ambient.className = 'ani-hero-ambient';
       images.append(ambient, img);

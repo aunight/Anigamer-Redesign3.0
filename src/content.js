@@ -603,7 +603,7 @@
             const button = document.createElement('button');
             button.type = 'button';
             button.innerHTML = opt.matches('.item-recommend')
-              ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.8 1-6.1-4.4-4.3 6.1-.9Z"/></svg>'
+              ? '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.8 1-6.1-4.4-4.3 6.1-.9Z"/></svg>'
               : '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l4 2"/></svg>';
             button.append(opt.textContent.trim().replace(/排序$/, ''));
             button.addEventListener('click', () => { opt.click(); sync(); });
@@ -1548,8 +1548,12 @@
       wrap.addEventListener('pointermove',event=>{target=event.target.closest?.('.newanime-date-area');if(!target){wrap.classList.remove('ani-date-following');return;}x=event.clientX;if(frame)return;frame=requestAnimationFrame(()=>{frame=0;if(!target)return;const label=target.querySelector('.anime-date-info');if(!label)return;const text=label.textContent.match(/\d{1,2}\/\d{1,2}\s*[（(][一二三四五六日天][）)]/)?.[0]||label.textContent.match(/\d{1,2}\/\d{1,2}/)?.[0]||'';if(cursor.textContent!==text)cursor.textContent=text;const latest=dates[0]?.querySelector('.anime-date-info')?.textContent.match(/\d{1,2}\/\d{1,2}/)?.[0];cursor.classList.toggle('ani-date-previous',text.match(/\d{1,2}\/\d{1,2}/)?.[0]!==latest);const rect=wrap.getBoundingClientRect(),area=target.getBoundingClientRect();wrap.classList.add('ani-date-following');const left=Math.max(0,Math.min(rect.width-cursor.offsetWidth,x-rect.left-cursor.offsetWidth/2));cursor.style.left=`${left}px`;const rail=target.querySelector('.date-block-border')?.getBoundingClientRect();cursor.style.top=`${(rail?rail.top+rail.height/2:area.top)-rect.top-cursor.offsetHeight/2}px`;});});
       wrap.addEventListener('pointerleave',()=>{target=null;wrap.classList.remove('ani-date-following');if(frame){cancelAnimationFrame(frame);frame=0;}});
     }
-    const premium = document.querySelector('#blockVideoInSeason .newanime-block > .premium-block');
-    if (!premium) return;
+    for (const premium of document.querySelectorAll('#blockVideoInSeason .newanime-block > .premium-block')) {
+      updatePremiumMeter(premium);
+    }
+  }
+
+  function updatePremiumMeter(premium) {
     const grid = premium.parentElement;
     const info = premium.querySelector('.premium-info');
     const ratio = Number.parseFloat(info?.querySelector('.number')?.textContent || '');
@@ -2669,7 +2673,7 @@
           searchLink.href = 'https://bgm.tv/subject_search/' + encodeURIComponent(rawTitleText.replace(/\s*\[[^\]]+\]\s*$/, '')) + '?cat=2';
           searchLink.target = '_blank';
           searchLink.rel = 'noopener noreferrer';
-          searchLink.textContent = '點格子';
+          searchLink.innerHTML = '<svg class="ani-bgm-icon" width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3l2.5 3M16 3l-2.5 3" stroke="#f09199" stroke-width="2" stroke-linecap="round"/><rect x="3" y="6" width="18" height="14" rx="4" fill="#f09199"/><rect x="5.5" y="8.5" width="13" height="9" rx="2" fill="#ffffff"/><path d="M8.5 11.5h2M13.5 11.5h2M10 14.5h4" stroke="#f09199" stroke-width="1.6" stroke-linecap="round"/></svg>點格子';
           actions.append(searchLink);
         }
         if(bgmtv && bgmtv !== searchLink){
@@ -4822,7 +4826,7 @@
         ic.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7.5" width="16" height="13.5" rx="3"/><path d="M8.5 7.5V6a3.5 3.5 0 0 1 7 0v1.5"/><path d="M9.5 12a2.5 2.5 0 0 0 5 0"/></svg>';
         mHead.prepend(ic);
       }
-      const mList = merchSec.querySelector('.store_wrapper ul, .store_list, .slick-track, .store_wrapper');
+      const mList = merchSec.querySelector('.store_wrapper');
       let mItems = [...merchSec.querySelectorAll('.store_item, .store_wrapper li')];
       if (!mItems.length) {
         mItems = [...merchSec.querySelectorAll('.store_wrapper > *')].filter((el) => el.querySelector('img'));
@@ -4831,15 +4835,20 @@
         card.classList.add('ani-merch-card');
         if (card.dataset.aniMerchEnhanced === 'true') continue;
         card.dataset.aniMerchEnhanced = 'true';
+        const art = card.querySelector('img');
+        const cover = art?.dataset.src || art?.currentSrc || art?.src;
+        if (cover && /^https?:/.test(cover)) card.style.setProperty('--ani-merch-cover', 'url(' + JSON.stringify(cover) + ')');
         const ctaCandidates = [...card.querySelectorAll('a, button, [role="button"], [class*="buy" i], [class*="btn" i]')];
-        const buyBtn =
+        const buyBtn = card.querySelector('.btn-buy-now') ||
           ctaCandidates.find((el) => /^(?:前往購買|購買|立即購買|前往商品|搶購|下單)$/.test(el.textContent.trim())) ||
           ctaCandidates.find((el) => /購買|前往/.test(el.textContent.trim()) && el.children.length <= 2) ||
           card.querySelector(':is(.store_buy, .store_btn, a.btn, button)');
         if (buyBtn) {
           buyBtn.classList.add('ani-merch-buy-btn');
-          buyBtn.setAttribute('aria-label', '購買商品');
+          const buyText = buyBtn.textContent.includes('預購') ? '立即預購' : '立即購買';
+          buyBtn.setAttribute('aria-label', buyText);
           buyBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h3l3 12h11l3-9H6"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg>';
+          buyBtn.append(document.createTextNode(buyText));
         }
         const leafNodes = [...card.querySelectorAll('*')].filter(
           (el) => el !== buyBtn && !buyBtn?.contains(el) && !el.querySelector('*') && el.textContent.trim()
@@ -4861,7 +4870,7 @@
           else card.append(metaRow);
         }
       }
-      const canScroll = mItems.length > 2 && mList && mList.scrollWidth > mList.clientWidth + 4;
+      const canScroll = mItems.length > 1 && mList && mList.scrollWidth > mList.clientWidth + 4;
       merchSec.classList.toggle('ani-merch-no-scroll', !canScroll);
     }
     for (const showMoreBtn of document.querySelectorAll(
@@ -5244,12 +5253,12 @@
               const tw = document.createTreeWalker(r, NodeFilter.SHOW_TEXT);
               let tn;
               while ((tn = tw.nextNode())) {
-                if (/截圖錄影/.test(tn.nodeValue || '')) {
-                  tn.nodeValue = tn.nodeValue.replace(/截圖錄影\s*/g, '');
+                if (/截圖錄影|加入/.test(tn.nodeValue || '')) {
+                  tn.nodeValue = tn.nodeValue.replace(/(?:截圖錄影|加入)\s*/g, '');
                 }
               }
               if (!r.dataset.aniCapShort) {
-                r.dataset.aniCapShort = shortTxt;
+                r.dataset.aniCapShort = shortTxt.replace(/^加入/, '');
               }
               rowWrap.append(r);
             }
@@ -6435,7 +6444,7 @@
         if (!/已評價/.test(tipText) && nodes.length >= 5) cachedUserStars = 0;
         return cachedUserStars;
       };
-      const goldStarSvg = '<svg class="ani-dist-star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.4l2.92 5.92 6.53.95-4.72 4.6 1.11 6.5L12 17.3l-5.84 3.07 1.11-6.5-4.72-4.6 6.53-.95L12 2.4z"/></svg>';
+      const goldStarSvg = '<svg class="ani-dist-star" width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.4l2.92 5.92 6.53.95-4.72 4.6 1.11 6.5L12 17.3l-5.84 3.07 1.11-6.5-4.72-4.6 6.53-.95L12 2.4z"/></svg>';
       const renderStarsHtml = (count) => {
         const n = Math.max(1, Math.min(5, Number(count) || 0));
         return `<span class="ani-rating-star-row" aria-label="${n} 星">${goldStarSvg.repeat(n)}</span>`;
@@ -6486,7 +6495,7 @@
         html += '<div class="ani-my-rating"><div class="ani-my-rating-label">我的評價</div><div class="ani-my-rating-arrow">▼</div><div class="ani-my-stars" role="group" aria-label="我的評價">';
         for (let i = 1; i <= 5; i++) {
           const isFilled = i <= userStars;
-          html += `<button type="button" class="ani-my-star-btn${isFilled ? ' is-filled' : ''}" data-star="${i}" aria-pressed="${isFilled}" aria-label="給予 ${i} 星評價"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.4l2.92 5.92 6.53.95-4.72 4.6 1.11 6.5L12 17.3l-5.84 3.07 1.11-6.5-4.72-4.6 6.53-.95L12 2.4z"/></svg></button>`;
+          html += `<button type="button" class="ani-my-star-btn${isFilled ? ' is-filled' : ''}" data-star="${i}" aria-pressed="${isFilled}" aria-label="給予 ${i} 星評價"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.4l2.92 5.92 6.53.95-4.72 4.6 1.11 6.5L12 17.3l-5.84 3.07 1.11-6.5-4.72-4.6 6.53-.95L12 2.4z"/></svg></button>`;
         }
         html += '</div>';
         if (statusLabel || wallUrl || acgReviewEl.querySelector('.user-score-more')) {

@@ -563,3 +563,5 @@ body.ani-ambientlight-ui #BH_background .ani-wx-retry {
   font-size: 12px;
   cursor: pointer;
 }
+body.ani-ambientlight-ui #BH_background .ani-fp-eyebrow strong { color:#fff; }
+body.ani-ambientlight-ui #BH_background .ani-fp-eyebrow > span { align-self:flex-end; }

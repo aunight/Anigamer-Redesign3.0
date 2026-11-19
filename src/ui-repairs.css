@@ -9727,3 +9727,42 @@ body.ani-layout-comments #BH_background .ani-comment-columns {
 body.ani-layout-comments #BH_background .ani-comment-columns > #w-post-box {
   min-width:0; width:100%; margin:0 !important; padding-inline:0 !important;
 }
+
+.ani-share-card .ani-share-social-btn:is(:hover,:focus-visible) svg,
+.ani-share-card .ani-share-social-btn:is(:hover,:focus-visible) svg path {
+  color:var(--ani-accent,#3dafb6) !important; fill:currentColor !important;
+}
+.ani-comment-recommendations .ani-rec-facts { margin-block:12px 8px; column-gap:10px; }
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #plusbox.plus-settings-section {
+  grid-template-columns:minmax(0,1fr); justify-items:stretch;
+  .ani-setting-section:has(.ani-plus-cap-heading) > :is(.ani-plus-cap-heading,.ani-plus-cap-row) { flex-basis:100% !important; }
+  .ani-plus-form-row:has(.ani-plus-jump-controls) { align-items:center !important; justify-content:center !important; }
+  .ani-plus-form-row:has(.ani-plus-jump-controls) > .ani-plus-row-tail-extra { flex:0 1 auto !important; margin:0 !important; }
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-watch-col-merch .ani-merch-section {
+  .store_wrapper { min-width:0; overflow-x:auto; }
+  .store_wrapper .ani-merch-card { position:relative; isolation:isolate; overflow:hidden; }
+  .ani-merch-card::before { content:""; position:absolute; inset:0; z-index:-1; pointer-events:none; background:var(--ani-merch-cover) center/cover; filter:blur(25px); opacity:.22; }
+  .ani-merch-card > a { display:flex; flex-direction:column; height:100%; min-height:0; }
+  .ani-merch-card .ani-merch-meta-row { flex-direction:column; align-items:stretch !important; gap:4px !important; }
+  .ani-merch-meta-row .ani-merch-price { margin:0 !important; text-align:left !important; }
+  .ani-merch-card .ani-merch-buy-btn { display:flex !important; align-items:center; justify-content:center; gap:6px; width:100% !important; }
+  .ani-merch-card .ani-merch-buy-btn svg { width:16px; height:16px; }
+  &:not(.ani-merch-no-scroll) .store > :is(.next,.prev),
+  &.store:not(.ani-merch-no-scroll) > :is(.next,.prev) { width:32px !important; min-width:32px !important; height:36px !important; }
+  .store > .next, &.store > .next { right:4px !important; left:auto !important; }
+  .store > .prev, &.store > .prev { left:4px !important; right:auto !important; }
+}
+body.ani-layout-comments.ani-ambientlight-ui #BH_background #w-post-box {
+  .reply_right { justify-self:end; justify-content:flex-end; margin-inline-start:auto !important; }
+  .reply-content__footer .reply-content__gpbp { gap:4px !important; padding:0 !important; }
+  .reply-content__footer .reply-content__gpbp button { width:20px !important; min-width:0 !important; justify-content:center !important; }
+  .reply-content__footer .reply-content__gpbp p { min-width:0; width:auto; }
+  .reply-content__footer .reply-content__gpbp button.reply-content__bp { margin-left:8px !important; }
+  .reply-content__footer button.reply-content__tag::before { width:21px; height:21px; }
+  .c-more-msg { margin-block-end:1lh !important; }
+}
+body.ani-ambientlight-ui #BH_background .ani-rating-skeleton,
+body.ani-catalog-page :is(#ani-sort-float-btn,#ani-mask-float-btn,#ani-block-float-btn) {
+  display:none !important;
+}

@@ -245,3 +245,13 @@ body.ani-ambientlight-page #BH_background #blockVideoInSeason .newanime-date-are
 @media (prefers-reduced-motion: reduce) {
   body.ani-ambientlight-page .ani-hero-watch { transition: none; }
 }
+body.ani-home-page #BH_background .big_banner.ani-hero-enabled {
+  position:relative;
+  isolation:isolate;
+}
+body.ani-home-page #BH_background .big_banner.ani-hero-enabled::before {
+  content:""; position:absolute; inset:-160px 0 45%; z-index:-1; pointer-events:none;
+  background:var(--ani-hero-cover) center 22%/cover no-repeat;
+  filter:blur(36px) saturate(1.15); opacity:.5;
+  mask-image:linear-gradient(to bottom,#000 58%,transparent);
+}
