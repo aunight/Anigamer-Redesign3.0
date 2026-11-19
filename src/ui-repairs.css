@@ -9615,11 +9615,15 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background {
   body.ani-layout-comments #BH_background .commend-title .ani-comment-sort button {transition:none}
 }
 body.ani-layout-comments #w-post-box .ani-comment-recommendations:not([hidden]) {
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  container-type:inline-size;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: 16px;
+  container-type: inline-size;
 }
 body.ani-layout-comments #w-post-box .ani-comment-recommendations > a:not([hidden]) {
-  display:flex; flex-flow:column nowrap; align-items:stretch; justify-content:flex-start; gap:8px;
+  display: grid;
+  grid-template-columns: clamp(96px, 34cqi, 170px) minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
 }
 .ani-comment-recommendations > a > .ani-rec-poster {
   width: 100%;
@@ -9636,9 +9640,6 @@ body.ani-layout-comments #w-post-box .ani-comment-recommendations > a:not([hidde
 }
 .ani-comment-recommendations > a > span:last-child { flex:none; }
 .ani-comment-recommendations > a strong { display:block; font-weight:700; }
-@container (max-width:340px) {
-  .ani-comment-recommendations > a { grid-column:1 / -1; }
-}
 @media(min-width:1150px) {
   body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body {
     .ani-danmu-filter-row { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
@@ -9648,5 +9649,21 @@ body.ani-layout-comments #w-post-box .ani-comment-recommendations > a:not([hidde
     #plusbox .plus-settings-section :is(.ani-plus-form-row,.ani-plus-cap-row,.ani-setting-item:has(.ani-plus-jump-controls)) {
       box-sizing:border-box !important; min-height:54px !important; height:auto !important; padding-block:0 !important; margin-block:0 !important;
     }
+  }
+}
+body.ani-layout-comments #BH_background .commend-title .ani-comment-sort {
+  display:inline-grid; grid-template-columns:repeat(2,1fr); position:relative; isolation:isolate;
+  &::before {
+    content:""; position:absolute; inset:3px auto 3px 3px; width:calc(50% - 4px);
+    box-sizing:border-box; border:1px solid #7992a2; border-radius:inherit;
+    background:var(--ani-panel-hover,#314759); pointer-events:none;
+  }
+  &:has(> button:nth-child(2)[aria-pressed=true])::before { transform:translateX(calc(100% + 2px)); }
+  > button[aria-pressed] {
+    position:relative; justify-content:center; background:transparent !important;
+    border:1px solid transparent !important; border-radius:999px !important;
+  }
+  @media(prefers-reduced-motion:no-preference) {
+    &::before { transition:transform 220ms cubic-bezier(.2,.7,.25,1); }
   }
 }
