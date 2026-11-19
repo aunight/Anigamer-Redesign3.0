@@ -829,10 +829,58 @@ body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .
 body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .user-watch-textlist li a .history-list-anime-title {
   display: inline-flex !important;
   align-items: center !important;
-  justify-content: center !important;
+  justify-content: flex-start !important;
+  min-width: 0 !important;
   min-height: 28px !important;
-  line-height: 1 !important;
-  padding: 0 14px !important;
+  line-height: 1.2 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+html body.ani-history-page.ani-ambientlight-ui #BH_background .theme-title-block .ani-perm-tabs {
+  display: inline-flex !important;
+  align-items: center !important;
+  height: 46px !important;
+  min-height: 46px !important;
+  padding: 4px !important;
+  gap: 4px !important;
+  border-radius: 999px !important;
+  border: 1px solid var(--ani-line, rgba(255, 255, 255, 0.16)) !important;
+  background: rgba(15, 24, 36, 0.48) !important;
+}
+html body.ani-history-page.ani-ambientlight-ui #BH_background .theme-title-block .ani-perm-tab {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  padding: 0 16px !important;
+  border-radius: 999px !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  color: var(--ani-muted, #b8cadb) !important;
+  -webkit-text-fill-color: var(--ani-muted, #b8cadb) !important;
+  font-size: 14.5px !important;
+  font-weight: 600 !important;
+}
+html body.ani-history-page.ani-ambientlight-ui #BH_background .theme-title-block .ani-perm-tab svg {
+  display: block !important;
+  width: 16px !important;
+  height: 16px !important;
+  flex: none !important;
+  color: currentColor !important;
+  opacity: 0.92 !important;
+}
+html body.ani-history-page.ani-ambientlight-ui #BH_background .theme-title-block .ani-perm-tab[aria-selected='true'] {
+  background: var(--ani-filter-pill-selected-bg, #719eb940) !important;
+  border-color: var(--ani-filter-pill-selected-border, #b9dff57a) !important;
+  color: var(--ani-filter-pill-selected-text, #edf7ff) !important;
+  -webkit-text-fill-color: var(--ani-filter-pill-selected-text, #edf7ff) !important;
+  box-shadow: inset 0 1px 0 #ffffff20 !important;
+  font-weight: 700 !important;
 }
 .ani-perm-watched-at {
   font-size: 12.5px;

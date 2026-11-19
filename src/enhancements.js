@@ -1230,7 +1230,34 @@
           const open = !card.classList.contains('is-open');
           card.classList.toggle('is-open', open);
           moreBtn.setAttribute('aria-expanded', String(open));
-          drawer.style.display = open ? 'block' : 'none';
+          const reduced = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+          if (open) {
+            drawer.style.display = 'block';
+            if (!reduced && typeof drawer.animate === 'function') {
+              const h = drawer.scrollHeight || 200;
+              drawer.animate(
+                [
+                  { opacity: 0, maxHeight: '0px', transform: 'translateY(-6px)' },
+                  { opacity: 1, maxHeight: `${h}px`, transform: 'translateY(0)' },
+                ],
+                { duration: 220, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
+              );
+            }
+          } else if (!reduced && typeof drawer.animate === 'function') {
+            const h = drawer.scrollHeight || 200;
+            const anim = drawer.animate(
+              [
+                { opacity: 1, maxHeight: `${h}px`, transform: 'translateY(0)' },
+                { opacity: 0, maxHeight: '0px', transform: 'translateY(-6px)' },
+              ],
+              { duration: 190, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
+            );
+            anim.onfinish = () => {
+              if (!card.classList.contains('is-open')) drawer.style.display = 'none';
+            };
+          } else {
+            drawer.style.display = 'none';
+          }
         }
         return;
       }
@@ -1970,7 +1997,6 @@
       document.querySelector('.ani-collection-sort-host') ||
       document.querySelector('.filter-title-block') ||
       document.querySelector('.animate-theme-list:has(> .filter-section) > .theme-title-block') ||
-      document.querySelector('.ani-perm-tabs') ||
       document.querySelector('.ani-perm-io-actions');
     const filterSection = document.querySelector('.filter-section');
     const filterToggle = filterSection?.querySelector(':scope > .ani-filter-toggle');
