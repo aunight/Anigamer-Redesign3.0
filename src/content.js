@@ -590,6 +590,15 @@
       }
       const count = commentHeader.querySelector('#w-anime-comment-count');
       if (title && count && title.nextElementSibling !== count) title.after(count);
+      if (count && !count.hasAttribute('data-ani-last-count')) {
+        const rememberCount = () => {
+          const label = count.textContent.trim();
+          if (label) count.dataset.aniLastCount = label;
+        };
+        count.dataset.aniLastCount = '';
+        rememberCount();
+        new MutationObserver(rememberCount).observe(count, {childList:true, characterData:true, subtree:true});
+      }
       const filter = commentHeader.querySelector('.btn-newanime-filter');
       if (filter && !commentHeader.querySelector('.ani-comment-sort')) {
         const options = [...filter.querySelectorAll('.filter-items li')];

@@ -9736,7 +9736,7 @@ body.ani-layout-comments #BH_background .ani-comment-columns > #w-post-box {
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #plusbox.plus-settings-section {
   grid-template-columns:minmax(0,1fr); justify-items:stretch;
   .ani-setting-section:has(.ani-plus-cap-heading) > :is(.ani-plus-cap-heading,.ani-plus-cap-row) { flex-basis:100% !important; }
-  .ani-plus-form-row:has(.ani-plus-jump-controls) { align-items:center !important; justify-content:center !important; }
+  .ani-plus-form-row:has(.ani-plus-jump-controls) { align-items:center !important; justify-content:flex-start !important; }
   .ani-plus-form-row:has(.ani-plus-jump-controls) > .ani-plus-row-tail-extra { flex:0 1 auto !important; margin:0 !important; }
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-watch-col-merch .ani-merch-section {
@@ -9765,4 +9765,42 @@ body.ani-layout-comments.ani-ambientlight-ui #BH_background #w-post-box {
 body.ani-ambientlight-ui #BH_background .ani-rating-skeleton,
 body.ani-catalog-page :is(#ani-sort-float-btn,#ani-mask-float-btn,#ani-block-float-btn) {
   display:none !important;
+}
+
+body.ani-layout-comments #BH_background .commend-title #w-anime-comment-count:empty::before {
+  content: attr(data-ani-last-count);
+}
+body.ani-layout-comments.ani-ambientlight-ui #BH_background #w-post-box .reply-content__footer > button.reply-content__tag {
+  margin-inline-start: 10px !important;
+}
+.ani-comment-recommendations > a:is(:hover, :focus-visible) .ani-rec-facts svg {
+  color: var(--ani-accent, #3dafb6);
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #plusbox.plus-settings-section {
+  .ani-plus-form-row:has([data-ani-row-key="cap-key"]) { justify-content:flex-start !important; gap:16px !important; }
+  .ani-plus-form-row:has([data-ani-row-key="cap-key"]) > :is(.ani-plus-row-tail-item,.ani-plus-row-tail-extra) { margin-inline-start:0 !important; }
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-watch-col-merch .ani-merch-card {
+  .products-card-img {
+    aspect-ratio: auto !important;
+    height: 122px !important;
+    object-fit: contain !important;
+    flex: none;
+  }
+  .products-name { display:block !important; flex:1 1 auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: auto !important;
+  }
+  .products-name p {
+    display: block !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    -webkit-line-clamp: unset !important;
+  }
+  .ani-merch-meta-row { flex-shrink: 0; }
 }
