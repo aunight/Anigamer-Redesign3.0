@@ -5,6 +5,11 @@
   const SETTINGS_KEY = 'aniAmbientSettingsV1';
   const COL_STATUS_KEY = 'aniCollectionStatesV1';
   const PERM_HIST_KEY = 'aniPermanentHistoryV1';
+  const TAG_CACHE_KEY = 'aniTagCacheV1';
+  const CAT_EXCLUDE_KEY = 'aniCatalogExcludeV1';
+  const WORK_META_CACHE_KEY = 'aniWorkMetaCacheV1';
+  const TAG_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+  const WORK_META_TTL_MS = 14 * 24 * 60 * 60 * 1000;
 
   const COL_STATUS_META = [
     ['plan', '待看'],
@@ -788,6 +793,482 @@
     }
   };
 
+  const sendWorkerMessage = (payload) =>
+    new Promise((resolve) => {
+      try {
+        if (!globalThis.chrome?.runtime?.sendMessage) {
+          resolve(null);
+          return;
+        }
+        chrome.runtime.sendMessage(payload, (resp) => {
+          if (chrome.runtime.lastError) {
+            resolve(null);
+            return;
+          }
+          resolve(resp ?? null);
+        });
+      } catch {
+        resolve(null);
+      }
+    });
+
+  const tagSnMemory = new Map();
+  const tagFetchInflight = new Map();
+
+  const readJsonLocal = (key, fallback = {}) => {
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') return parsed;
+      }
+    } catch {}
+    return fallback;
+  };
+
+  const writeJsonLocal = (key, obj) => {
+    try {
+      localStorage.setItem(key, JSON.stringify(obj));
+    } catch {}
+  };
+
+  const fetchTagSnSet = (rawTag, hrefOverride = '') => {
+    const tag = String(rawTag || '').trim();
+    if (!tag) return Promise.resolve(new Set());
+    const cachedMem = tagSnMemory.get(tag);
+    if (cachedMem && Date.now() - cachedMem.ts < TAG_CACHE_TTL_MS) {
+      return Promise.resolve(new Set(cachedMem.sns));
+    }
+    const cacheMap = readJsonLocal(TAG_CACHE_KEY, {});
+    const diskEntry = cacheMap[tag];
+    if (diskEntry && Array.isArray(diskEntry.sns) && Date.now() - Number(diskEntry.ts || 0) < TAG_CACHE_TTL_MS) {
+      const mem = { ts: Number(diskEntry.ts), sns: new Set(diskEntry.sns) };
+      tagSnMemory.set(tag, mem);
+      return Promise.resolve(new Set(mem.sns));
+    }
+    if (tagFetchInflight.has(tag)) return tagFetchInflight.get(tag);
+
+    const job = (async () => {
+      const sns = new Set();
+      let baseHref = '';
+      if (hrefOverride) {
+        try {
+          const u = new URL(hrefOverride, location.origin);
+          if (u.origin === location.origin) baseHref = u.href;
+        } catch {}
+      }
+      if (!baseHref) {
+        baseHref = `${location.origin}/animeList.php?tags=${encodeURIComponent(tag)}`;
+      }
+      let currentUrl = baseHref;
+      for (let pageIdx = 1; pageIdx <= 3 && currentUrl; pageIdx++) {
+        try {
+          const u = new URL(currentUrl, location.origin);
+          if (u.origin !== location.origin) break;
+          if (pageIdx > 1) u.searchParams.set('page', String(pageIdx));
+          const res = await fetch(u.href, {
+            credentials: 'include',
+            signal: typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? AbortSignal.timeout(10000) : undefined,
+          });
+          if (!res?.ok) break;
+          const html = await res.text();
+          if (!html) break;
+          const doc = new DOMParser().parseFromString(html, 'text/html');
+          const links = [...doc.querySelectorAll('.theme-list-main, a[href*="animeRef.php?sn="], a[href*="animeVideo.php?sn="]')];
+          let foundHere = 0;
+          for (const a of links) {
+            const sn = getSnFromHref(a.getAttribute('href'));
+            if (sn) {
+              sns.add(sn);
+              foundHere++;
+            }
+          }
+          if (!foundHere) break;
+          const hasNextPage = [...doc.querySelectorAll('.page_number a')].some(
+            (a) => Number(a.textContent?.trim()) === pageIdx + 1,
+          );
+          if (!hasNextPage) break;
+          currentUrl = baseHref;
+        } catch {
+          break;
+        }
+      }
+      const ts = Date.now();
+      tagSnMemory.set(tag, { ts, sns });
+      const freshMap = readJsonLocal(TAG_CACHE_KEY, {});
+      freshMap[tag] = { ts, sns: [...sns] };
+      // Prune oldest entries if cache grows beyond 40 tags
+      const keys = Object.keys(freshMap);
+      if (keys.length > 40) {
+        keys.sort((a, b) => (freshMap[b]?.ts || 0) - (freshMap[a]?.ts || 0)).slice(40).forEach((k) => delete freshMap[k]);
+      }
+      writeJsonLocal(TAG_CACHE_KEY, freshMap);
+      return new Set(sns);
+    })().finally(() => {
+      tagFetchInflight.delete(tag);
+    });
+
+    tagFetchInflight.set(tag, job);
+    return job;
+  };
+
+  // ── Feature 2: 所有動畫（片庫）反向排除標籤、原作分類與跳頁電梯 (/animeList.php) ──
+  const DEFAULT_CATALOG_TAGS = [
+    '動作', '奇幻', '冒險', '校園', '戀愛', '科幻', '懸疑', '治癒',
+    '異世界', '泡麵番', 'BL', 'GL', '恐怖', '機戰', '運動',
+  ];
+  const ORIGIN_OPTIONS = [
+    ['all', '全部'],
+    ['manga', '漫畫改編'],
+    ['light_novel', '輕小說改編'],
+    ['game', '遊戲改編'],
+    ['original', '原創動畫'],
+    ['short', '輕動畫 / 泡麵番'],
+  ];
+  const ORIGIN_BADGE_LABELS = {
+    manga: '漫改',
+    light_novel: '輕改',
+    game: '遊改',
+    original: '原創',
+    short: '輕動畫',
+  };
+
+  const buildCatalogPageUrl = (pageNum, baseHref = location.href) => {
+    const u = new URL(baseHref, location.origin);
+    const n = Math.max(1, Math.floor(Number(pageNum) || 1));
+    u.searchParams.set('page', String(n));
+    return u.href;
+  };
+
+  let catBusy = false;
+
+  const initCatalogEnhancements = () => {
+    if (location.pathname !== '/animeList.php') return;
+    const filterSection = document.querySelector('.filter-section');
+    const filterBody = filterSection?.querySelector('.ani-filter-body') || filterSection;
+    const listBlock = document.querySelector('.animate-theme-list .theme-list-block');
+    if (!listBlock) return;
+
+    // Collect native tags before injecting extra panels
+    const tagLinks = new Map();
+    if (filterSection) {
+      for (const a of filterSection.querySelectorAll('.class_list a')) {
+        const label = (a.textContent || '').trim();
+        const href = a.getAttribute('href') || '';
+        if (!label || label === '全部' || label.length > 16 || /^javascript:/i.test(href)) continue;
+        if (!tagLinks.has(label)) tagLinks.set(label, href);
+      }
+    }
+    for (const dt of DEFAULT_CATALOG_TAGS) {
+      if (!tagLinks.has(dt)) tagLinks.set(dt, '');
+    }
+    const availableTags = [...tagLinks.keys()].slice(0, 24);
+
+    const savedEx = readJsonLocal(CAT_EXCLUDE_KEY, { tags: [], keyword: '' });
+    const excludedTags = new Set(Array.isArray(savedEx.tags) ? savedEx.tags.map((t) => String(t).trim()).filter(Boolean) : []);
+    let excludeKeyword = String(savedEx.keyword || '');
+    let activeOrigin = 'all';
+    const metaCache = readJsonLocal(WORK_META_CACHE_KEY, {});
+    const metaPending = new Set();
+
+    const saveExcludeState = () => {
+      writeJsonLocal(CAT_EXCLUDE_KEY, { tags: [...excludedTags], keyword: excludeKeyword });
+    };
+
+    const getCardCleanTitle = (card) =>
+      (card.querySelector('.theme-name')?.textContent || '')
+        .replace(/\s*\[\s*\d+(?:\.\d+)?\s*\]\s*$/, '')
+        .trim();
+
+    const ensureOriginBadge = (card, meta) => {
+      if (!meta) return;
+      const host = card.querySelector('.theme-img-block');
+      if (!host) return;
+      const badgeKey = meta.isShort ? 'short' : meta.source;
+      const label = ORIGIN_BADGE_LABELS[badgeKey];
+      if (!label) return;
+      let badge = host.querySelector('.ani-origin-badge');
+      if (!badge) {
+        badge = document.createElement('span');
+        badge.className = 'ani-origin-badge';
+        host.append(badge);
+      }
+      if (badge.textContent !== label) badge.textContent = label;
+    };
+
+    const applyCatalogFilters = async () => {
+      if (catBusy) return;
+      catBusy = true;
+      try {
+        const cards = [...listBlock.querySelectorAll('.theme-list-main')];
+        // Gather SN sets for all currently excluded tags
+        const excludedSnSets = excludedTags.size
+          ? await Promise.all([...excludedTags].map((t) => fetchTagSnSet(t, tagLinks.get(t) || '')))
+          : [];
+        const excludedSns = new Set();
+        for (const s of excludedSnSets) {
+          for (const sn of s) excludedSns.add(sn);
+        }
+        const kwTokens = excludeKeyword
+          .split(/[,，、\n]+/)
+          .map((s) => s.trim().toLocaleLowerCase())
+          .filter(Boolean);
+
+        let excludedCount = 0;
+        let originShown = 0;
+        const now = Date.now();
+        const missingTitles = [];
+
+        for (const card of cards) {
+          const sn = getSnFromHref(card.getAttribute('href'));
+          const title = getCardCleanTitle(card);
+          const textBlob = (card.textContent || '').toLocaleLowerCase();
+
+          let isEx = false;
+          if (sn && excludedSns.has(sn)) isEx = true;
+          if (!isEx && kwTokens.length) {
+            isEx = kwTokens.some((kw) => textBlob.includes(kw));
+          }
+          card.classList.toggle('ani-catalog-excluded', isEx);
+          if (isEx) excludedCount++;
+
+          const cached = title ? metaCache[title] : null;
+          const validMeta = cached && now - Number(cached.ts || 0) < WORK_META_TTL_MS ? cached : null;
+          if (validMeta) ensureOriginBadge(card, validMeta);
+          else if (activeOrigin !== 'all' && title && !metaPending.has(title)) {
+            missingTitles.push(title);
+          }
+
+          let hideByOrigin = false;
+          if (activeOrigin !== 'all') {
+            if (activeOrigin === 'short') {
+              const hintShort = /泡麵番|輕動畫|短篇/.test(card.textContent || '');
+              hideByOrigin = validMeta ? !validMeta.isShort && !hintShort : !hintShort;
+            } else {
+              hideByOrigin = validMeta ? validMeta.source !== activeOrigin : true;
+            }
+          }
+          card.classList.toggle('ani-origin-hidden', hideByOrigin);
+          if (!isEx && !hideByOrigin) originShown++;
+        }
+
+        if (filterBody) {
+          const exCountEl = filterBody.querySelector('.ani-exclude-count');
+          if (exCountEl) exCountEl.textContent = excludedCount ? `已排除 ${excludedCount} 部` : '';
+          const origStatusEl = filterBody.querySelector('.ani-origin-status');
+          if (origStatusEl) {
+            origStatusEl.textContent =
+              activeOrigin === 'all'
+                ? ''
+                : missingTitles.length
+                ? `正在比對 ${missingTitles.length} 部作品資料…`
+                : `符合此原作分類：${originShown} 部`;
+          }
+        }
+
+        if (activeOrigin !== 'all' && missingTitles.length) {
+          const batch = [...new Set(missingTitles)].slice(0, 15);
+          batch.forEach((t) => metaPending.add(t));
+          const resp = await sendWorkerMessage({ type: 'ani-fetch-work-meta', titles: batch });
+          const tsNow = Date.now();
+          let updated = false;
+          for (const t of batch) {
+            const hit = resp?.items?.[t];
+            if (hit) {
+              metaCache[t] = { ...hit, ts: tsNow };
+              updated = true;
+            } else {
+              // Cache miss briefly (1 hour) to avoid spinning repeated requests
+              metaCache[t] = { source: 'other', isShort: false, ts: tsNow - WORK_META_TTL_MS + 3600000 };
+              updated = true;
+            }
+          }
+          if (updated) {
+            const keys = Object.keys(metaCache);
+            if (keys.length > 400) {
+              keys.sort((a, b) => (metaCache[b]?.ts || 0) - (metaCache[a]?.ts || 0)).slice(400).forEach((k) => delete metaCache[k]);
+            }
+            writeJsonLocal(WORK_META_CACHE_KEY, metaCache);
+            catBusy = false;
+            return applyCatalogFilters();
+          }
+        }
+      } finally {
+        catBusy = false;
+      }
+    };
+
+    // 2A & 2B panels appended at the END of .ani-filter-body (preserving 年份 as firstElementChild & .class-header svg === 4)
+    if (filterBody && !filterBody.querySelector('.ani-exclude-panel')) {
+      const exPanel = document.createElement('section');
+      exPanel.className = 'ani-exclude-panel';
+      exPanel.setAttribute('aria-label', '反向排除篩選');
+      exPanel.innerHTML = `
+        <div class="ani-extra-filter-header">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m5.7 5.7 12.6 12.6"/></svg>排除不想看的標籤 / 關鍵字</h3>
+          <span class="ani-exclude-count" role="status"></span>
+        </div>
+        <div class="ani-exclude-pills"></div>
+        <div class="ani-exclude-controls">
+          <input type="search" class="ani-exclude-keyword" placeholder="輸入要排除的關鍵字（逗號分隔）…" aria-label="排除關鍵字">
+          <button type="button" class="ani-exclude-clear">清除排除</button>
+        </div>
+      `;
+      const pillsWrap = exPanel.querySelector('.ani-exclude-pills');
+      for (const tag of availableTags) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'ani-exclude-pill';
+        btn.dataset.excludeTag = tag;
+        const active = excludedTags.has(tag);
+        btn.classList.toggle('is-excluded', active);
+        btn.setAttribute('aria-pressed', String(active));
+        btn.textContent = tag;
+        btn.addEventListener('click', () => {
+          if (excludedTags.has(tag)) excludedTags.delete(tag);
+          else excludedTags.add(tag);
+          const nowEx = excludedTags.has(tag);
+          btn.classList.toggle('is-excluded', nowEx);
+          btn.setAttribute('aria-pressed', String(nowEx));
+          saveExcludeState();
+          applyCatalogFilters();
+        });
+        pillsWrap.append(btn);
+      }
+      const kwInput = exPanel.querySelector('.ani-exclude-keyword');
+      kwInput.value = excludeKeyword;
+      let kwTimer = 0;
+      kwInput.addEventListener('input', () => {
+        excludeKeyword = kwInput.value;
+        saveExcludeState();
+        clearTimeout(kwTimer);
+        kwTimer = setTimeout(applyCatalogFilters, 80);
+      });
+      exPanel.querySelector('.ani-exclude-clear').addEventListener('click', () => {
+        excludedTags.clear();
+        excludeKeyword = '';
+        kwInput.value = '';
+        for (const b of pillsWrap.querySelectorAll('.ani-exclude-pill')) {
+          b.classList.remove('is-excluded');
+          b.setAttribute('aria-pressed', 'false');
+        }
+        saveExcludeState();
+        applyCatalogFilters();
+      });
+      filterBody.append(exPanel);
+    }
+
+    if (filterBody && !filterBody.querySelector('.ani-origin-panel')) {
+      const originPanel = document.createElement('section');
+      originPanel.className = 'ani-origin-panel';
+      originPanel.setAttribute('aria-label', '原作 / 型態分類');
+      originPanel.innerHTML = `
+        <div class="ani-extra-filter-header">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>原作 / 輕動畫分類</h3>
+          <span class="ani-origin-status" role="status"></span>
+        </div>
+        <div class="ani-origin-pills" role="group" aria-label="選擇原作類型"></div>
+      `;
+      const oWrap = originPanel.querySelector('.ani-origin-pills');
+      for (const [key, label] of ORIGIN_OPTIONS) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'ani-origin-pill';
+        btn.dataset.origin = key;
+        btn.setAttribute('aria-pressed', String(key === activeOrigin));
+        btn.textContent = label;
+        btn.addEventListener('click', () => {
+          activeOrigin = key;
+          for (const b of oWrap.querySelectorAll('.ani-origin-pill')) {
+            b.setAttribute('aria-pressed', String(b === btn));
+          }
+          applyCatalogFilters();
+        });
+        oWrap.append(btn);
+      }
+      filterBody.append(originPanel);
+    }
+
+    // 2C Page Elevator (.ani-page-elevator) mounted after .ani-load-more / .page_control
+    const pagesEl = document.querySelector('.page_control');
+    if (pagesEl && !document.querySelector('.ani-page-elevator')) {
+      const currentPage =
+        Number(pagesEl.querySelector('.page_number .now')?.textContent?.trim() || new URL(location.href).searchParams.get('page') || 1) || 1;
+      const pageNums = [currentPage];
+      for (const a of pagesEl.querySelectorAll('.page_number a')) {
+        const txtNum = Number(a.textContent?.trim());
+        if (Number.isFinite(txtNum) && txtNum > 0) pageNums.push(txtNum);
+        try {
+          const href = a.getAttribute('href');
+          if (href) {
+            const qPage = Number(new URL(href, location.origin).searchParams.get('page'));
+            if (Number.isFinite(qPage) && qPage > 0) pageNums.push(qPage);
+          }
+        } catch {}
+      }
+      const totalPages = Math.max(...pageNums);
+      if (totalPages > 1) {
+        const el = document.createElement('nav');
+        el.className = 'ani-page-elevator';
+        el.setAttribute('aria-label', '分頁快速跳轉');
+
+        const jumpToPage = (targetPage) => {
+          const clamped = Math.min(totalPages, Math.max(1, Math.floor(Number(targetPage) || 1)));
+          const url = buildCatalogPageUrl(clamped);
+          const ev = new CustomEvent('ani-page-jump', { cancelable: true, detail: { page: clamped, url } });
+          if (document.dispatchEvent(ev)) {
+            location.assign(url);
+          }
+        };
+
+        const quickWrap = document.createElement('div');
+        quickWrap.className = 'ani-page-quick';
+        const candidates = [...new Set([1, Math.max(1, currentPage - 1), currentPage, Math.min(totalPages, currentPage + 1), totalPages])].sort((a, b) => a - b);
+        for (const p of candidates) {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'ani-page-quick-btn';
+          btn.dataset.page = String(p);
+          btn.dataset.href = buildCatalogPageUrl(p);
+          if (p === currentPage) btn.setAttribute('aria-current', 'page');
+          btn.textContent = String(p);
+          btn.addEventListener('click', () => jumpToPage(p));
+          quickWrap.append(btn);
+        }
+
+        const form = document.createElement('form');
+        form.className = 'ani-page-jump-form';
+        form.innerHTML = `
+          <span>第</span>
+          <input type="number" class="ani-page-input" min="1" max="${totalPages}" value="${currentPage}" aria-label="輸入頁碼">
+          <span>/ ${totalPages} 頁</span>
+          <button type="submit" class="ani-page-go-btn">前往</button>
+        `;
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const val = Number(form.querySelector('.ani-page-input')?.value);
+          if (Number.isFinite(val) && val >= 1) jumpToPage(val);
+        });
+
+        el.append(quickWrap, form);
+        const anchor = document.querySelector('.ani-load-more') || pagesEl;
+        anchor.after(el);
+      }
+    }
+
+    applyCatalogFilters();
+
+    if (!listBlock.dataset.aniCatalogObs) {
+      listBlock.dataset.aniCatalogObs = '1';
+      let obsTimer = 0;
+      new MutationObserver(() => {
+        if (catBusy) return;
+        clearTimeout(obsTimer);
+        obsTimer = setTimeout(applyCatalogFilters, 60);
+      }).observe(listBlock, { childList: true });
+    }
+  };
+
   const state = {
     getSettings: () => currentSettings,
     onSettingsChange: (fn) => {
@@ -800,10 +1281,13 @@
     escapeHtml,
     showToast,
     getSnFromHref,
+    fetchTagSnSet,
+    buildCatalogPageUrl,
     recordVideoProgress,
     reinit: async () => {
       await readSettings();
       await initCollectionStatusTagger();
+      initCatalogEnhancements();
       initVideoHistoryTracker();
       await initPermanentHistoryPage();
     },
@@ -814,6 +1298,7 @@
   const boot = async () => {
     await readSettings();
     await initCollectionStatusTagger();
+    initCatalogEnhancements();
     initVideoHistoryTracker();
     await initPermanentHistoryPage();
   };

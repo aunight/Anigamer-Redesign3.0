@@ -501,3 +501,228 @@ body.ani-light-mode.ani-ambientlight-ui .ani-col-status-menu {
 body.ani-light-mode.ani-ambientlight-ui .ani-col-status-menu button {
   color: #142232;
 }
+
+/* ── Feature 2: 片庫反向排除、原作分類與分頁電梯 (/animeList.php) ── */
+.ani-catalog-excluded,
+.ani-origin-hidden {
+  display: none !important;
+}
+.ani-exclude-panel,
+.ani-origin-panel {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+.ani-exclude-panel .ani-extra-filter-header,
+.ani-origin-panel .ani-extra-filter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.ani-exclude-count,
+.ani-origin-status {
+  font-size: 12px;
+  color: var(--ani-muted, rgba(212, 226, 240, 0.78));
+  font-variant-numeric: tabular-nums;
+}
+.ani-exclude-pills,
+.ani-origin-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 10px;
+}
+.ani-exclude-pill,
+.ani-origin-pill {
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: #e4eef8;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+}
+.ani-exclude-pill:hover,
+.ani-origin-pill:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+.ani-exclude-pill.is-excluded {
+  background: rgba(239, 68, 68, 0.24);
+  border-color: rgba(248, 113, 113, 0.68);
+  color: #fecaca;
+  text-decoration: line-through;
+}
+.ani-origin-pill[aria-pressed='true'] {
+  background: var(--ani-accent, #3dafb6);
+  border-color: var(--ani-accent, #3dafb6);
+  color: #091521;
+  font-weight: 700;
+}
+.ani-exclude-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.ani-exclude-keyword {
+  flex: 1 1 220px;
+  max-width: 360px;
+  height: 32px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.07);
+  color: #f0f6fc;
+  font-size: 12.5px;
+}
+.ani-exclude-clear {
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: #e6eff8;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.ani-exclude-clear:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+.ani-origin-badge {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  z-index: 5;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(12, 20, 32, 0.84);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: #c9f4f8;
+  font-size: 11px;
+  font-weight: 650;
+  backdrop-filter: blur(10px);
+  pointer-events: none;
+}
+
+.ani-page-elevator {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 10px auto 26px;
+  padding: 10px 16px;
+  width: max-content;
+  max-width: calc(100% - 24px);
+  border-radius: 999px;
+  background: rgba(18, 29, 42, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(16px);
+}
+.ani-page-quick {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.ani-page-quick-btn {
+  min-width: 30px;
+  height: 30px;
+  padding: 0 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  color: #e6eff8;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.ani-page-quick-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+.ani-page-quick-btn[aria-current='page'] {
+  background: var(--ani-accent, #3dafb6);
+  border-color: var(--ani-accent, #3dafb6);
+  color: #091521;
+  font-weight: 700;
+}
+.ani-page-jump-form {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: rgba(226, 236, 246, 0.86);
+}
+.ani-page-input {
+  width: 58px;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  text-align: center;
+  font-size: 12.5px;
+}
+.ani-page-go-btn {
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(94, 226, 234, 0.5);
+  background: rgba(61, 175, 182, 0.22);
+  color: #dffbff;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+}
+.ani-page-go-btn:hover {
+  background: rgba(61, 175, 182, 0.38);
+}
+
+/* Light mode for Feature 2 */
+body.ani-light-mode.ani-ambientlight-ui .ani-exclude-panel,
+body.ani-light-mode.ani-ambientlight-ui .ani-origin-panel {
+  border-top-color: rgba(18, 38, 60, 0.12);
+}
+body.ani-light-mode.ani-ambientlight-ui .ani-exclude-pill,
+body.ani-light-mode.ani-ambientlight-ui .ani-origin-pill,
+body.ani-light-mode.ani-ambientlight-ui .ani-exclude-clear,
+body.ani-light-mode.ani-ambientlight-ui .ani-page-quick-btn {
+  background: rgba(18, 38, 60, 0.06);
+  border-color: rgba(18, 38, 60, 0.18);
+  color: #142232;
+}
+body.ani-light-mode.ani-ambientlight-ui .ani-exclude-pill.is-excluded {
+  background: rgba(220, 38, 38, 0.14);
+  border-color: rgba(220, 38, 38, 0.5);
+  color: #991b1b;
+}
+body.ani-light-mode.ani-ambientlight-ui .ani-origin-pill[aria-pressed='true'],
+body.ani-light-mode.ani-ambientlight-ui .ani-page-quick-btn[aria-current='page'] {
+  background: #14939c;
+  border-color: #14939c;
+  color: #ffffff;
+}
+body.ani-light-mode.ani-ambientlight-ui .ani-exclude-keyword,
+body.ani-light-mode.ani-ambientlight-ui .ani-page-input {
+  background: rgba(18, 38, 60, 0.07);
+  border-color: rgba(18, 38, 60, 0.22);
+  color: #142232;
+}
+body.ani-light-mode.ani-ambientlight-ui .ani-page-elevator {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(18, 38, 60, 0.16);
+}
+body.ani-light-mode.ani-ambientlight-ui .ani-page-jump-form,
+body.ani-light-mode.ani-ambientlight-ui .ani-exclude-count,
+body.ani-light-mode.ani-ambientlight-ui .ani-origin-status {
+  color: #3c4e63;
+}
+body.ani-light-mode.ani-ambientlight-ui .ani-page-go-btn {
+  background: rgba(20, 147, 156, 0.16);
+  border-color: rgba(20, 147, 156, 0.5);
+  color: #0b757d;
+}

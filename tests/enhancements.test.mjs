@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { JSDOM } from 'jsdom';
 
-function bootEnhancements(html, path, { sharedStorage = {}, fetchImpl } = {}) {
+function bootEnhancements(html, path, { sharedStorage = {}, fetchImpl, chromeMock } = {}) {
   const dom = new JSDOM(html, {
     url: 'https://ani.gamer.com.tw' + path,
     runScripts: 'outside-only',
@@ -14,6 +14,7 @@ function bootEnhancements(html, path, { sharedStorage = {}, fetchImpl } = {}) {
   w.IntersectionObserver = class { observe() {} disconnect() {} };
   w.AbortSignal.timeout = () => undefined;
   w.fetch = fetchImpl || (async () => ({ ok: true, text: async () => '' }));
+  if (chromeMock) w.chrome = chromeMock;
   for (const [k, v] of Object.entries(sharedStorage)) {
     w.localStorage.setItem(k, JSON.stringify(v));
   }
@@ -172,4 +173,100 @@ test('Phase 1B: permanent local history records video visits, snapshots native h
   await new Promise((r) => setTimeout(r, 40));
   assert.equal(d.querySelectorAll('.ani-perm-card').length, 2);
   domH.window.close();
+});
+
+test('Phase 2: catalog negative tags, keyword exclude, origin classification, page elevator, and DOM invariants', async (t) => {
+  const catCard = (sn, title) => `
+    <a class="theme-list-main" href="animeRef.php?sn=${sn}">
+      <div class="theme-img-block"><img class="theme-img" alt="${title}"></div>
+      <div class="anime-detail-block"><div class="theme-info-block">
+        <p class="theme-name">${title}</p>
+        <div class="theme-detail-info-block"><p class="theme-time">年份：2026/04</p><span class="theme-number">共12集</span></div>
+      </div></div>
+    </a>`;
+  const group = (name) => `<section class="class_list"><div class="class-header"><h3>${name}</h3></div><ul><li class="now"><a href="#">全部</a></li><li><a href="animeList.php?tags=異世界">異世界</a></li><li><a href="animeList.php?tags=戀愛">戀愛</a></li></ul></section>`;
+  const html = `<div id="BH_background"><div class="container"><div class="animate-theme-list">
+    <div class="filter-section">${group('屬性')}<div class="class-wrapper">${group('類型')}${group('對象')}</div></div>
+    <div class="theme-list-block">${catCard(201, '轉生異世界冒險')}${catCard(202, '敗北女角太多了')}${catCard(203, '夜晚的水母不會游泳')}</div>
+  </div><div class="page_control"><div class="page_number"><a class="now">2</a><a href="?tags=%E5%8B%95%E4%BD%9C&page=1">1</a><a href="?tags=%E5%8B%95%E4%BD%9C&page=3">3</a><a href="?tags=%E5%8B%95%E4%BD%9C&page=12">12</a></div></div></div></div>`;
+
+  const dom = bootEnhancements(html, '/animeList.php?tags=%E5%8B%95%E4%BD%9C&page=2', {
+    fetchImpl: async (url) => {
+      if (String(url).includes('tags=')) {
+        return { ok: true, text: async () => '<div class="theme-list-block"><a class="theme-list-main" href="animeRef.php?sn=201">轉生異世界冒險</a></div>' };
+      }
+      return { ok: true, text: async () => '' };
+    },
+    chromeMock: {
+      runtime: {
+        lastError: null,
+        sendMessage(msg, cb) {
+          if (msg?.type === 'ani-fetch-work-meta') {
+            cb({
+              ok: true,
+              items: {
+                '轉生異世界冒險': { source: 'light_novel', format: 'TV', duration: 24, episodes: 12, isShort: false },
+                '敗北女角太多了': { source: 'light_novel', format: 'TV', duration: 24, episodes: 12, isShort: false },
+                '夜晚的水母不會游泳': { source: 'original', format: 'TV', duration: 24, episodes: 12, isShort: false },
+              },
+            });
+          } else {
+            cb({});
+          }
+        },
+      },
+    },
+  });
+  t.after(() => { try { dom.window.close(); } catch {} });
+  const w = dom.window, d = w.document;
+  await new Promise((r) => setTimeout(r, 40));
+
+  // Verify catalog-ui invariants strictly preserved
+  assert.equal(d.querySelectorAll('.ani-filter-body .class-header svg').length, 4);
+  assert.equal(d.querySelector('.ani-filter-body').firstElementChild.querySelector('h3').textContent, '年份');
+  assert.equal(d.querySelector('.page_control').hidden, true);
+  assert.equal(d.querySelector('.ani-load-more').textContent, '繼續往下瀏覽');
+
+  // 2A: Negative tag exclude hides sn=201 via CSS class (never touching card.hidden)
+  const cards = [...d.querySelectorAll('.theme-list-main')];
+  d.querySelector('.ani-exclude-pill[data-exclude-tag="異世界"]').click();
+  await new Promise((r) => setTimeout(r, 40));
+  assert.equal(cards[0].classList.contains('ani-catalog-excluded'), true);
+  assert.equal(cards[1].classList.contains('ani-catalog-excluded'), false);
+  assert.equal(cards[0].hidden, false, 'must not mutate card.hidden');
+  assert.match(d.querySelector('.ani-exclude-count').textContent, /已排除 1 部/);
+
+  // Keyword exclusion excludes sn=202 too
+  const kw = d.querySelector('.ani-exclude-keyword');
+  kw.value = '女角';
+  kw.dispatchEvent(new w.Event('input'));
+  await new Promise((r) => setTimeout(r, 120));
+  assert.equal(cards[1].classList.contains('ani-catalog-excluded'), true);
+  d.querySelector('.ani-exclude-clear').click();
+  await new Promise((r) => setTimeout(r, 30));
+  assert.equal(cards.some((c) => c.classList.contains('ani-catalog-excluded')), false);
+
+  // 2B: Origin filter queries worker meta & keeps only 原創動畫 (sn=203)
+  d.querySelector('.ani-origin-pill[data-origin="original"]').click();
+  await new Promise((r) => setTimeout(r, 50));
+  assert.equal(cards[0].classList.contains('ani-origin-hidden'), true);
+  assert.equal(cards[1].classList.contains('ani-origin-hidden'), true);
+  assert.equal(cards[2].classList.contains('ani-origin-hidden'), false);
+  assert.equal(cards[2].querySelector('.ani-origin-badge')?.textContent, '原創');
+
+  // 2C: Page elevator builds preserved query URLs & dispatches cancelable ani-page-jump
+  const jumps = [];
+  d.addEventListener('ani-page-jump', (e) => {
+    e.preventDefault();
+    jumps.push(e.detail);
+  });
+  const input = d.querySelector('.ani-page-input');
+  assert(input, 'page elevator rendered');
+  assert.equal(input.max, '12');
+  input.value = '7';
+  d.querySelector('.ani-page-jump-form').dispatchEvent(new w.Event('submit', { cancelable: true }));
+  assert.equal(jumps.length, 1);
+  assert.equal(jumps[0].page, 7);
+  assert.match(jumps[0].url, /tags=%E5%8B%95%E4%BD%9C/);
+  assert.match(jumps[0].url, /page=7/);
 });

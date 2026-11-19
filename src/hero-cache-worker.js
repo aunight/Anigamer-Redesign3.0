@@ -92,6 +92,27 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
     })();
     return true;
   }
+  if (message?.type === 'ani-fetch-work-meta') {
+    (async () => {
+      try {
+        if (!sender.tab?.url?.startsWith('https://ani.gamer.com.tw/')) {
+          reply({ ok: false, items: {} });
+          return;
+        }
+        const rawTitles = Array.isArray(message.titles) ? message.titles : [];
+        const titles = [...new Set(rawTitles.map((t) => String(t || '').trim()).filter(Boolean))].slice(0, 15);
+        if (!titles.length) {
+          reply({ ok: true, items: {} });
+          return;
+        }
+        const items = await fetchAniListWorkMetaBatch(titles);
+        reply({ ok: true, items });
+      } catch {
+        reply({ ok: false, items: {} });
+      }
+    })();
+    return true;
+  }
   if (message?.type === 'ani-fetch-infoplus') {
     (async () => {
       try {
@@ -462,4 +483,68 @@ async function fetchAniInfoPlusData(acgUrl, fallbackTitle) {
   }
 
   return [];
+}
+
+const ANILIST_SOURCE_MAP = {
+  MANGA: 'manga',
+  LIGHT_NOVEL: 'light_novel',
+  VIDEO_GAME: 'game',
+  VISUAL_NOVEL: 'game',
+  ORIGINAL: 'original',
+};
+
+async function fetchAniListWorkMetaBatch(titles) {
+  const cleanSearch = (t) =>
+    String(t || '')
+      .replace(/\s*\[\s*\d+(?:\.\d+)?\s*\]\s*$/, '')
+      .replace(/\s*(?:第[一二三四五六七八九十\d]+[季期部]|Season\s*\d+|Part\s*\d+)\s*$/i, '')
+      .trim();
+
+  const items = {};
+  const varDecls = [];
+  const variables = {};
+  const aliases = [];
+  const entries = titles.map((orig, idx) => ({ orig, search: cleanSearch(orig) || orig, key: `m${idx}` }));
+
+  for (const e of entries) {
+    varDecls.push(`$${e.key}: String`);
+    variables[e.key] = e.search;
+    aliases.push(
+      `${e.key}: Page(perPage: 1) { media(search: $${e.key}, type: ANIME, sort: SEARCH_MATCH) { id source format duration episodes studios(isMain: true) { nodes { name } } } }`
+    );
+  }
+
+  try {
+    const query = `query (${varDecls.join(', ')}) { ${aliases.join(' ')} }`;
+    const res = await fetch('https://graphql.anilist.co', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal: AbortSignal.timeout(9000),
+      body: JSON.stringify({ query, variables }),
+    });
+    if (!res.ok) return items;
+    const json = await res.json();
+    const data = json?.data || {};
+    for (const e of entries) {
+      const m = data[e.key]?.media?.[0];
+      if (!m) continue;
+      const duration = Number(m.duration) || 0;
+      const format = String(m.format || '');
+      const source = ANILIST_SOURCE_MAP[m.source] || 'other';
+      const isShort =
+        format === 'TV_SHORT' ||
+        format === 'ONA' ||
+        format === 'SPECIAL' ||
+        (duration > 0 && duration <= 15);
+      items[e.orig] = {
+        source,
+        format,
+        duration,
+        episodes: Number(m.episodes) || 0,
+        isShort,
+        studio: String(m.studios?.nodes?.[0]?.name || ''),
+      };
+    }
+  } catch {}
+  return items;
 }
