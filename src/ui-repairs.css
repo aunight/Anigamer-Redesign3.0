@@ -9169,7 +9169,7 @@ body.ani-home-page.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui 
   align-self:start !important; --ani-poster-footer:84px; padding-bottom:var(--ani-poster-footer) !important;
 }
 body.ani-home-page.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,#blockAnimeNewArrive,.animate-theme-list) .theme-list-main.ani-poster-card .anime-detail-block {
-  position:absolute !important; inset:auto 0 0 !important; height:auto !important;
+  position:absolute !important; inset:calc(100% - var(--ani-poster-footer,80px)) 0 auto !important; height:auto !important;
   width:auto !important; box-sizing:border-box !important;
   transition:background-color .16s ease-out !important;
   min-height:var(--ani-poster-footer,80px) !important;
