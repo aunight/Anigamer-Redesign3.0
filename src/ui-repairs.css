@@ -1564,7 +1564,7 @@ body.ani-membership-page .ani-membership-background {
   }
 }
 body.ani-membership-page #BH_background .ani-membership-plans .paycard-container:last-child:not(.ani-free-plan) .paycard {
-  background:linear-gradient(145deg,#285160ee,#152c40ed) !important;
+  background:linear-gradient(145deg,#285160a6,#152c409e) !important;
 }
 body.ani-membership-page #BH_background .ani-membership-plans :is(.ani-payment-trigger,.ani-free-watch) {
   left:5% !important;
@@ -6992,16 +6992,14 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep
 /* Membership paycard staggered entrance & hover lift animation */
 @keyframes aniPaycardEnter {
   from {
-    opacity: 0;
     transform: translateY(22px) scale(0.97);
   }
   to {
-    opacity: 1;
     transform: translateY(0) scale(1);
   }
 }
 body.ani-membership-page #BH_background .ani-membership-plans .paycard-container {
-  animation: aniPaycardEnter 0.52s cubic-bezier(0.22, 1, 0.36, 1) both !important;
+  animation: aniPaycardEnter 0.52s cubic-bezier(0.22, 1, 0.36, 1) backwards !important;
   transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1), filter 0.24s ease !important;
 }
 body.ani-membership-page #BH_background .ani-membership-plans .paycard-container:nth-child(1) { animation-delay: 0.04s !important; }
@@ -9419,8 +9417,9 @@ body.ani-light-mode.ani-ambientlight-ui #w-post-box :is(p,span,a,button,textarea
   color: #21394b !important;
 }
 body.ani-light-mode .share-button-img { filter: brightness(.25) !important; }
+#ani-redeem-modal { overflow: visible; }
 #ani-redeem-modal > .ani-modal-close {
-  display: grid; place-items: center; padding: 0; top: 10px; right: 10px;
+  display: grid; place-items: center; padding: 0; top: -14px; right: -14px;
   background: rgba(18,28,42,.94); color: #edf4f8;
   border: 1px solid rgba(255,255,255,.28); box-shadow: 0 6px 18px rgba(0,0,0,.35);
 }
@@ -9909,5 +9908,41 @@ body.ani-catalog-page #BH_background .ani-catalog-date-field::after {
     border: solid currentColor;
     border-width: 0 1.5px 1.5px 0;
     transform: translateY(-2px) rotate(45deg);
+  }
+}
+
+body.ani-membership-page.ani-light-mode.ani-ambientlight-ui {
+  #BH_background { background:transparent !important; }
+  .ani-membership-background { background-color:#dce7f0; }
+  .ani-membership-background::after {
+    background:linear-gradient(rgb(234 243 250 / 51%), rgb(218 232 244 / 62%));
+  }
+  #BH_background .ani-membership-plans :is(.paycard,.userpaychose),
+  #BH_background .ani-membership-summary > div,
+  #BH_background .record-list-content {
+    background:rgb(246 251 255 / 65%) !important;
+    border-color:rgb(66 105 125 / 30%) !important;
+    backdrop-filter:blur(24px) saturate(125%);
+    color:#20384b !important;
+  }
+  #BH_background .ani-membership-plans .paycard-container:last-child:not(.ani-free-plan) .paycard {
+    background:rgb(225 244 249 / 72%) !important;
+  }
+  #BH_background .ani-membership-plans :is(.programtitle,.ani-plan-daily,.ani-plan-benefit,.ani-free-note),
+  #BH_background .ani-membership-summary :is(span,strong),
+  #BH_background .record-list :is(.info-content,.list-grow) {
+    color:#20384b !important;
+  }
+  #BH_background .ani-membership-plans .money-main { color:#086d75 !important; }
+  #BH_background .ani-membership-plans :is(.ani-free-watch,.ani-payment-trigger,.ani-current-plan-tag,.userpaychose > a) {
+    background:rgb(220 243 248 / 85%) !important;
+    border-color:rgb(39 113 129 / 30%) !important;
+    color:#174a56 !important;
+  }
+  #ani-redeem-modal > .ani-modal-close {
+    background:#e6f0f7;
+    border-color:#b3c5d3;
+    color:#20384b;
+    box-shadow:0 6px 16px rgb(24 51 73 / 24%);
   }
 }
