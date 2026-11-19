@@ -78,6 +78,7 @@
   let settingsPanel;
   let watchLayout;
   let watchRelatedPlacement = null;
+  const observedCommentLists = new WeakSet();
   let infoLinkPlacement = null;
   const regionFolds = new Map();
   const originalControlStyles = new Map();
@@ -613,10 +614,20 @@
         }
       }
       const list = document.querySelector('#w-post-box .webview_commendlist');
-      if (list && !list.parentElement.querySelector('.ani-comment-recommendations')) {
+      const commentBox = list?.closest('#w-post-box');
+      if (commentBox && !commentBox.parentElement.classList.contains('ani-comment-columns')) {
+        const columns = document.createElement('div');
+        columns.className = 'ani-comment-columns';
+        commentBox.before(columns);
+        columns.append(commentBox);
         const aside = document.createElement('aside');
         aside.className = 'ani-comment-recommendations';
         aside.hidden = true;
+        columns.append(aside);
+        renderCommentRecommendations(aside);
+      }
+      if (list && !observedCommentLists.has(list)) {
+        observedCommentLists.add(list);
         let lastPage = '';
         const loadMore = () => {
           const more = list.querySelector(':scope > [data-evt-morecomment]');
@@ -628,8 +639,7 @@
         };
         new MutationObserver(loadMore).observe(list, {childList:true, subtree:true});
         loadMore();
-        list.after(aside);
-        renderCommentRecommendations(aside);
+
       }
     }
     const watchContainer = document.querySelector('#BH_background > .container-player:has(> section.player)');
@@ -4176,7 +4186,7 @@
       }
     }
   }
-  function enhanceSiteControls() {
+  function stylePlayerConsent() {
     const consentButtons=[...document.querySelectorAll('#ani_video button,#ani_video a,#ani_video input[type="button"]')].filter(n=>/^(同意|不同意)$/.test((n.value||n.textContent).trim()));
     const agree=consentButtons.find(n=>(n.value||n.textContent).trim()==='同意'),decline=consentButtons.find(n=>(n.value||n.textContent).trim()==='不同意');
     if(agree&&decline){let panel=agree.parentElement;for(let level=0;panel&&!panel.contains(decline)&&level<6;level++)panel=panel.parentElement;if(panel&&panel.id!=='ani_video'){panel.classList.add('ani-age-consent');agree.classList.add('ani-consent-accept');decline.classList.add('ani-consent-decline');
@@ -4209,6 +4219,10 @@
       consentPlayer.classList.toggle('ani-has-consent', Boolean(agree && decline && !consentScreen));
       consentPlayer.classList.toggle('ani-age-screen-ready', Boolean(consentScreen?.classList.contains('ani-age-ready')));
     }
+  }
+
+  function enhanceSiteControls() {
+    stylePlayerConsent();
     const sectionIcons={"忍者": "<svg class=\"ani-section-icon\" fill=\"currentColor\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 448 512\"><path d=\"M224 256c-57.2 0-105.6-37.5-122-89.3c-1.1 1.3-2.2 2.6-3.5 3.8c-15.8 15.8-38.8 20.7-53.6 22.1c-8.1 .8-14.6-5.7-13.8-13.8c1.4-14.7 6.3-37.8 22.1-53.6c5.8-5.8 12.6-10.1 19.6-13.4c-7-3.2-13.8-7.6-19.6-13.4C37.4 82.7 32.6 59.7 31.1 44.9c-.8-8.1 5.7-14.6 13.8-13.8c14.7 1.4 37.8 6.3 53.6 22.1c4.8 4.8 8.7 10.4 11.7 16.1C131.4 28.2 174.4 0 224 0c70.7 0 128 57.3 128 128s-57.3 128-128 128zM0 482.3C0 399.5 56.4 330 132.8 309.9c6-1.6 12.2 .9 15.9 5.8l62.5 83.3c6.4 8.5 19.2 8.5 25.6 0l62.5-83.3c3.7-4.9 9.9-7.4 15.9-5.8C391.6 330 448 399.5 448 482.3c0 16.4-13.3 29.7-29.7 29.7L29.7 512C13.3 512 0 498.7 0 482.3zM160 96c-8.8 0-16 7.2-16 16s7.2 16 16 16l128 0c8.8 0 16-7.2 16-16s-7.2-16-16-16L160 96z\"/></svg>", "競速": "<svg class=\"ani-section-icon\" fill=\"currentColor\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 448 512\"><path d=\"M32 0C49.7 0 64 14.3 64 32l0 16 69-17.2c38.1-9.5 78.3-5.1 113.5 12.5c46.3 23.2 100.8 23.2 147.1 0l9.6-4.8C423.8 28.1 448 43.1 448 66.1l0 279.7c0 13.3-8.3 25.3-20.8 30l-34.7 13c-46.2 17.3-97.6 14.6-141.7-7.4c-37.9-19-81.3-23.7-122.5-13.4L64 384l0 96c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-80 0-66L0 64 0 32C0 14.3 14.3 0 32 0zM64 187.1l64-13.9 0 65.5L64 252.6 64 318l48.8-12.2c5.1-1.3 10.1-2.4 15.2-3.3l0-63.9 38.9-8.4c8.3-1.8 16.7-2.5 25.1-2.1l0-64c13.6 .4 27.2 2.6 40.4 6.4l23.6 6.9 0 66.7-41.7-12.3c-7.3-2.1-14.8-3.4-22.3-3.8l0 71.4c21.8 1.9 43.3 6.7 64 14.4l0-69.8 22.7 6.7c13.5 4 27.3 6.4 41.3 7.4l0-64.2c-7.8-.8-15.6-2.3-23.2-4.5l-40.8-12 0-62c-13-3.8-25.8-8.8-38.2-15c-8.2-4.1-16.9-7-25.8-8.8l0 72.4c-13-.4-26 .8-38.7 3.6L128 173.2 128 98 64 114l0 73.1zM320 335.7c16.8 1.5 33.9-.7 50-6.8l14-5.2 0-71.7-7.9 1.8c-18.4 4.3-37.3 5.7-56.1 4.5l0 77.4zm64-149.4l0-70.8c-20.9 6.1-42.4 9.1-64 9.1l0 69.4c13.9 1.4 28 .5 41.7-2.6l22.3-5.2z\"/></svg>", "音樂": "<svg class=\"ani-section-icon\" fill=\"currentColor\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M499.1 6.3c8.1 6 12.9 15.6 12.9 25.7l0 72 0 264c0 44.2-43 80-96 80s-96-35.8-96-80s43-80 96-80c11.2 0 22 1.6 32 4.6L448 147 192 223.8 192 432c0 44.2-43 80-96 80s-96-35.8-96-80s43-80 96-80c11.2 0 22 1.6 32 4.6L128 200l0-72c0-14.1 9.3-26.6 22.8-30.7l320-96c9.7-2.9 20.2-1.1 28.3 5z\"/></svg>", "職業": "<svg class=\"ani-section-icon\" fill=\"currentColor\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M184 48l144 0c4.4 0 8 3.6 8 8l0 40L176 96l0-40c0-4.4 3.6-8 8-8zm-56 8l0 40L64 96C28.7 96 0 124.7 0 160l0 96 192 0 128 0 192 0 0-96c0-35.3-28.7-64-64-64l-64 0 0-40c0-30.9-25.1-56-56-56L184 0c-30.9 0-56 25.1-56 56zM512 288l-192 0 0 32c0 17.7-14.3 32-32 32l-64 0c-17.7 0-32-14.3-32-32l0-32L0 288 0 416c0 35.3 28.7 64 64 64l384 0c35.3 0 64-28.7 64-64l0-128z\"/></svg>", "經典": "<svg class=\"ani-section-icon\" fill=\"currentColor\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M0 96C0 60.7 28.7 32 64 32l384 0c35.3 0 64 28.7 64 64l0 320c0 35.3-28.7 64-64 64L64 480c-35.3 0-64-28.7-64-64L0 96zM48 368l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0c-8.8 0-16 7.2-16 16zm368-16c-8.8 0-16 7.2-16 16l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0zM48 240l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0c-8.8 0-16 7.2-16 16zm368-16c-8.8 0-16 7.2-16 16l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0zM48 112l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16L64 96c-8.8 0-16 7.2-16 16zM416 96c-8.8 0-16 7.2-16 16l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0zM160 128l0 64c0 17.7 14.3 32 32 32l128 0c17.7 0 32-14.3 32-32l0-64c0-17.7-14.3-32-32-32L192 96c-17.7 0-32 14.3-32 32zm32 160c-17.7 0-32 14.3-32 32l0 64c0 17.7 14.3 32 32 32l128 0c17.7 0 32-14.3 32-32l0-64c0-17.7-14.3-32-32-32l-128 0z\"/></svg>", "到期": "<svg class=\"ani-section-icon\" fill=\"currentColor\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 384 512\"><path d=\"M32 0C14.3 0 0 14.3 0 32S14.3 64 32 64l0 11c0 42.4 16.9 83.1 46.9 113.1L146.7 256 78.9 323.9C48.9 353.9 32 394.6 32 437l0 11c-17.7 0-32 14.3-32 32s14.3 32 32 32l32 0 256 0 32 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l0-11c0-42.4-16.9-83.1-46.9-113.1L237.3 256l67.9-67.9c30-30 46.9-70.7 46.9-113.1l0-11c17.7 0 32-14.3 32-32s-14.3-32-32-32L320 0 64 0 32 0zM96 75l0-11 192 0 0 11c0 19-5.6 37.4-16 53L112 128c-10.3-15.6-16-34-16-53zm16 309c3.5-5.3 7.6-10.3 12.1-14.9L192 301.3l67.9 67.9c4.6 4.6 8.6 9.6 12.1 14.9L112 384z\"/></svg>", "新聞": "<svg class=\"ani-section-icon\" fill=\"currentColor\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\"><path d=\"M96 96c0-35.3 28.7-64 64-64l288 0c35.3 0 64 28.7 64 64l0 320c0 35.3-28.7 64-64 64L80 480c-44.2 0-80-35.8-80-80L0 128c0-17.7 14.3-32 32-32s32 14.3 32 32l0 272c0 8.8 7.2 16 16 16s16-7.2 16-16L96 96zm64 24l0 80c0 13.3 10.7 24 24 24l112 0c13.3 0 24-10.7 24-24l0-80c0-13.3-10.7-24-24-24L184 96c-13.3 0-24 10.7-24 24zm208-8c0 8.8 7.2 16 16 16l48 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-48 0c-8.8 0-16 7.2-16 16zm0 96c0 8.8 7.2 16 16 16l48 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-48 0c-8.8 0-16 7.2-16 16zM160 304c0 8.8 7.2 16 16 16l256 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-256 0c-8.8 0-16 7.2-16 16zm0 96c0 8.8 7.2 16 16 16l256 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-256 0c-8.8 0-16 7.2-16 16z\"/></svg>", "話題": "<svg class=\"ani-section-icon\" fill=\"currentColor\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 512\"><path d=\"M208 352c114.9 0 208-78.8 208-176S322.9 0 208 0S0 78.8 0 176c0 38.6 14.7 74.3 39.6 103.4c-3.5 9.4-8.7 17.7-14.2 24.7c-4.8 6.2-9.7 11-13.3 14.3c-1.8 1.6-3.3 2.9-4.3 3.7c-.5 .4-.9 .7-1.1 .8l-.2 .2s0 0 0 0s0 0 0 0C1 327.2-1.4 334.4 .8 340.9S9.1 352 16 352c21.8 0 43.8-5.6 62.1-12.5c9.2-3.5 17.8-7.4 25.2-11.4C134.1 343.3 169.8 352 208 352zM448 176c0 112.3-99.1 196.9-216.5 207C255.8 457.4 336.4 512 432 512c38.2 0 73.9-8.7 104.7-23.9c7.5 4 16 7.9 25.2 11.4c18.3 6.9 40.3 12.5 62.1 12.5c6.9 0 13.1-4.5 15.2-11.1c2.1-6.6-.2-13.8-5.8-17.9c0 0 0 0 0 0s0 0 0 0l-.2-.2c-.2-.2-.6-.4-1.1-.8c-1-.8-2.5-2-4.3-3.7c-3.6-3.3-8.5-8.1-13.3-14.3c-5.5-7-10.7-15.4-14.2-24.7c24.9-29 39.6-64.7 39.6-103.4c0-92.8-84.9-168.9-192.6-175.5c.4 5.1 .6 10.3 .6 15.5z\"/></svg>"};
     for(const heading of document.querySelectorAll('#BH_background .theme-title')){
       const text=heading.textContent,key=text.includes('2000')||text.includes('經典')?'經典':Object.keys(sectionIcons).find(k=>text.includes(k));
@@ -4822,7 +4836,11 @@
           ctaCandidates.find((el) => /^(?:前往購買|購買|立即購買|前往商品|搶購|下單)$/.test(el.textContent.trim())) ||
           ctaCandidates.find((el) => /購買|前往/.test(el.textContent.trim()) && el.children.length <= 2) ||
           card.querySelector(':is(.store_buy, .store_btn, a.btn, button)');
-        if (buyBtn) buyBtn.classList.add('ani-merch-buy-btn');
+        if (buyBtn) {
+          buyBtn.classList.add('ani-merch-buy-btn');
+          buyBtn.setAttribute('aria-label', '購買商品');
+          buyBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h3l3 12h11l3-9H6"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg>';
+        }
         const leafNodes = [...card.querySelectorAll('*')].filter(
           (el) => el !== buyBtn && !buyBtn?.contains(el) && !el.querySelector('*') && el.textContent.trim()
         );
@@ -4839,7 +4857,7 @@
           metaRow.className = 'ani-merch-meta-row';
           if (bonusEl && bonusEl !== priceEl) metaRow.append(bonusEl);
           metaRow.append(priceEl);
-          if (buyBtn && card.contains(buyBtn)) buyBtn.before(metaRow);
+          if (buyBtn && card.contains(buyBtn)) { buyBtn.before(metaRow); metaRow.append(buyBtn); }
           else card.append(metaRow);
         }
       }
@@ -7602,6 +7620,15 @@
 
   const observer = new MutationObserver((records) => {
     if (isBindingPlayer) return;
+    // Apply the rating screen in the mutation microtask, before the browser paints.
+    const consentChanged = records.some(record => [...record.addedNodes].some(node => {
+      const element = node.nodeType === 1 ? node : node.parentElement;
+      if (!element) return false;
+      const player = element.closest('#ani_video') || element.querySelector('#ani_video');
+      return player && (element.matches('.choose-btn-agree') ||
+        element.querySelector('.choose-btn-agree') || /不同意|未滿\s*\d+\s*歲/.test(node.textContent || ''));
+    }));
+    if (consentChanged) stylePlayerConsent();
     // Native progress labels and in-video comments change constantly. They do
     // not require scanning the entire page or rebuilding site controls.
     const structural = records.some((record) => {

@@ -60,3 +60,10 @@ html[data-ani-booting='true'] { background:#111c2b !important;overflow:hidden !i
 .ani-route-cover { position: fixed; inset: 0; z-index: 2147483000; pointer-events: none; background: #111c2b; transition: opacity 160ms ease-out; }
 .ani-route-visible { opacity: 0; }
 @media (prefers-reduced-motion: reduce) { .ani-route-cover { transition: none; } }
+
+/* Native player inserts the rating panel asynchronously. Allow the themed panel
+   to paint on its first styled frame; fall back if the enhancer cannot start. */
+body.ani-ambientlight-ui #ani_video .ncc-choosebar:not(.ani-age-ready) {
+  animation:ani-consent-bootstrap 900ms step-end both;
+}
+@keyframes ani-consent-bootstrap { from {opacity:0} to {opacity:1} }
