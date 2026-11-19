@@ -113,6 +113,26 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
     })();
     return true;
   }
+  if (message?.type === 'ani-fetch-episode-titles') {
+    (async () => {
+      try {
+        if (!sender.tab?.url?.startsWith('https://ani.gamer.com.tw/')) {
+          reply({ ok: false, episodes: {} });
+          return;
+        }
+        const title = String(message.title || '').trim();
+        if (!title) {
+          reply({ ok: true, episodes: {} });
+          return;
+        }
+        const episodes = await fetchEpisodeTitles(title);
+        reply({ ok: true, episodes });
+      } catch {
+        reply({ ok: false, episodes: {} });
+      }
+    })();
+    return true;
+  }
   if (message?.type === 'ani-fetch-infoplus') {
     (async () => {
       try {
@@ -547,4 +567,95 @@ async function fetchAniListWorkMetaBatch(titles) {
     }
   } catch {}
   return items;
+}
+
+async function fetchEpisodeTitles(rawTitle) {
+  const cleanTitle = String(rawTitle || '')
+    .replace(/\s*(?:\[\s*\d+(?:\.\d+)?\s*\]|EP\.?\s*\d+(?:\.\d+)?)\s*$/i, '')
+    .replace(/\s*-\s*巴哈姆特動畫瘋.*$/, '')
+    .replace(/\s*\[(?:特別篇|劇場版|電影版|OAD|OVA|中文配音|年齡限制版)\]\s*/g, ' ')
+    .trim();
+  const stripped = cleanTitle
+    .replace(/\s*(?:第[一二三四五六七八九十\d]+[季期部]|Season\s*\d+|Part\s*\d+)\s*$/i, '')
+    .trim();
+  const candidates = [...new Set([cleanTitle, stripped].filter((s) => s.length >= 2))];
+  const episodes = {};
+
+  for (const kw of candidates) {
+    try {
+      const sRes = await fetch('https://api.bgm.tv/v0/search/subjects', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': 'aunight/Anigamer-Redesign3.0 (https://github.com/aunight/Anigamer-Redesign3.0)',
+        },
+        signal: AbortSignal.timeout(8000),
+        body: JSON.stringify({ keyword: kw, filter: { type: [2] } }),
+      });
+      if (!sRes.ok) continue;
+      const sJson = await sRes.json();
+      const subjectId = sJson?.data?.[0]?.id;
+      if (!subjectId) continue;
+
+      for (let offset = 0; offset <= 200; offset += 100) {
+        const epRes = await fetch(
+          `https://api.bgm.tv/v0/episodes?subject_id=${subjectId}&type=0&limit=100&offset=${offset}`,
+          {
+            headers: {
+              'User-Agent': 'aunight/Anigamer-Redesign3.0 (https://github.com/aunight/Anigamer-Redesign3.0)',
+            },
+            signal: AbortSignal.timeout(8000),
+          },
+        );
+        if (!epRes.ok) break;
+        const epJson = await epRes.json();
+        const rows = Array.isArray(epJson?.data) ? epJson.data : [];
+        for (const ep of rows) {
+          const epNum = ep?.sort ?? ep?.ep;
+          if (epNum === undefined || epNum === null) continue;
+          const name = String(ep.name_cn || ep.name || '').trim();
+          const jp = String(ep.name || '').trim();
+          if (!name && !jp) continue;
+          episodes[String(epNum)] = {
+            name: name || jp,
+            jp,
+            airdate: String(ep.airdate || '').trim(),
+          };
+        }
+        const total = Number(epJson?.total) || rows.length;
+        if (offset + 100 >= total || rows.length < 100) break;
+      }
+      if (Object.keys(episodes).length > 0) return episodes;
+    } catch {}
+  }
+
+  for (const kw of candidates) {
+    try {
+      const res = await fetch('https://graphql.anilist.co', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: AbortSignal.timeout(8000),
+        body: JSON.stringify({
+          query: `query ($search: String) { Page(perPage: 1) { media(search: $search, type: ANIME, sort: SEARCH_MATCH) { streamingEpisodes { title } } } }`,
+          variables: { search: kw },
+        }),
+      });
+      if (!res.ok) continue;
+      const json = await res.json();
+      const streamEps = json?.data?.Page?.media?.[0]?.streamingEpisodes || [];
+      for (const se of streamEps) {
+        const raw = String(se?.title || '').trim();
+        const m = raw.match(/(?:Episode|EP\.?|#)\s*(\d+(?:\.\d+)?)\s*(?:[-–—:]\s*(.+))?$/i);
+        if (!m) continue;
+        const num = String(Number(m[1]));
+        const sub = (m[2] || '').trim();
+        if (sub) {
+          episodes[num] = { name: sub, jp: '', airdate: '' };
+        }
+      }
+      if (Object.keys(episodes).length > 0) return episodes;
+    } catch {}
+  }
+
+  return episodes;
 }

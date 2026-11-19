@@ -401,3 +401,83 @@ test('Phase 4: danmu list search, multi-sort (time/length/sender freq), local pe
   obs.disconnect();
   assert.equal(idleMut, 0);
 });
+
+test('Phase 5: long-series episode grouping, Bangumi/AniList episode title tooltips, and off-shelf alerts', async (t) => {
+  const epLis = Array.from({ length: 60 }, (_, idx) => {
+    const n = idx + 1;
+    return `<li${n === 33 ? ' class="playing"' : ''}><a href="?sn=${5000 + n}">${n}</a></li>`;
+  }).join('');
+  const watchHtml = `<div id="BH_background"><div class="container-player">
+    <div class="anime_name"><h1>雙城之戰測試篇 [33]</h1><a href="animeRef.php?sn=707">作品資料</a></div>
+    <div class="anime_info_detail"><p>本作品將於 2099/12/31 下架</p></div>
+    <section class="player"><div id="ani_video"><video></video></div></section>
+    <div class="anime-title"><div class="season"><ul>${epLis}</ul></div></div>
+  </div></div>`;
+
+  const domW = bootEnhancements(watchHtml, '/animeVideo.php?sn=5033', {
+    chromeMock: {
+      runtime: {
+        lastError: null,
+        sendMessage(msg, cb) {
+          if (msg?.type === 'ani-fetch-episode-titles') {
+            cb({
+              ok: true,
+              episodes: {
+                '33': { name: '命運的交會點', jp: '運命の交差点', airdate: '2026-05-01' },
+              },
+            });
+          } else cb({});
+        },
+      },
+    },
+  });
+  t.after(() => { try { domW.window.close(); } catch {} });
+  const wW = domW.window, dW = wW.document;
+  await new Promise((r) => setTimeout(r, 50));
+
+  // 5A: 60 episodes grouped into 3 chunks (25 each) + 全部; playing ep 33 auto-selects chunk index 1 (26–50)
+  const grpBtns = [...dW.querySelectorAll('.ani-ep-group-btn')];
+  assert.equal(grpBtns.length, 4);
+  assert.equal(grpBtns[1].textContent, '26–50');
+  assert.equal(grpBtns[1].getAttribute('aria-pressed'), 'true');
+  assert.equal(dW.querySelectorAll('.season li:not(.ani-ep-chunk-hidden)').length, 25);
+
+  // Switch to '全部' shows all 60
+  grpBtns[3].click();
+  assert.equal(dW.querySelectorAll('.season li:not(.ani-ep-chunk-hidden)').length, 60);
+
+  // Toggle episodeAutoGroup off cleanly removes bar & hidden class
+  await wW.AniEnhancements.writeSettings({ episodeAutoGroup: false });
+  assert.equal(dW.querySelector('.ani-ep-group-bar'), null);
+  assert.equal(dW.querySelectorAll('.ani-ep-chunk-hidden').length, 0);
+
+  // 5B: Episode title tooltip on hover/focus
+  const ep33Link = dW.querySelector('.season li.playing a');
+  assert.equal(ep33Link.dataset.aniEpTitle, '命運的交會點');
+  ep33Link.dispatchEvent(new wW.MouseEvent('mouseover', { bubbles: true }));
+  const tip = dW.getElementById('ani-ep-tooltip');
+  assert.equal(tip.hidden, false);
+  assert.match(tip.textContent, /命運的交會點/);
+
+  // 5C: Off-shelf banner displayed on watch page & cached for /mygather.php
+  const watchBanner = dW.querySelector('.ani-offshelf-banner');
+  assert(watchBanner, 'off-shelf alert banner rendered on watch page');
+  assert.match(watchBanner.textContent, /即將下架提醒/);
+  const offshelfCache = JSON.parse(wW.localStorage.getItem('aniOffshelfCacheV1'));
+  assert(offshelfCache['707'], 'off-shelf anime sn stored in cache');
+  domW.window.close();
+
+  // Verify /mygather.php reads off-shelf cache, shows badge + collection summary banner, and clears when toggled off
+  const gatherHtml = `<div id="BH_background"><div class="container"><div class="animate-theme-list">
+    <div class="theme-list-block"><a class="theme-list-main" href="animeRef.php?sn=707"><div class="theme-img-block"><img class="theme-img"><span class="ani-poster-score">★ 4.8</span></div><div class="anime-detail-block"><p class="theme-name">雙城之戰測試篇</p></div></a></div>
+  </div></div></div>`;
+  const domG = bootEnhancements(gatherHtml, '/mygather.php', { sharedStorage: { aniOffshelfCacheV1: offshelfCache } });
+  t.after(() => { try { domG.window.close(); } catch {} });
+  await new Promise((r) => setTimeout(r, 40));
+  const dG = domG.window.document;
+  assert(dG.querySelector('.ani-offshelf-badge.has-score'), 'card badge positioned under poster score');
+  assert(dG.querySelector('.ani-offshelf-banner.is-collection'), 'collection expiring banner rendered');
+
+  await domG.window.AniEnhancements.writeSettings({ showOffshelfAlert: false });
+  assert.equal(dG.querySelectorAll('.ani-offshelf-badge, .ani-offshelf-banner').length, 0);
+});

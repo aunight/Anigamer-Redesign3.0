@@ -1003,3 +1003,131 @@ body.ani-light-mode.ani-ambientlight-ui .ani-danmu-muted-popover {
 body.ani-light-mode.ani-ambientlight-ui .ani-dm-muted-item {
   color: #142232;
 }
+
+/* ── Feature 5: 長篇集數折疊、單集副標題與下架提醒 ── */
+.ani-ep-chunk-hidden {
+  display: none !important;
+}
+.ani-ep-group-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 10px;
+}
+.ani-ep-group-btn {
+  padding: 4px 11px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  color: #dbe8f6;
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+.ani-ep-group-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+.ani-ep-group-btn[aria-pressed='true'] {
+  background: var(--ani-accent, #3dafb6);
+  border-color: var(--ani-accent, #3dafb6);
+  color: #091521;
+  font-weight: 700;
+}
+
+.ani-ep-tooltip {
+  position: fixed;
+  z-index: 99999;
+  max-width: 260px;
+  padding: 8px 11px;
+  border-radius: 10px;
+  background: #0c1624;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.55);
+  color: #f0f6fc;
+  font-size: 12px;
+  line-height: 1.4;
+  pointer-events: none;
+}
+.ani-ep-tooltip[hidden] {
+  display: none !important;
+}
+.ani-ep-tip-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: #82eef5;
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.ani-ep-tip-title {
+  font-weight: 600;
+  color: #ffffff;
+}
+.ani-ep-tip-sub {
+  margin-top: 2px;
+  font-size: 11px;
+  color: rgba(212, 226, 240, 0.72);
+}
+
+.ani-offshelf-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 14px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(245, 158, 11, 0.14);
+  border: 1px solid rgba(251, 191, 36, 0.45);
+  color: #fef3c7;
+  font-size: 13px;
+}
+.ani-offshelf-dot {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #f59e0b;
+  color: #1a1203;
+  font-weight: 800;
+  font-size: 12px;
+  flex: none;
+}
+.ani-offshelf-badge {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  z-index: 6;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(217, 119, 6, 0.92);
+  border: 1px solid rgba(254, 243, 199, 0.55);
+  color: #fffbeb;
+  font-size: 11px;
+  font-weight: 700;
+  pointer-events: none;
+}
+.ani-offshelf-badge.has-score {
+  top: 38px;
+}
+
+/* Light mode for Feature 5 */
+body.ani-light-mode.ani-ambientlight-ui .ani-ep-group-btn {
+  background: rgba(18, 38, 60, 0.06);
+  border-color: rgba(18, 38, 60, 0.18);
+  color: #142232;
+}
+body.ani-light-mode.ani-ambientlight-ui .ani-ep-group-btn[aria-pressed='true'] {
+  background: #14939c;
+  border-color: #14939c;
+  color: #ffffff;
+}
+body.ani-light-mode.ani-ambientlight-ui .ani-offshelf-banner {
+  background: rgba(245, 158, 11, 0.16);
+  border-color: rgba(217, 119, 6, 0.48);
+  color: #78350f;
+}

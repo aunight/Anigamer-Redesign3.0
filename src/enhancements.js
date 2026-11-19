@@ -9,6 +9,8 @@
   const CAT_EXCLUDE_KEY = 'aniCatalogExcludeV1';
   const WORK_META_CACHE_KEY = 'aniWorkMetaCacheV1';
   const LOCAL_MUTE_KEY = 'aniLocalMutedSendersV1';
+  const EP_TITLES_CACHE_KEY = 'aniEpTitlesCacheV1';
+  const OFFSHELF_CACHE_KEY = 'aniOffshelfCacheV1';
   const TAG_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
   const WORK_META_TTL_MS = 14 * 24 * 60 * 60 * 1000;
 
@@ -405,9 +407,9 @@
     const refLink = document.querySelector('a[href*="animeRef.php?sn="]');
     const sn = getSnFromHref(refLink?.getAttribute('href')) || videoSn;
     const rawTitle = (document.querySelector('.anime_name h1')?.textContent || document.title || '').trim();
-    const title = rawTitle.replace(/\s*\[\s*\d+(?:\.\d+)?\s*\]\s*$/, '').replace(/\s*-\s*巴哈姆特動畫瘋.*$/, '').trim() || `動畫 #${sn}`;
+    const title = rawTitle.replace(/\s*(?:\[\s*\d+(?:\.\d+)?\s*\]|EP\.?\s*\d+(?:\.\d+)?)\s*$/i, '').replace(/\s*-\s*巴哈姆特動畫瘋.*$/, '').trim() || `動畫 #${sn}`;
     const epFromNav = document.querySelector('.season li.playing a')?.textContent?.trim();
-    const epFromTitle = rawTitle.match(/\[\s*(\d+(?:\.\d+)?)\s*\]\s*$/)?.[1];
+    const epFromTitle = rawTitle.match(/(?:\[\s*|EP\.?\s*)(\d+(?:\.\d+)?)\s*\]?\s*$/i)?.[1];
     const episode = epFromNav || epFromTitle || '1';
     const cover = safeImageUrl(
       document.querySelector('meta[property="og:image"]')?.getAttribute('content') ||
@@ -1742,6 +1744,352 @@
     }
   };
 
+  // ── Feature 5A: 長篇集數自動分組折疊 (/animeVideo.php) ──
+  let epGroupSubscribed = false;
+
+  const initLongEpisodeGrouping = () => {
+    if (location.pathname !== '/animeVideo.php') return;
+    const season = document.querySelector('.season');
+    const ul = season?.querySelector('ul');
+    if (!season || !ul) return;
+
+    const applyGrouping = () => {
+      const items = [...ul.querySelectorAll(':scope > li')];
+      const existingBar = season.querySelector(':scope > .ani-ep-group-bar');
+      if (!currentSettings.episodeAutoGroup || items.length < 50) {
+        existingBar?.remove();
+        for (const li of items) li.classList.remove('ani-ep-chunk-hidden');
+        delete season.dataset.aniEpActiveGroup;
+        return;
+      }
+
+      const CHUNK_SIZE = 25;
+      const chunks = [];
+      for (let i = 0; i < items.length; i += CHUNK_SIZE) {
+        chunks.push({ start: i, end: Math.min(items.length - 1, i + CHUNK_SIZE - 1) });
+      }
+
+      const playingIdx = items.findIndex((li) => li.classList.contains('playing'));
+      const defaultIdx = playingIdx >= 0 ? Math.floor(playingIdx / CHUNK_SIZE) : 0;
+      if (!season.dataset.aniEpActiveGroup) {
+        season.dataset.aniEpActiveGroup = String(defaultIdx);
+      }
+
+      const bar = existingBar || document.createElement('div');
+      bar.className = 'ani-ep-group-bar';
+      bar.setAttribute('role', 'group');
+      bar.setAttribute('aria-label', '集數區間分組');
+      bar.innerHTML = '';
+
+      const renderVisibility = () => {
+        const active = season.dataset.aniEpActiveGroup;
+        for (const btn of bar.querySelectorAll('.ani-ep-group-btn')) {
+          btn.setAttribute('aria-pressed', String(btn.dataset.epGroup === active));
+        }
+        if (active === 'all') {
+          for (const li of items) li.classList.remove('ani-ep-chunk-hidden');
+          return;
+        }
+        const gIdx = Math.min(chunks.length - 1, Math.max(0, Number(active) || 0));
+        const { start, end } = chunks[gIdx];
+        items.forEach((li, idx) => {
+          li.classList.toggle('ani-ep-chunk-hidden', idx < start || idx > end);
+        });
+      };
+
+      chunks.forEach((ch, idx) => {
+        const firstLabel = (items[ch.start]?.textContent || '').trim() || String(ch.start + 1);
+        const lastLabel = (items[ch.end]?.textContent || '').trim() || String(ch.end + 1);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'ani-ep-group-btn';
+        btn.dataset.epGroup = String(idx);
+        btn.textContent = /^\d+(?:\.\d+)?$/.test(firstLabel) && /^\d+(?:\.\d+)?$/.test(lastLabel)
+          ? `${firstLabel}–${lastLabel}`
+          : `${ch.start + 1}–${ch.end + 1}`;
+        btn.addEventListener('click', () => {
+          season.dataset.aniEpActiveGroup = String(idx);
+          renderVisibility();
+        });
+        bar.append(btn);
+      });
+
+      const allBtn = document.createElement('button');
+      allBtn.type = 'button';
+      allBtn.className = 'ani-ep-group-btn';
+      allBtn.dataset.epGroup = 'all';
+      allBtn.textContent = '全部';
+      allBtn.addEventListener('click', () => {
+        season.dataset.aniEpActiveGroup = 'all';
+        renderVisibility();
+      });
+      bar.append(allBtn);
+
+      if (!existingBar) ul.before(bar);
+      renderVisibility();
+    };
+
+    if (!epGroupSubscribed) {
+      epGroupSubscribed = true;
+      settingsListeners.add(() => { applyGrouping(); });
+    }
+    applyGrouping();
+  };
+
+  // ── Feature 5B: 單集副標題懸浮預覽 (Bangumi + AniList fallback) ──
+  const getCleanAnimeTitle = () => {
+    const raw = (document.querySelector('.anime_name h1')?.textContent || document.title || '').trim();
+    return raw
+      .replace(/\s*(?:\[\s*\d+(?:\.\d+)?\s*\]|EP\.?\s*\d+(?:\.\d+)?)\s*$/i, '')
+      .replace(/\s*-\s*巴哈姆特動畫瘋.*$/, '')
+      .trim();
+  };
+
+  const getEpTooltipNode = () => {
+    let tip = document.getElementById('ani-ep-tooltip');
+    if (!tip) {
+      tip = document.createElement('div');
+      tip.id = 'ani-ep-tooltip';
+      tip.className = 'ani-ep-tooltip';
+      tip.setAttribute('role', 'tooltip');
+      tip.hidden = true;
+      document.body.append(tip);
+    }
+    return tip;
+  };
+
+  const initEpisodeTitleTooltips = async () => {
+    if (location.pathname !== '/animeVideo.php') return;
+    const season = document.querySelector('.season');
+    if (!season) return;
+    const cleanTitle = getCleanAnimeTitle();
+    if (!cleanTitle) return;
+
+    const tip = getEpTooltipNode();
+    if (!season.dataset.aniEpTipWired) {
+      season.dataset.aniEpTipWired = '1';
+      const showTip = (link) => {
+        const epTitle = link?.dataset?.aniEpTitle;
+        if (!epTitle) return;
+        const epNum = (link.textContent || '').trim();
+        const jp = link.dataset.aniEpJp || '';
+        const airdate = link.dataset.aniEpAirdate || '';
+        tip.innerHTML = `
+          <div class="ani-ep-tip-head">第 ${escapeHtml(epNum)} 話${airdate ? `<span>${escapeHtml(airdate)}</span>` : ''}</div>
+          <div class="ani-ep-tip-title">${escapeHtml(epTitle)}</div>
+          ${jp && jp !== epTitle ? `<div class="ani-ep-tip-sub">${escapeHtml(jp)}</div>` : ''}
+        `;
+        tip.hidden = false;
+        const rect = link.getBoundingClientRect();
+        const left = Math.max(8, Math.min(window.innerWidth - 268, rect.left + rect.width / 2 - 120));
+        const top = rect.top > 76 ? rect.top - 66 : rect.bottom + 8;
+        tip.style.left = `${Math.round(left)}px`;
+        tip.style.top = `${Math.round(top)}px`;
+      };
+      const hideTip = () => { tip.hidden = true; };
+      season.addEventListener('mouseover', (e) => {
+        const a = e.target.closest('a[data-ani-ep-title]');
+        if (a) showTip(a);
+      });
+      season.addEventListener('focusin', (e) => {
+        const a = e.target.closest('a[data-ani-ep-title]');
+        if (a) showTip(a);
+      });
+      season.addEventListener('mouseout', (e) => {
+        const a = e.target.closest('a[data-ani-ep-title]');
+        if (a && !a.contains(e.relatedTarget)) hideTip();
+      });
+      season.addEventListener('focusout', hideTip);
+      window.addEventListener('scroll', hideTip, { passive: true });
+    }
+
+    const cache = readJsonLocal(EP_TITLES_CACHE_KEY, {});
+    const cachedEntry = cache[cleanTitle];
+    let epMap =
+      cachedEntry && Date.now() - Number(cachedEntry.ts || 0) < WORK_META_TTL_MS && cachedEntry.episodes
+        ? cachedEntry.episodes
+        : null;
+
+    if (!epMap) {
+      const resp = await sendWorkerMessage({ type: 'ani-fetch-episode-titles', title: cleanTitle });
+      if (resp?.ok && resp.episodes && Object.keys(resp.episodes).length > 0) {
+        epMap = resp.episodes;
+        cache[cleanTitle] = { ts: Date.now(), episodes: epMap };
+        const keys = Object.keys(cache);
+        if (keys.length > 120) {
+          keys.sort((a, b) => (cache[b]?.ts || 0) - (cache[a]?.ts || 0)).slice(120).forEach((k) => delete cache[k]);
+        }
+        writeJsonLocal(EP_TITLES_CACHE_KEY, cache);
+      } else {
+        epMap = {};
+      }
+    }
+
+    for (const a of season.querySelectorAll('li a')) {
+      const rawEp = (a.textContent || '').trim();
+      const numMatch = rawEp.match(/(\d+(?:\.\d+)?)/)?.[1];
+      const epData = epMap[rawEp] || (numMatch ? epMap[numMatch] || epMap[String(Number(numMatch))] : null);
+      if (epData?.name) {
+        a.dataset.aniEpTitle = epData.name;
+        if (epData.jp) a.dataset.aniEpJp = epData.jp;
+        if (epData.airdate) a.dataset.aniEpAirdate = epData.airdate;
+        a.title = `第 ${rawEp} 話：${epData.name}`;
+      }
+    }
+  };
+
+  // ── Feature 5C: 即將下架醒目提醒 ──
+  const parseOffshelfNotice = (rawText) => {
+    const text = String(rawText || '').replace(/\s+/g, ' ').trim();
+    if (!text) return null;
+    const dated = text.match(
+      /(?:預計|將於|本作品將於)?\s*((?:20\d{2}[\/\-年])?\d{1,2}[\/\-月]\d{1,2}日?(?:\s*\d{1,2}:\d{2})?)\s*(?:起)?(?:下架|到期|停止授權)/,
+    );
+    const labeled = text.match(/(?:下架時間|授權到期)[：:]\s*([^\n，,。]{3,28})/);
+    const generic = !dated && !labeled ? text.match(/(即將下架|即將到期|下架預告)/) : null;
+    if (!dated && !labeled && !generic) return null;
+
+    const dateText = (dated?.[1] || labeled?.[1] || '').trim();
+    let daysLeft = null;
+    if (dateText) {
+      const ymd = dateText.match(/(?:(20\d{2})[\/\-年])?(\d{1,2})[\/\-月](\d{1,2})/);
+      if (ymd) {
+        const now = new Date();
+        let yr = ymd[1] ? Number(ymd[1]) : now.getFullYear();
+        const mo = Number(ymd[2]) - 1;
+        const dy = Number(ymd[3]);
+        let target = new Date(yr, mo, dy, 23, 59, 59);
+        if (!ymd[1] && target.getTime() < now.getTime() - 7 * 86400000) {
+          target = new Date(yr + 1, mo, dy, 23, 59, 59);
+        }
+        const diff = Math.ceil((target.getTime() - now.getTime()) / 86400000);
+        if (diff >= 0 && diff <= 120) daysLeft = diff;
+      }
+    }
+    const notice = dated?.[0] || labeled?.[0] || generic?.[0] || '即將下架';
+    return { notice, dateText, daysLeft };
+  };
+
+  let offshelfSubscribed = false;
+
+  const initOffshelfAlerts = () => {
+    const allowedPaths = ['/', '/index.php', '/animeList.php', '/mygather.php', '/animeVideo.php', '/animeRef.php'];
+    if (!allowedPaths.includes(location.pathname)) return;
+
+    const run = () => {
+      if (!currentSettings.showOffshelfAlert) {
+        for (const el of document.querySelectorAll('.ani-offshelf-banner, .ani-offshelf-badge')) el.remove();
+        return;
+      }
+
+      const offshelfCache = readJsonLocal(OFFSHELF_CACHE_KEY, {});
+      const now = Date.now();
+      let cacheUpdated = false;
+      for (const [k, v] of Object.entries(offshelfCache)) {
+        if (!v || now - Number(v.detectedAt || 0) > 60 * 86400000) {
+          delete offshelfCache[k];
+          cacheUpdated = true;
+        }
+      }
+
+      if (location.pathname === '/animeVideo.php' || location.pathname === '/animeRef.php') {
+        const scanText = [...document.querySelectorAll('.anime_info_detail, .data_intro, .notice, .season, .anime_name')]
+          .map((el) => el.textContent || '')
+          .join(' ');
+        const parsed = parseOffshelfNotice(scanText);
+        const refLink = document.querySelector('a[href*="animeRef.php?sn="]');
+        const sn = getSnFromHref(refLink?.getAttribute('href')) || getSnFromHref(location.href);
+        const title = getCleanAnimeTitle();
+        if (parsed) {
+          if (sn) {
+            offshelfCache[sn] = { sn, title, ...parsed, detectedAt: now };
+            cacheUpdated = true;
+          }
+          const hostAnchor =
+            document.querySelector('.container-player > .anime-title') ||
+            document.querySelector('.anime_name') ||
+            document.querySelector('#BH_background');
+          if (hostAnchor) {
+            let banner = document.querySelector('.ani-offshelf-banner');
+            if (!banner) {
+              banner = document.createElement('div');
+              banner.className = 'ani-offshelf-banner';
+              banner.setAttribute('role', 'status');
+              if (hostAnchor.classList.contains('anime-title')) hostAnchor.after(banner);
+              else hostAnchor.prepend(banner);
+            }
+            const dayNote =
+              parsed.daysLeft !== null
+                ? parsed.daysLeft === 0
+                  ? '（今天到期）'
+                  : `（剩餘 ${parsed.daysLeft} 天）`
+                : '';
+            banner.innerHTML = `<span class="ani-offshelf-dot" aria-hidden="true">!</span><strong>即將下架提醒</strong><span>${escapeHtml(parsed.notice)}${escapeHtml(dayNote)}</span>`;
+          }
+        }
+      } else {
+        const expiringInCollection = [];
+        for (const card of document.querySelectorAll('.theme-list-main')) {
+          const sn = getSnFromHref(card.getAttribute('href'));
+          const cover = card.querySelector('.theme-img-block');
+          if (!cover) continue;
+          const inlineMatch = parseOffshelfNotice(card.textContent || '');
+          const hit = inlineMatch || (sn ? offshelfCache[sn] : null);
+          if (inlineMatch && sn) {
+            offshelfCache[sn] = {
+              sn,
+              title: (card.querySelector('.theme-name')?.textContent || '').trim(),
+              ...inlineMatch,
+              detectedAt: now,
+            };
+            cacheUpdated = true;
+          }
+          const existingBadge = cover.querySelector('.ani-offshelf-badge');
+          if (!hit) {
+            existingBadge?.remove();
+            continue;
+          }
+          const cardTitle = (card.querySelector('.theme-name')?.textContent || hit.title || '').trim();
+          expiringInCollection.push({ sn, title: cardTitle, dateText: hit.dateText, notice: hit.notice });
+          const label = hit.daysLeft !== null && hit.daysLeft <= 30
+            ? `${hit.daysLeft === 0 ? '今日' : `${hit.daysLeft}天`}下架`
+            : hit.dateText
+            ? `${hit.dateText} 下架`
+            : '即將下架';
+          const badge = existingBadge || document.createElement('span');
+          badge.className = 'ani-offshelf-badge';
+          badge.classList.toggle('has-score', Boolean(cover.querySelector('.ani-poster-score')));
+          badge.textContent = label;
+          if (!existingBadge) cover.append(badge);
+        }
+
+        if (location.pathname === '/mygather.php' && expiringInCollection.length) {
+          const listWrap = document.querySelector('.animate-theme-list .theme-list-block');
+          if (listWrap) {
+            let banner = document.querySelector('.ani-offshelf-banner');
+            if (!banner) {
+              banner = document.createElement('div');
+              banner.className = 'ani-offshelf-banner is-collection';
+              banner.setAttribute('role', 'status');
+              listWrap.before(banner);
+            }
+            const names = expiringInCollection.slice(0, 3).map((x) => x.title).filter(Boolean).join('、');
+            const extra = expiringInCollection.length > 3 ? ` 等 ${expiringInCollection.length} 部` : '';
+            banner.innerHTML = `<span class="ani-offshelf-dot" aria-hidden="true">!</span><strong>收藏即將下架提醒</strong><span>${escapeHtml(names)}${escapeHtml(extra)} 即將授權到期，建議優先補完！</span>`;
+          }
+        }
+      }
+
+      if (cacheUpdated) writeJsonLocal(OFFSHELF_CACHE_KEY, offshelfCache);
+    };
+
+    if (!offshelfSubscribed) {
+      offshelfSubscribed = true;
+      settingsListeners.add(() => { run(); });
+    }
+    run();
+  };
+
   const state = {
     getSettings: () => currentSettings,
     onSettingsChange: (fn) => {
@@ -1764,6 +2112,9 @@
       initCatalogEnhancements();
       await initSpoilerBlur();
       await initDanmuListTools();
+      initLongEpisodeGrouping();
+      await initEpisodeTitleTooltips();
+      initOffshelfAlerts();
       initVideoHistoryTracker();
       await initPermanentHistoryPage();
     },
@@ -1777,6 +2128,9 @@
     initCatalogEnhancements();
     await initSpoilerBlur();
     await initDanmuListTools();
+    initLongEpisodeGrouping();
+    await initEpisodeTitleTooltips();
+    initOffshelfAlerts();
     initVideoHistoryTracker();
     await initPermanentHistoryPage();
   };
