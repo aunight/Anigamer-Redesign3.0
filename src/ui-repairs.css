@@ -9773,7 +9773,7 @@ body.ani-layout-comments #BH_background .commend-title #w-anime-comment-count:em
 body.ani-layout-comments.ani-ambientlight-ui #BH_background #w-post-box .reply-content__footer > button.reply-content__tag {
   margin-inline-start: 10px !important;
 }
-.ani-comment-recommendations > a:is(:hover, :focus-visible) .ani-rec-facts svg {
+.ani-comment-recommendations > a:is(:hover, :focus-visible) strong {
   color: var(--ani-accent, #3dafb6);
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #plusbox.plus-settings-section {
@@ -9782,9 +9782,14 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settin
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-watch-col-merch .ani-merch-card {
   .products-card-img {
+    align-self: center;
+    width: auto !important;
+    height: auto !important;
+    max-width: 100% !important;
+    max-height: 122px !important;
     aspect-ratio: auto !important;
-    height: 122px !important;
     object-fit: contain !important;
+    background: transparent !important;
     flex: none;
   }
   .products-name { display:block !important; flex:1 1 auto !important;
@@ -9803,4 +9808,10 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-watch-col-mer
     -webkit-line-clamp: unset !important;
   }
   .ani-merch-meta-row { flex-shrink: 0; }
+}
+
+body.ani-layout-comments.ani-ambientlight-ui #BH_background #w-post-box
+  :is(.reply-content__footer button, .c-more-msg):is(:hover, :focus-visible) {
+  color: var(--ani-accent, #3dafb6) !important;
+  -webkit-text-fill-color: currentColor !important;
 }

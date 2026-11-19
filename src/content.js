@@ -1157,7 +1157,7 @@
         score.className = 'ani-history-score ani-score-badge-top-left';
         const episodes = document.createElement('span');
         episodes.className = 'ani-rec-episodes';
-        episodes.textContent = item.episodes || '';
+        episodes.textContent = /^共\s*1\s*集$/.test(item.episodes) ? '電影' : item.episodes || '';
         poster.append(image, score, episodes);
         link.append(poster, copy);
         metadata.observe(link);
