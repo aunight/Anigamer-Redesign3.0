@@ -278,15 +278,19 @@ body #BH_background :is(
   font-weight: 700 !important;
 }
 
+body #BH_background .ani-exclude-pill:hover {
+  background: rgba(239, 68, 68, 0.2) !important;
+  border-color: rgba(248, 113, 113, 0.65) !important;
+  color: #fecaca !important;
+  -webkit-text-fill-color: #fecaca !important;
+}
 body #BH_background .ani-exclude-pill.is-excluded {
   background: rgba(239, 68, 68, 0.24) !important;
   border-color: rgba(248, 113, 113, 0.72) !important;
   color: #fecaca !important;
   -webkit-text-fill-color: #fecaca !important;
   font-weight: 700 !important;
-}
-body #BH_background .ani-exclude-pill.is-excluded span {
-  text-decoration: line-through;
+  text-decoration: line-through !important;
 }
 
 body #BH_background .ani-perm-btn.is-danger {
@@ -324,7 +328,8 @@ body #BH_background .ani-perm-btn.is-danger.is-armed {
   left: 8px !important;
   bottom: 8px !important;
   margin-top: 0 !important;
-  z-index: 12 !important;
+  z-index: 25 !important;
+  pointer-events: auto !important;
 }
 .ani-poster-card .theme-img-block:has(.ani-col-status-menu:not([hidden])),
 .theme-list-main .theme-img-block:has(.ani-col-status-menu:not([hidden])) {
@@ -337,7 +342,16 @@ body #BH_background .ani-perm-btn.is-danger.is-armed {
   align-items: center !important;
   justify-content: flex-start !important;
   margin-top: 6px !important;
-  z-index: 12 !important;
+  z-index: 25 !important;
+  pointer-events: auto !important;
+}
+#BH_background .ani-col-status-chip,
+#BH_background .ani-col-status-menu,
+#BH_background .ani-col-status-menu button,
+#BH_background .ani-spoiler-mask,
+#BH_background .ani-spoiler-reveal-btn,
+#BH_background .ani-blur-rehide-btn {
+  pointer-events: auto !important;
 }
 #BH_background .ani-col-status-chip {
   display: inline-flex !important;
@@ -1069,6 +1083,12 @@ body.ani-light-mode.ani-ambientlight-ui #BH_background :is(
   border-color: rgba(20, 147, 156, 0.55) !important;
   color: #0b5e65 !important;
   -webkit-text-fill-color: #0b5e65 !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-exclude-pill:hover {
+  background: rgba(220, 38, 38, 0.12) !important;
+  border-color: rgba(220, 38, 38, 0.45) !important;
+  color: #991b1b !important;
+  -webkit-text-fill-color: #991b1b !important;
 }
 body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-exclude-pill.is-excluded {
   background: rgba(220, 38, 38, 0.14) !important;

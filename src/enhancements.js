@@ -352,7 +352,7 @@
           const chipEl = bar?.querySelector('.ani-col-status-chip');
           if (chipEl) {
             chipEl.dataset.status = st;
-            const labelTxt = st ? COL_STATUS_MAP[st] : '+ 標記狀態';
+            const labelTxt = st ? COL_STATUS_MAP[st] : '標記狀態';
             const iconKey = st || 'add';
             chipEl.innerHTML = `${enhIcon(COL_STATUS_ICONS[iconKey] || COL_STATUS_ICONS.add, 13)}<span>${escapeHtml(labelTxt)}</span>`;
             chipEl.setAttribute('aria-label', st ? `收藏分類：${COL_STATUS_MAP[st]}` : '標記收藏分類');
@@ -1271,12 +1271,6 @@
         </div>
       `;
       const pillsWrap = exPanel.querySelector('.ani-exclude-pills');
-      const setExPillContent = (btn, tag, isEx) => {
-        const iconPath = isEx
-          ? '<circle cx="12" cy="12" r="9"/><path d="m8.5 8.5 7 7M15.5 8.5l-7 7"/>'
-          : '<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1"/>';
-        btn.innerHTML = `${enhIcon(iconPath, 14)}<span>${escapeHtml(tag)}</span>`;
-      };
       for (const tag of availableTags) {
         const btn = document.createElement('button');
         btn.type = 'button';
@@ -1285,14 +1279,13 @@
         const active = excludedTags.has(tag);
         btn.classList.toggle('is-excluded', active);
         btn.setAttribute('aria-pressed', String(active));
-        setExPillContent(btn, tag, active);
+        btn.textContent = tag;
         btn.addEventListener('click', () => {
           if (excludedTags.has(tag)) excludedTags.delete(tag);
           else excludedTags.add(tag);
           const nowEx = excludedTags.has(tag);
           btn.classList.toggle('is-excluded', nowEx);
           btn.setAttribute('aria-pressed', String(nowEx));
-          setExPillContent(btn, tag, nowEx);
           saveExcludeState();
           applyCatalogFilters();
         });
@@ -1315,7 +1308,6 @@
         for (const b of pillsWrap.querySelectorAll('.ani-exclude-pill')) {
           b.classList.remove('is-excluded');
           b.setAttribute('aria-pressed', 'false');
-          setExPillContent(b, b.dataset.excludeTag, false);
         }
         saveExcludeState();
         applyCatalogFilters();
