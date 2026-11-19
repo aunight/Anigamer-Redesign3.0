@@ -373,7 +373,7 @@
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.dataset.filterStatus = key;
-            btn.innerHTML = `${enhIcon(COL_STATUS_ICONS[key] || COL_STATUS_ICONS.all, 15)}<span>${escapeHtml(label)}</span> <small></small>`;
+            btn.innerHTML = `<span>${escapeHtml(label)}</span> <small></small>`;
             btn.addEventListener('click', () => {
               colActiveFilter = key;
               applyAndSync();
@@ -426,6 +426,133 @@
         clearTimeout(t);
         t = setTimeout(applyAndSync, 40);
       }).observe(rootListWrap, { childList: true, subtree: true });
+    }
+  };
+
+  const initWatchCollectionStatusButton = async () => {
+    if (!['/animeVideo.php', '/animeRef.php'].includes(location.pathname)) return;
+    const favBtn = document.querySelector(
+      '.anime_name button[onclick*="toggleGather"], button[onclick*="animefun.toggleGather"], .anime-title .anime-option .favorite-btn, .anime_name .favorite-btn',
+    );
+    if (!favBtn || favBtn.parentElement?.querySelector('.ani-col-status-bar.is-watch-chip')) return;
+
+    const refLink = document.querySelector('.anime_name a[href*="animeRef.php?sn="], a[href*="animeRef.php?sn="]');
+    const gatherMatch = (favBtn.getAttribute('onclick') || '').match(/toggleGather\(\s*\d+\s*,\s*(\d+)/);
+    const sn =
+      getSnFromHref(refLink?.getAttribute('href')) ||
+      gatherMatch?.[1] ||
+      (location.pathname === '/animeRef.php' ? getSnFromHref(location.href) : '') ||
+      getSnFromHref(location.href);
+    if (!sn) return;
+
+    if (colStatesCache === null) {
+      colStatesCache = await storageGet(COL_STATUS_KEY, {});
+      if (!colStatesCache || typeof colStatesCache !== 'object') colStatesCache = {};
+    }
+
+    const bar = document.createElement('div');
+    bar.className = 'ani-col-status-bar is-watch-chip';
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'ani-col-status-chip';
+    const menu = document.createElement('div');
+    menu.className = 'ani-col-status-menu';
+    menu.hidden = true;
+
+    for (const [val, label] of COL_STATUS_META) {
+      const opt = document.createElement('button');
+      opt.type = 'button';
+      opt.dataset.choice = val;
+      opt.innerHTML = `${enhIcon(COL_STATUS_ICONS[val] || COL_STATUS_ICONS.add, 14)}<span>${escapeHtml(label)}</span>`;
+      menu.append(opt);
+    }
+    const clearOpt = document.createElement('button');
+    clearOpt.type = 'button';
+    clearOpt.className = 'is-clear';
+    clearOpt.dataset.choice = '';
+    clearOpt.innerHTML = `${enhIcon(COL_STATUS_ICONS.clear, 14)}<span>清除標記</span>`;
+    menu.append(clearOpt);
+    bar.append(chip, menu);
+    favBtn.after(bar);
+
+    const syncChip = () => {
+      const entry = colStatesCache?.[sn];
+      const st = entry?.status && COL_STATUS_MAP[entry.status] ? entry.status : '';
+      chip.dataset.status = st;
+      const labelTxt = st ? COL_STATUS_MAP[st] : '標記狀態';
+      const iconKey = st || 'add';
+      chip.innerHTML = `${enhIcon(COL_STATUS_ICONS[iconKey] || COL_STATUS_ICONS.add, 13)}<span>${escapeHtml(labelTxt)}</span>`;
+      chip.setAttribute('aria-label', st ? `收藏分類：${COL_STATUS_MAP[st]}` : '標記收藏分類');
+    };
+    syncChip();
+
+    chip.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      menu.hidden = !menu.hidden;
+    });
+
+    menu.addEventListener('click', async (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      const btn = ev.target.closest('button[data-choice]');
+      if (!btn) return;
+      const choice = btn.dataset.choice;
+      if (choice && COL_STATUS_MAP[choice]) {
+        colStatesCache[sn] = { status: choice, updatedAt: Date.now() };
+      } else {
+        delete colStatesCache[sn];
+      }
+      menu.hidden = true;
+      await storageSet(COL_STATUS_KEY, colStatesCache);
+      syncChip();
+      showToast(choice && COL_STATUS_MAP[choice] ? `已標記為「${COL_STATUS_MAP[choice]}」` : '已清除收藏狀態標記');
+    });
+  };
+
+  const initCommentSendButton = () => {
+    const injectSendButtons = () => {
+      for (const iconHost of document.querySelectorAll('#w-post-box .c-reply__editor .comment_icon')) {
+        if (iconHost.querySelector('.ani-comment-send-btn')) continue;
+        const editor = iconHost.closest('.c-reply__editor');
+        const input = editor?.querySelector('.input-article-content, textarea, input[type="text"]');
+        if (!input) continue;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'ani-comment-send-btn';
+        btn.setAttribute('aria-label', '發送留言');
+        btn.title = '發送留言';
+        btn.innerHTML =
+          '<svg class="ani-player-glyph ani-send-glyph" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" stroke="none" d="m3 3 19 9-19 9 3-8 10-1-10-1Z"/></svg>';
+        btn.addEventListener('click', (ev) => {
+          ev.preventDefault();
+          ev.stopPropagation();
+          input.focus();
+          for (const type of ['keydown', 'keypress', 'keyup']) {
+            input.dispatchEvent(
+              new KeyboardEvent(type, {
+                key: 'Enter',
+                code: 'Enter',
+                keyCode: 13,
+                which: 13,
+                bubbles: true,
+                cancelable: true,
+              }),
+            );
+          }
+        });
+        iconHost.append(btn);
+      }
+    };
+    injectSendButtons();
+    const postBox = document.querySelector('#w-post-box');
+    if (postBox && !postBox.dataset.aniCommentSendObs) {
+      postBox.dataset.aniCommentSendObs = '1';
+      let t = 0;
+      new MutationObserver(() => {
+        clearTimeout(t);
+        t = setTimeout(injectSendButtons, 80);
+      }).observe(postBox, { childList: true, subtree: true });
     }
   };
 
@@ -663,9 +790,9 @@
           <h3>${enhIcon('<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>', 20)}觀看狀態</h3>
         </div>
         <div class="ani-perm-filter-pills" role="group" aria-label="進度篩選">
-          <button type="button" class="ani-perm-btn" data-perm-prog="all" aria-pressed="true">${enhIcon(COL_STATUS_ICONS.all, 15)}<span>全部</span></button>
-          <button type="button" class="ani-perm-btn" data-perm-prog="inprogress" aria-pressed="false">${enhIcon(COL_STATUS_ICONS.watching, 15)}<span>未看完</span></button>
-          <button type="button" class="ani-perm-btn" data-perm-prog="completed" aria-pressed="false">${enhIcon(COL_STATUS_ICONS.completed, 15)}<span>已看完</span></button>
+          <button type="button" class="ani-perm-btn" data-perm-prog="all" aria-pressed="true"><span>全部</span></button>
+          <button type="button" class="ani-perm-btn" data-perm-prog="inprogress" aria-pressed="false"><span>未看完</span></button>
+          <button type="button" class="ani-perm-btn" data-perm-prog="completed" aria-pressed="false"><span>已看完</span></button>
         </div>
       </div>
       <div class="ani-perm-filter-row">
@@ -1333,7 +1460,7 @@
         btn.className = 'ani-origin-pill';
         btn.dataset.origin = key;
         btn.setAttribute('aria-pressed', String(key === activeOrigin));
-        btn.innerHTML = `${enhIcon(ORIGIN_ICONS[key] || ORIGIN_ICONS.all, 15)}<span>${escapeHtml(label)}</span>`;
+        btn.textContent = label;
         btn.addEventListener('click', () => {
           activeOrigin = key;
           for (const b of oWrap.querySelectorAll('.ani-origin-pill')) {
@@ -1640,9 +1767,6 @@
     const subList = document.querySelector('#sub_list');
     if (!subList) return;
 
-    let mutedMap = await storageGet(LOCAL_MUTE_KEY, {});
-    if (!mutedMap || typeof mutedMap !== 'object' || Array.isArray(mutedMap)) mutedMap = {};
-
     let searchQuery = '';
     let sortKey = 'time';
     let sortDir = 'asc';
@@ -1657,16 +1781,10 @@
           <input type="search" class="ani-danmu-search" placeholder="搜尋彈幕或發送者…" aria-label="搜尋彈幕或發送者">
           <span class="ani-danmu-count" role="status"></span>
         </div>
-        <div class="ani-danmu-sort-row">
-          <div class="ani-danmu-sorts" role="group" aria-label="彈幕排序">
-            <button type="button" class="ani-dm-sort-btn" data-dm-sort="time" aria-pressed="true">時間 ↑</button>
-            <button type="button" class="ani-dm-sort-btn" data-dm-sort="length" aria-pressed="false">長度</button>
-            <button type="button" class="ani-dm-sort-btn" data-dm-sort="sender" aria-pressed="false">發射</button>
-          </div>
-          <div class="ani-dm-muted-host">
-            <button type="button" class="ani-danmu-muted-pill" aria-expanded="false">已消音 0 人</button>
-            <div class="ani-danmu-muted-popover" hidden></div>
-          </div>
+        <div class="ani-danmu-sort-row" role="group" aria-label="彈幕排序">
+          <button type="button" class="ani-dm-sort-btn" data-dm-sort="time" aria-pressed="true">時間 ↑</button>
+          <button type="button" class="ani-dm-sort-btn" data-dm-sort="length" aria-pressed="false">彈幕內容</button>
+          <button type="button" class="ani-dm-sort-btn" data-dm-sort="sn" aria-pressed="false">發送順序</button>
         </div>
       `;
       subList.before(bar);
@@ -1675,71 +1793,15 @@
     const searchInput = bar.querySelector('.ani-danmu-search');
     const countEl = bar.querySelector('.ani-danmu-count');
     const sortBtns = [...bar.querySelectorAll('.ani-dm-sort-btn')];
-    const mutedPill = bar.querySelector('.ani-danmu-muted-pill');
-    const mutedPopover = bar.querySelector('.ani-danmu-muted-popover');
-
-    const syncLiveOverlayMute = () => {
-      const hasMutes = Object.keys(mutedMap).length > 0;
-      const overlay = document.querySelector('.danmu-container, .vjs-danmu-layer');
-      const sweepOverlay = () => {
-        if (!overlay) return;
-        for (const item of overlay.querySelectorAll('[data-userid], [data-user], .danmu-item')) {
-          const u = item.getAttribute('data-userid') || item.getAttribute('data-user') || '';
-          const muted = Boolean(u && mutedMap[u]);
-          item.classList.toggle('ani-dm-filtered-hidden', muted);
-        }
-      };
-      if (hasMutes && overlay) {
-        sweepOverlay();
-        if (!dmOverlayObserver) {
-          dmOverlayObserver = new MutationObserver(() => {
-            if (Object.keys(mutedMap).length > 0) sweepOverlay();
-          });
-          dmOverlayObserver.observe(overlay, { childList: true });
-        }
-      } else if (dmOverlayObserver) {
-        dmOverlayObserver.disconnect();
-        dmOverlayObserver = null;
-        if (overlay) {
-          for (const item of overlay.querySelectorAll('.ani-dm-filtered-hidden')) {
-            item.classList.remove('ani-dm-filtered-hidden');
-          }
-        }
-      }
-    };
 
     const DM_SORT_ICONS = {
       time: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
       length: '<path d="M4 7h16M4 12h12M4 17h8"/>',
-      sender: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
-    };
-    const DM_MUTE_ICON = '<path d="M11 5 6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>';
-
-    const renderMutedPopover = () => {
-      const senders = Object.keys(mutedMap);
-      mutedPill.innerHTML = `${enhIcon(DM_MUTE_ICON, 13)}<span>已消音 ${senders.length} 人</span>`;
-      if (!senders.length) {
-        mutedPopover.innerHTML = '<p class="ani-dm-muted-empty">尚未消音任何發送者</p>';
-        return;
-      }
-      mutedPopover.innerHTML = `
-        <div class="ani-dm-muted-list">
-          ${senders
-            .map(
-              (id) => `
-            <div class="ani-dm-muted-item">
-              <span title="${escapeHtml(id)}">${escapeHtml(id)}</span>
-              <button type="button" class="ani-dm-unmute-one" data-unmute-sender="${escapeHtml(id)}" title="解除消音">${enhIcon('<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>', 12)}<span>解除</span></button>
-            </div>`,
-            )
-            .join('')}
-        </div>
-        <button type="button" class="ani-dm-unmute-all">${enhIcon(COL_STATUS_ICONS.clear, 13)}<span>全部解除</span></button>
-      `;
+      sn: '<path d="M3 6h13M3 12h10M3 18h7"/><path d="m17 15 3 3 3-3M20 6v12"/>',
     };
 
     const updateSortLabels = () => {
-      const names = { time: '時間', length: '長度', sender: '發射' };
+      const names = { time: '時間', length: '彈幕內容', sn: '發送順序' };
       for (const b of sortBtns) {
         const key = b.dataset.dmSort;
         const active = key === sortKey;
@@ -1756,42 +1818,15 @@
         const rows = [...subList.querySelectorAll('.sub-list-li')];
         if (!rows.length) {
           countEl.textContent = '0 / 0';
-          renderMutedPopover();
-          syncLiveOverlayMute();
           return;
         }
 
-        const senderFreq = Object.create(null);
         for (const row of rows) {
           if (!row.dataset.aniOrigIdx) {
             row.dataset.aniOrigIdx = String(++origCounter);
           }
           const sender = row.dataset.aniSender || extractDanmuSender(row);
-          if (sender) {
-            row.dataset.aniSender = sender;
-            senderFreq[sender] = (senderFreq[sender] || 0) + 1;
-          }
-          if (sender && !row.querySelector('.ani-dm-local-mute')) {
-            const muteBtn = document.createElement('button');
-            muteBtn.type = 'button';
-            muteBtn.className = 'ani-dm-local-mute';
-            muteBtn.title = `局部消音 ${sender}`;
-            muteBtn.setAttribute('aria-label', `局部消音 ${sender}`);
-            muteBtn.innerHTML = `${enhIcon(DM_MUTE_ICON, 13)}<span>消音此人</span>`;
-            muteBtn.addEventListener('click', async (ev) => {
-              ev.preventDefault();
-              ev.stopPropagation();
-              const targetSender = row.dataset.aniSender;
-              if (!targetSender) return;
-              if (mutedMap[targetSender]) delete mutedMap[targetSender];
-              else mutedMap[targetSender] = { mutedAt: Date.now() };
-              await storageSet(LOCAL_MUTE_KEY, mutedMap);
-              showToast(mutedMap[targetSender] ? `已局部消音：${targetSender}` : `已解除消音：${targetSender}`);
-              applyDanmuListState();
-            });
-            const actionBox = row.querySelector(':scope > div:nth-child(2)') || row;
-            actionBox.append(muteBtn);
-          }
+          if (sender) row.dataset.aniSender = sender;
         }
 
         const q = searchQuery.trim().toLocaleLowerCase();
@@ -1799,26 +1834,22 @@
         for (const row of rows) {
           const sender = row.dataset.aniSender || '';
           const txt = getDanmuRowText(row);
-          const isMuted = Boolean(sender && mutedMap[sender]);
           const matchesQuery =
             !q || txt.toLocaleLowerCase().includes(q) || sender.toLocaleLowerCase().includes(q);
-          const hidden = isMuted || !matchesQuery;
-          row.classList.toggle('ani-dm-filtered-hidden', hidden);
-          if (!hidden) shown++;
+          row.classList.toggle('ani-dm-filtered-hidden', !matchesQuery);
+          if (matchesQuery) shown++;
         }
 
         countEl.textContent = `${shown} / ${rows.length}`;
-        renderMutedPopover();
-        syncLiveOverlayMute();
 
         const sorted = [...rows].sort((a, b) => {
           let cmp = 0;
           if (sortKey === 'length') {
             cmp = getDanmuRowText(a).length - getDanmuRowText(b).length;
-          } else if (sortKey === 'sender') {
-            const fa = senderFreq[a.dataset.aniSender || ''] || 0;
-            const fb = senderFreq[b.dataset.aniSender || ''] || 0;
-            cmp = fa - fb;
+          } else if (sortKey === 'sn') {
+            const sa = Number(a.dataset.danmuSn || a.getAttribute('data-danmu-sn') || a.dataset.aniOrigIdx || 0);
+            const sb = Number(b.dataset.danmuSn || b.getAttribute('data-danmu-sn') || b.dataset.aniOrigIdx || 0);
+            cmp = sa - sb;
           } else {
             cmp = parseDanmuSeconds(a) - parseDanmuSeconds(b);
           }
@@ -1858,36 +1889,6 @@
           applyDanmuListState();
         });
       }
-      mutedPill.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const nextOpen = mutedPopover.hidden;
-        mutedPopover.hidden = !nextOpen;
-        mutedPill.setAttribute('aria-expanded', String(nextOpen));
-      });
-      mutedPopover.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        const unmuteBtn = e.target.closest('.ani-dm-unmute-one');
-        if (unmuteBtn) {
-          const id = unmuteBtn.dataset.unmuteSender;
-          if (id && mutedMap[id]) {
-            delete mutedMap[id];
-            await storageSet(LOCAL_MUTE_KEY, mutedMap);
-            applyDanmuListState();
-          }
-          return;
-        }
-        if (e.target.closest('.ani-dm-unmute-all')) {
-          mutedMap = {};
-          await storageSet(LOCAL_MUTE_KEY, mutedMap);
-          applyDanmuListState();
-        }
-      });
-      document.addEventListener('click', (e) => {
-        if (!e.target.closest('.ani-dm-muted-host')) {
-          mutedPopover.hidden = true;
-          mutedPill.setAttribute('aria-expanded', 'false');
-        }
-      });
     }
 
     updateSortLabels();
@@ -2350,9 +2351,11 @@
     reinit: async () => {
       await readSettings();
       await initCollectionStatusTagger();
+      await initWatchCollectionStatusButton();
       initCatalogEnhancements();
       await initSpoilerBlur();
       await initDanmuListTools();
+      initCommentSendButton();
       initLongEpisodeGrouping();
       await initEpisodeTitleTooltips();
       initOffshelfAlerts();
@@ -2366,9 +2369,11 @@
   const boot = async () => {
     await readSettings();
     await initCollectionStatusTagger();
+    await initWatchCollectionStatusButton();
     initCatalogEnhancements();
     await initSpoilerBlur();
     await initDanmuListTools();
+    initCommentSendButton();
     initLongEpisodeGrouping();
     await initEpisodeTitleTooltips();
     initOffshelfAlerts();

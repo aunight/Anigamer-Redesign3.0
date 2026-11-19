@@ -1,6 +1,8 @@
 /* Anigamer Redesign 3.0 Enhancements — Unified Rounded-Rectangle Filter Design, White SVG Icons, Official-Parity History Cards & Fullscreen Subtitle Marquee */
 
 /* ── Utility hiding classes (never overwrite card.hidden so native filters compose cleanly) ── */
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.animate-theme-list, .old_list) .theme-list-main:is(.ani-col-status-hidden, .ani-catalog-excluded, .ani-exclude-hidden, .ani-origin-hidden),
+#BH_background .theme-list-main:is(.ani-col-status-hidden, .ani-catalog-excluded, .ani-exclude-hidden, .ani-origin-hidden),
 .ani-col-status-hidden,
 .ani-perm-native-hidden,
 .ani-catalog-excluded,
@@ -357,8 +359,8 @@ body #BH_background .ani-perm-btn.is-danger.is-armed {
   display: inline-flex !important;
   align-items: center !important;
   gap: 5px !important;
-  padding: 4px 10px !important;
-  border-radius: 8px !important;
+  padding: 4px 11px !important;
+  border-radius: 999px !important;
   border: 1px solid rgba(255, 255, 255, 0.26) !important;
   background: rgba(14, 22, 34, 0.84) !important;
   backdrop-filter: blur(12px) !important;
@@ -412,6 +414,31 @@ body #BH_background .ani-perm-btn.is-danger.is-armed {
 }
 .ani-col-status-menu[hidden] {
   display: none !important;
+}
+.ani-col-status-bar:is(:hover, :focus-within) .ani-col-status-menu,
+.ani-col-status-bar:is(:hover, :focus-within) .ani-col-status-menu[hidden] {
+  display: flex !important;
+}
+.ani-poster-card .theme-img-block:has(.ani-col-status-bar:is(:hover, :focus-within)),
+.theme-list-main .theme-img-block:has(.ani-col-status-bar:is(:hover, :focus-within)) {
+  overflow: visible !important;
+}
+.ani-col-status-bar.is-watch-chip {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  margin: 0 !important;
+  z-index: 30 !important;
+}
+#BH_background .ani-col-status-bar.is-watch-chip .ani-col-status-chip {
+  height: 36px !important;
+  padding: 0 14px !important;
+  font-size: 13px !important;
+}
+.ani-col-status-bar.is-watch-chip .ani-col-status-menu {
+  top: calc(100% + 6px);
+  bottom: auto;
+  left: 0;
 }
 .ani-col-status-menu button {
   display: inline-flex;
@@ -792,9 +819,10 @@ body #BH_background .filter-section.has-top-right-blur-toggle > .ani-blur-quick-
   z-index: 4;
 }
 
-/* ── Feature 4: 彈幕列表搜尋、多維排序與局部消音 (/animeVideo.php) ── */
+/* ── Feature 4: 彈幕列表置頂搜尋與 B 站風格三欄膠囊排序 (/animeVideo.php) ── */
 .ani-danmu-tools-bar {
-  position: relative;
+  position: sticky;
+  top: 0;
   z-index: 50;
   display: flex;
   flex-direction: column;
@@ -802,23 +830,31 @@ body #BH_background .filter-section.has-top-right-blur-toggle > .ani-blur-quick-
   padding: 10px 12px;
   margin-bottom: 8px;
   border-radius: 12px;
-  background: rgba(14, 24, 36, 0.78);
+  background: rgba(14, 24, 36, 0.92);
   border: 1px solid rgba(255, 255, 255, 0.14);
   backdrop-filter: blur(16px);
 }
-.ani-danmu-search-row,
-.ani-danmu-sort-row {
+.ani-danmu-search-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+}
+.ani-danmu-sort-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+.ani-danmu-sort-row > [data-dm-sort='length'] {
+  justify-self: center;
 }
 .ani-danmu-search {
   flex: 1 1 auto;
   min-width: 0;
   height: 32px;
   padding: 0 12px;
-  border-radius: 10px;
+  border-radius: 999px;
   border: 1px solid var(--ani-filter-pill-border, rgba(255, 255, 255, 0.18));
   background: var(--ani-filter-pill-bg, rgba(48, 71, 93, 0.35));
   color: #f0f6fc;
@@ -830,19 +866,14 @@ body #BH_background .filter-section.has-top-right-blur-toggle > .ani-blur-quick-
   color: rgba(212, 226, 240, 0.78);
   font-variant-numeric: tabular-nums;
 }
-.ani-danmu-sorts {
+.ani-dm-sort-btn {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-}
-.ani-dm-sort-btn,
-.ani-danmu-muted-pill {
-  display: inline-flex;
-  align-items: center;
+  justify-content: center;
   gap: 5px;
   height: 28px;
-  padding: 0 10px;
-  border-radius: 8px;
+  padding: 0 12px;
+  border-radius: 999px;
   border: 1px solid var(--ani-filter-pill-border, rgba(255, 255, 255, 0.16));
   background: var(--ani-filter-pill-bg, rgba(48, 71, 93, 0.35));
   color: #dbe8f6;
@@ -854,6 +885,39 @@ body #BH_background .filter-section.has-top-right-blur-toggle > .ani-blur-quick-
   background: var(--ani-filter-pill-selected-bg, #719eb940);
   border-color: var(--ani-filter-pill-selected-border, #b9dff57a);
   color: var(--ani-filter-pill-selected-text, #edf7ff);
+}
+
+/* ── Comment Input Send Icon (matching danmu send button) ── */
+body.ani-layout-comments #BH_background #w-post-box .c-reply__editor .comment_icon {
+  gap: 6px;
+}
+body.ani-layout-comments #BH_background #w-post-box .c-reply__editor .input-article-content {
+  padding-right: 88px !important;
+}
+body.ani-layout-comments #BH_background #w-post-box .c-reply__editor .ani-comment-send-btn {
+  display: grid !important;
+  place-items: center !important;
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 1px solid #ffffffd9 !important;
+  border-radius: 999px !important;
+  background: var(--ani-accent, #3dafb6) !important;
+  color: #ffffff !important;
+  cursor: pointer !important;
+  box-shadow: 0 0 0 2px #ffffff18;
+  transition: transform 0.12s ease, filter 0.15s ease;
+}
+body.ani-layout-comments #BH_background #w-post-box .c-reply__editor .ani-comment-send-btn:hover {
+  filter: brightness(1.1);
+  transform: scale(1.04);
+}
+body.ani-layout-comments #BH_background #w-post-box .c-reply__editor .ani-comment-send-btn .ani-send-glyph {
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
 }
 .ani-dm-muted-host {
   position: relative;

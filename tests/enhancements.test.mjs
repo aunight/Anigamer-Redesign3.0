@@ -378,21 +378,14 @@ test('Phase 4: danmu list search, multi-sort (time/length/sender freq), local pe
   d.querySelector('[data-dm-sort="length"]').click();
   assert.equal(getTexts()[0], '這幕作畫太神了吧！！');
 
-  // Sort by sender frequency desc -> userA (2 rows) comes before userB & userC (1 row each)
-  d.querySelector('[data-dm-sort="sender"]').click();
-  assert.deepEqual(getTexts().slice(0, 2), ['哈哈', '來了']);
+  // Sort by sn (posting order) desc -> newest row (last original index: 前方高能) first, and toggle asc
+  d.querySelector('[data-dm-sort="sn"]').click();
+  assert.equal(getTexts()[0], '前方高能');
+  d.querySelector('[data-dm-sort="sn"]').click();
+  assert.equal(getTexts()[0], '哈哈');
 
-  // Local mute userA -> hides BOTH rows of userA and persists to storage
-  subList.querySelector('.sub-list-li[data-userid="userA"] .ani-dm-local-mute').click();
-  await new Promise((r) => setTimeout(r, 30));
-  assert.equal(subList.querySelectorAll('.sub-list-li:not(.ani-dm-filtered-hidden)').length, 2);
-  assert.match(d.querySelector('.ani-danmu-muted-pill').textContent, /已消音 1 人/);
-
-  // Unmute via popover restores both rows
-  d.querySelector('.ani-danmu-muted-pill').click();
-  d.querySelector('.ani-dm-unmute-one[data-unmute-sender="userA"]').click();
-  await new Promise((r) => setTimeout(r, 180));
-  assert.equal(subList.querySelectorAll('.sub-list-li:not(.ani-dm-filtered-hidden)').length, 4);
+  // No duplicate per-row local mute button (respects official mute button)
+  assert.equal(subList.querySelectorAll('.ani-dm-local-mute').length, 0);
 
   // Confirm idle #sub_list causes 0 self-triggered mutations
   let idleMut = 0;

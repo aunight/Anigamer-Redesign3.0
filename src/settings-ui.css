@@ -1142,9 +1142,17 @@ body .ani-view-settings-panel .ani-method-list button[aria-pressed='true'],
   mask-image:linear-gradient(to bottom,transparent,#000 var(--settings-top-fade,0px),#000 calc(100% - var(--settings-bottom-fade,0px)),transparent);
 }
 .ani-view-settings-panel.ani-settings-more::after {
-  content:""; flex:none; height:24px; margin-top:-24px; pointer-events:none;
-  background:linear-gradient(to top,rgb(0 0 0 / 13%),transparent);
-  backdrop-filter:blur(5px); mask-image:linear-gradient(to top,black,transparent);
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 36px;
+  pointer-events: none;
+  background: linear-gradient(to top, rgb(0 0 0 / 28%), transparent);
+  backdrop-filter: blur(5px);
+  mask-image: linear-gradient(to top, black, transparent);
+  border-radius: 0 0 20px 20px;
 }
 .ani-view-settings-panel.ani-settings-scrolled .ani-settings-heading::after {
   content:'';position:absolute;inset:100% 0 auto;height:24px;pointer-events:none;
