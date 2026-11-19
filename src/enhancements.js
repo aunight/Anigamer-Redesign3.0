@@ -22,6 +22,54 @@
   ];
   const COL_STATUS_MAP = Object.fromEntries(COL_STATUS_META);
 
+  const enhIcon = (inner, size = 15) =>
+    `<svg class="ani-enh-svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
+
+  const COL_STATUS_ICONS = {
+    all: '<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/>',
+    plan: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    watching: '<polygon points="6 4 20 12 6 20 6 4"/>',
+    completed: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/>',
+    paused: '<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>',
+    unset: '<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1"/>',
+    clear: '<path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>',
+    add: '<path d="M12 5v14M5 12h14"/>',
+  };
+
+  const ORIGIN_ICONS = {
+    all: COL_STATUS_ICONS.all,
+    manga: '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+    light_novel: '<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><path d="M9 2v7l2.5-1.5L14 9V2"/>',
+    game: '<rect x="2" y="6" width="20" height="12" rx="3"/><path d="M6 12h4m-2-2v4m7-3h.01m2.99 2h.01"/>',
+    original: '<path d="m12 3 1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3Z"/>',
+    short: '<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>',
+  };
+
+  const applyShadowMarquee = (box) => {
+    if (!box) return;
+    let track = box.querySelector(':scope > .ani-marquee-track');
+    if (!track) {
+      const txt = box.textContent || '';
+      track = document.createElement('span');
+      track.className = 'ani-marquee-track';
+      track.textContent = txt;
+      box.replaceChildren(track);
+    }
+    const avail = box.clientWidth;
+    const total = Math.max(box.scrollWidth || 0, track.scrollWidth || 0, track.offsetWidth || 0);
+    const distance = avail > 0 ? Math.max(0, total - avail) : 0;
+    const isOverflow = distance > 2;
+    if (isOverflow) {
+      box.dataset.aniMarquee = 'true';
+      box.style.setProperty('--ani-marquee-dist', `-${Math.ceil(distance + 16)}px`);
+      box.style.setProperty('--ani-marquee-dur', `${Math.max(5.5, (distance + 16) / 16).toFixed(2)}s`);
+    } else {
+      delete box.dataset.aniMarquee;
+      box.style.removeProperty('--ani-marquee-dist');
+      box.style.removeProperty('--ani-marquee-dur');
+    }
+  };
+
   const escapeHtml = (str) =>
     String(str ?? '').replace(/[&<>"']/g, (ch) => ({
       '&': '&amp;',
@@ -263,14 +311,14 @@
               const opt = document.createElement('button');
               opt.type = 'button';
               opt.dataset.choice = val;
-              opt.textContent = label;
+              opt.innerHTML = `${enhIcon(COL_STATUS_ICONS[val] || COL_STATUS_ICONS.add, 14)}<span>${escapeHtml(label)}</span>`;
               menu.append(opt);
             }
             const clearOpt = document.createElement('button');
             clearOpt.type = 'button';
             clearOpt.className = 'is-clear';
             clearOpt.dataset.choice = '';
-            clearOpt.textContent = '清除標記';
+            clearOpt.innerHTML = `${enhIcon(COL_STATUS_ICONS.clear, 14)}<span>清除標記</span>`;
             menu.append(clearOpt);
             bar.append(chip, menu);
             imgHost.append(bar);
@@ -304,7 +352,9 @@
           const chipEl = bar?.querySelector('.ani-col-status-chip');
           if (chipEl) {
             chipEl.dataset.status = st;
-            chipEl.textContent = st ? COL_STATUS_MAP[st] : '+ 標記狀態';
+            const labelTxt = st ? COL_STATUS_MAP[st] : '+ 標記狀態';
+            const iconKey = st || 'add';
+            chipEl.innerHTML = `${enhIcon(COL_STATUS_ICONS[iconKey] || COL_STATUS_ICONS.add, 13)}<span>${escapeHtml(labelTxt)}</span>`;
             chipEl.setAttribute('aria-label', st ? `收藏分類：${COL_STATUS_MAP[st]}` : '標記收藏分類');
           }
         }
@@ -316,14 +366,14 @@
           section.setAttribute('aria-label', '自訂收藏分類');
           const header = document.createElement('div');
           header.className = 'ani-extra-filter-header';
-          header.innerHTML = '<h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>自訂收藏分類</h3>';
+          header.innerHTML = `<h3>${enhIcon('<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>', 20)}收藏狀態</h3>`;
           const ul = document.createElement('ul');
           for (const [key, label] of [['all', '全部'], ...COL_STATUS_META, ['unset', '未分類']]) {
             const li = document.createElement('li');
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.dataset.filterStatus = key;
-            btn.innerHTML = `${escapeHtml(label)} <small></small>`;
+            btn.innerHTML = `${enhIcon(COL_STATUS_ICONS[key] || COL_STATUS_ICONS.all, 15)}<span>${escapeHtml(label)}</span> <small></small>`;
             btn.addEventListener('click', () => {
               colActiveFilter = key;
               applyAndSync();
@@ -578,6 +628,16 @@
     const shell = document.createElement('section');
     shell.className = 'ani-perm-history-shell';
 
+    const filterCard = document.createElement('div');
+    filterCard.className = 'filter-section ani-browse-filters ani-perm-filter-card';
+    filterCard.setAttribute('aria-label', '觀看紀錄分類與篩選');
+
+    const sourceRow = document.createElement('div');
+    sourceRow.className = 'ani-perm-filter-row';
+    const sourceHead = document.createElement('div');
+    sourceHead.className = 'ani-extra-filter-header';
+    sourceHead.innerHTML = `<h3>${enhIcon('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', 20)}紀錄來源</h3>`;
+
     const tabs = document.createElement('div');
     tabs.className = 'ani-perm-tabs';
     tabs.setAttribute('role', 'tablist');
@@ -585,54 +645,95 @@
     tabNative.type = 'button';
     tabNative.className = 'ani-perm-tab';
     tabNative.setAttribute('role', 'tab');
-    tabNative.textContent = '官方觀看紀錄';
+    tabNative.innerHTML = `${enhIcon('<circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/>', 15)}<span>官方觀看紀錄</span>`;
     const tabPerm = document.createElement('button');
     tabPerm.type = 'button';
     tabPerm.className = 'ani-perm-tab';
     tabPerm.setAttribute('role', 'tab');
-    tabPerm.textContent = '永久本地紀錄 (0)';
+    tabPerm.innerHTML = `${enhIcon('<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>', 15)}<span class="ani-perm-tab-label">永久本地紀錄 (0)</span>`;
     tabs.append(tabNative, tabPerm);
+    sourceRow.append(sourceHead, tabs);
+
+    const toolbar = document.createElement('div');
+    toolbar.className = 'ani-perm-toolbar';
+    toolbar.hidden = true;
+    toolbar.innerHTML = `
+      <div class="ani-perm-filter-row">
+        <div class="ani-extra-filter-header">
+          <h3>${enhIcon('<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>', 20)}觀看狀態</h3>
+        </div>
+        <div class="ani-perm-filter-pills" role="group" aria-label="進度篩選">
+          <button type="button" class="ani-perm-btn" data-perm-prog="all" aria-pressed="true">${enhIcon(COL_STATUS_ICONS.all, 15)}<span>全部</span></button>
+          <button type="button" class="ani-perm-btn" data-perm-prog="inprogress" aria-pressed="false">${enhIcon(COL_STATUS_ICONS.watching, 15)}<span>未看完</span></button>
+          <button type="button" class="ani-perm-btn" data-perm-prog="completed" aria-pressed="false">${enhIcon(COL_STATUS_ICONS.completed, 15)}<span>已看完</span></button>
+        </div>
+      </div>
+      <div class="ani-perm-filter-row">
+        <div class="ani-extra-filter-header">
+          <h3>${enhIcon('<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>', 20)}搜尋管理</h3>
+        </div>
+        <div class="ani-perm-manage-row">
+          <div class="anime_search-input ani-collection-search-capsule ani-perm-search-capsule">
+            <input type="search" class="ani-perm-search" placeholder="搜尋永久觀看紀錄…" aria-label="搜尋永久觀看紀錄">
+            <button type="button" class="anime_search-icon ani-perm-search-icon" aria-label="搜尋紀錄" tabindex="-1">
+              ${enhIcon('<circle cx="10" cy="10" r="6"/><path d="m14.4 14.4 5.6 5.6"/>', 16)}
+            </button>
+          </div>
+          <div class="ani-perm-io-actions">
+            <button type="button" class="ani-perm-btn" data-perm-export title="匯出 JSON">${enhIcon('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>', 15)}<span>匯出 JSON</span></button>
+            <button type="button" class="ani-perm-btn" data-perm-import title="匯入 JSON">${enhIcon('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>', 15)}<span>匯入 JSON</span></button>
+            <button type="button" class="ani-perm-btn is-danger" data-perm-clear title="清空永久本地紀錄">${enhIcon(COL_STATUS_ICONS.clear, 15)}<span class="ani-perm-clear-label">清空</span></button>
+            <input type="file" data-perm-file accept="application/json,.json" hidden>
+          </div>
+        </div>
+      </div>
+    `;
+
+    filterCard.append(sourceRow, toolbar);
 
     const panel = document.createElement('div');
     panel.className = 'ani-perm-history-panel';
     panel.hidden = true;
-    panel.innerHTML = `
-      <div class="ani-perm-toolbar">
-        <input type="search" class="ani-perm-search" placeholder="搜尋永久觀看紀錄…" aria-label="搜尋永久觀看紀錄">
-        <div class="ani-perm-filter-pills" role="group" aria-label="進度篩選">
-          <button type="button" class="ani-perm-btn" data-perm-prog="all" aria-pressed="true">全部</button>
-          <button type="button" class="ani-perm-btn" data-perm-prog="inprogress" aria-pressed="false">未看完</button>
-          <button type="button" class="ani-perm-btn" data-perm-prog="completed" aria-pressed="false">已看完</button>
-        </div>
-        <div class="ani-perm-io-actions">
-          <button type="button" class="ani-perm-btn" data-perm-export>匯出 JSON</button>
-          <button type="button" class="ani-perm-btn" data-perm-import>匯入 JSON</button>
-          <button type="button" class="ani-perm-btn is-danger" data-perm-clear>清空</button>
-          <input type="file" data-perm-file accept="application/json,.json" hidden>
-        </div>
-      </div>
-      <div class="ani-perm-grid"></div>
-    `;
+    panel.innerHTML = `<div class="ani-perm-grid"></div>`;
 
-    shell.append(tabs, panel);
+    shell.append(filterCard, panel);
     if (nativeHistory && nativeHistory.parentElement === hostParent) nativeHistory.before(shell);
     else hostParent.prepend(shell);
 
     let progFilter = 'all';
-    const searchEl = panel.querySelector('.ani-perm-search');
+    const searchEl = filterCard.querySelector('.ani-perm-search');
+    filterCard.querySelector('.ani-perm-search-icon')?.addEventListener('click', () => searchEl?.focus());
     const gridEl = panel.querySelector('.ani-perm-grid');
-    const clearBtn = panel.querySelector('[data-perm-clear]');
+    const clearBtn = filterCard.querySelector('[data-perm-clear]');
     let clearArmed = false;
 
     const syncTabState = (records) => {
       const count = Object.keys(records || {}).length;
-      tabPerm.textContent = `永久本地紀錄 (${count})`;
+      const tabPermLabel = tabPerm.querySelector('.ani-perm-tab-label');
+      if (tabPermLabel) tabPermLabel.textContent = `永久本地紀錄 (${count})`;
+      else tabPerm.textContent = `永久本地紀錄 (${count})`;
       const isPerm = permActiveTab === 'perm';
       tabNative.setAttribute('aria-selected', String(!isPerm));
       tabPerm.setAttribute('aria-selected', String(isPerm));
+      toolbar.hidden = !isPerm;
       panel.hidden = !isPerm;
-      for (const el of document.querySelectorAll('.history, #historyList, .history-wrapper .anime-btn-show-more')) {
+      const nativeTargets = new Set([
+        ...document.querySelectorAll('.history:not(.ani-perm-grid), #historyList, .history-year-month-block, .history-wrapper .anime-btn-show-more'),
+      ]);
+      const wrapper = document.querySelector('.history-wrapper');
+      if (wrapper) {
+        for (const child of wrapper.children) {
+          if (child !== shell && !child.classList.contains('ani-perm-history-shell')) {
+            nativeTargets.add(child);
+          }
+        }
+      }
+      for (const el of nativeTargets) {
+        if (el.closest('.ani-perm-history-shell')) continue;
         el.classList.toggle('ani-perm-native-hidden', isPerm);
+        if (isPerm) el.setAttribute('data-ani-perm-hidden', '1');
+        else el.removeAttribute('data-ani-perm-hidden');
+        el.hidden = isPerm;
       }
     };
 
@@ -666,28 +767,44 @@
           return `<a class="ani-perm-ep-pill" href="animeVideo.php?sn=${epSn}">EP.${escapeHtml(ep)}</a>`;
         }).join('');
         const resumeSn = encodeURIComponent(it.videoSn || it.sn);
+        const watchedDate = formatDateTime(it.watchedAt);
         return `
-          <article class="ani-perm-card" data-perm-sn="${escapeHtml(it.sn)}">
-            <div class="ani-perm-cover-wrap">
-              ${cover ? `<img src="${escapeHtml(cover)}" alt="${escapeHtml(it.title)}" loading="lazy">` : ''}
-              ${it.episode ? `<span class="ani-perm-ep-badge">EP.${escapeHtml(it.episode)}</span>` : ''}
-            </div>
-            <div class="ani-perm-info">
-              <h4 class="ani-perm-title" title="${escapeHtml(it.title)}">${escapeHtml(it.title)}</h4>
-              <div class="ani-perm-meta">
-                <span>${formatMmSs(it.elapsedSec)} / ${formatMmSs(it.durationSec)}</span>
-                <span>${formatDateTime(it.watchedAt)}</span>
+          <div class="ani-perm-watch-slot">
+            <article class="anime-card ani-history-card ani-perm-card" data-perm-sn="${escapeHtml(it.sn)}">
+              <a class="click-area" href="animeVideo.php?sn=${resumeSn}" aria-label="${escapeHtml(it.title)}"></a>
+              <div class="postimg ani-perm-cover-wrap">
+                ${cover ? `<img src="${escapeHtml(cover)}" alt="${escapeHtml(it.title)}" loading="lazy">` : ''}
               </div>
-              <div class="ani-perm-bar"><div class="ani-perm-bar-fill" style="width:${pct}%"></div></div>
-              ${epPills ? `<div class="ani-perm-eps">${epPills}</div>` : ''}
-              <div class="ani-perm-actions">
-                <a class="ani-perm-resume" href="animeVideo.php?sn=${resumeSn}">繼續觀看</a>
-                <button type="button" class="ani-perm-del-btn" data-perm-delete="${escapeHtml(it.sn)}" aria-label="刪除「${escapeHtml(it.title)}」的本地紀錄" title="刪除此筆紀錄">✕</button>
+              <div class="anime-info ani-perm-info">
+                <p class="history-anime-title ani-perm-title" title="${escapeHtml(it.title)}"><span class="ani-marquee-track">${escapeHtml(it.title)}</span></p>
+                <div class="ani-history-playback">
+                  ${it.episode ? `<span class="ani-history-episode ani-perm-ep-badge">EP.${escapeHtml(it.episode)}</span>` : '<span></span>'}
+                  <p class="ani-history-timing"><span class="ani-history-elapsed">${formatMmSs(it.elapsedSec)}</span> / ${formatMmSs(it.durationSec)}</p>
+                </div>
+                <div class="ani-history-secondary">
+                  ${watchedDate ? `<p class="ani-history-update">${escapeHtml(watchedDate)}</p>` : ''}
+                </div>
+                <div class="progress-bar" aria-valuenow="${Math.round(it.elapsedSec || 0)}" aria-valuemax="${Math.round(it.durationSec || 0)}">
+                  <div class="progress ani-perm-bar-fill" style="width:${pct}%"></div>
+                </div>
+                ${epPills ? `<div class="ani-perm-eps">${epPills}</div>` : ''}
               </div>
-            </div>
-          </article>
+              <div class="btn-set ani-perm-actions">
+                <a class="play-btn round-btn ani-perm-resume" href="animeVideo.php?sn=${resumeSn}">
+                  <svg class="ani-history-play-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8Z"/></svg>
+                  <span class="ani-history-play-label">繼續觀看</span>
+                </a>
+                <button type="button" class="round-btn ani-perm-del-btn" data-perm-delete="${escapeHtml(it.sn)}" aria-label="刪除「${escapeHtml(it.title)}」的本地紀錄" title="刪除此筆紀錄">
+                  ${enhIcon(COL_STATUS_ICONS.clear, 18)}
+                </button>
+              </div>
+            </article>
+          </div>
         `;
       }).join('');
+      for (const titleEl of gridEl.querySelectorAll('.ani-perm-title')) {
+        applyShadowMarquee(titleEl);
+      }
     };
 
     tabNative.addEventListener('click', () => {
@@ -699,10 +816,10 @@
       renderGrid();
     });
     searchEl.addEventListener('input', () => { renderGrid(); });
-    for (const pb of panel.querySelectorAll('[data-perm-prog]')) {
+    for (const pb of filterCard.querySelectorAll('[data-perm-prog]')) {
       pb.addEventListener('click', () => {
         progFilter = pb.dataset.permProg;
-        for (const b of panel.querySelectorAll('[data-perm-prog]')) {
+        for (const b of filterCard.querySelectorAll('[data-perm-prog]')) {
           b.setAttribute('aria-pressed', String(b === pb));
         }
         renderGrid();
@@ -711,6 +828,8 @@
     gridEl.addEventListener('click', async (ev) => {
       const del = ev.target.closest('[data-perm-delete]');
       if (!del) return;
+      ev.preventDefault();
+      ev.stopPropagation();
       const sn = del.dataset.permDelete;
       await mutatePermanentHistory((data) => {
         if (!Object.hasOwn(data, sn)) return false;
@@ -721,7 +840,7 @@
       renderGrid();
     });
 
-    panel.querySelector('[data-perm-export]').addEventListener('click', async () => {
+    filterCard.querySelector('[data-perm-export]').addEventListener('click', async () => {
       const records = await storageGet(PERM_HIST_KEY, {});
       const payload = JSON.stringify({ format: 'anigamer-redesign-history', version: 1, exportedAt: Date.now(), records }, null, 2);
       const blob = new Blob([payload], { type: 'application/json' });
@@ -734,8 +853,8 @@
       showToast('已匯出永久觀看紀錄');
     });
 
-    const fileInput = panel.querySelector('[data-perm-file]');
-    panel.querySelector('[data-perm-import]').addEventListener('click', () => fileInput.click());
+    const fileInput = filterCard.querySelector('[data-perm-file]');
+    filterCard.querySelector('[data-perm-import]').addEventListener('click', () => fileInput.click());
     fileInput.addEventListener('change', async () => {
       const file = fileInput.files?.[0];
       if (!file) return;
@@ -772,21 +891,27 @@
       }
     });
 
+    const setClearLabel = (txt) => {
+      const lbl = clearBtn.querySelector('.ani-perm-clear-label');
+      if (lbl) lbl.textContent = txt;
+      else clearBtn.textContent = txt;
+    };
+
     clearBtn.addEventListener('click', async () => {
       if (!clearArmed) {
         clearArmed = true;
         clearBtn.classList.add('is-armed');
-        clearBtn.textContent = '再點確認清空';
+        setClearLabel('再點確認清空');
         setTimeout(() => {
           clearArmed = false;
           clearBtn.classList.remove('is-armed');
-          clearBtn.textContent = '清空';
+          setClearLabel('清空');
         }, 3500);
         return;
       }
       clearArmed = false;
       clearBtn.classList.remove('is-armed');
-      clearBtn.textContent = '清空';
+      setClearLabel('清空');
       await storageSet(PERM_HIST_KEY, {});
       showToast('已清空永久本地紀錄');
       renderGrid();
@@ -1126,16 +1251,32 @@
       exPanel.setAttribute('aria-label', '反向排除篩選');
       exPanel.innerHTML = `
         <div class="ani-extra-filter-header">
-          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m5.7 5.7 12.6 12.6"/></svg>排除不想看的標籤 / 關鍵字</h3>
+          <h3>${enhIcon('<circle cx="12" cy="12" r="9"/><path d="m5.7 5.7 12.6 12.6"/>', 20)}排除標籤</h3>
           <span class="ani-exclude-count" role="status"></span>
         </div>
-        <div class="ani-exclude-pills"></div>
-        <div class="ani-exclude-controls">
-          <input type="search" class="ani-exclude-keyword" placeholder="輸入要排除的關鍵字（逗號分隔）…" aria-label="排除關鍵字">
-          <button type="button" class="ani-exclude-clear">清除排除</button>
+        <div class="ani-exclude-body">
+          <div class="ani-exclude-pills"></div>
+          <div class="ani-exclude-controls">
+            <div class="anime_search-input ani-collection-search-capsule ani-exclude-search-capsule">
+              <input type="search" class="ani-exclude-keyword" placeholder="輸入要排除的關鍵字（逗號分隔）…" aria-label="排除關鍵字">
+              <button type="button" class="anime_search-icon ani-exclude-search-icon" aria-label="搜尋排除關鍵字" tabindex="-1">
+                ${enhIcon('<circle cx="10" cy="10" r="6"/><path d="m14.4 14.4 5.6 5.6"/>', 16)}
+              </button>
+            </div>
+            <button type="button" class="ani-exclude-clear" title="清除排除" aria-label="清除排除">
+              ${enhIcon('<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>', 16)}
+              <span>清除排除</span>
+            </button>
+          </div>
         </div>
       `;
       const pillsWrap = exPanel.querySelector('.ani-exclude-pills');
+      const setExPillContent = (btn, tag, isEx) => {
+        const iconPath = isEx
+          ? '<circle cx="12" cy="12" r="9"/><path d="m8.5 8.5 7 7M15.5 8.5l-7 7"/>'
+          : '<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1"/>';
+        btn.innerHTML = `${enhIcon(iconPath, 14)}<span>${escapeHtml(tag)}</span>`;
+      };
       for (const tag of availableTags) {
         const btn = document.createElement('button');
         btn.type = 'button';
@@ -1144,19 +1285,21 @@
         const active = excludedTags.has(tag);
         btn.classList.toggle('is-excluded', active);
         btn.setAttribute('aria-pressed', String(active));
-        btn.textContent = tag;
+        setExPillContent(btn, tag, active);
         btn.addEventListener('click', () => {
           if (excludedTags.has(tag)) excludedTags.delete(tag);
           else excludedTags.add(tag);
           const nowEx = excludedTags.has(tag);
           btn.classList.toggle('is-excluded', nowEx);
           btn.setAttribute('aria-pressed', String(nowEx));
+          setExPillContent(btn, tag, nowEx);
           saveExcludeState();
           applyCatalogFilters();
         });
         pillsWrap.append(btn);
       }
       const kwInput = exPanel.querySelector('.ani-exclude-keyword');
+      exPanel.querySelector('.ani-exclude-search-icon')?.addEventListener('click', () => kwInput?.focus());
       kwInput.value = excludeKeyword;
       let kwTimer = 0;
       kwInput.addEventListener('input', () => {
@@ -1172,6 +1315,7 @@
         for (const b of pillsWrap.querySelectorAll('.ani-exclude-pill')) {
           b.classList.remove('is-excluded');
           b.setAttribute('aria-pressed', 'false');
+          setExPillContent(b, b.dataset.excludeTag, false);
         }
         saveExcludeState();
         applyCatalogFilters();
@@ -1185,7 +1329,7 @@
       originPanel.setAttribute('aria-label', '原作 / 型態分類');
       originPanel.innerHTML = `
         <div class="ani-extra-filter-header">
-          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>原作 / 輕動畫分類</h3>
+          <h3>${enhIcon('<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>', 20)}原作分類</h3>
           <span class="ani-origin-status" role="status"></span>
         </div>
         <div class="ani-origin-pills" role="group" aria-label="選擇原作類型"></div>
@@ -1197,7 +1341,7 @@
         btn.className = 'ani-origin-pill';
         btn.dataset.origin = key;
         btn.setAttribute('aria-pressed', String(key === activeOrigin));
-        btn.textContent = label;
+        btn.innerHTML = `${enhIcon(ORIGIN_ICONS[key] || ORIGIN_ICONS.all, 15)}<span>${escapeHtml(label)}</span>`;
         btn.addEventListener('click', () => {
           activeOrigin = key;
           for (const b of oWrap.querySelectorAll('.ani-origin-pill')) {
@@ -1263,7 +1407,7 @@
           <span>第</span>
           <input type="number" class="ani-page-input" min="1" max="${totalPages}" value="${currentPage}" aria-label="輸入頁碼">
           <span>/ ${totalPages} 頁</span>
-          <button type="submit" class="ani-page-go-btn">前往</button>
+          <button type="submit" class="ani-page-go-btn" title="前往頁碼" aria-label="前往">${enhIcon('<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>', 15)}<span>前往</span></button>
         `;
         form.addEventListener('submit', (e) => {
           e.preventDefault();
@@ -1300,6 +1444,14 @@
     cover.querySelector('.ani-blur-rehide-btn')?.remove();
   };
 
+  const BLUR_EYE_ON_SVG = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+  const BLUR_EYE_OFF_SVG = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+
+  const renderBlurToggleInner = (btn, enabled) => {
+    btn.setAttribute('aria-pressed', String(enabled));
+    btn.innerHTML = `${enhIcon(enabled ? BLUR_EYE_ON_SVG : BLUR_EYE_OFF_SVG, 15)}<span>${enabled ? '避雷遮罩：開' : '避雷遮罩：關'}</span>`;
+  };
+
   const applySpoilerBlur = async () => {
     if (blurBusy) return;
     blurBusy = true;
@@ -1307,8 +1459,7 @@
       const enabled = Boolean(currentSettings.spoilerBlurEnabled);
       const quickBtn = document.querySelector('.ani-blur-quick-toggle');
       if (quickBtn) {
-        quickBtn.setAttribute('aria-pressed', String(enabled));
-        quickBtn.textContent = enabled ? '避雷遮罩：開' : '避雷遮罩：關';
+        renderBlurToggleInner(quickBtn, enabled);
       }
 
       const cards = [...document.querySelectorAll('.theme-list-main, .anime-card-block, .ani-perm-card, .anime-card')];
@@ -1372,7 +1523,7 @@
           const btn = document.createElement('button');
           btn.type = 'button';
           btn.className = 'ani-spoiler-reveal-btn';
-          btn.textContent = '避雷遮罩 · 點擊預覽';
+          btn.innerHTML = `${enhIcon(BLUR_EYE_OFF_SVG, 14)}<span>避雷遮罩 · 點擊預覽</span>`;
           btn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -1385,7 +1536,7 @@
           const rehide = document.createElement('button');
           rehide.type = 'button';
           rehide.className = 'ani-blur-rehide-btn';
-          rehide.textContent = '重新遮罩';
+          rehide.innerHTML = `${enhIcon(BLUR_EYE_ON_SVG, 13)}<span>重新遮罩</span>`;
           rehide.title = '重新套用避雷模糊';
           rehide.addEventListener('click', (e) => {
             e.preventDefault();
@@ -1404,21 +1555,32 @@
     const allowedPaths = ['/', '/index.php', '/animeList.php', '/mygather.php', '/search.php', '/viewList.php', '/animeVideo.php'];
     if (!allowedPaths.includes(location.pathname)) return;
 
-    const filterToggle = document.querySelector('.filter-section > .ani-filter-toggle');
-    const quickHost =
-      document.querySelector('.ani-filter-bar') ||
+    const topRightSortHost =
+      document.querySelector('.filter-title-block .ani-section-actions') ||
+      document.querySelector('.animate-theme-list:has(> .filter-section) > .theme-title-block .ani-section-actions') ||
+      document.querySelector('.ani-collection-sort-host') ||
+      document.querySelector('.filter-title-block') ||
+      document.querySelector('.animate-theme-list:has(> .filter-section) > .theme-title-block') ||
+      document.querySelector('.ani-perm-tabs') ||
       document.querySelector('.ani-perm-io-actions');
-    if ((filterToggle || quickHost) && !document.querySelector('.ani-blur-quick-toggle')) {
+    const filterSection = document.querySelector('.filter-section');
+    const filterToggle = filterSection?.querySelector(':scope > .ani-filter-toggle');
+
+    if ((topRightSortHost || filterToggle || filterSection) && !document.querySelector('.ani-blur-quick-toggle')) {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'ani-blur-quick-toggle';
-      btn.setAttribute('aria-pressed', String(Boolean(currentSettings.spoilerBlurEnabled)));
-      btn.textContent = currentSettings.spoilerBlurEnabled ? '避雷遮罩：開' : '避雷遮罩：關';
+      renderBlurToggleInner(btn, Boolean(currentSettings.spoilerBlurEnabled));
       btn.addEventListener('click', async () => {
         await writeSettings({ spoilerBlurEnabled: !currentSettings.spoilerBlurEnabled });
       });
-      if (filterToggle) filterToggle.after(btn);
-      else quickHost.prepend(btn);
+      if (topRightSortHost) {
+        topRightSortHost.append(btn);
+      } else if (filterSection) {
+        filterSection.classList.add('has-top-right-blur-toggle');
+        if (filterToggle) filterToggle.after(btn);
+        else filterSection.prepend(btn);
+      }
     }
 
     if (!blurSubscribed) {
@@ -1554,9 +1716,16 @@
       }
     };
 
+    const DM_SORT_ICONS = {
+      time: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+      length: '<path d="M4 7h16M4 12h12M4 17h8"/>',
+      sender: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    };
+    const DM_MUTE_ICON = '<path d="M11 5 6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>';
+
     const renderMutedPopover = () => {
       const senders = Object.keys(mutedMap);
-      mutedPill.textContent = `已消音 ${senders.length} 人`;
+      mutedPill.innerHTML = `${enhIcon(DM_MUTE_ICON, 13)}<span>已消音 ${senders.length} 人</span>`;
       if (!senders.length) {
         mutedPopover.innerHTML = '<p class="ani-dm-muted-empty">尚未消音任何發送者</p>';
         return;
@@ -1568,12 +1737,12 @@
               (id) => `
             <div class="ani-dm-muted-item">
               <span title="${escapeHtml(id)}">${escapeHtml(id)}</span>
-              <button type="button" class="ani-dm-unmute-one" data-unmute-sender="${escapeHtml(id)}">解除</button>
+              <button type="button" class="ani-dm-unmute-one" data-unmute-sender="${escapeHtml(id)}" title="解除消音">${enhIcon('<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>', 12)}<span>解除</span></button>
             </div>`,
             )
             .join('')}
         </div>
-        <button type="button" class="ani-dm-unmute-all">全部解除</button>
+        <button type="button" class="ani-dm-unmute-all">${enhIcon(COL_STATUS_ICONS.clear, 13)}<span>全部解除</span></button>
       `;
     };
 
@@ -1583,7 +1752,8 @@
         const key = b.dataset.dmSort;
         const active = key === sortKey;
         b.setAttribute('aria-pressed', String(active));
-        b.textContent = active ? `${names[key]} ${sortDir === 'asc' ? '↑' : '↓'}` : names[key];
+        const label = active ? `${names[key]} ${sortDir === 'asc' ? '↑' : '↓'}` : names[key];
+        b.innerHTML = `${enhIcon(DM_SORT_ICONS[key] || DM_SORT_ICONS.time, 13)}<span>${escapeHtml(label)}</span>`;
       }
     };
 
@@ -1615,7 +1785,7 @@
             muteBtn.className = 'ani-dm-local-mute';
             muteBtn.title = `局部消音 ${sender}`;
             muteBtn.setAttribute('aria-label', `局部消音 ${sender}`);
-            muteBtn.textContent = '消音此人';
+            muteBtn.innerHTML = `${enhIcon(DM_MUTE_ICON, 13)}<span>消音此人</span>`;
             muteBtn.addEventListener('click', async (ev) => {
               ev.preventDefault();
               ev.stopPropagation();
@@ -1818,7 +1988,7 @@
       allBtn.type = 'button';
       allBtn.className = 'ani-ep-group-btn';
       allBtn.dataset.epGroup = 'all';
-      allBtn.textContent = '全部';
+      allBtn.innerHTML = `${enhIcon(COL_STATUS_ICONS.all, 13)}<span>全部</span>`;
       allBtn.addEventListener('click', () => {
         season.dataset.aniEpActiveGroup = 'all';
         renderVisibility();
@@ -1836,13 +2006,90 @@
     applyGrouping();
   };
 
-  // ── Feature 5B: 單集副標題懸浮預覽 (Bangumi + AniList fallback) ──
+  // ── Feature 5B: 單集副標題懸浮預覽 ＋ 全螢幕中上副標題與長標題陰影遮罩跑馬燈 ──
   const getCleanAnimeTitle = () => {
     const raw = (document.querySelector('.anime_name h1')?.textContent || document.title || '').trim();
     return raw
       .replace(/\s*(?:\[\s*\d+(?:\.\d+)?\s*\]|EP\.?\s*\d+(?:\.\d+)?)\s*$/i, '')
       .replace(/\s*-\s*巴哈姆特動畫瘋.*$/, '')
       .trim();
+  };
+
+  const syncFullscreenSubtitleAndMarquee = () => {
+    if (location.pathname !== '/animeVideo.php') return;
+    const playerEl = document.querySelector('#ani_video');
+    if (!playerEl) return;
+
+    const titleH1 = document.querySelector('.anime-title .anime_name h1');
+    const rawTitleText = (titleH1?.textContent || '').trim();
+    const animeTitleText = rawTitleText ? rawTitleText.replace(/\s*\[([^\]]+)\]\s*$/, ' EP.$1') : '';
+
+    let fsTitle = playerEl.querySelector('.ani-fs-title');
+    if (!fsTitle && animeTitleText) {
+      fsTitle = document.createElement('div');
+      fsTitle.className = 'ani-fs-title';
+      playerEl.append(fsTitle);
+    }
+    if (!fsTitle) return;
+
+    let mainBox = fsTitle.querySelector('.ani-fs-title-main');
+    let subBox = fsTitle.querySelector('.ani-fs-subtitle');
+    if (!mainBox) {
+      const initialTxt = animeTitleText || (fsTitle.textContent || '').trim();
+      fsTitle.textContent = '';
+      mainBox = document.createElement('div');
+      mainBox.className = 'ani-fs-title-main';
+      const mainTrack = document.createElement('span');
+      mainTrack.className = 'ani-marquee-track';
+      mainTrack.textContent = initialTxt;
+      mainBox.append(mainTrack);
+
+      subBox = document.createElement('div');
+      subBox.className = 'ani-fs-subtitle';
+      subBox.hidden = true;
+      const subTrack = document.createElement('span');
+      subTrack.className = 'ani-marquee-track';
+      subBox.append(subTrack);
+
+      fsTitle.append(mainBox, subBox);
+    } else if (animeTitleText) {
+      const mt = mainBox.querySelector('.ani-marquee-track');
+      if (mt && mt.textContent !== animeTitleText) mt.textContent = animeTitleText;
+    }
+
+    const playingLink = document.querySelector('.season li.playing a');
+    const epSub = playingLink?.dataset?.aniEpTitle || '';
+    const epNum = (playingLink?.textContent || '').trim();
+    if (subBox) {
+      const st = subBox.querySelector('.ani-marquee-track');
+      if (epSub) {
+        const formatted = epNum && !/^第\s*\d+/.test(epSub) ? `第 ${epNum} 話：${epSub}` : epSub;
+        if (st) st.textContent = formatted;
+        subBox.hidden = false;
+      } else {
+        if (st) st.textContent = '';
+        subBox.hidden = true;
+      }
+    }
+
+    applyShadowMarquee(mainBox);
+    if (subBox && !subBox.hidden) applyShadowMarquee(subBox);
+
+    if (!fsTitle.dataset.aniFsMarqueeBound) {
+      fsTitle.dataset.aniFsMarqueeBound = '1';
+      const remeasure = () => {
+        applyShadowMarquee(mainBox);
+        if (subBox && !subBox.hidden) applyShadowMarquee(subBox);
+      };
+      document.addEventListener('fullscreenchange', remeasure);
+      document.addEventListener('webkitfullscreenchange', remeasure);
+      window.addEventListener('resize', remeasure, { passive: true });
+      if (typeof ResizeObserver === 'function') {
+        const ro = new ResizeObserver(remeasure);
+        ro.observe(fsTitle);
+        ro.observe(mainBox);
+      }
+    }
   };
 
   const getEpTooltipNode = () => {
@@ -1860,6 +2107,7 @@
 
   const initEpisodeTitleTooltips = async () => {
     if (location.pathname !== '/animeVideo.php') return;
+    syncFullscreenSubtitleAndMarquee();
     const season = document.querySelector('.season');
     if (!season) return;
     const cleanTitle = getCleanAnimeTitle();
@@ -1936,6 +2184,7 @@
         a.title = `第 ${rawEp} 話：${epData.name}`;
       }
     }
+    syncFullscreenSubtitleAndMarquee();
   };
 
   // ── Feature 5C: 即將下架醒目提醒 ──

@@ -1,19 +1,113 @@
-/* Anigamer Redesign 3.0 Enhancements (Collection Status, Permanent History, Catalog Filters, Spoiler Blur, Danmu Tools, Episode Grouping & Off-shelf Alerts) */
+/* Anigamer Redesign 3.0 Enhancements — Unified Rounded-Rectangle Filter Design, White SVG Icons, Official-Parity History Cards & Fullscreen Subtitle Marquee */
 
 /* ── Utility hiding classes (never overwrite card.hidden so native filters compose cleanly) ── */
 .ani-col-status-hidden,
 .ani-perm-native-hidden,
+.ani-catalog-excluded,
 .ani-exclude-hidden,
 .ani-origin-hidden,
+.ani-dm-filtered-hidden,
 .ani-dm-filtered,
 .ani-dm-sender-muted,
-.ani-ep-group-hidden {
+.ani-ep-chunk-hidden,
+.ani-ep-group-hidden,
+body.ani-history-page.ani-ambientlight-page #BH_background .ani-perm-native-hidden,
+body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.history, #historyList, .history-year-month-block, .user-watch-list, .anime-btn-show-more).ani-perm-native-hidden,
+#BH_background [data-ani-perm-hidden='1'] {
   display: none !important;
 }
 
 .ani-dm-live-muted {
   opacity: 0 !important;
   pointer-events: none !important;
+}
+
+/* ── Shared SVG icon sizing & white color inside filter headers & tags ── */
+.ani-enh-svg {
+  display: block;
+  flex: none;
+  color: currentColor;
+  pointer-events: none;
+}
+
+/* ── Shared Shadow-Mask Marquee for Long Anime Titles & Fullscreen Titles ── */
+@keyframes aniTitleMarquee {
+  0%, 15% { transform: translateX(0); }
+  55%, 70% { transform: translateX(var(--ani-marquee-dist, -40px)); }
+  100% { transform: translateX(0); }
+}
+:is(.ani-fs-title-main, .ani-fs-subtitle, .ani-perm-title) > .ani-marquee-track {
+  display: inline-block;
+  white-space: nowrap;
+}
+body.ani-history-page.ani-ambientlight-page #BH_background .ani-perm-card .ani-perm-title {
+  display: block !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  -webkit-line-clamp: unset !important;
+}
+body.ani-history-page.ani-ambientlight-page #BH_background .ani-perm-card .ani-perm-title[data-ani-marquee='true'] {
+  text-overflow: clip !important;
+}
+:is(.ani-fs-title-main, .ani-fs-subtitle, .ani-perm-title)[data-ani-marquee='true'] {
+  mask-image: linear-gradient(to right, transparent 0%, #000 12px, #000 calc(100% - 18px), transparent 100%) !important;
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 12px, #000 calc(100% - 18px), transparent 100%) !important;
+}
+:is(.ani-fs-title-main, .ani-fs-subtitle, .ani-perm-title)[data-ani-marquee='true'] > .ani-marquee-track {
+  display: inline-block !important;
+  white-space: nowrap !important;
+  will-change: transform;
+  animation: aniTitleMarquee var(--ani-marquee-dur, 7s) ease-in-out infinite !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  :is(.ani-fs-title-main, .ani-fs-subtitle, .ani-perm-title)[data-ani-marquee='true'] > .ani-marquee-track {
+    animation: none !important;
+  }
+}
+
+/* ── Fullscreen Top Header: Top-Left Anime Title + Top-Center Episode Subtitle ── */
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-fs-title {
+  padding: 22px 40px 52px 28px !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+#ani_video .ani-fs-title-main {
+  display: block;
+  max-width: min(36vw, 480px);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+#ani_video .ani-fs-title-main[data-ani-marquee='true'] {
+  text-overflow: clip;
+}
+#ani_video .ani-fs-subtitle {
+  position: absolute;
+  left: 50%;
+  top: 22px;
+  transform: translateX(-50%);
+  max-width: min(38vw, 520px);
+  padding: 3px 14px;
+  border-radius: 10px;
+  background: rgba(15, 24, 36, 0.54);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(12px);
+  color: rgba(242, 248, 255, 0.96);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.32);
+}
+#ani_video .ani-fs-subtitle[hidden] {
+  display: none !important;
+}
+#ani_video .ani-fs-subtitle[data-ani-marquee='true'] {
+  text-overflow: clip;
 }
 
 /* ── Toast notification fallback ── */
@@ -23,9 +117,9 @@
   bottom: 24px;
   z-index: 2147483000;
   padding: 9px 16px;
-  border-radius: 999px;
-  background: rgba(18, 30, 44, 0.9);
-  border: 1px solid rgba(118, 224, 232, 0.35);
+  border-radius: 10px;
+  background: rgba(18, 30, 44, 0.92);
+  border: 1px solid rgba(185, 223, 245, 0.35);
   color: #f0f6fc;
   font-size: 13px;
   font-weight: 600;
@@ -34,70 +128,194 @@
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.42);
 }
 
-/* ── Extra Filter Headers inside .ani-filter-body (distinct from .class-header SVG count contract) ── */
+/* ── Unified 2-Column Filter Rows & White Header Icons (matches .ani-browse-filters section.class_list) ── */
+body #BH_background .filter-section.ani-browse-filters :is(.ani-exclude-panel, .ani-origin-panel, .ani-custom-status-filter, .ani-perm-filter-row),
+.ani-perm-filter-card .ani-perm-filter-row {
+  display: grid !important;
+  grid-template-columns: var(--ani-filter-label-width, 88px) minmax(0, 1fr) !important;
+  gap: 16px !important;
+  margin: 0 !important;
+  padding: 12px 0 !important;
+  width: 100% !important;
+  border-top: 0 !important;
+  align-items: start !important;
+}
 .ani-extra-filter-header {
+  grid-column: 1;
+  grid-row: 1;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 10px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  margin: 0;
+  padding-top: 4px;
 }
 .ani-extra-filter-header h3 {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
+  min-height: 30px;
   margin: 0;
   font-size: 14px;
   font-weight: 700;
-  color: var(--ani-text, #e8f1fa);
+  color: var(--ani-text, #ffffff) !important;
+  white-space: nowrap;
 }
-.ani-extra-filter-header svg {
-  width: 16px;
-  height: 16px;
-  flex: none;
-  color: var(--ani-accent, #3dafb6);
+.ani-extra-filter-header h3 svg {
+  width: 20px !important;
+  height: 20px !important;
+  flex-shrink: 0;
+  color: var(--ani-text, #ffffff) !important;
 }
+.ani-exclude-count,
+.ani-origin-status,
 .ani-extra-filter-note {
   font-size: 12px;
-  color: var(--ani-muted, rgba(212, 226, 240, 0.72));
+  line-height: 1.35;
+  color: var(--ani-muted, rgba(212, 226, 240, 0.75)) !important;
+  font-variant-numeric: tabular-nums;
+}
+.ani-exclude-count:empty,
+.ani-origin-status:empty {
+  display: none;
+}
+
+/* ── Unified Rounded-Rectangle Filter Tags (matches .ani-browse-filters section.class_list li a/button) ── */
+#BH_background .ani-col-status-chip::before,
+#BH_background .ani-col-status-chip::after,
+#BH_background .ani-perm-tab::before,
+#BH_background .ani-perm-tab::after,
+#BH_background .ani-perm-btn::before,
+#BH_background .ani-perm-btn::after,
+#BH_background .ani-blur-quick-toggle::before,
+#BH_background .ani-blur-quick-toggle::after {
+  content: none !important;
+  display: none !important;
+}
+
+body #BH_background :is(
+  .ani-custom-status-filter li button,
+  .ani-exclude-pill,
+  .ani-origin-pill,
+  .ani-exclude-clear,
+  .ani-perm-tab,
+  .ani-perm-btn,
+  .ani-page-quick-btn,
+  .ani-page-go-btn,
+  .ani-blur-quick-toggle,
+  .ani-ep-group-btn
+) {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  box-sizing: border-box !important;
+  height: var(--ani-filter-pill-height, 38px) !important;
+  padding: 0 var(--ani-filter-pill-padding, 14px) !important;
+  border: 1px solid var(--ani-filter-pill-border, #bdd7ec1f) !important;
+  border-radius: var(--ani-filter-control-radius, 10px) !important;
+  background: var(--ani-filter-pill-bg, #30475d52) !important;
+  color: var(--ani-muted, #b8cadb) !important;
+  -webkit-text-fill-color: var(--ani-muted, #b8cadb) !important;
+  font-size: var(--ani-filter-pill-font-size, 13px) !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  text-decoration: none !important;
+  cursor: pointer !important;
+  outline: none !important;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease !important;
+}
+
+body #BH_background :is(
+  .ani-custom-status-filter li button,
+  .ani-exclude-pill,
+  .ani-origin-pill,
+  .ani-exclude-clear,
+  .ani-perm-tab,
+  .ani-perm-btn,
+  .ani-page-quick-btn,
+  .ani-page-go-btn,
+  .ani-blur-quick-toggle,
+  .ani-ep-group-btn
+) svg {
+  color: #ffffff !important;
+  opacity: 0.9;
+}
+
+body #BH_background :is(
+  .ani-custom-status-filter li button,
+  .ani-exclude-pill,
+  .ani-origin-pill,
+  .ani-exclude-clear,
+  .ani-perm-tab,
+  .ani-perm-btn,
+  .ani-page-quick-btn,
+  .ani-page-go-btn,
+  .ani-blur-quick-toggle,
+  .ani-ep-group-btn
+):hover {
+  color: var(--ani-text, #ffffff) !important;
+  -webkit-text-fill-color: var(--ani-text, #ffffff) !important;
+  border-color: var(--ani-line, #c4e1f545) !important;
+}
+
+body #BH_background :is(
+  .ani-custom-status-filter li.now button,
+  .ani-custom-status-filter li button[aria-pressed='true'],
+  .ani-origin-pill[aria-pressed='true'],
+  .ani-perm-tab[aria-selected='true'],
+  .ani-perm-btn[aria-pressed='true'],
+  .ani-page-quick-btn[aria-current='page'],
+  .ani-blur-quick-toggle[aria-pressed='true'],
+  .ani-ep-group-btn[aria-pressed='true']
+) {
+  background: var(--ani-filter-pill-selected-bg, #719eb940) !important;
+  color: var(--ani-filter-pill-selected-text, #edf7ff) !important;
+  -webkit-text-fill-color: var(--ani-filter-pill-selected-text, #edf7ff) !important;
+  border-color: var(--ani-filter-pill-selected-border, #b9dff57a) !important;
+  box-shadow: inset 0 1px 0 #ffffff20 !important;
+  font-weight: 700 !important;
+}
+
+body #BH_background .ani-exclude-pill.is-excluded {
+  background: rgba(239, 68, 68, 0.24) !important;
+  border-color: rgba(248, 113, 113, 0.72) !important;
+  color: #fecaca !important;
+  -webkit-text-fill-color: #fecaca !important;
+  font-weight: 700 !important;
+}
+body #BH_background .ani-exclude-pill.is-excluded span {
+  text-decoration: line-through;
+}
+
+body #BH_background .ani-perm-btn.is-danger {
+  border-color: rgba(248, 113, 113, 0.42) !important;
+  color: #fca5a5 !important;
+  -webkit-text-fill-color: #fca5a5 !important;
+}
+body #BH_background .ani-perm-btn.is-danger.is-armed {
+  background: rgba(239, 68, 68, 0.28) !important;
+  border-color: rgba(248, 113, 113, 0.75) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }
 
 /* ── Feature 1A: Collection Status Tags (/mygather.php) ── */
 .ani-custom-status-filter ul {
+  grid-column: 2;
+  grid-row: 1;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--ani-filter-pill-gap, 12px 10px);
   margin: 0;
   padding: 0;
   list-style: none;
 }
-.ani-custom-status-filter li button {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--ani-text, #dce8f5);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
-}
 .ani-custom-status-filter li button small {
-  opacity: 0.72;
+  opacity: 0.76;
   font-size: 11.5px;
   font-variant-numeric: tabular-nums;
-}
-.ani-custom-status-filter li button:hover {
-  background: rgba(255, 255, 255, 0.12);
-}
-.ani-custom-status-filter li.now button,
-.ani-custom-status-filter li button[aria-pressed='true'] {
-  background: rgba(61, 175, 182, 0.22);
-  border-color: rgba(94, 226, 234, 0.65);
-  color: #ffffff;
 }
 
 .ani-poster-card .theme-img-block > .ani-col-status-bar,
@@ -121,23 +339,14 @@
   margin-top: 6px !important;
   z-index: 12 !important;
 }
-#BH_background .ani-col-status-chip::before,
-#BH_background .ani-col-status-chip::after,
-#BH_background .ani-perm-tab::before,
-#BH_background .ani-perm-tab::after,
-#BH_background .ani-perm-btn::before,
-#BH_background .ani-perm-btn::after {
-  content: none !important;
-  display: none !important;
-}
 #BH_background .ani-col-status-chip {
   display: inline-flex !important;
   align-items: center !important;
   gap: 5px !important;
-  padding: 3px 10px !important;
-  border-radius: 999px !important;
-  border: 1px solid rgba(255, 255, 255, 0.28) !important;
-  background: rgba(14, 22, 34, 0.82) !important;
+  padding: 4px 10px !important;
+  border-radius: 8px !important;
+  border: 1px solid rgba(255, 255, 255, 0.26) !important;
+  background: rgba(14, 22, 34, 0.84) !important;
   backdrop-filter: blur(12px) !important;
   color: rgba(240, 246, 252, 0.96) !important;
   font-size: 11.5px !important;
@@ -178,10 +387,10 @@
   display: flex;
   flex-direction: column;
   gap: 3px;
-  min-width: 118px;
+  min-width: 126px;
   padding: 6px;
-  border-radius: 12px;
-  background: rgba(15, 23, 34, 0.94);
+  border-radius: 10px;
+  background: rgba(15, 23, 34, 0.96);
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 14px 32px rgba(0, 0, 0, 0.52);
   backdrop-filter: blur(18px);
@@ -191,8 +400,11 @@
   display: none !important;
 }
 .ani-col-status-menu button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   text-align: left;
-  padding: 5px 10px;
+  padding: 6px 10px;
   border: 0;
   border-radius: 8px;
   background: transparent;
@@ -202,7 +414,7 @@
   cursor: pointer;
 }
 .ani-col-status-menu button:hover {
-  background: rgba(61, 175, 182, 0.22);
+  background: rgba(113, 158, 185, 0.26);
   color: #ffffff;
 }
 .ani-col-status-menu button.is-clear {
@@ -211,397 +423,214 @@
   color: #fca5a5;
 }
 
-/* ── Feature 1B: Permanent Local Watch History (/viewList.php) ── */
+/* ── Feature 1B: Permanent Local Watch History (/viewList.php) — Filter Panel & Official Card Parity ── */
 .ani-perm-history-shell {
-  margin: 0 0 18px;
+  margin: 0 0 24px;
 }
-#BH_background .ani-perm-tabs {
-  display: inline-flex !important;
+.ani-perm-filter-card {
+  display: grid !important;
+  gap: 8px !important;
+  width: 100% !important;
+  padding: 18px 22px !important;
+  margin: 0 0 24px !important;
+  border: 1px solid var(--ani-line, rgba(255, 255, 255, 0.14)) !important;
+  border-radius: 16px !important;
+  background: var(--ani-panel, rgba(26, 30, 37, 0.68)) !important;
+  backdrop-filter: blur(22px) saturate(125%);
+  box-sizing: border-box !important;
+}
+.ani-perm-tabs,
+.ani-perm-filter-pills,
+.ani-perm-io-actions {
+  display: flex !important;
+  flex-wrap: wrap !important;
   align-items: center !important;
-  gap: 6px !important;
-  padding: 4px !important;
-  border-radius: 999px !important;
-  background: rgba(255, 255, 255, 0.06) !important;
-  border: 1px solid rgba(255, 255, 255, 0.14) !important;
-  margin-bottom: 14px !important;
-}
-#BH_background .ani-perm-tab {
-  padding: 7px 16px !important;
-  border-radius: 999px !important;
-  border: 0 !important;
-  background: transparent !important;
-  color: rgba(226, 236, 246, 0.86) !important;
-  -webkit-text-fill-color: rgba(226, 236, 246, 0.86) !important;
-  font-size: 13.5px !important;
-  font-weight: 600 !important;
-  cursor: pointer !important;
-  transition: background-color 0.16s ease, color 0.16s ease !important;
-}
-#BH_background .ani-perm-tab[aria-selected='true'] {
-  background: var(--ani-accent, #3dafb6) !important;
-  color: #091521 !important;
-  -webkit-text-fill-color: #091521 !important;
-}
-.ani-perm-history-panel {
-  box-sizing: border-box;
-  border-radius: 16px;
-  padding: 18px 20px;
-  background: rgba(18, 29, 42, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(18px);
+  gap: 10px !important;
 }
 .ani-perm-toolbar {
+  display: grid;
+  gap: 8px;
+}
+.ani-perm-toolbar[hidden],
+.ani-perm-history-panel[hidden] {
+  display: none !important;
+}
+.ani-perm-manage-row {
+  grid-column: 2;
+  grid-row: 1;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 16px;
+  gap: 12px;
 }
-.ani-perm-search {
-  flex: 1 1 200px;
-  min-width: 170px;
-  height: 34px;
-  padding: 4px 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.07);
-  color: #f0f6fc;
-  font-size: 13px;
+body #BH_background :is(.ani-perm-search-capsule, .ani-exclude-search-capsule) {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 38px !important;
+  align-items: center !important;
+  width: min(100%, 340px) !important;
+  height: var(--ani-filter-pill-height, 38px) !important;
+  box-sizing: border-box !important;
+  border: 1px solid var(--ani-filter-pill-border, #bdd7ec1f) !important;
+  border-radius: var(--ani-filter-control-radius, 10px) !important;
+  background: var(--ani-filter-pill-bg, #30475d52) !important;
+  overflow: hidden !important;
 }
-.ani-perm-filter-pills,
-.ani-perm-io-actions {
-  display: inline-flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 6px;
+body #BH_background :is(.ani-perm-search-capsule, .ani-exclude-search-capsule) > input {
+  min-width: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 12px !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--ani-text, #f0f6fc) !important;
+  font-size: 13px !important;
+  outline: none !important;
+  box-shadow: none !important;
 }
-.ani-perm-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  height: 32px;
-  padding: 0 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.06);
-  color: #e6eff8;
-  font-size: 12.5px;
-  font-weight: 600;
-  cursor: pointer;
-}
-.ani-perm-btn:hover {
-  background: rgba(255, 255, 255, 0.14);
-}
-.ani-perm-btn[aria-pressed='true'] {
-  background: rgba(61, 175, 182, 0.24);
-  border-color: rgba(94, 226, 234, 0.6);
-  color: #ffffff;
-}
-.ani-perm-btn.is-danger {
-  border-color: rgba(248, 113, 113, 0.45);
-  color: #fca5a5;
-}
-.ani-perm-btn.is-danger.is-armed {
-  background: rgba(239, 68, 68, 0.28);
-  color: #ffffff;
+body #BH_background :is(.ani-perm-search-capsule, .ani-exclude-search-capsule) > button.anime_search-icon {
+  width: 38px !important;
+  height: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  border-left: 1px solid rgba(219, 237, 255, 0.18) !important;
+  background: transparent !important;
+  color: #ffffff !important;
+  display: grid !important;
+  place-items: center !important;
+  cursor: pointer !important;
 }
 
+.ani-perm-history-panel {
+  box-sizing: border-box;
+  padding: 0;
+  background: transparent;
+  border: 0;
+}
 .ani-perm-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 14px;
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 24px !important;
+  align-items: start !important;
+}
+@media (max-width: 900px) {
+  .ani-perm-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
 }
 .ani-perm-empty {
   grid-column: 1 / -1;
-  padding: 32px 16px;
+  padding: 36px 20px;
+  border-radius: 16px;
+  border: 1px solid var(--ani-line, rgba(255, 255, 255, 0.12));
+  background: var(--ani-panel, rgba(26, 30, 37, 0.56));
   text-align: center;
   color: var(--ani-muted, rgba(212, 226, 240, 0.72));
   font-size: 14px;
 }
-.ani-perm-card {
-  display: flex;
-  gap: 14px;
-  padding: 12px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.045);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-sizing: border-box;
-}
-.ani-perm-cover-wrap {
+
+/* Fallback official-parity card layout even when body.ani-history-page rules aren't active */
+.ani-perm-watch-slot > .ani-perm-card {
+  --ani-history-poster: clamp(125px, 7.5vw, 175px);
   position: relative;
-  width: 84px;
-  height: 118px;
-  flex: none;
-  border-radius: 10px;
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.06);
+  display: grid !important;
+  grid-template-columns: var(--ani-history-poster) minmax(0, 1fr) !important;
+  grid-template-rows: 1fr auto !important;
+  gap: 16px 20px !important;
+  box-sizing: border-box;
+  padding: 20px !important;
+  border: 1px solid var(--ani-line, rgba(255, 255, 255, 0.14)) !important;
+  border-radius: 18px !important;
+  background: linear-gradient(145deg, #ddecff12, #bfd6ef08) !important;
+  backdrop-filter: blur(24px) saturate(125%);
+  box-shadow: inset 0 1px 0 #ffffff12 !important;
 }
-.ani-perm-cover-wrap img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-.ani-perm-ep-badge {
+.ani-perm-card > .click-area {
   position: absolute;
-  left: 6px;
-  bottom: 6px;
-  padding: 2px 7px;
-  border-radius: 999px;
-  background: rgba(11, 18, 29, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  color: #82eef5;
-  font-size: 11px;
-  font-weight: 700;
+  inset: 0;
+  z-index: 1;
 }
-.ani-perm-info {
-  flex: 1 1 auto;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+.ani-perm-card .ani-perm-eps,
+.ani-perm-card .btn-set {
+  position: relative;
+  z-index: 2;
 }
-.ani-perm-title {
-  margin: 0;
-  font-size: 14.5px;
-  font-weight: 700;
-  color: #f0f6fc;
-  line-height: 1.35;
-  overflow: hidden;
+.ani-perm-card .history-anime-title.ani-perm-title {
+  display: block !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  -webkit-line-clamp: unset !important;
 }
-.ani-perm-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  font-size: 12px;
-  color: rgba(212, 226, 240, 0.78);
-  font-variant-numeric: tabular-nums;
-}
-.ani-perm-bar {
-  width: 100%;
-  height: 5px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
-  overflow: hidden;
-}
-.ani-perm-bar-fill {
-  height: 100%;
-  border-radius: 999px;
-  background: var(--ani-accent, #3dafb6);
+.ani-perm-card .history-anime-title.ani-perm-title[data-ani-marquee='true'] {
+  text-overflow: clip;
 }
 .ani-perm-eps {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
+  gap: 6px;
+  margin-top: 6px;
 }
 .ani-perm-ep-pill {
-  padding: 2px 7px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
+  padding: 3px 9px;
+  border-radius: 8px;
+  border: 1px solid var(--ani-filter-pill-border, rgba(189, 215, 236, 0.16));
+  background: var(--ani-filter-pill-bg, rgba(48, 71, 93, 0.35));
   color: #dbe8f6;
-  font-size: 11px;
-  text-decoration: none;
-}
-.ani-perm-ep-pill:hover {
-  background: rgba(61, 175, 182, 0.3);
-  color: #ffffff;
-}
-.ani-perm-actions {
-  margin-top: auto;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.ani-perm-resume {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 12px;
-  border-radius: 999px;
-  background: rgba(61, 175, 182, 0.22);
-  border: 1px solid rgba(94, 226, 234, 0.55);
-  color: #e6fbff;
   font-size: 12px;
   font-weight: 600;
   text-decoration: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
-.ani-perm-resume:hover {
-  background: rgba(61, 175, 182, 0.38);
-}
-.ani-perm-del-btn {
-  margin-left: auto;
-  width: 28px;
-  height: 28px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: transparent;
-  color: rgba(220, 232, 245, 0.72);
-  cursor: pointer;
-}
-.ani-perm-del-btn:hover {
-  background: rgba(239, 68, 68, 0.25);
-  border-color: rgba(248, 113, 113, 0.65);
+.ani-perm-ep-pill:hover {
+  background: var(--ani-filter-pill-selected-bg, rgba(113, 158, 185, 0.35));
+  border-color: var(--ani-filter-pill-selected-border, rgba(185, 223, 245, 0.5));
   color: #ffffff;
 }
-
-/* ── Light mode parity for Feature 1 ── */
-body.ani-light-mode.ani-ambientlight-ui .ani-extra-filter-header h3,
-body.ani-light-mode.ani-ambientlight-ui .ani-perm-title,
-body.ani-light-mode.ani-ambientlight-ui .ani-perm-btn {
-  color: #142232;
-}
-body.ani-light-mode.ani-ambientlight-ui .ani-perm-history-panel {
-  background: rgba(255, 255, 255, 0.78);
-  border-color: rgba(18, 38, 60, 0.16);
-}
-body.ani-light-mode.ani-ambientlight-ui .ani-perm-card,
-body.ani-light-mode.ani-ambientlight-ui .ani-perm-tabs,
-body.ani-light-mode.ani-ambientlight-ui .ani-custom-status-filter li button {
-  background: rgba(18, 38, 60, 0.06);
-  border-color: rgba(18, 38, 60, 0.16);
-  color: #142232;
-}
-body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-perm-tab {
-  color: #3c4e63 !important;
-  -webkit-text-fill-color: #3c4e63 !important;
-}
-body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-perm-tab[aria-selected='true'] {
-  background: #14939c !important;
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
-}
-body.ani-light-mode.ani-ambientlight-ui .ani-perm-search {
-  background: rgba(18, 38, 60, 0.07);
-  border-color: rgba(18, 38, 60, 0.2);
-  color: #142232;
-}
-body.ani-light-mode.ani-ambientlight-ui .ani-perm-meta,
-body.ani-light-mode.ani-ambientlight-ui .ani-extra-filter-note {
-  color: #4b5e73;
-}
-body.ani-light-mode.ani-ambientlight-ui .ani-perm-resume {
-  background: rgba(20, 147, 156, 0.16);
-  border-color: rgba(20, 147, 156, 0.5);
-  color: #0b757d;
-}
-body.ani-light-mode.ani-ambientlight-ui .ani-col-status-chip {
-  background: rgba(18, 38, 60, 0.08);
-  border-color: rgba(18, 38, 60, 0.22);
-  color: #142232;
-}
-body.ani-light-mode.ani-ambientlight-ui .ani-col-status-menu {
-  background: rgba(248, 251, 255, 0.96);
-  border-color: rgba(18, 38, 60, 0.2);
-}
-body.ani-light-mode.ani-ambientlight-ui .ani-col-status-menu button {
-  color: #142232;
+body.ani-history-page.ani-ambientlight-page #BH_background .ani-perm-card .btn-set .ani-perm-del-btn:hover {
+  background: rgba(239, 68, 68, 0.24) !important;
+  border-color: rgba(248, 113, 113, 0.65) !important;
+  color: #fecaca !important;
 }
 
 /* ── Feature 2: 片庫反向排除、原作分類與分頁電梯 (/animeList.php) ── */
-.ani-catalog-excluded,
-.ani-origin-hidden {
-  display: none !important;
-}
-.ani-exclude-panel,
-.ani-origin-panel {
-  margin-top: 14px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-.ani-exclude-panel .ani-extra-filter-header,
-.ani-origin-panel .ani-extra-filter-header {
+.ani-exclude-body {
+  grid-column: 2;
+  grid-row: 1;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-.ani-exclude-count,
-.ani-origin-status {
-  font-size: 12px;
-  color: var(--ani-muted, rgba(212, 226, 240, 0.78));
-  font-variant-numeric: tabular-nums;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
 }
 .ani-exclude-pills,
 .ani-origin-pills {
+  grid-column: 2;
+  grid-row: 1;
   display: flex;
   flex-wrap: wrap;
-  gap: 7px;
-  margin-bottom: 10px;
+  gap: var(--ani-filter-pill-gap, 12px 10px);
 }
-.ani-exclude-pill,
-.ani-origin-pill {
-  padding: 5px 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.06);
-  color: #e4eef8;
-  font-size: 12.5px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
-}
-.ani-exclude-pill:hover,
-.ani-origin-pill:hover {
-  background: rgba(255, 255, 255, 0.14);
-}
-.ani-exclude-pill.is-excluded {
-  background: rgba(239, 68, 68, 0.24);
-  border-color: rgba(248, 113, 113, 0.68);
-  color: #fecaca;
-  text-decoration: line-through;
-}
-.ani-origin-pill[aria-pressed='true'] {
-  background: var(--ani-accent, #3dafb6);
-  border-color: var(--ani-accent, #3dafb6);
-  color: #091521;
-  font-weight: 700;
+.ani-exclude-body > .ani-exclude-pills {
+  grid-column: auto;
+  grid-row: auto;
 }
 .ani-exclude-controls {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
-}
-.ani-exclude-keyword {
-  flex: 1 1 220px;
-  max-width: 360px;
-  height: 32px;
-  padding: 4px 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.07);
-  color: #f0f6fc;
-  font-size: 12.5px;
-}
-.ani-exclude-clear {
-  height: 32px;
-  padding: 0 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.06);
-  color: #e6eff8;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-}
-.ani-exclude-clear:hover {
-  background: rgba(255, 255, 255, 0.14);
+  gap: 10px;
 }
 .ani-origin-badge {
   position: absolute;
   left: 8px;
   bottom: 8px;
   z-index: 5;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: rgba(12, 20, 32, 0.84);
+  padding: 3px 9px;
+  border-radius: 8px;
+  background: rgba(12, 20, 32, 0.86);
   border: 1px solid rgba(255, 255, 255, 0.22);
-  color: #c9f4f8;
+  color: #edf7ff;
   font-size: 11px;
   font-weight: 650;
   backdrop-filter: blur(10px);
@@ -618,116 +647,45 @@ body.ani-light-mode.ani-ambientlight-ui .ani-col-status-menu button {
   padding: 10px 16px;
   width: max-content;
   max-width: calc(100% - 24px);
-  border-radius: 999px;
-  background: rgba(18, 29, 42, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  background: var(--ani-panel, rgba(26, 30, 37, 0.68));
+  border: 1px solid var(--ani-line, rgba(255, 255, 255, 0.16));
   backdrop-filter: blur(16px);
 }
 .ani-page-quick {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
 }
-.ani-page-quick-btn {
-  min-width: 30px;
-  height: 30px;
-  padding: 0 9px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.06);
-  color: #e6eff8;
-  font-size: 12.5px;
-  font-weight: 600;
-  cursor: pointer;
+body #BH_background .ani-page-quick-btn {
+  min-width: 36px !important;
+  height: 34px !important;
+  padding: 0 10px !important;
 }
-.ani-page-quick-btn:hover {
-  background: rgba(255, 255, 255, 0.16);
-}
-.ani-page-quick-btn[aria-current='page'] {
-  background: var(--ani-accent, #3dafb6);
-  border-color: var(--ani-accent, #3dafb6);
-  color: #091521;
-  font-weight: 700;
+body #BH_background .ani-page-go-btn {
+  height: 34px !important;
+  padding: 0 12px !important;
 }
 .ani-page-jump-form {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 12.5px;
-  color: rgba(226, 236, 246, 0.86);
+  font-size: 13px;
+  color: var(--ani-muted, rgba(226, 236, 246, 0.86));
 }
 .ani-page-input {
   width: 58px;
-  height: 28px;
+  height: 34px;
   padding: 0 8px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  border: 1px solid var(--ani-filter-pill-border, rgba(255, 255, 255, 0.22));
+  background: var(--ani-filter-pill-bg, rgba(48, 71, 93, 0.35));
   color: #ffffff;
   text-align: center;
-  font-size: 12.5px;
-}
-.ani-page-go-btn {
-  height: 28px;
-  padding: 0 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(94, 226, 234, 0.5);
-  background: rgba(61, 175, 182, 0.22);
-  color: #dffbff;
-  font-size: 12px;
-  font-weight: 650;
-  cursor: pointer;
-}
-.ani-page-go-btn:hover {
-  background: rgba(61, 175, 182, 0.38);
+  font-size: 13px;
 }
 
-/* Light mode for Feature 2 */
-body.ani-light-mode.ani-ambientlight-ui .ani-exclude-panel,
-body.ani-light-mode.ani-ambientlight-ui .ani-origin-panel {
-  border-top-color: rgba(18, 38, 60, 0.12);
-}
-body.ani-light-mode.ani-ambientlight-ui .ani-exclude-pill,
-body.ani-light-mode.ani-ambientlight-ui .ani-origin-pill,
-body.ani-light-mode.ani-ambientlight-ui .ani-exclude-clear,
-body.ani-light-mode.ani-ambientlight-ui .ani-page-quick-btn {
-  background: rgba(18, 38, 60, 0.06);
-  border-color: rgba(18, 38, 60, 0.18);
-  color: #142232;
-}
-body.ani-light-mode.ani-ambientlight-ui .ani-exclude-pill.is-excluded {
-  background: rgba(220, 38, 38, 0.14);
-  border-color: rgba(220, 38, 38, 0.5);
-  color: #991b1b;
-}
-body.ani-light-mode.ani-ambientlight-ui .ani-origin-pill[aria-pressed='true'],
-body.ani-light-mode.ani-ambientlight-ui .ani-page-quick-btn[aria-current='page'] {
-  background: #14939c;
-  border-color: #14939c;
-  color: #ffffff;
-}
-body.ani-light-mode.ani-ambientlight-ui .ani-exclude-keyword,
-body.ani-light-mode.ani-ambientlight-ui .ani-page-input {
-  background: rgba(18, 38, 60, 0.07);
-  border-color: rgba(18, 38, 60, 0.22);
-  color: #142232;
-}
-body.ani-light-mode.ani-ambientlight-ui .ani-page-elevator {
-  background: rgba(255, 255, 255, 0.85);
-  border-color: rgba(18, 38, 60, 0.16);
-}
-body.ani-light-mode.ani-ambientlight-ui .ani-page-jump-form,
-body.ani-light-mode.ani-ambientlight-ui .ani-exclude-count,
-body.ani-light-mode.ani-ambientlight-ui .ani-origin-status {
-  color: #3c4e63;
-}
-body.ani-light-mode.ani-ambientlight-ui .ani-page-go-btn {
-  background: rgba(20, 147, 156, 0.16);
-  border-color: rgba(20, 147, 156, 0.5);
-  color: #0b757d;
-}
-
-/* ── Feature 3: 避雷薄碼 / 預覽圖模糊遮罩 ── */
+/* ── Feature 3: 避雷薄碼 / 預覽圖模糊遮罩 & 右上分類開關 ── */
 .ani-spoiler-blurred {
   position: relative !important;
   overflow: hidden !important;
@@ -757,10 +715,13 @@ body.ani-light-mode.ani-ambientlight-ui .ani-page-go-btn {
   display: none !important;
 }
 .ani-spoiler-reveal-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 7px 13px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.34);
-  background: rgba(15, 23, 34, 0.86);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  background: rgba(15, 23, 34, 0.88);
   color: #f0f7ff;
   font-size: 12px;
   font-weight: 650;
@@ -770,8 +731,8 @@ body.ani-light-mode.ani-ambientlight-ui .ani-page-go-btn {
   transition: transform 0.14s ease, background-color 0.14s ease;
 }
 .ani-spoiler-reveal-btn:hover {
-  background: rgba(61, 175, 182, 0.88);
-  color: #091521;
+  background: rgba(113, 158, 185, 0.88);
+  color: #ffffff;
   transform: scale(1.03);
 }
 .ani-blur-rehide-btn {
@@ -781,10 +742,11 @@ body.ani-light-mode.ani-ambientlight-ui .ani-page-go-btn {
   top: 8px;
   transform: translateX(-50%);
   z-index: 8;
-  padding: 3px 9px;
-  border-radius: 999px;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.28);
-  background: rgba(12, 20, 32, 0.86);
+  background: rgba(12, 20, 32, 0.88);
   color: #e2eef9;
   font-size: 11px;
   font-weight: 600;
@@ -799,44 +761,24 @@ body.ani-light-mode.ani-ambientlight-ui .ani-page-go-btn {
   background: rgba(239, 68, 68, 0.82);
   color: #ffffff;
 }
-.ani-blur-quick-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  height: 30px;
-  margin-left: 8px;
-  padding: 0 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.08);
-  color: #e6eff8;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  vertical-align: middle;
-}
-.ani-blur-quick-toggle[aria-pressed='true'] {
-  background: rgba(239, 68, 68, 0.26);
-  border-color: rgba(248, 113, 113, 0.65);
-  color: #fecaca;
-}
 
-/* Light mode for Feature 3 */
-body.ani-light-mode.ani-ambientlight-ui .ani-blur-quick-toggle {
-  background: rgba(18, 38, 60, 0.08);
-  border-color: rgba(18, 38, 60, 0.2);
-  color: #142232;
+/* Top-right placement of .ani-blur-quick-toggle */
+body #BH_background .ani-blur-quick-toggle {
+  height: 36px !important;
+  margin-left: 8px !important;
 }
-body.ani-light-mode.ani-ambientlight-ui .ani-blur-quick-toggle[aria-pressed='true'] {
-  background: rgba(220, 38, 38, 0.16);
-  border-color: rgba(220, 38, 38, 0.52);
-  color: #991b1b;
+body #BH_background .filter-section.has-top-right-blur-toggle {
+  position: relative !important;
+}
+body #BH_background .filter-section.has-top-right-blur-toggle > .ani-blur-quick-toggle {
+  position: absolute !important;
+  top: 16px !important;
+  right: 52px !important;
+  margin-left: 0 !important;
+  z-index: 4;
 }
 
 /* ── Feature 4: 彈幕列表搜尋、多維排序與局部消音 (/animeVideo.php) ── */
-.ani-dm-filtered-hidden {
-  display: none !important;
-}
 .ani-danmu-tools-bar {
   position: relative;
   z-index: 50;
@@ -860,11 +802,11 @@ body.ani-light-mode.ani-ambientlight-ui .ani-blur-quick-toggle[aria-pressed='tru
 .ani-danmu-search {
   flex: 1 1 auto;
   min-width: 0;
-  height: 30px;
+  height: 32px;
   padding: 0 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  border: 1px solid var(--ani-filter-pill-border, rgba(255, 255, 255, 0.18));
+  background: var(--ani-filter-pill-bg, rgba(48, 71, 93, 0.35));
   color: #f0f6fc;
   font-size: 12.5px;
 }
@@ -877,24 +819,27 @@ body.ani-light-mode.ani-ambientlight-ui .ani-blur-quick-toggle[aria-pressed='tru
 .ani-danmu-sorts {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
 }
 .ani-dm-sort-btn,
 .ani-danmu-muted-pill {
-  height: 26px;
-  padding: 0 9px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.06);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid var(--ani-filter-pill-border, rgba(255, 255, 255, 0.16));
+  background: var(--ani-filter-pill-bg, rgba(48, 71, 93, 0.35));
   color: #dbe8f6;
   font-size: 11.5px;
   font-weight: 600;
   cursor: pointer;
 }
 .ani-dm-sort-btn[aria-pressed='true'] {
-  background: var(--ani-accent, #3dafb6);
-  border-color: var(--ani-accent, #3dafb6);
-  color: #091521;
+  background: var(--ani-filter-pill-selected-bg, #719eb940);
+  border-color: var(--ani-filter-pill-selected-border, #b9dff57a);
+  color: var(--ani-filter-pill-selected-text, #edf7ff);
 }
 .ani-dm-muted-host {
   position: relative;
@@ -948,8 +893,12 @@ body.ani-light-mode.ani-ambientlight-ui .ani-blur-quick-toggle[aria-pressed='tru
 }
 .ani-dm-unmute-one,
 .ani-dm-unmute-all {
-  padding: 2px 8px;
-  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   background: rgba(255, 255, 255, 0.08);
   color: #dbe8f6;
@@ -958,13 +907,17 @@ body.ani-light-mode.ani-ambientlight-ui .ani-blur-quick-toggle[aria-pressed='tru
 }
 .ani-dm-unmute-all {
   width: 100%;
-  padding: 4px 10px;
+  padding: 5px 10px;
   border-color: rgba(248, 113, 113, 0.45);
   color: #fca5a5;
 }
 #sub_list .sub-list-li .ani-dm-local-mute {
-  padding: 3px 9px !important;
-  border-radius: 999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  height: 30px !important;
+  padding: 0 10px !important;
+  border-radius: 8px !important;
   border: 1px solid rgba(248, 113, 113, 0.45) !important;
   background: rgba(239, 68, 68, 0.14) !important;
   color: #fecaca !important;
@@ -972,68 +925,19 @@ body.ani-light-mode.ani-ambientlight-ui .ani-blur-quick-toggle[aria-pressed='tru
   cursor: pointer !important;
 }
 
-/* Light mode for Feature 4 */
-body.ani-light-mode.ani-ambientlight-ui .ani-danmu-tools-bar {
-  background: rgba(255, 255, 255, 0.86);
-  border-color: rgba(18, 38, 60, 0.16);
-}
-body.ani-light-mode.ani-ambientlight-ui .ani-danmu-search {
-  background: rgba(18, 38, 60, 0.07);
-  border-color: rgba(18, 38, 60, 0.22);
-  color: #142232;
-}
-body.ani-light-mode.ani-ambientlight-ui .ani-dm-sort-btn,
-body.ani-light-mode.ani-ambientlight-ui .ani-danmu-muted-pill {
-  background: rgba(18, 38, 60, 0.06);
-  border-color: rgba(18, 38, 60, 0.18);
-  color: #142232;
-}
-body.ani-light-mode.ani-ambientlight-ui .ani-dm-sort-btn[aria-pressed='true'] {
-  background: #14939c;
-  border-color: #14939c;
-  color: #ffffff;
-}
-body.ani-light-mode.ani-ambientlight-ui .ani-danmu-count {
-  color: #4b5e73;
-}
-body.ani-light-mode.ani-ambientlight-ui .ani-danmu-muted-popover {
-  background: rgba(248, 251, 255, 0.97);
-  border-color: rgba(18, 38, 60, 0.2);
-}
-body.ani-light-mode.ani-ambientlight-ui .ani-dm-muted-item {
-  color: #142232;
-}
-
 /* ── Feature 5: 長篇集數折疊、單集副標題與下架提醒 ── */
-.ani-ep-chunk-hidden {
-  display: none !important;
-}
 .ani-ep-group-bar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
-  margin: 0 0 10px;
+  gap: 8px;
+  margin: 0 0 12px;
 }
-.ani-ep-group-btn {
-  padding: 4px 11px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.06);
-  color: #dbe8f6;
-  font-size: 12px;
-  font-weight: 600;
+body #BH_background .ani-ep-group-btn {
+  height: 32px !important;
+  padding: 0 12px !important;
+  font-size: 12px !important;
   font-variant-numeric: tabular-nums;
-  cursor: pointer;
-}
-.ani-ep-group-btn:hover {
-  background: rgba(255, 255, 255, 0.14);
-}
-.ani-ep-group-btn[aria-pressed='true'] {
-  background: var(--ani-accent, #3dafb6);
-  border-color: var(--ani-accent, #3dafb6);
-  color: #091521;
-  font-weight: 700;
 }
 
 .ani-ep-tooltip {
@@ -1090,7 +994,7 @@ body.ani-light-mode.ani-ambientlight-ui .ani-dm-muted-item {
   place-items: center;
   width: 20px;
   height: 20px;
-  border-radius: 50%;
+  border-radius: 6px;
   background: #f59e0b;
   color: #1a1203;
   font-weight: 800;
@@ -1103,7 +1007,7 @@ body.ani-light-mode.ani-ambientlight-ui .ani-dm-muted-item {
   top: 8px;
   z-index: 6;
   padding: 2px 8px;
-  border-radius: 999px;
+  border-radius: 8px;
   background: rgba(217, 119, 6, 0.92);
   border: 1px solid rgba(254, 243, 199, 0.55);
   color: #fffbeb;
@@ -1115,16 +1019,91 @@ body.ani-light-mode.ani-ambientlight-ui .ani-dm-muted-item {
   top: 38px;
 }
 
-/* Light mode for Feature 5 */
-body.ani-light-mode.ani-ambientlight-ui .ani-ep-group-btn {
-  background: rgba(18, 38, 60, 0.06);
-  border-color: rgba(18, 38, 60, 0.18);
-  color: #142232;
+/* ── Light Mode Parity ── */
+body.ani-light-mode.ani-ambientlight-ui .ani-extra-filter-header h3,
+body.ani-light-mode.ani-ambientlight-ui .ani-extra-filter-header h3 svg {
+  color: #142232 !important;
 }
-body.ani-light-mode.ani-ambientlight-ui .ani-ep-group-btn[aria-pressed='true'] {
-  background: #14939c;
-  border-color: #14939c;
-  color: #ffffff;
+body.ani-light-mode.ani-ambientlight-ui #BH_background :is(
+  .ani-custom-status-filter li button,
+  .ani-exclude-pill,
+  .ani-origin-pill,
+  .ani-exclude-clear,
+  .ani-perm-tab,
+  .ani-perm-btn,
+  .ani-page-quick-btn,
+  .ani-page-go-btn,
+  .ani-blur-quick-toggle,
+  .ani-ep-group-btn
+) {
+  background: rgba(18, 38, 60, 0.06) !important;
+  border-color: rgba(18, 38, 60, 0.16) !important;
+  color: #2c3e50 !important;
+  -webkit-text-fill-color: #2c3e50 !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background :is(
+  .ani-custom-status-filter li button,
+  .ani-exclude-pill,
+  .ani-origin-pill,
+  .ani-exclude-clear,
+  .ani-perm-tab,
+  .ani-perm-btn,
+  .ani-page-quick-btn,
+  .ani-page-go-btn,
+  .ani-blur-quick-toggle,
+  .ani-ep-group-btn
+) svg {
+  color: #142232 !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background :is(
+  .ani-custom-status-filter li.now button,
+  .ani-custom-status-filter li button[aria-pressed='true'],
+  .ani-origin-pill[aria-pressed='true'],
+  .ani-perm-tab[aria-selected='true'],
+  .ani-perm-btn[aria-pressed='true'],
+  .ani-page-quick-btn[aria-current='page'],
+  .ani-blur-quick-toggle[aria-pressed='true'],
+  .ani-ep-group-btn[aria-pressed='true']
+) {
+  background: rgba(20, 147, 156, 0.18) !important;
+  border-color: rgba(20, 147, 156, 0.55) !important;
+  color: #0b5e65 !important;
+  -webkit-text-fill-color: #0b5e65 !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-exclude-pill.is-excluded {
+  background: rgba(220, 38, 38, 0.14) !important;
+  border-color: rgba(220, 38, 38, 0.5) !important;
+  color: #991b1b !important;
+  -webkit-text-fill-color: #991b1b !important;
+}
+body.ani-light-mode.ani-ambientlight-ui .ani-perm-filter-card,
+body.ani-light-mode.ani-ambientlight-ui .ani-page-elevator,
+body.ani-light-mode.ani-ambientlight-ui .ani-danmu-tools-bar {
+  background: rgba(255, 255, 255, 0.88) !important;
+  border-color: rgba(18, 38, 60, 0.14) !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background :is(.ani-perm-search-capsule, .ani-exclude-search-capsule),
+body.ani-light-mode.ani-ambientlight-ui .ani-page-input,
+body.ani-light-mode.ani-ambientlight-ui .ani-danmu-search {
+  background: rgba(18, 38, 60, 0.06) !important;
+  border-color: rgba(18, 38, 60, 0.18) !important;
+  color: #142232 !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background :is(.ani-perm-search-capsule, .ani-exclude-search-capsule) > input {
+  color: #142232 !important;
+}
+body.ani-light-mode.ani-ambientlight-ui #BH_background :is(.ani-perm-search-capsule, .ani-exclude-search-capsule) > button.anime_search-icon {
+  color: #142232 !important;
+  border-left-color: rgba(18, 38, 60, 0.15) !important;
+}
+body.ani-light-mode.ani-ambientlight-ui .ani-danmu-muted-popover,
+body.ani-light-mode.ani-ambientlight-ui .ani-col-status-menu {
+  background: rgba(248, 251, 255, 0.98);
+  border-color: rgba(18, 38, 60, 0.2);
+}
+body.ani-light-mode.ani-ambientlight-ui .ani-dm-muted-item,
+body.ani-light-mode.ani-ambientlight-ui .ani-col-status-menu button {
+  color: #142232;
 }
 body.ani-light-mode.ani-ambientlight-ui .ani-offshelf-banner {
   background: rgba(245, 158, 11, 0.16);

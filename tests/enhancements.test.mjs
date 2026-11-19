@@ -141,7 +141,8 @@ test('Phase 1B: permanent local history records video visits, snapshots native h
   tabs[1].click();
   await new Promise((r) => setTimeout(r, 20));
   assert.equal(d.querySelector('.history').classList.contains('ani-perm-native-hidden'), true);
-  assert.equal(d.querySelectorAll('.ani-perm-card').length, 2);
+  assert.equal(d.querySelector('.history').getAttribute('data-ani-perm-hidden'), '1');
+  assert.equal(d.querySelectorAll('.ani-perm-card.anime-card.ani-history-card').length, 2);
 
   // Search filter
   const search = d.querySelector('.ani-perm-search');
@@ -410,7 +411,7 @@ test('Phase 5: long-series episode grouping, Bangumi/AniList episode title toolt
   const watchHtml = `<div id="BH_background"><div class="container-player">
     <div class="anime_name"><h1>雙城之戰測試篇 [33]</h1><a href="animeRef.php?sn=707">作品資料</a></div>
     <div class="anime_info_detail"><p>本作品將於 2099/12/31 下架</p></div>
-    <section class="player"><div id="ani_video"><video></video></div></section>
+    <section class="player"><div id="ani_video"><div class="ani-fs-title">雙城之戰測試篇 [33]</div><video></video></div></section>
     <div class="anime-title"><div class="season"><ul>${epLis}</ul></div></div>
   </div></div>`;
 
@@ -451,9 +452,14 @@ test('Phase 5: long-series episode grouping, Bangumi/AniList episode title toolt
   assert.equal(dW.querySelector('.ani-ep-group-bar'), null);
   assert.equal(dW.querySelectorAll('.ani-ep-chunk-hidden').length, 0);
 
-  // 5B: Episode title tooltip on hover/focus
+  // 5B: Episode title tooltip on hover/focus & fullscreen top-center subtitle
   const ep33Link = dW.querySelector('.season li.playing a');
   assert.equal(ep33Link.dataset.aniEpTitle, '命運的交會點');
+  const fsMain = dW.querySelector('#ani_video .ani-fs-title .ani-fs-title-main');
+  const fsSub = dW.querySelector('#ani_video .ani-fs-title .ani-fs-subtitle');
+  assert(fsMain && fsSub, 'fullscreen title main and top-center subtitle elements exist');
+  assert.equal(fsSub.hidden, false);
+  assert.match(fsSub.textContent, /第 33 話：命運的交會點/);
   ep33Link.dispatchEvent(new wW.MouseEvent('mouseover', { bubbles: true }));
   const tip = dW.getElementById('ani-ep-tooltip');
   assert.equal(tip.hidden, false);
