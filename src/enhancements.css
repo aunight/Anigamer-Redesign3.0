@@ -243,6 +243,7 @@
   -webkit-text-fill-color: #091521 !important;
 }
 .ani-perm-history-panel {
+  box-sizing: border-box;
   border-radius: 16px;
   padding: 18px 20px;
   background: rgba(18, 29, 42, 0.72);
@@ -465,12 +466,14 @@ body.ani-light-mode.ani-ambientlight-ui .ani-custom-status-filter li button {
   border-color: rgba(18, 38, 60, 0.16);
   color: #142232;
 }
-body.ani-light-mode.ani-ambientlight-ui .ani-perm-tab {
-  color: #3c4e63;
+body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-perm-tab {
+  color: #3c4e63 !important;
+  -webkit-text-fill-color: #3c4e63 !important;
 }
-body.ani-light-mode.ani-ambientlight-ui .ani-perm-tab[aria-selected='true'] {
-  background: #14939c;
-  color: #ffffff;
+body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-perm-tab[aria-selected='true'] {
+  background: #14939c !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }
 body.ani-light-mode.ani-ambientlight-ui .ani-perm-search {
   background: rgba(18, 38, 60, 0.07);

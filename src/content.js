@@ -3070,7 +3070,7 @@
       root.classList.add('ani-plus-dark-drawer');
     }
     for (const el of document.querySelectorAll('#ani_video div, .videoframe div, body > div, body > section, body > aside, #BH_background div, :fullscreen :is(div, section, aside, [role="status"])')) {
-      if (el.id === 'BH_background' || el.id === 'ani_video' || el.id === 'ani-copy-toast' || el.closest('.ani-bgm-toast, .ani-plus-dark-drawer, .ani-player-settings-drawer, .ani-settings-panel, .ani-view-settings-panel')) continue;
+      if (el.id === 'BH_background' || el.id === 'ani_video' || el.id === 'ani-copy-toast' || el.closest('.ani-bgm-toast, .ani-plus-dark-drawer, .ani-player-settings-drawer, .ani-settings-panel, .ani-view-settings-panel, .ani-perm-history-shell, .ani-enh-toast')) continue;
       if (el.querySelector('#ani_video, video, .videoframe')) continue;
       const rawTxt = (el.textContent || '').replace(/\s+/g, ' ').trim();
       if (!rawTxt || rawTxt.length > 90) continue;
