@@ -1003,7 +1003,8 @@ body.ani-ambientlight-ui #blockVideoInSeason .anime-pic-block {
 body.ani-ambientlight-page #blockVideoInSeason .anime-pic-block .ani-score-badge-top-left[hidden] {
   display: none !important;
 }
-body.ani-ambientlight-page #blockVideoInSeason .anime-pic-block .ani-score-badge-top-left {
+body.ani-ambientlight-page #blockVideoInSeason .anime-pic-block .ani-score-badge-top-left,
+body.ani-layout-comments #w-post-box .ani-rec-poster .ani-score-badge-top-left:not(:empty) {
   position: absolute !important;
   inset: 0 auto auto 0 !important;
   top: 0 !important;

@@ -4069,7 +4069,7 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video.ani-vid
   transition: opacity 0.2s ease, filter 0.2s ease !important;
 }
 
-/* Auto mini picture-in-picture at bottom-left (clear of left nav), topmost layer, resizable, no glow */
+/* Auto mini picture-in-picture at bottom-right, topmost layer, resizable, no glow */
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.container-player, section.player, .videoframe, .video, #video-container):has(#ani_video.ani-mini-pip) {
   position: relative !important;
   z-index: 2147483000 !important;
@@ -4077,8 +4077,7 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.container-pla
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video.ani-mini-pip {
   position: fixed !important;
-  left: 96px !important;
-  right: auto !important;
+  left: auto !important; right: 20px !important;
   bottom: 20px !important;
   top: auto !important;
   width: var(--ani-mini-pip-w, min(360px, calc(100vw - 116px))) !important;
@@ -4093,13 +4092,13 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video.ani-min
 }
 @media (max-width: 768px) {
   body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video.ani-mini-pip {
-    left: 16px !important;
+    right: 16px !important;
     width: var(--ani-mini-pip-w, min(320px, calc(100vw - 32px))) !important;
     max-width: calc(100vw - 32px) !important;
   }
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video.ani-mini-pip.ani-mini-pip-moved {
-  left: var(--ani-mini-pip-x, 96px) !important;
+  right: auto !important; left: var(--ani-mini-pip-x) !important;
   top: var(--ani-mini-pip-y, auto) !important;
   bottom: auto !important;
   right: auto !important;
@@ -9179,7 +9178,7 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-rating-option
   background:transparent !important; border-color:transparent !important; box-shadow:none !important;
 }
 body.ani-home-page.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,#blockAnimeNewArrive,.animate-theme-list) .theme-list-main.ani-poster-card {
-  align-self:start !important; padding-bottom:var(--ani-poster-footer) !important;
+  align-self:start !important; --ani-poster-footer:84px; padding-bottom:var(--ani-poster-footer) !important;
 }
 body.ani-home-page.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,#blockAnimeNewArrive,.animate-theme-list) .theme-list-main.ani-poster-card .anime-detail-block {
   position:absolute !important; inset:auto 0 0 !important; height:auto !important;
@@ -9564,8 +9563,8 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background {
   .ani-player-settings-body .ani-danmu-keywords #plus_dan_keywords .plus_k-label {
     background:#183656 !important; color:#edf3fa !important;
   }
-  .ani-player-settings-body #plusbox .plus-settings-section { display:grid !important; gap:12px !important; align-content:start; }
-  .ani-player-settings-body #plusbox .plus-settings-section > .ani-setting-section { margin:0 !important; padding:0 !important; }
+  .ani-player-settings-body #plusbox.plus-settings-section { display:grid !important; gap:12px !important; align-content:start; }
+  .ani-player-settings-body #plusbox.plus-settings-section > .ani-setting-section { margin:0 !important; padding:0 !important; }
 }
 @media (prefers-reduced-motion:no-preference) {
   .ani-credit-switch button { transition:background-color .18s,color .18s,border-color .18s; }
@@ -9607,7 +9606,7 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background {
   section.player .subtitle [data-credit-panel] .ani-side-meta-grid { overflow-x:auto; }
   section.player .subtitle [data-credit-panel] .ani-side-meta-val { white-space:nowrap !important; }
   @media(min-width:1150px) {
-    #ani-tab-content-2 .ani-plus-native-format > div:has(> .ani-setting-item select) { display:grid !important; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px !important; align-items:start; }
+    #ani-tab-content-2 .ani-plus-native-format > div:has(> .ani-setting-item select) { display:grid !important; grid-template-columns:repeat(3,minmax(0,1fr)); gap:clamp(20px,2vw,36px) !important; align-items:center; }
     #ani-tab-content-2 .ani-plus-native-format > div > .ani-setting-item { min-width:0; margin:0 !important; }
   }
 }
@@ -9644,9 +9643,9 @@ body.ani-layout-comments #w-post-box .ani-comment-recommendations > a:not([hidde
   body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body {
     .ani-danmu-filter-row { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
     .ani-danmu-filter-row > .ani-setting-item { justify-content:space-between; }
-    #plusbox .plus-settings-section { gap:8px !important; }
-    #plusbox .plus-settings-section .ani-setting-section { gap:8px 20px !important; }
-    #plusbox .plus-settings-section :is(.ani-plus-form-row,.ani-plus-cap-row,.ani-setting-item:has(.ani-plus-jump-controls)) {
+    #plusbox.plus-settings-section { gap:8px !important; }
+    #plusbox.plus-settings-section .ani-setting-section { gap:8px 20px !important; }
+    #plusbox.plus-settings-section :is(.ani-plus-form-row,.ani-plus-cap-row,.ani-setting-item:has(.ani-plus-jump-controls)) {
       box-sizing:border-box !important; min-height:54px !important; height:auto !important; padding-block:0 !important; margin-block:0 !important;
     }
   }
@@ -9665,5 +9664,31 @@ body.ani-layout-comments #BH_background .commend-title .ani-comment-sort {
   }
   @media(prefers-reduced-motion:no-preference) {
     &::before { transition:transform 220ms cubic-bezier(.2,.7,.25,1); }
+  }
+}
+
+@media (min-width:900px) {
+  body.ani-layout-comments #w-post-box .ani-comment-recommendations:not([hidden]) { padding-block-start:0; }
+}
+.ani-rec-facts > .ani-rec-view:not([hidden]) { font-size:11px; }
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-watch-col-merch :is(.ani-merch-section,.store,.store_wrapper,.ani-section-toggle) {
+  border-block:0 !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-watch-col-merch .ani-merch-card {
+  width:184px !important; border-radius:12px !important; padding:8px !important; box-shadow:none !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #plusbox.plus-settings-section {
+  .ani-setting-section:has([data-ani-row-key="skip-op"]) { align-items:start; }
+  .ani-plus-form-row:has([data-ani-row-key="skip-op"]) + .ani-setting-item > div:has(.progress_box) {
+    border:0 !important; padding:0 !important;
+  }
+}
+@media (min-width:1150px) {
+  body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #plusbox.plus-settings-section {
+    .ani-setting-section > div:has(> .ani-plus-form-row [data-ani-row-key="skip-op"]) { position:relative; }
+    .ani-plus-form-row + .ani-setting-item:has(> div > .progress_box:only-child) {
+      position:absolute !important; inset:auto 0 0; height:4px !important; min-height:0 !important;
+      margin:0 !important; padding:0 !important; pointer-events:none;
+    }
   }
 }

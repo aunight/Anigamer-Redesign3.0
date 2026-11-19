@@ -1045,7 +1045,19 @@
         const url = new URL(card.getAttribute('href'), location.origin);
         const title = card.querySelector('.theme-name')?.textContent.trim();
         const image = card.querySelector('img.theme-img');
-        if (url.origin === location.origin && title && image) cards.set(url.href, {title, views:card.querySelector('.show-view-number p')?.textContent.trim(), episodes:card.querySelector('.theme-number')?.textContent.trim(), src:image.dataset.src || image.getAttribute('src')});
+        if (url.origin !== location.origin || !title || !image) continue;
+        const previous = cards.get(url.href);
+        const yearMonth = card.querySelector('.theme-time')?.textContent.match(/年份[：:]\s*(\d{4})\/(\d{1,2})/);
+        const month = Number(yearMonth?.[2]);
+        const season = month >= 1 && month <= 12
+          ? yearMonth[1] + ' ' + ['冬', '春', '夏', '秋'][Math.floor((month - 1) / 3)] + '番'
+          : previous?.season;
+        cards.set(url.href, {
+          title, season, serial:previous?.serial || Boolean(card.querySelector('.color-now-playing')),
+          views:card.querySelector('.show-view-number p')?.textContent.trim(),
+          episodes:card.querySelector('.theme-number')?.textContent.trim(),
+          src:image.dataset.src || image.getAttribute('src')
+        });
       }
       const pool = [...cards.entries()];
       if (!pool.length) throw new Error('No recommendations');
@@ -1056,7 +1068,7 @@
       const count = document.querySelector('#w-anime-comment-count');
       const syncCount = () => {
         const total = Number(count?.textContent.replace(/[^0-9]/g, '') || 0);
-        const limit = Math.min(30, 6 + Math.ceil(total / 3));
+        const limit = Math.min(48, 12 + Math.ceil(total / 3));
         [...aside.querySelectorAll('a')].forEach((link, index) => { link.hidden = index >= limit; });
       };
       const metadata = new IntersectionObserver(entries => {
@@ -1080,18 +1092,19 @@
               };
               wide.src = artwork;
             }
-            const release = doc.querySelector('.anime_info_detail')?.textContent.match(/上架(?:時間|日期)\s*[：:]\s*(\d{4}\/\d{1,2}\/\d{1,2})/)?.[1];
-            const genres = [...doc.querySelectorAll('li.type .tag-list .tag')].map(node => node.textContent.trim()).filter(Boolean);
-            const date = link.querySelector('.ani-rec-release');
-            if (release) {
-              date.querySelector('span').textContent = release;
-              date.hidden = false;
+            const premiere = [...doc.querySelectorAll('li.type')].find(row => row.querySelector('.title')?.textContent.trim() === '首播日期');
+            const match = premiere?.querySelector('.content')?.textContent.match(/(\d{4})\/(\d{1,2})/);
+            if (match && +match[2] >= 1 && +match[2] <= 12) {
+              const release = link.querySelector('.ani-rec-release');
+              release.querySelector('span').textContent = match[1] + ' ' + ['冬','春','夏','秋'][Math.floor((+match[2] - 1) / 3)] + '番';
+              release.hidden = false;
             }
+            const genres = [...doc.querySelectorAll('li.type .tag-list .tag')].map(node => node.textContent.trim()).filter(Boolean);
             link.querySelector('.ani-rec-genres').textContent = genres.join(' · ');
           }).catch(() => {});
         }
       }, {rootMargin:'150px'});
-      while (pool.length && aside.childElementCount <= 30) {
+      while (pool.length && aside.childElementCount <= 48) {
         const [[href, item]] = pool.splice(Math.floor(Math.random() * pool.length), 1);
         const link = document.createElement('a');
         link.href = href;
@@ -1102,8 +1115,18 @@
         const copy = document.createElement('span');
         const facts = document.createElement('span');
         facts.className = 'ani-rec-facts';
-        facts.innerHTML = '<span class="ani-rec-view" title="觀看數"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 5c5 0 9 4 11 7-2 3-6 7-11 7S3 15 1 12c2-3 6-7 11-7Zm0 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4Z"/></svg><span></span></span><span class="ani-rec-release" title="上架日期" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 11h18"/></svg><span></span></span>';
+        facts.innerHTML = '<span class="ani-rec-view" title="觀看數"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 5c5 0 9 4 11 7-2 3-6 7-11 7S3 15 1 12c2-3 6-7 11-7Zm0 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4Z"/></svg><span></span></span><span class="ani-rec-release" title="播出季番" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 11h18"/></svg><span></span></span>';
         facts.querySelector('.ani-rec-view span').textContent = item.views || '統計中';
+        const release = facts.querySelector('.ani-rec-release');
+        if (item.season) {
+          release.querySelector('span').textContent = item.season;
+          release.hidden = false;
+        }
+        if (item.serial) {
+          const status = document.createElement('span');
+          status.textContent = '連載中';
+          facts.append(status);
+        }
         const title = document.createElement('strong');
         title.textContent = item.title;
         const genres = document.createElement('small');
@@ -1112,7 +1135,7 @@
         const poster = document.createElement('span');
         poster.className = 'ani-rec-poster';
         const score = document.createElement('b');
-        score.className = 'ani-history-score';
+        score.className = 'ani-history-score ani-score-badge-top-left';
         const episodes = document.createElement('span');
         episodes.className = 'ani-rec-episodes';
         episodes.textContent = item.episodes || '';
@@ -3186,7 +3209,7 @@
         try {
           const savedW = Number(localStorage.getItem('aniMiniPipWidth') || 0);
           if (savedW >= 240 && savedW <= 760) aniPlayer.style.setProperty('--ani-mini-pip-w', `${savedW}px`);
-          const savedPos = JSON.parse(localStorage.getItem('aniMiniPipPos') || 'null');
+          const savedPos = JSON.parse(localStorage.getItem('aniMiniPipRightPos') || 'null');
           if (savedPos && Number.isFinite(savedPos.x) && Number.isFinite(savedPos.y)) {
             aniPlayer.style.setProperty('--ani-mini-pip-x', `${Math.max(12, Math.min(window.innerWidth - 252, savedPos.x))}px`);
             aniPlayer.style.setProperty('--ani-mini-pip-y', `${Math.max(12, Math.min(window.innerHeight - 150, savedPos.y))}px`);
@@ -3236,7 +3259,7 @@
               aniPlayer.dataset.aniPipDragged='1';
               setTimeout(()=>{delete aniPlayer.dataset.aniPipDragged;},80);
               const r=aniPlayer.getBoundingClientRect();
-              try{localStorage.setItem('aniMiniPipPos',JSON.stringify({x:Math.round(r.left),y:Math.round(r.top)}));}catch{}
+              try{localStorage.setItem('aniMiniPipRightPos',JSON.stringify({x:Math.round(r.left),y:Math.round(r.top)}));}catch{}
             }
           };
           window.addEventListener('pointermove',onMove);
