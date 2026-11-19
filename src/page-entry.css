@@ -67,3 +67,12 @@ body.ani-ambientlight-ui #ani_video .ncc-choosebar:not(.ani-age-ready) {
   animation:ani-consent-bootstrap 900ms step-end both;
 }
 @keyframes ani-consent-bootstrap { from {opacity:0} to {opacity:1} }
+
+/* Native review stars have a viewBox, but no intrinsic width or height. */
+#acg_review .user-star-block svg.user-star {
+  width: 24px;
+  height: 24px;
+  max-width: 32px;
+  max-height: 32px;
+  flex-shrink: 0;
+}

@@ -6235,7 +6235,7 @@
           html += `<section class="ani-side-extra-block" data-credit-panel="${name}" ${name === selected ? '' : 'hidden'}>`;
           if (!grid?.children.length) {
             html += '<div class="ani-side-meta-grid">';
-            for (const {title,val} of fields) html += `<div class="ani-side-meta-item${val.length > 16 ? ' is-wide' : ''}"><span class="ani-side-pill">${escHtml(title)}</span><span class="ani-side-meta-val">${escHtml(val)}</span></div>`;
+            for (const {title,val} of fields) html += `<div class="ani-side-meta-item"><span class="ani-side-pill">${escHtml(title)}</span><span class="ani-side-meta-val">${escHtml(val)}</span></div>`;
             html += fields.length ? '</div>' : '</div><p>暫無資料</p>';
           }
           html += '</section>';

@@ -9537,12 +9537,13 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani-tab-content-2
 }
 @supports (appearance:base-select) {
   body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani-tab-content-2 select::picker(select) {
-    border-radius:14px; padding:5px; background:color-mix(in srgb,var(--ani-font-menu-surface,#253849) 90%,transparent); backdrop-filter:blur(16px);
+    border-radius:14px; padding:5px; background:#111823; color:#e0e8ef; border-color:#2a3949;
+    position-area:block-end span-inline-end; position-try-fallbacks:none;
   }
   body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani-tab-content-2 select option {
     border:0 !important; box-shadow:none !important; background:transparent !important; color:inherit !important; padding:7px 12px; border-radius:8px;
   }
-  body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani-tab-content-2 select option:is(:checked,:hover,:focus-visible) { background:color-mix(in srgb,currentColor 12%,transparent) !important; }
+  body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani-tab-content-2 select option:is(:checked,:hover,:focus-visible) { background:#1e2c3e !important; }
 }
 
 html body.ani-ambientlight-ui .user-setting-toolbox .user-info { anchor-name:--ani-member-info; }
@@ -9859,5 +9860,12 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .plus_imagetool_bo
   :is(.ani-tools-toggle-btn, .shortcut-button, .ani-player-settings-toggle, .plus_button_box.ani-tool-hover-pill):is(:hover, :focus-within)
   :is(.ani-tool-glyph, .ani-tool-hover-label, .ani-shortcut-btn-glyph, .ani-shortcut-label, .ani-tools-toggle-icon, .ani-tools-toggle-label) {
   color:var(--ani-accent, #3dafb6) !important;
+  -webkit-text-fill-color:currentColor !important;
+}
+
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background
+  .ani-player-settings-toggle:is(:hover, :focus-visible)
+  :is(.ani-ps-text, .ani-ps-icon, .ani-ps-icon svg, .ani-ps-chevron) {
+  color:var(--ani-accent,#3dafb6) !important;
   -webkit-text-fill-color:currentColor !important;
 }
