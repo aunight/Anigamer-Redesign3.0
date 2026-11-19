@@ -26,9 +26,9 @@ body.ani-ambientlight-page .ani-hero {
 .ani-hero-images, .ani-hero-shade, .ani-hero-images img { position: absolute; inset: 0; width: 100%; height: 100%; }
 .ani-hero-images img { object-fit: cover; }
 body.ani-ambientlight-page .ani-hero-images img.ani-hero-ambient {
-  object-fit: cover !important;
-  filter: blur(40px) brightness(.55) saturate(1.15);
-  transform: scale(1.15);
+  object-fit: fill !important;
+  filter: blur(32px) brightness(.72) saturate(1.2);
+  transform: scale(1.045);
 }
 .ani-hero-shade { background: linear-gradient(0deg, #07111dda, #07111d00 72%); pointer-events: none; }
 .ani-hero-panel {
@@ -251,7 +251,7 @@ body.ani-home-page #BH_background .big_banner.ani-hero-enabled {
 }
 body.ani-home-page #BH_background .big_banner.ani-hero-enabled::before {
   content:""; position:absolute; inset:-160px 0 45%; z-index:-1; pointer-events:none;
-  background:var(--ani-hero-cover) center 22%/cover no-repeat;
+  background:var(--ani-hero-cover) center/100% 100% no-repeat;
   filter:blur(36px) saturate(1.15); opacity:.5;
   mask-image:linear-gradient(to bottom,#000 58%,transparent);
 }
