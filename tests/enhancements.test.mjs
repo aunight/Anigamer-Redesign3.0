@@ -270,3 +270,65 @@ test('Phase 2: catalog negative tags, keyword exclude, origin classification, pa
   assert.match(jumps[0].url, /tags=%E5%8B%95%E4%BD%9C/);
   assert.match(jumps[0].url, /page=7/);
 });
+
+test('Phase 3: spoiler blur matches keywords/tags or blurs all when filters are empty, supports click reveal/rehide, and tears down cleanly when disabled', async (t) => {
+  const card = (sn, title) => `
+    <a class="theme-list-main" href="animeRef.php?sn=${sn}">
+      <div class="theme-img-block"><img class="theme-img" src="https://p2.bahamut.com.tw/B/2KU/c${sn}.JPG" alt="${title}"></div>
+      <div class="anime-detail-block"><div class="theme-info-block"><p class="theme-name">${title}</p></div></div>
+    </a>`;
+  const html = `<div id="BH_background"><div class="container"><div class="animate-theme-list">
+    <div class="filter-section"></div>
+    <div class="theme-list-block">${card(301, '黑暗獵奇物語')}${card(302, '輕鬆日常咖啡廳')}</div>
+  </div></div></div>`;
+
+  // 1. Default off -> zero blurred cards
+  const domOff = bootEnhancements(html, '/animeList.php');
+  t.after(() => { try { domOff.window.close(); } catch {} });
+  await new Promise((r) => setTimeout(r, 30));
+  assert.equal(domOff.window.document.querySelectorAll('.ani-spoiler-blurred').length, 0);
+  domOff.window.close();
+
+  // 2. Enabled with keyword filter -> blurs only matching card, click reveal + rehide works, live disable cleans DOM
+  const dom = bootEnhancements(html, '/animeList.php', {
+    sharedStorage: {
+      aniAmbientSettingsV1: { spoilerBlurEnabled: true, spoilerBlurTags: '恐怖', spoilerBlurKeywords: '獵奇' },
+    },
+    fetchImpl: async (url) => {
+      if (String(url).includes('tags=')) {
+        return { ok: true, text: async () => '<div class="theme-list-block"><a class="theme-list-main" href="animeRef.php?sn=301"></a></div>' };
+      }
+      return { ok: true, text: async () => '' };
+    },
+  });
+  t.after(() => { try { dom.window.close(); } catch {} });
+  const w = dom.window, d = w.document;
+  await new Promise((r) => setTimeout(r, 50));
+
+  const covers = [...d.querySelectorAll('.theme-img-block')];
+  assert.equal(covers[0].classList.contains('ani-spoiler-blurred'), true);
+  assert.equal(covers[1].classList.contains('ani-spoiler-blurred'), false);
+
+  let cardNav = 0;
+  d.querySelectorAll('.theme-list-main')[0].addEventListener('click', (e) => { e.preventDefault(); cardNav++; });
+  covers[0].querySelector('.ani-spoiler-reveal-btn').click();
+  assert.equal(covers[0].classList.contains('is-unblurred'), true);
+  assert.equal(cardNav, 0, 'reveal button must not trigger link navigation');
+
+  covers[0].querySelector('.ani-blur-rehide-btn').click();
+  assert.equal(covers[0].classList.contains('is-unblurred'), false);
+  assert.equal(cardNav, 0, 'rehide button must not trigger link navigation');
+
+  // Toggle off via quick button -> cleans all blur classes & masks
+  const qt = d.querySelector('.ani-blur-quick-toggle');
+  assert(qt, 'quick toggle rendered next to filter toggle');
+  qt.click();
+  await new Promise((r) => setTimeout(r, 30));
+  assert.equal(d.querySelectorAll('.ani-spoiler-blurred').length, 0);
+  assert.equal(d.querySelectorAll('.ani-spoiler-mask').length, 0);
+
+  // 3. Enabled with empty tags & keywords -> global privacy mode blurs all cards
+  await w.AniEnhancements.writeSettings({ spoilerBlurEnabled: true, spoilerBlurTags: '', spoilerBlurKeywords: '' });
+  await new Promise((r) => setTimeout(r, 30));
+  assert.equal(d.querySelectorAll('.ani-spoiler-blurred').length, 2);
+});

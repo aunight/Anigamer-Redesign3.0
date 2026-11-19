@@ -726,3 +726,109 @@ body.ani-light-mode.ani-ambientlight-ui .ani-page-go-btn {
   border-color: rgba(20, 147, 156, 0.5);
   color: #0b757d;
 }
+
+/* ── Feature 3: 避雷薄碼 / 預覽圖模糊遮罩 ── */
+.ani-spoiler-blurred {
+  position: relative !important;
+  overflow: hidden !important;
+}
+.ani-spoiler-blurred:not(.is-unblurred) img {
+  filter: blur(18px) saturate(0.75) brightness(0.72) !important;
+  transform: scale(1.08) !important;
+  transition: filter 0.2s ease, transform 0.2s ease !important;
+}
+.ani-spoiler-blurred.is-unblurred img {
+  filter: none !important;
+  transform: none !important;
+  transition: filter 0.2s ease, transform 0.2s ease !important;
+}
+.ani-spoiler-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  background: rgba(9, 15, 25, 0.42);
+  backdrop-filter: blur(4px);
+}
+.ani-spoiler-blurred.is-unblurred .ani-spoiler-mask {
+  display: none !important;
+}
+.ani-spoiler-reveal-btn {
+  padding: 7px 13px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  background: rgba(15, 23, 34, 0.86);
+  color: #f0f7ff;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.3;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.38);
+  transition: transform 0.14s ease, background-color 0.14s ease;
+}
+.ani-spoiler-reveal-btn:hover {
+  background: rgba(61, 175, 182, 0.88);
+  color: #091521;
+  transform: scale(1.03);
+}
+.ani-blur-rehide-btn {
+  display: none;
+  position: absolute;
+  left: 50%;
+  top: 8px;
+  transform: translateX(-50%);
+  z-index: 8;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(12, 20, 32, 0.86);
+  color: #e2eef9;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.ani-spoiler-blurred.is-unblurred .ani-blur-rehide-btn {
+  display: inline-flex;
+  align-items: center;
+}
+.ani-blur-rehide-btn:hover {
+  background: rgba(239, 68, 68, 0.82);
+  color: #ffffff;
+}
+.ani-blur-quick-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 30px;
+  margin-left: 8px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  color: #e6eff8;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  vertical-align: middle;
+}
+.ani-blur-quick-toggle[aria-pressed='true'] {
+  background: rgba(239, 68, 68, 0.26);
+  border-color: rgba(248, 113, 113, 0.65);
+  color: #fecaca;
+}
+
+/* Light mode for Feature 3 */
+body.ani-light-mode.ani-ambientlight-ui .ani-blur-quick-toggle {
+  background: rgba(18, 38, 60, 0.08);
+  border-color: rgba(18, 38, 60, 0.2);
+  color: #142232;
+}
+body.ani-light-mode.ani-ambientlight-ui .ani-blur-quick-toggle[aria-pressed='true'] {
+  background: rgba(220, 38, 38, 0.16);
+  border-color: rgba(220, 38, 38, 0.52);
+  color: #991b1b;
+}

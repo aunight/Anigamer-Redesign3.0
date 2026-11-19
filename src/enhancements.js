@@ -130,6 +130,24 @@
     return currentSettings;
   };
 
+  const writeSettings = async (patch) => {
+    const next = normalizeSettings({ ...currentSettings, ...patch });
+    notifySettings(next);
+    try {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(next));
+    } catch {}
+    if (globalThis.AniAmbientStorage?.set) {
+      try {
+        await new Promise((resolve) => globalThis.AniAmbientStorage.set(next, resolve));
+      } catch {}
+    } else if (globalThis.chrome?.storage?.sync?.set) {
+      try {
+        await new Promise((resolve) => chrome.storage.sync.set(next, resolve));
+      } catch {}
+    }
+    return next;
+  };
+
   if (globalThis.AniAmbientStorage?.onChanged?.addListener) {
     globalThis.AniAmbientStorage.onChanged.addListener((changes) => {
       const merged = { ...currentSettings };
@@ -1269,6 +1287,158 @@
     }
   };
 
+  // ── Feature 3: 避雷薄碼 / 預覽圖模糊遮罩 ──
+  let blurBusy = false;
+  let blurSubscribed = false;
+
+  const clearSpoilerBlurFromCover = (cover) => {
+    cover.classList.remove('ani-spoiler-blurred', 'is-unblurred');
+    cover.querySelector('.ani-spoiler-mask')?.remove();
+    cover.querySelector('.ani-blur-rehide-btn')?.remove();
+  };
+
+  const applySpoilerBlur = async () => {
+    if (blurBusy) return;
+    blurBusy = true;
+    try {
+      const enabled = Boolean(currentSettings.spoilerBlurEnabled);
+      const quickBtn = document.querySelector('.ani-blur-quick-toggle');
+      if (quickBtn) {
+        quickBtn.setAttribute('aria-pressed', String(enabled));
+        quickBtn.textContent = enabled ? '避雷遮罩：開' : '避雷遮罩：關';
+      }
+
+      const cards = [...document.querySelectorAll('.theme-list-main, .anime-card-block, .ani-perm-card, .anime-card')];
+      if (!enabled) {
+        for (const cover of document.querySelectorAll('.ani-spoiler-blurred')) {
+          clearSpoilerBlurFromCover(cover);
+        }
+        return;
+      }
+
+      const tags = String(currentSettings.spoilerBlurTags || '')
+        .split(/[,，、\s]+/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const keywords = String(currentSettings.spoilerBlurKeywords || '')
+        .split(/[,，、\n]+/)
+        .map((s) => s.trim().toLocaleLowerCase())
+        .filter(Boolean);
+      const globalMode = tags.length === 0 && keywords.length === 0;
+
+      const blurredSns = new Set();
+      if (!globalMode && tags.length) {
+        const snSets = await Promise.all(tags.map((t) => fetchTagSnSet(t)));
+        for (const set of snSets) {
+          for (const sn of set) blurredSns.add(sn);
+        }
+      }
+
+      for (const card of cards) {
+        const cover = card.querySelector('.theme-img-block, .anime-pic, .ani-perm-cover-wrap, .postimg');
+        if (!cover) continue;
+
+        let match = globalMode;
+        if (!match) {
+          const href =
+            card.getAttribute('href') ||
+            card.querySelector('a[href*="sn="]')?.getAttribute('href') ||
+            '';
+          const sn = card.dataset?.permSn || getSnFromHref(href);
+          if (sn && blurredSns.has(sn)) match = true;
+          if (!match && keywords.length) {
+            const titleText =
+              card.querySelector('.theme-name, .history-anime-title, .ani-perm-title, .anime-name')?.textContent || '';
+            const imgAlt = cover.querySelector('img')?.getAttribute('alt') || '';
+            const blob = `${titleText} ${imgAlt} ${card.textContent || ''}`.toLocaleLowerCase();
+            match = keywords.some((kw) => blob.includes(kw));
+          }
+        }
+
+        if (!match) {
+          if (cover.classList.contains('ani-spoiler-blurred')) {
+            clearSpoilerBlurFromCover(cover);
+          }
+          continue;
+        }
+
+        cover.classList.add('ani-spoiler-blurred');
+        if (!cover.querySelector('.ani-spoiler-mask')) {
+          const mask = document.createElement('div');
+          mask.className = 'ani-spoiler-mask';
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'ani-spoiler-reveal-btn';
+          btn.textContent = '避雷遮罩 · 點擊預覽';
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            cover.classList.add('is-unblurred');
+          });
+          mask.append(btn);
+          cover.append(mask);
+        }
+        if (!cover.querySelector('.ani-blur-rehide-btn')) {
+          const rehide = document.createElement('button');
+          rehide.type = 'button';
+          rehide.className = 'ani-blur-rehide-btn';
+          rehide.textContent = '重新遮罩';
+          rehide.title = '重新套用避雷模糊';
+          rehide.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            cover.classList.remove('is-unblurred');
+          });
+          cover.append(rehide);
+        }
+      }
+    } finally {
+      blurBusy = false;
+    }
+  };
+
+  const initSpoilerBlur = async () => {
+    const allowedPaths = ['/', '/index.php', '/animeList.php', '/mygather.php', '/search.php', '/viewList.php', '/animeVideo.php'];
+    if (!allowedPaths.includes(location.pathname)) return;
+
+    const filterToggle = document.querySelector('.filter-section > .ani-filter-toggle');
+    const quickHost =
+      document.querySelector('.ani-filter-bar') ||
+      document.querySelector('.ani-perm-io-actions');
+    if ((filterToggle || quickHost) && !document.querySelector('.ani-blur-quick-toggle')) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ani-blur-quick-toggle';
+      btn.setAttribute('aria-pressed', String(Boolean(currentSettings.spoilerBlurEnabled)));
+      btn.textContent = currentSettings.spoilerBlurEnabled ? '避雷遮罩：開' : '避雷遮罩：關';
+      btn.addEventListener('click', async () => {
+        await writeSettings({ spoilerBlurEnabled: !currentSettings.spoilerBlurEnabled });
+      });
+      if (filterToggle) filterToggle.after(btn);
+      else quickHost.prepend(btn);
+    }
+
+    if (!blurSubscribed) {
+      blurSubscribed = true;
+      settingsListeners.add(() => {
+        applySpoilerBlur();
+      });
+    }
+
+    await applySpoilerBlur();
+
+    for (const host of document.querySelectorAll('.animate-theme-list, .newanime-block, .history-wrapper')) {
+      if (host.dataset.aniSpoilerObs) continue;
+      host.dataset.aniSpoilerObs = '1';
+      let t = 0;
+      new MutationObserver(() => {
+        if (blurBusy) return;
+        clearTimeout(t);
+        t = setTimeout(() => { applySpoilerBlur(); }, 120);
+      }).observe(host, { childList: true, subtree: true });
+    }
+  };
+
   const state = {
     getSettings: () => currentSettings,
     onSettingsChange: (fn) => {
@@ -1276,6 +1446,7 @@
       return () => settingsListeners.delete(fn);
     },
     readSettings,
+    writeSettings,
     storageGet,
     storageSet,
     escapeHtml,
@@ -1288,6 +1459,7 @@
       await readSettings();
       await initCollectionStatusTagger();
       initCatalogEnhancements();
+      await initSpoilerBlur();
       initVideoHistoryTracker();
       await initPermanentHistoryPage();
     },
@@ -1299,6 +1471,7 @@
     await readSettings();
     await initCollectionStatusTagger();
     initCatalogEnhancements();
+    await initSpoilerBlur();
     initVideoHistoryTracker();
     await initPermanentHistoryPage();
   };
