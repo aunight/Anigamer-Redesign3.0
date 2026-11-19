@@ -8523,7 +8523,7 @@ body.ani-light-mode.ani-ambientlight-ui #BH_background :is(
   .extend-card, .premium-info, .filter-section,
   .ani-merch-section :is(.store_item, .store_wrapper li, .ani-merch-card),
   .ani-review-card, .ani-my-review-box, .data-file, section.data,
-  .ani-ep-drawer-panel, .ani-history-card, .paycard, .userpaychose,
+  .ani-ep-drawer-panel, .ani-history-card, :is(.paycard, .userpaychose):not(.ani-membership-plans *),
   #w-post-box .commend-content, .reply-item, .w-post-form,
   .anime-date-info
 ),
