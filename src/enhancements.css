@@ -1165,26 +1165,31 @@ body #BH_background .filter-section.has-top-right-blur-toggle > .ani-blur-quick-
 /* ── Feature 4: 彈幕列表置頂搜尋（右放大鏡）、毛玻璃模糊底與 B 站風格三欄膠囊排序 (/animeVideo.php) ── */
 html body.ani-theater-layout #BH_background section.player .subtitle #ani-tab-content-1.ani-has-dm-tools[data-ani-tab-active='true'],
 #ani-tab-content-1.ani-has-dm-tools[data-ani-tab-active='true'] {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 8px !important;
-  padding: 8px 10px 0 !important;
+  display: block !important;
+  position: relative !important;
+  height: 100% !important;
+  min-height: 0 !important;
   box-sizing: border-box !important;
 }
 html body.ani-theater-layout #BH_background section.player .subtitle #ani-tab-content-1.ani-has-dm-tools > .danmu-scroll,
 #ani-tab-content-1.ani-has-dm-tools > .danmu-scroll {
-  position: relative !important;
-  inset: auto !important;
-  flex: 1 1 auto !important;
-  min-height: 0 !important;
+  position: absolute !important;
+  top: 112px !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
   height: auto !important;
+  max-height: none !important;
+  overflow: auto !important;
   padding-top: 0 !important;
   box-sizing: border-box !important;
 }
 .ani-danmu-tools-bar,
 body #BH_background .ani-danmu-tools-bar {
-  position: relative !important;
-  flex: none !important;
+  position: absolute !important;
+  top: 8px !important;
+  left: 10px !important;
+  right: 10px !important;
   z-index: 50 !important;
   display: flex !important;
   flex-direction: column !important;
@@ -1192,7 +1197,7 @@ body #BH_background .ani-danmu-tools-bar {
   padding: 14px 16px !important;
   margin-bottom: 0 !important;
   border-radius: 14px !important;
-  background: rgba(13, 22, 34, 0.78) !important;
+  background: rgba(13, 22, 34, 0.86) !important;
   border: 1px solid rgba(255, 255, 255, 0.16) !important;
   backdrop-filter: blur(26px) saturate(150%) !important;
   -webkit-backdrop-filter: blur(26px) saturate(150%) !important;

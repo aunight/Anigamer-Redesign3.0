@@ -100,7 +100,7 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
           return;
         }
         const rawTitles = Array.isArray(message.titles) ? message.titles : [];
-        const titles = [...new Set(rawTitles.map((t) => String(t || '').trim()).filter(Boolean))].slice(0, 15);
+        const titles = [...new Set(rawTitles.map((t) => String(t || '').trim()).filter(Boolean))].slice(0, 30);
         if (!titles.length) {
           reply({ ok: true, items: {} });
           return;
@@ -513,6 +513,8 @@ const ANILIST_SOURCE_MAP = {
   ORIGINAL: 'original',
 };
 
+const workMetaMemCache = new Map();
+
 async function fetchAniListWorkMetaBatch(titles) {
   const cleanSearch = (t) =>
     String(t || '')
@@ -521,16 +523,26 @@ async function fetchAniListWorkMetaBatch(titles) {
       .trim();
 
   const items = {};
+  const toFetch = [];
+  for (const orig of titles) {
+    if (workMetaMemCache.has(orig)) {
+      items[orig] = workMetaMemCache.get(orig);
+    } else {
+      toFetch.push(orig);
+    }
+  }
+  if (!toFetch.length) return items;
+
   const varDecls = [];
   const variables = {};
   const aliases = [];
-  const entries = titles.map((orig, idx) => ({ orig, search: cleanSearch(orig) || orig, key: `m${idx}` }));
+  const entries = toFetch.map((orig, idx) => ({ orig, search: cleanSearch(orig) || orig, key: `m${idx}` }));
 
   for (const e of entries) {
     varDecls.push(`$${e.key}: String`);
     variables[e.key] = e.search;
     aliases.push(
-      `${e.key}: Page(perPage: 1) { media(search: $${e.key}, type: ANIME, sort: SEARCH_MATCH) { id source format duration episodes studios(isMain: true) { nodes { name } } } }`
+      `${e.key}: Page(perPage: 1) { media(search: $${e.key}, type: ANIME, sort: SEARCH_MATCH) { id source format duration episodes } }`
     );
   }
 
@@ -539,7 +551,7 @@ async function fetchAniListWorkMetaBatch(titles) {
     const res = await fetch('https://graphql.anilist.co', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      signal: AbortSignal.timeout(9000),
+      signal: AbortSignal.timeout(8000),
       body: JSON.stringify({ query, variables }),
     });
     if (!res.ok) return items;
@@ -556,14 +568,19 @@ async function fetchAniListWorkMetaBatch(titles) {
         format === 'ONA' ||
         format === 'SPECIAL' ||
         (duration > 0 && duration <= 15);
-      items[e.orig] = {
+      const entry = {
         source,
         format,
         duration,
         episodes: Number(m.episodes) || 0,
         isShort,
-        studio: String(m.studios?.nodes?.[0]?.name || ''),
       };
+      items[e.orig] = entry;
+      workMetaMemCache.set(e.orig, entry);
+      if (workMetaMemCache.size > 1000) {
+        const firstKey = workMetaMemCache.keys().next().value;
+        if (firstKey) workMetaMemCache.delete(firstKey);
+      }
     }
   } catch {}
   return items;

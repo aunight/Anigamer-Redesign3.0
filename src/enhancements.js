@@ -1638,8 +1638,8 @@
           const uniqueMissing = [...new Set(missingTitles)];
           uniqueMissing.forEach((t) => metaPending.add(t));
           const chunks = [];
-          for (let i = 0; i < uniqueMissing.length; i += 15) {
-            chunks.push(uniqueMissing.slice(i, i + 15));
+          for (let i = 0; i < uniqueMissing.length; i += 30) {
+            chunks.push(uniqueMissing.slice(i, i + 30));
           }
           const responses = await Promise.all(
             chunks.map((batch) => sendWorkerMessage({ type: 'ani-fetch-work-meta', titles: batch })),
@@ -1785,6 +1785,52 @@
     document.querySelectorAll('.ani-page-elevator').forEach((el) => el.remove());
 
     applyCatalogFilters();
+
+    // Background pre-warm origin metadata so clicking any 原作分類 pill is instant
+    setTimeout(async () => {
+      const cards = [...listBlock.querySelectorAll('.theme-list-main')];
+      const nowTs = Date.now();
+      const missing = [];
+      for (const card of cards) {
+        const title = getCardCleanTitle(card);
+        if (!title || metaPending.has(title)) continue;
+        const cached = metaCache[title];
+        if (!cached || nowTs - Number(cached.ts || 0) >= WORK_META_TTL_MS) {
+          missing.push(title);
+        }
+      }
+      const unique = [...new Set(missing)];
+      if (!unique.length) return;
+      unique.forEach((t) => metaPending.add(t));
+      const chunks = [];
+      for (let i = 0; i < unique.length; i += 30) chunks.push(unique.slice(i, i + 30));
+      const responses = await Promise.all(
+        chunks.map((batch) => sendWorkerMessage({ type: 'ani-fetch-work-meta', titles: batch })),
+      );
+      const tsNow = Date.now();
+      let updated = false;
+      chunks.forEach((batch, idx) => {
+        const resp = responses[idx];
+        for (const t of batch) {
+          const hit = resp?.items?.[t];
+          if (hit) {
+            metaCache[t] = { ...hit, ts: tsNow };
+            updated = true;
+          } else {
+            metaCache[t] = { source: 'other', isShort: false, ts: tsNow - WORK_META_TTL_MS + 3600000 };
+            updated = true;
+          }
+        }
+      });
+      if (updated) {
+        const keys = Object.keys(metaCache);
+        if (keys.length > 400) {
+          keys.sort((a, b) => (metaCache[b]?.ts || 0) - (metaCache[a]?.ts || 0)).slice(400).forEach((k) => delete metaCache[k]);
+        }
+        writeJsonLocal(WORK_META_CACHE_KEY, metaCache);
+        applyCatalogFilters();
+      }
+    }, 250);
 
     if (!listBlock.dataset.aniCatalogObs) {
       listBlock.dataset.aniCatalogObs = '1';
