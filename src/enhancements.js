@@ -8,6 +8,7 @@
   const TAG_CACHE_KEY = 'aniTagCacheV1';
   const CAT_EXCLUDE_KEY = 'aniCatalogExcludeV1';
   const WORK_META_CACHE_KEY = 'aniWorkMetaCacheV1';
+  const LOCAL_MUTE_KEY = 'aniLocalMutedSendersV1';
   const TAG_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
   const WORK_META_TTL_MS = 14 * 24 * 60 * 60 * 1000;
 
@@ -1439,6 +1440,308 @@
     }
   };
 
+  // ── Feature 4: 彈幕列表搜尋、多維排序與單一發送者局部消音 (/animeVideo.php) ──
+  const parseDanmuSeconds = (row) => {
+    const raw = (row.querySelector('b')?.textContent || '').trim();
+    const parts = raw.split(':').map((n) => Number(n.trim()));
+    if (parts.length === 2 && parts.every(Number.isFinite)) return parts[0] * 60 + parts[1];
+    if (parts.length === 3 && parts.every(Number.isFinite)) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+    return 0;
+  };
+
+  const getDanmuRowText = (row) =>
+    (row.querySelector('.sub_content')?.textContent || row.textContent || '').trim();
+
+  const extractDanmuSender = (row) => {
+    const attrSender =
+      row.dataset?.userid ||
+      row.dataset?.user ||
+      row.dataset?.uid ||
+      row.getAttribute('data-userid') ||
+      row.getAttribute('data-user') ||
+      row.querySelector('.sub_user, .user-id, .name, [data-userid], [data-user]')?.getAttribute('data-userid') ||
+      row.querySelector('.sub_user, .user-id, .name, [data-userid], [data-user]')?.getAttribute('data-user') ||
+      row.querySelector('.sub_user, .user-id, .name')?.textContent?.trim();
+    if (attrSender) return String(attrSender).trim();
+
+    for (const el of row.querySelectorAll('.edit, button, a')) {
+      const oc = el.getAttribute('onclick') || '';
+      const strArgs = [...oc.matchAll(/['"]([a-zA-Z0-9._-]{2,32})['"]/g)].map((m) => m[1]);
+      if (strArgs.length) return strArgs[strArgs.length - 1];
+      const href = el.getAttribute('href') || '';
+      const qUser = href.match(/[?&](?:user|userid|uid)=([^&]+)/i)?.[1];
+      if (qUser) return decodeURIComponent(qUser);
+    }
+    return '';
+  };
+
+  let dmBusy = false;
+  let dmObserver = null;
+  let dmOverlayObserver = null;
+
+  const initDanmuListTools = async () => {
+    if (location.pathname !== '/animeVideo.php') return;
+    const subList = document.querySelector('#sub_list');
+    if (!subList) return;
+
+    let mutedMap = await storageGet(LOCAL_MUTE_KEY, {});
+    if (!mutedMap || typeof mutedMap !== 'object' || Array.isArray(mutedMap)) mutedMap = {};
+
+    let searchQuery = '';
+    let sortKey = 'time';
+    let sortDir = 'asc';
+    let origCounter = 0;
+
+    let bar = document.querySelector('.ani-danmu-tools-bar');
+    if (!bar) {
+      bar = document.createElement('div');
+      bar.className = 'ani-danmu-tools-bar';
+      bar.innerHTML = `
+        <div class="ani-danmu-search-row">
+          <input type="search" class="ani-danmu-search" placeholder="搜尋彈幕或發送者…" aria-label="搜尋彈幕或發送者">
+          <span class="ani-danmu-count" role="status"></span>
+        </div>
+        <div class="ani-danmu-sort-row">
+          <div class="ani-danmu-sorts" role="group" aria-label="彈幕排序">
+            <button type="button" class="ani-dm-sort-btn" data-dm-sort="time" aria-pressed="true">時間 ↑</button>
+            <button type="button" class="ani-dm-sort-btn" data-dm-sort="length" aria-pressed="false">長度</button>
+            <button type="button" class="ani-dm-sort-btn" data-dm-sort="sender" aria-pressed="false">發射</button>
+          </div>
+          <div class="ani-dm-muted-host">
+            <button type="button" class="ani-danmu-muted-pill" aria-expanded="false">已消音 0 人</button>
+            <div class="ani-danmu-muted-popover" hidden></div>
+          </div>
+        </div>
+      `;
+      subList.before(bar);
+    }
+
+    const searchInput = bar.querySelector('.ani-danmu-search');
+    const countEl = bar.querySelector('.ani-danmu-count');
+    const sortBtns = [...bar.querySelectorAll('.ani-dm-sort-btn')];
+    const mutedPill = bar.querySelector('.ani-danmu-muted-pill');
+    const mutedPopover = bar.querySelector('.ani-danmu-muted-popover');
+
+    const syncLiveOverlayMute = () => {
+      const hasMutes = Object.keys(mutedMap).length > 0;
+      const overlay = document.querySelector('.danmu-container, .vjs-danmu-layer');
+      const sweepOverlay = () => {
+        if (!overlay) return;
+        for (const item of overlay.querySelectorAll('[data-userid], [data-user], .danmu-item')) {
+          const u = item.getAttribute('data-userid') || item.getAttribute('data-user') || '';
+          const muted = Boolean(u && mutedMap[u]);
+          item.classList.toggle('ani-dm-filtered-hidden', muted);
+        }
+      };
+      if (hasMutes && overlay) {
+        sweepOverlay();
+        if (!dmOverlayObserver) {
+          dmOverlayObserver = new MutationObserver(() => {
+            if (Object.keys(mutedMap).length > 0) sweepOverlay();
+          });
+          dmOverlayObserver.observe(overlay, { childList: true });
+        }
+      } else if (dmOverlayObserver) {
+        dmOverlayObserver.disconnect();
+        dmOverlayObserver = null;
+        if (overlay) {
+          for (const item of overlay.querySelectorAll('.ani-dm-filtered-hidden')) {
+            item.classList.remove('ani-dm-filtered-hidden');
+          }
+        }
+      }
+    };
+
+    const renderMutedPopover = () => {
+      const senders = Object.keys(mutedMap);
+      mutedPill.textContent = `已消音 ${senders.length} 人`;
+      if (!senders.length) {
+        mutedPopover.innerHTML = '<p class="ani-dm-muted-empty">尚未消音任何發送者</p>';
+        return;
+      }
+      mutedPopover.innerHTML = `
+        <div class="ani-dm-muted-list">
+          ${senders
+            .map(
+              (id) => `
+            <div class="ani-dm-muted-item">
+              <span title="${escapeHtml(id)}">${escapeHtml(id)}</span>
+              <button type="button" class="ani-dm-unmute-one" data-unmute-sender="${escapeHtml(id)}">解除</button>
+            </div>`,
+            )
+            .join('')}
+        </div>
+        <button type="button" class="ani-dm-unmute-all">全部解除</button>
+      `;
+    };
+
+    const updateSortLabels = () => {
+      const names = { time: '時間', length: '長度', sender: '發射' };
+      for (const b of sortBtns) {
+        const key = b.dataset.dmSort;
+        const active = key === sortKey;
+        b.setAttribute('aria-pressed', String(active));
+        b.textContent = active ? `${names[key]} ${sortDir === 'asc' ? '↑' : '↓'}` : names[key];
+      }
+    };
+
+    const applyDanmuListState = () => {
+      if (dmBusy) return;
+      dmBusy = true;
+      try {
+        const rows = [...subList.querySelectorAll('.sub-list-li')];
+        if (!rows.length) {
+          countEl.textContent = '0 / 0';
+          renderMutedPopover();
+          syncLiveOverlayMute();
+          return;
+        }
+
+        const senderFreq = Object.create(null);
+        for (const row of rows) {
+          if (!row.dataset.aniOrigIdx) {
+            row.dataset.aniOrigIdx = String(++origCounter);
+          }
+          const sender = row.dataset.aniSender || extractDanmuSender(row);
+          if (sender) {
+            row.dataset.aniSender = sender;
+            senderFreq[sender] = (senderFreq[sender] || 0) + 1;
+          }
+          if (sender && !row.querySelector('.ani-dm-local-mute')) {
+            const muteBtn = document.createElement('button');
+            muteBtn.type = 'button';
+            muteBtn.className = 'ani-dm-local-mute';
+            muteBtn.title = `局部消音 ${sender}`;
+            muteBtn.setAttribute('aria-label', `局部消音 ${sender}`);
+            muteBtn.textContent = '消音此人';
+            muteBtn.addEventListener('click', async (ev) => {
+              ev.preventDefault();
+              ev.stopPropagation();
+              const targetSender = row.dataset.aniSender;
+              if (!targetSender) return;
+              if (mutedMap[targetSender]) delete mutedMap[targetSender];
+              else mutedMap[targetSender] = { mutedAt: Date.now() };
+              await storageSet(LOCAL_MUTE_KEY, mutedMap);
+              showToast(mutedMap[targetSender] ? `已局部消音：${targetSender}` : `已解除消音：${targetSender}`);
+              applyDanmuListState();
+            });
+            const actionBox = row.querySelector(':scope > div:nth-child(2)') || row;
+            actionBox.append(muteBtn);
+          }
+        }
+
+        const q = searchQuery.trim().toLocaleLowerCase();
+        let shown = 0;
+        for (const row of rows) {
+          const sender = row.dataset.aniSender || '';
+          const txt = getDanmuRowText(row);
+          const isMuted = Boolean(sender && mutedMap[sender]);
+          const matchesQuery =
+            !q || txt.toLocaleLowerCase().includes(q) || sender.toLocaleLowerCase().includes(q);
+          const hidden = isMuted || !matchesQuery;
+          row.classList.toggle('ani-dm-filtered-hidden', hidden);
+          if (!hidden) shown++;
+        }
+
+        countEl.textContent = `${shown} / ${rows.length}`;
+        renderMutedPopover();
+        syncLiveOverlayMute();
+
+        const sorted = [...rows].sort((a, b) => {
+          let cmp = 0;
+          if (sortKey === 'length') {
+            cmp = getDanmuRowText(a).length - getDanmuRowText(b).length;
+          } else if (sortKey === 'sender') {
+            const fa = senderFreq[a.dataset.aniSender || ''] || 0;
+            const fb = senderFreq[b.dataset.aniSender || ''] || 0;
+            cmp = fa - fb;
+          } else {
+            cmp = parseDanmuSeconds(a) - parseDanmuSeconds(b);
+          }
+          if (cmp !== 0) return sortDir === 'asc' ? cmp : -cmp;
+          return Number(a.dataset.aniOrigIdx) - Number(b.dataset.aniOrigIdx);
+        });
+
+        const orderChanged = sorted.some((node, idx) => node !== rows[idx]);
+        if (orderChanged) {
+          const frag = document.createDocumentFragment();
+          for (const node of sorted) frag.append(node);
+          subList.append(frag);
+        }
+      } finally {
+        dmObserver?.takeRecords();
+        dmBusy = false;
+      }
+    };
+
+    if (!bar.dataset.aniDmWired) {
+      bar.dataset.aniDmWired = '1';
+      let searchTimer = 0;
+      searchInput.addEventListener('input', () => {
+        searchQuery = searchInput.value;
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(applyDanmuListState, 80);
+      });
+      for (const b of sortBtns) {
+        b.addEventListener('click', () => {
+          const key = b.dataset.dmSort;
+          if (sortKey === key) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+          else {
+            sortKey = key;
+            sortDir = key === 'time' ? 'asc' : 'desc';
+          }
+          updateSortLabels();
+          applyDanmuListState();
+        });
+      }
+      mutedPill.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const nextOpen = mutedPopover.hidden;
+        mutedPopover.hidden = !nextOpen;
+        mutedPill.setAttribute('aria-expanded', String(nextOpen));
+      });
+      mutedPopover.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const unmuteBtn = e.target.closest('.ani-dm-unmute-one');
+        if (unmuteBtn) {
+          const id = unmuteBtn.dataset.unmuteSender;
+          if (id && mutedMap[id]) {
+            delete mutedMap[id];
+            await storageSet(LOCAL_MUTE_KEY, mutedMap);
+            applyDanmuListState();
+          }
+          return;
+        }
+        if (e.target.closest('.ani-dm-unmute-all')) {
+          mutedMap = {};
+          await storageSet(LOCAL_MUTE_KEY, mutedMap);
+          applyDanmuListState();
+        }
+      });
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.ani-dm-muted-host')) {
+          mutedPopover.hidden = true;
+          mutedPill.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+
+    updateSortLabels();
+    applyDanmuListState();
+
+    // Critical contract: observe #sub_list with childList: true ONLY + debounced guard
+    if (!subList.dataset.aniDmObs) {
+      subList.dataset.aniDmObs = '1';
+      let obsTimer = 0;
+      dmObserver = new MutationObserver(() => {
+        if (dmBusy) return;
+        clearTimeout(obsTimer);
+        obsTimer = setTimeout(applyDanmuListState, 150);
+      });
+      dmObserver.observe(subList, { childList: true });
+    }
+  };
+
   const state = {
     getSettings: () => currentSettings,
     onSettingsChange: (fn) => {
@@ -1460,6 +1763,7 @@
       await initCollectionStatusTagger();
       initCatalogEnhancements();
       await initSpoilerBlur();
+      await initDanmuListTools();
       initVideoHistoryTracker();
       await initPermanentHistoryPage();
     },
@@ -1472,6 +1776,7 @@
     await initCollectionStatusTagger();
     initCatalogEnhancements();
     await initSpoilerBlur();
+    await initDanmuListTools();
     initVideoHistoryTracker();
     await initPermanentHistoryPage();
   };

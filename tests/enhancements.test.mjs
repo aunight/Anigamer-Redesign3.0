@@ -332,3 +332,72 @@ test('Phase 3: spoiler blur matches keywords/tags or blurs all when filters are 
   await new Promise((r) => setTimeout(r, 30));
   assert.equal(d.querySelectorAll('.ani-spoiler-blurred').length, 2);
 });
+
+test('Phase 4: danmu list search, multi-sort (time/length/sender freq), local per-sender mute, and bounded idle mutations', async (t) => {
+  const mkRow = (time, text, user) => `
+    <li class="sub-list-li" data-userid="${user}">
+      <div><b>${time}</b><div class="sub_content"><span>${text}</span></div></div>
+      <div><a class="edit">複製</a></div>
+    </li>`;
+  const html = `<div id="BH_background"><div class="container-player"><section class="player">
+    <div id="ani_video"><video></video></div>
+    <div class="subtitle"><div id="ani-tab-content-1"><ul id="sub_list">
+      ${mkRow('01:20', '哈哈', 'userA')}
+      ${mkRow('00:15', '這幕作畫太神了吧！！', 'userB')}
+      ${mkRow('02:05', '來了', 'userA')}
+      ${mkRow('00:40', '前方高能', 'userC')}
+    </ul></div></div>
+  </section></div></div>`;
+
+  const dom = bootEnhancements(html, '/animeVideo.php?sn=30789');
+  t.after(() => { try { dom.window.close(); } catch {} });
+  const w = dom.window, d = w.document;
+  await new Promise((r) => setTimeout(r, 40));
+
+  const subList = d.querySelector('#sub_list');
+  const getTexts = () => [...subList.querySelectorAll('.sub-list-li')].map((li) => li.querySelector('.sub_content').textContent.trim());
+
+  // Initial time asc sort -> 00:15, 00:40, 01:20, 02:05
+  assert.deepEqual(getTexts(), ['這幕作畫太神了吧！！', '前方高能', '哈哈', '來了']);
+
+  // Search filter
+  const search = d.querySelector('.ani-danmu-search');
+  search.value = '作畫';
+  search.dispatchEvent(new w.Event('input'));
+  await new Promise((r) => setTimeout(r, 110));
+  assert.equal(subList.querySelectorAll('.sub-list-li:not(.ani-dm-filtered-hidden)').length, 1);
+  assert.equal(d.querySelector('.ani-danmu-count').textContent, '1 / 4');
+
+  search.value = '';
+  search.dispatchEvent(new w.Event('input'));
+  await new Promise((r) => setTimeout(r, 110));
+  assert.equal(d.querySelector('.ani-danmu-count').textContent, '4 / 4');
+
+  // Sort by length desc -> longest text first
+  d.querySelector('[data-dm-sort="length"]').click();
+  assert.equal(getTexts()[0], '這幕作畫太神了吧！！');
+
+  // Sort by sender frequency desc -> userA (2 rows) comes before userB & userC (1 row each)
+  d.querySelector('[data-dm-sort="sender"]').click();
+  assert.deepEqual(getTexts().slice(0, 2), ['哈哈', '來了']);
+
+  // Local mute userA -> hides BOTH rows of userA and persists to storage
+  subList.querySelector('.sub-list-li[data-userid="userA"] .ani-dm-local-mute').click();
+  await new Promise((r) => setTimeout(r, 30));
+  assert.equal(subList.querySelectorAll('.sub-list-li:not(.ani-dm-filtered-hidden)').length, 2);
+  assert.match(d.querySelector('.ani-danmu-muted-pill').textContent, /已消音 1 人/);
+
+  // Unmute via popover restores both rows
+  d.querySelector('.ani-danmu-muted-pill').click();
+  d.querySelector('.ani-dm-unmute-one[data-unmute-sender="userA"]').click();
+  await new Promise((r) => setTimeout(r, 180));
+  assert.equal(subList.querySelectorAll('.sub-list-li:not(.ani-dm-filtered-hidden)').length, 4);
+
+  // Confirm idle #sub_list causes 0 self-triggered mutations
+  let idleMut = 0;
+  const obs = new w.MutationObserver((m) => { idleMut += m.length; });
+  obs.observe(subList, { childList: true, subtree: true, attributes: true });
+  await new Promise((r) => setTimeout(r, 250));
+  obs.disconnect();
+  assert.equal(idleMut, 0);
+});
