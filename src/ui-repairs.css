@@ -696,6 +696,10 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #blockContinueWatc
 body.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,#blockAnimeNewArrive,.animate-theme-list) .theme-list-main.ani-poster-card .anime-detail-block { height: var(--ani-poster-footer,80px) !important; }
 body.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,#blockAnimeNewArrive,.animate-theme-list) .theme-list-main.ani-poster-card:is(:hover,:focus-within) { z-index: 8; padding-bottom: var(--ani-poster-footer,80px) !important; }
 body.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,#blockAnimeNewArrive,.animate-theme-list) .theme-list-main.ani-poster-card:is(:hover,:focus-within) .anime-detail-block { position: absolute !important; inset: calc(100% - var(--ani-poster-footer,80px)) 0 auto !important; height: auto !important; min-height: var(--ani-poster-footer,80px) !important; z-index: 5; }
+body.ani-catalog-page.ani-ambientlight-ui #BH_background .theme-list-main.ani-poster-card:is(:hover,:focus-within) .anime-detail-block {
+  -webkit-backdrop-filter: blur(24px) saturate(120%);
+  backdrop-filter: blur(24px) saturate(120%);
+}
 body.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,#blockAnimeNewArrive,.animate-theme-list) .theme-list-main.ani-poster-card:is(:hover,:focus-within) .theme-name { height: auto !important; white-space: normal !important; overflow: visible !important; }
 .ani-poster-card:is(:hover,:focus-within) .theme-name .ani-title-marquee { white-space: normal; animation: none !important; transform: none !important; }
 /* The image gradient is z=2. Its sibling footer used z=1, trapping even
@@ -9751,7 +9755,18 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-watch-col-mer
   .ani-merch-card::before { content:""; position:absolute; inset:0; z-index:-1; pointer-events:none; background:var(--ani-merch-cover) center/cover; filter:blur(25px); opacity:.22; }
   .ani-merch-card > a { display:flex; flex-direction:column; height:100%; min-height:0; }
   .ani-merch-card .ani-merch-meta-row { flex-direction:column; align-items:stretch !important; gap:4px !important; }
-  .ani-merch-meta-row .ani-merch-price { margin:0 !important; text-align:center !important; }
+  .ani-merch-meta-row .ani-merch-price {
+    display:flex !important;
+    justify-content:center !important;
+    width:100% !important;
+    margin:0 !important;
+    box-sizing:border-box;
+  }
+  .ani-merch-meta-row :is(.ani-merch-price,.products-price) {
+    padding-inline:0 !important;
+    text-align:center !important;
+  }
+  .ani-merch-meta-row .products-price { margin-inline:0 !important; }
   .ani-merch-card .ani-merch-buy-btn { display:flex !important; align-items:center; justify-content:center; gap:6px; width:100% !important; }
   .ani-merch-card .ani-merch-buy-btn svg { width:16px; height:16px; }
   &:not(.ani-merch-no-scroll) .store > :is(.next,.prev),
@@ -9868,4 +9883,31 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background
   :is(.ani-ps-text, .ani-ps-icon, .ani-ps-icon svg, .ani-ps-chevron) {
   color:var(--ani-accent,#3dafb6) !important;
   -webkit-text-fill-color:currentColor !important;
+}
+/* Balance the visible year label and chevron as a group. */
+body.ani-catalog-page #BH_background .ani-catalog-date-field select {
+  padding-inline: 16px 32px;
+}
+body.ani-catalog-page #BH_background .ani-catalog-date-field::after {
+  inset-inline-end: 24px;
+}
+@supports (appearance: base-select) {
+  body.ani-catalog-page #BH_background .ani-catalog-date-field::after {
+    content: none;
+  }
+  body.ani-catalog-page #BH_background .ani-catalog-date-field select {
+    justify-content: center;
+    gap: 8px;
+    padding-inline: 16px;
+  }
+  body.ani-catalog-page #BH_background .ani-catalog-date-field select::picker-icon {
+    display: block;
+    content: "";
+    width: 7px;
+    height: 7px;
+    margin: 0;
+    border: solid currentColor;
+    border-width: 0 1.5px 1.5px 0;
+    transform: translateY(-2px) rotate(45deg);
+  }
 }
