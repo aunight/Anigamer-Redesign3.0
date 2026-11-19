@@ -9917,7 +9917,7 @@ body.ani-membership-page.ani-light-mode.ani-ambientlight-ui {
   .ani-membership-background::after {
     background:linear-gradient(rgb(234 243 250 / 51%), rgb(218 232 244 / 62%));
   }
-  #BH_background .ani-membership-plans :is(.paycard,.userpaychose),
+  #BH_background .ani-membership-plans .userpaychose,
   #BH_background .ani-membership-summary > div,
   #BH_background .record-list-content {
     background:rgb(246 251 255 / 65%) !important;
@@ -9925,8 +9925,18 @@ body.ani-membership-page.ani-light-mode.ani-ambientlight-ui {
     backdrop-filter:blur(24px) saturate(125%);
     color:#20384b !important;
   }
+  #BH_background .ani-membership-plans .paycard {
+    background:linear-gradient(145deg, rgb(242 251 255 / 36%), rgb(216 236 248 / 24%)) !important;
+    border-color:rgb(74 113 134 / 44%) !important;
+    backdrop-filter:blur(18px) saturate(140%) !important;
+    color:#20384b !important;
+  }
   #BH_background .ani-membership-plans .paycard-container:last-child:not(.ani-free-plan) .paycard {
-    background:rgb(225 244 249 / 72%) !important;
+    background:linear-gradient(145deg, rgb(220 247 250 / 42%), rgb(188 224 239 / 30%)) !important;
+  }
+  #BH_background .ani-account-icon {
+    color:#315d70 !important;
+    stroke:currentColor !important;
   }
   #BH_background .ani-membership-plans :is(.programtitle,.ani-plan-daily,.ani-plan-benefit,.ani-free-note),
   #BH_background .ani-membership-summary :is(span,strong),
