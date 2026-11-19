@@ -4466,7 +4466,6 @@
       outline.className = 'ani-hover-outline';
       outline.setAttribute('aria-hidden', 'true');
       card.append(outline);
-      if (card.matches('.ani-home-page .ani-poster-card')) continue;
       const measure = () => {
         const bounds = card.getBoundingClientRect();
         const height = `${Math.ceil(Math.max(bounds.height, footer.getBoundingClientRect().bottom - bounds.top))}px`;

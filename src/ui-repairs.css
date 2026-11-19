@@ -9276,9 +9276,6 @@ body.ani-layout-comments.ani-ambientlight-page #BH_background :is(.commend-title
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
   margin-top:4px;color:var(--ani-muted,#98a7b7);font-size:13px;line-height:1.5;
 }
-body.ani-home-page #BH_background .theme-list-main.ani-poster-card > .ani-hover-outline {
-  inset:0 !important;height:auto !important;
-}
 body.ani-layout-comments #BH_background #w-post-box :is(.msgreport,.msgreport > div,.c-reply__item,.c-msg-item,.reply-content__gpbp) {
   border:0 !important;box-shadow:none !important;
 }
