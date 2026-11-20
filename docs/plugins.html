@@ -281,22 +281,26 @@
       listEl.querySelectorAll('input[type="checkbox"]').forEach((c) => { c.checked = false; });
     });
 
-    document.getElementById('install-selected').addEventListener('click', async () => {
+    document.getElementById('install-selected').addEventListener('click', () => {
       const selected = PLUGINS.filter((p) => listEl.querySelector(`input[data-plugin-id="${p.id}"]`)?.checked);
       if (!selected.length) {
         statusEl.textContent = '請至少勾選 1 個附加腳本。';
         return;
       }
+      let opened = 0;
       let blocked = 0;
-      for (let i = 0; i < selected.length; i++) {
-        statusEl.textContent = `正在開啟第 ${i + 1} / ${selected.length} 個安裝頁：${selected[i].name}…`;
-        const win = window.open(selected[i].install, '_blank', 'noopener');
-        if (!win) blocked++;
-        await new Promise((r) => setTimeout(r, 400));
+      for (const p of selected) {
+        const win = window.open(p.install, '_blank', 'noopener');
+        if (win) opened++;
+        else blocked++;
       }
-      statusEl.textContent = blocked
-        ? `已觸發 ${selected.length} 個安裝頁（有 ${blocked} 個可能被瀏覽器封鎖彈窗，請允許彈出視窗或點擊右側「單獨安裝」）。`
-        : `已依序開啟全部 ${selected.length} 個腳本安裝頁，請於 Tampermonkey / Violentmonkey 分頁點選安裝即可！`;
+      if (blocked > 0) {
+        statusEl.style.color = '#fcd34d';
+        statusEl.textContent = `已開啟 ${opened} 個，但瀏覽器封鎖了其餘 ${blocked} 個分頁！請點網址列右側「封鎖彈出式視窗」圖示 →「一律允許」後再按一次按鈕，或點擊各列右側「單獨安裝」。`;
+      } else {
+        statusEl.style.color = '#aef7fc';
+        statusEl.textContent = `已同步開啟全部 ${opened} 個腳本安裝頁，請於 Tampermonkey / Violentmonkey 分頁依序點選安裝即可！`;
+      }
     });
   </script>
 </body>
