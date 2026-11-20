@@ -4,7 +4,7 @@ import {createRequire} from 'node:module';
 const require=createRequire(import.meta.url);const {JSDOM}=require('jsdom');
 const dom=new JSDOM('<body><div class="top_sky"><div class="sky"><div class="container-player"></div></div></div><div id="BH_background"><div class="container-player"><section class="player"><div class="videoframe"><div class="video"><div id="video-container"><div id="ani_video" class="video-js"><video class="vjs-tech"></video><div class="vjs-control-bar"></div></div></div></div></div><div class="subtitle"></div></section><div class="anime-title"><div class="season"><ul><li><a href="#">1</a></li></ul></div></div></div></div></body>',{url:'https://ani.gamer.com.tw/animeVideo.php?sn=48204',runScripts:'outside-only',pretendToBeVisual:true});
 const fixtures=dom.window.document.querySelector('#BH_background .container-player');
-fixtures.insertAdjacentHTML('beforeend','<section class="data">資料</section><div class="old_list">相關動畫</div><div class="animate-theme-list"><div class="theme-extend-block">新聞</div></div><div id="w-post-box">留言</div>');
+fixtures.insertAdjacentHTML('beforeend','<section class="data">資料</section><div class="old_list">相關動畫</div><div class="animate-theme-list"><div class="theme-extend-block"><article class="extend-card">新聞</article></div></div><div id="w-post-box">留言</div>');
 const w=dom.window;w.matchMedia=()=>({matches:false,addEventListener(){}});
 w.sessionStorage.setItem('aniPreviousBackground','silk');
 const playerBar=w.document.querySelector('.vjs-control-bar');
@@ -169,9 +169,14 @@ const shelf=w.document.querySelector('.ani-episode-shelf'),episodeButton=shelf.q
 assert.equal(season.hidden,true);assert.equal(episodeButton.getAttribute('aria-expanded'),'false');
 episodeButton.click();assert.equal(season.hidden,false);assert.equal(episodeButton.getAttribute('aria-expanded'),'true');
 change('episodeStyle','wrap');assert.equal(shelf.querySelector('.ani-region-toggle'),null);assert.equal(season.hidden,false);
-for(const [flag,selector] of [['foldInfo','section.data'],['foldRelated','.old_list'],['foldNews','.animate-theme-list']]){
+for(const [flag,selector] of [['foldInfo','section.data'],['foldRelated','.old_list'],['foldNews','.theme-extend-block']]){
   change(flag,true);const target=w.document.querySelector(selector),button=w.document.querySelector('[aria-controls="'+target.id+'"]');
-  assert.ok(button,`${flag} must provide a control`);button.click();assert.equal(target.hidden,true);assert.equal(button.getAttribute('aria-expanded'),'false');
+  assert.ok(button,`${flag} must provide a control`);
+  if (flag === 'foldNews') {
+    assert.equal(button.nextElementSibling, target);
+    assert.ok(button.querySelector('.ani-section-icon svg'));
+  }
+  button.click();assert.equal(target.hidden,true);assert.equal(button.getAttribute('aria-expanded'),'false');
   change(flag,false);assert.equal(target.hidden,false);assert.equal(button.isConnected,false);
 }
 for(const key of ['showInfo','showRelated','showNews','showComments'])change(key,false);

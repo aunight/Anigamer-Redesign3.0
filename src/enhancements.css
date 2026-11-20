@@ -157,6 +157,51 @@ body.ani-ambientlight-ui #BH_background .ani-standalone-capture-trigger {
   color: #edf5ff !important;
 }
 
+body.ani-ambientlight-ui #BH_background .ani-standalone-capture > span {
+  color: inherit !important;
+}
+
+body.ani-ambientlight-ui #BH_background #sub_list .sub-list-li .edit.ani-danmu-action-icon {
+  display: inline-grid !important;
+  place-items: center;
+  width: 30px !important;
+  height: 30px !important;
+  min-width: 30px !important;
+  padding: 0 !important;
+  border: 1px solid rgb(255 255 255 / 16%) !important;
+  border-radius: 999px !important;
+  background: rgb(255 255 255 / 8%) !important;
+  color: #edf5ff !important;
+}
+
+body.ani-ambientlight-ui #BH_background #sub_list .sub-list-li .edit.ani-danmu-action-icon:is(:hover, :focus-visible) {
+  background: rgb(61 175 182 / 28%) !important;
+  border-color: rgb(61 175 182 / 72%) !important;
+}
+
+body.ani-ambientlight-ui #BH_background #sub_list .edit.ani-danmu-action-icon > svg {
+  width: 14px !important;
+  height: 14px !important;
+  display: block !important;
+}
+
+body.ani-ambientlight-ui #BH_background .animate-theme-list > [data-ani-region="news"] {
+  order: -1 !important;
+}
+
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .theme-extend-block.ani-fold-content[hidden] {
+  display: none !important;
+}
+
+body.ani-ambientlight-ui #BH_background .animate-theme-list > [data-ani-region="news"] .ani-section-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+body.ani-ambientlight-ui #BH_background .animate-theme-list:has(> [data-ani-region="news"]) > :is(.theme-title, .theme-title-block, .news-title-block) {
+  display: none !important;
+}
+
 /* ── Toast notification fallback (enlarged capsule with checkmark icon) ── */
 .ani-enh-toast {
   position: fixed;

@@ -897,7 +897,7 @@
       ...(hasSidebarTabs ? {} : { info: ['section.data', '作品資訊', 'foldInfo', 'showInfo', 3] }),
       related: ['.old_list:not(:has(.search_result))', '相關動畫', 'foldRelated', 'showRelated', 4],
       merch: ['.ani-merch-section', '相關商品', 'foldRelated', 'showMerch', 7],
-      news: ['.animate-theme-list:has(> .theme-extend-block)', '相關新聞', 'foldNews', 'showNews', 8],
+      news: ['.animate-theme-list > .theme-extend-block:has(.extend-card)', '相關新聞', 'foldNews', 'showNews', 8],
     };
     for (const [key, [selector, name, flag, visible, order]] of Object.entries(
       regions,
@@ -925,7 +925,7 @@
       button.className = 'ani-region-toggle ani-region-fold-control';
       button.dataset.aniRegion = key;
       if (key !== 'comments') button.classList.add('ani-section-toggle');
-      button.style.order = String(order);
+      if (key !== 'news') button.style.order = String(order);
       const originalHidden = target.hidden;
       target.id = target.id || 'ani-fold-' + key;
       button.setAttribute('aria-controls', target.id);
@@ -943,7 +943,9 @@
               ? '<span class="ani-section-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m10 9 5 3-5 3V9Z"/></svg></span>'
               : key === 'merch'
                 ? '<span class="ani-section-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7.5" width="16" height="13.5" rx="3"/><path d="M8.5 7.5V6a3.5 3.5 0 0 1 7 0v1.5"/><path d="M9.5 12a2.5 2.5 0 0 0 5 0"/></svg></span>'
-                : '';
+                : key === 'news'
+                  ? '<span class="ani-section-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h4v4H7zM14 12h3m-3 4h3"/></svg></span>'
+                  : '';
           button.innerHTML = `<strong>${toggleIcon}${name}</strong><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
         }
       };
@@ -3711,6 +3713,11 @@
       ...document.querySelectorAll('#BH_background .image_tool'),
       plusToolBox?.parentElement,
     ].filter(Boolean))];
+    const legacyCapture = document.querySelector('#BH_background .but_ct');
+    if (legacyCapture && legacyCapture.parentElement?.querySelector('#ct_output')) {
+      legacyCapture.parentElement.classList.add('ani-standalone-capture');
+      legacyCapture.classList.add('ani-standalone-capture-trigger');
+    }
     for (const root of captureRoots) {
       if (!root.matches('.image_tool') || root.contains(plusToolBox)) continue;
       const trigger = [...root.querySelectorAll('button, a, input[type="button"]')]
@@ -7705,14 +7712,15 @@
       const relocateExtraTabs = () => {
         const keepIds = new Set(['ani-tab-content-1', 'ani-tab-content-intro', 'ani-tab-content-rating']);
         for (const item of [...tabs.children]) {
-          const link = item.matches('a, button') ? item : item.querySelector('a, button');
+          const link = item.matches('a, button, #setting-aniplus') ? item : item.querySelector('a, button, #setting-aniplus');
           if (!link) continue;
           const href = (link.getAttribute('href') || '').trim();
-          const id = href.startsWith('#') ? href.slice(1) : '';
+          const id = link.id === 'setting-aniplus' ? 'ani-tab-content' : href.startsWith('#') ? href.slice(1) : '';
           if (keepIds.has(id)) continue;
           const isPlus = /動畫瘋\s*[·・．.]?\s*Plus/i.test(link.textContent || '');
           if (!item.matches('.ani-tabs__item') && !isPlus) continue;
           if (!id && !isPlus) continue;
+          if (link.id === 'setting-aniplus' && !document.getElementById(id)) continue;
           item.hidden = true;
           item.classList.add('ani-relocated-player-tab');
           if (id && id !== 'ani-tab-content-2') {
