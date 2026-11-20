@@ -1963,24 +1963,25 @@
   }
   function indexEpisodeProgress(records) {
     const byVideo = new Map();
+    function merge(videoSn, entry) {
+      if (!videoSn) return;
+      const key = String(videoSn);
+      const previous = byVideo.get(key);
+      const useEntry = !previous || (entry.elapsedSec > 0 &&
+        (!(previous.elapsedSec > 0) || (entry.watchedAt || 0) > (previous.watchedAt || 0)));
+      const current = useEntry ? entry : previous;
+      byVideo.set(key, {
+        ...current,
+        durationSec: current.durationSec || (useEntry ? previous?.durationSec : entry.durationSec),
+        watched: Boolean(previous?.watched || entry.watched || entry.elapsedSec > 0 || entry.watchedAt > 0),
+        completed: Boolean(previous?.completed || entry.completed),
+      });
+    }
     for (const record of Object.values(records || {})) {
       for (const ep of [...Object.values(record?.episodes || {}), ...Object.values(record?.videoProgress || {})]) {
-        if (ep?.videoSn) byVideo.set(String(ep.videoSn), {
-          ...ep,
-          watched: ep.watched || Number(ep.watchedAt) > 0,
-        });
+        if (ep?.videoSn) merge(ep.videoSn, ep);
       }
-      if (record?.videoSn) {
-        const sn = String(record.videoSn);
-        const episode = byVideo.get(sn);
-        byVideo.set(sn, {
-          watched: episode?.watched || record.elapsedSec > 0,
-          completed: episode?.completed || record.completed,
-          elapsedSec: episode?.elapsedSec || record.elapsedSec,
-          durationSec: episode?.durationSec || record.durationSec,
-          watchedAt: episode?.elapsedSec ? episode.watchedAt : record.watchedAt,
-        });
-      }
+      if (record?.videoSn) merge(record.videoSn, record);
     }
     return byVideo;
   }
@@ -1988,10 +1989,11 @@
   const completedLocalTitles = new Set();
   const normalizeWatchTitle = title => title.normalize('NFKC').replace(/\s+/g, ' ').trim();
   const episodeOrdinals = new Map();
-  function loadLocalPosterProgress() {
+  function loadLocalPosterProgress(snapshot) {
     const storageGet = globalThis.AniEnhancements?.storageGet;
     if (!storageGet) return;
-    storageGet('aniPermanentHistoryV1', {}).then(records => {
+    const recordsReady = snapshot ? Promise.resolve(snapshot) : storageGet('aniPermanentHistoryV1', {});
+    recordsReady.then(records => {
       localEpisodeProgress = indexEpisodeProgress(records);
       localWatch.clear();
       localWatchByTitle.clear();
@@ -2016,8 +2018,17 @@
       if (location.pathname === '/viewList.php') enhanceWatchHistory();
     }).catch(() => {});
   }
-  document.addEventListener('ani-enhancements-ready', loadLocalPosterProgress, { once: true });
+  document.addEventListener('ani-enhancements-ready', () => loadLocalPosterProgress(), { once: true });
   if (globalThis.AniEnhancements) loadLocalPosterProgress();
+  if (location.pathname === '/viewList.php') {
+    window.addEventListener('storage', event => {
+      if (event.key !== 'aniPermanentHistoryV1') return;
+      try { loadLocalPosterProgress(JSON.parse(event.newValue) || {}); } catch {}
+    });
+    window.addEventListener('pageshow', event => {
+      if (event.persisted) loadLocalPosterProgress();
+    });
+  }
   function historyEpisodeFromLabel(label) {
     const normalized = label.normalize('NFKC').trim();
     return normalized.match(/\[\s*(\d+(?:\.\d+)?)\s*\]$/)?.[1] ||
@@ -2060,7 +2071,7 @@
     const durationSec = Number(bar?.getAttribute('aria-valuemax')) || undefined;
     const width = bar?.querySelector('.progress')?.style.width.match(/^([\d.]+)%$/)?.[1];
     const fraction = width ? clamp(Number(width) / 100, 0, 1) : undefined;
-    return { elapsedSec, durationSec, fraction, completed: /觀看結束/.test(text) };
+    return { elapsedSec, durationSec, fraction, completed: /觀看結束|已看完/.test(text) || fraction === 1 };
   }
   let nativeWatchRequest;
   let nativeHistoryPage = 1;
@@ -2079,23 +2090,30 @@
         const episodes = [anime.episode];
         for (const entry of anime.history || []) {
           const sn = String(entry.videoSn);
-          if (/^\d+$/.test(sn) && !nativeWatchPositions.has(sn)) nativeWatchPositions.set(sn, { watched: true });
+          if (/^\d+$/.test(sn) && !nativeWatchPositions.has(sn)) {
+            nativeWatchPositions.set(sn, readNativeHistoryEntry(entry));
+          }
           episodes.push(historyEpisodeFromLabel(String(entry.title || '')));
         }
         const watched = Math.max(0, ...episodes.map(Number).filter(Number.isFinite));
         if (anime.animeSn && watched > 0) nativeWatch.set(String(anime.animeSn), watched);
         if (!/^\d+$/.test(String(anime.videoSn))) continue;
-        const elapsedSec = Number(anime.breakPoint?.breakPoint) || undefined;
-        const durationSec = Number(anime.duration) * 60 || undefined;
-        if (anime.animeSn && elapsedSec >= durationSec) completedNativeWorks.add(String(anime.animeSn));
-        nativeWatchPositions.set(String(anime.videoSn), {
-          watched: true, elapsedSec, durationSec, completed: elapsedSec >= durationSec,
-        });
+        const position = readNativeHistoryEntry(anime);
+        if (anime.animeSn && position.completed) completedNativeWorks.add(String(anime.animeSn));
+        nativeWatchPositions.set(String(anime.videoSn), position);
       }
       return true;
     }).catch(() => false);
     nativeHistoryRequests.set(page, request);
     return request;
+  }
+  function readNativeHistoryEntry(entry) {
+    const breakpoint = entry.breakPoint || entry.breakpoint;
+    const elapsedSec = Number(breakpoint?.breakPoint ?? breakpoint) || undefined;
+    const durationSec = Number(entry.duration) * 60 || undefined;
+    const timestamp = String(breakpoint?.watchTime || entry.watchTime || '').replace(' ', 'T');
+    const watchedAt = Date.parse(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(timestamp) ? timestamp + '+08:00' : timestamp) || 0;
+    return {watched:true, elapsedSec, durationSec, watchedAt, completed:entry.completed === true || elapsedSec >= durationSec};
   }
   async function findNativeEpisodeHistory(videoSns) {
     const positions = await syncNativeWatch();
@@ -4182,16 +4200,18 @@
         const clockText = seconds => `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`;
         const readEpisodeMedia = (row) => row.classList.contains('is-playing') &&
           !playerEl.matches(NON_EPISODE_PLAYER_SELECTOR) ? playerEl.querySelector('video') : null;
-        const setEpisodePlayback = (row, {elapsed, duration, completed}) => {
+        const setEpisodePlayback = (row, {elapsed, duration, completed, displayProgress, watched, watchedWithoutTiming}) => {
           const time = row.querySelector('.ani-ep-time');
-          const text = duration > 0 ? `${clockText(elapsed)} / ${clockText(duration)}`
-            : completed ? '已看完' : '—:— / —:—';
+          const text = duration > 0 && (elapsed > 0 || completed) ? `${clockText(elapsed)} / ${clockText(duration)}`
+            : completed || watchedWithoutTiming ? '已看完' : '—:— / —:—';
           if (time.textContent !== text) time.textContent = text;
           const progress = row.querySelector('progress');
           const max = duration || 1;
-          const position = completed ? max : elapsed;
-          row.toggleAttribute('data-ani-watch-known', position > 0);
+          const position = displayProgress * max;
+          row.toggleAttribute('data-ani-watch-known', watched);
           if (progress.getAttribute('aria-label') !== '觀看進度') progress.setAttribute('aria-label', '觀看進度');
+          if (watchedWithoutTiming) progress.setAttribute('aria-valuetext', '已看完');
+          else progress.removeAttribute('aria-valuetext');
           if (progress.max !== max) progress.max = max;
           if (progress.value !== position) progress.value = position;
         };
@@ -4235,13 +4255,16 @@
         });
         const bodyEl = epDrawer.querySelector('.ani-ep-drawer-body');
         let updateActiveEpisode;
-        playerEl.addEventListener('timeupdate', event => {
+        const syncActiveEpisode = event => {
           if (!epDrawer.classList.contains('is-open')) return;
           const row = bodyEl.querySelector('.is-playing');
           if (!row) return;
           const media = readEpisodeMedia(row);
           if (media === event.target) updateActiveEpisode?.(row);
-        }, true);
+        };
+        for (const event of ['timeupdate', 'seeked', 'ended']) {
+          playerEl.addEventListener(event, syncActiveEpisode, true);
+        }
         const scrollArea = epDrawer.querySelector('.ani-ep-drawer-scroll');
         const updateScrollEdges = () => {
           const remaining = bodyEl.scrollHeight - bodyEl.clientHeight - bodyEl.scrollTop;
@@ -5449,6 +5472,7 @@
   }
   globalThis.aniAnimateHistoryDrawer = animateHistoryDrawer;
 
+  const originalHistoryPositions = new WeakMap();
   function enhanceWatchHistory() {
     if(location.pathname!=='/viewList.php'||!settings.themeEnabled)return;
     for(const card of document.querySelectorAll('.user-watch-list > .anime-card')) {
@@ -5476,21 +5500,30 @@
         if(data?.studio)rows.push(`製作組：${data.studio}`);
         const text=rows.join('\n');if(meta.textContent!==text)meta.textContent=text;
         const nativeText=[...info.querySelectorAll('.history-lastwatch')].map(n=>n.textContent).join(' ');
-        const nativePosition = readNativeWatchPosition(card);
-        const elapsed = nativePosition.completed && data.duration ? data.duration : savedPlayback?.elapsedSec || nativePosition.elapsedSec;
+        if (!originalHistoryPositions.has(card)) originalHistoryPositions.set(card, readNativeWatchPosition(card));
+        const nativePosition = originalHistoryPositions.get(card);
+        const resolved = globalThis.AniEnhancements?.resolveEpisodeProgress?.({
+          native: nativePosition, local: savedPlayback, details: metadata,
+        });
+        const duration = resolved?.duration || data.duration || nativePosition.durationSec;
+        const completed = resolved?.completed ?? nativePosition.completed;
+        const elapsed = completed && duration ? duration
+          : resolved?.elapsed || savedPlayback?.elapsedSec || nativePosition.elapsedSec;
+        const fraction = completed ? 1 : resolved?.progress ?? (duration && elapsed ? clamp(elapsed / duration, 0, 1) : nativePosition.fraction);
         const progress=info.querySelector('.progress-bar'),fill=progress?.querySelector('.progress');
-        if(progress&&data?.duration&&Number.isFinite(elapsed)){
-          progress.setAttribute('role','progressbar');progress.setAttribute('aria-label','播放進度');progress.setAttribute('aria-valuemin','0');progress.setAttribute('aria-valuemax',String(data.duration));progress.setAttribute('aria-valuenow',String(Math.min(elapsed,data.duration)));
-          const width=`${clamp(elapsed/data.duration*100,0,100)}%`;if(fill&&fill.style.width!==width)fill.style.width=width;
+        if(progress&&Number.isFinite(fraction)){
+          const max = duration || 100;
+          progress.setAttribute('role','progressbar');progress.setAttribute('aria-label','播放進度');progress.setAttribute('aria-valuemin','0');progress.setAttribute('aria-valuemax',String(max));progress.setAttribute('aria-valuenow',String(fraction * max));
+          const width=`${fraction*100}%`;if(fill&&fill.style.width!==width)fill.style.width=width;
         }
         let progressText=info.querySelector('.ani-history-progress-text');if(!progressText){progressText=document.createElement('p');progressText.className='ani-history-progress-text';}
-        const remaining=data?.duration&&Number.isFinite(elapsed)?Math.max(0,data.duration-elapsed):undefined;
-        const progressLabel=remaining===0?'已看完':Number.isFinite(remaining)?`已看 ${Math.round(clamp(elapsed/data.duration*100,0,100))}% · 剩餘 ${Math.floor(remaining/60)}分${String(Math.floor(remaining%60)).padStart(2,'0')}秒`:'';
+        const remaining=duration&&Number.isFinite(elapsed)?Math.max(0,duration-elapsed):undefined;
+        const progressLabel=completed || remaining===0?'已看完':Number.isFinite(remaining)?`已看 ${Math.round(clamp(elapsed/duration*100,0,100))}% · 剩餘 ${Math.floor(remaining/60)}分${String(Math.floor(remaining%60)).padStart(2,'0')}秒`:'';
         if(progressText.textContent!==progressLabel)progressText.textContent=progressLabel;
         const episode = getHistoryEpisodes(card, id).find(entry => entry.videoSn === videoSn)?.episode
           || info.querySelector('.user-lastwatch')?.textContent.trim();
         let timing=info.querySelector('.ani-history-timing');if(!timing){timing=document.createElement('p');timing.className='ani-history-timing';title?.after(timing);}
-        const timeLabel=`${Number.isFinite(elapsed)?formatContinueTime(elapsed):'—'} / ${data?.duration?formatContinueTime(data.duration):'—'}`;if(timing.dataset.aniLabel!==timeLabel){timing.dataset.aniLabel=timeLabel;const position=document.createElement('span');position.className='ani-history-elapsed';position.textContent=Number.isFinite(elapsed)?formatContinueTime(elapsed):'—';timing.replaceChildren(position,document.createTextNode(' / '+(data?.duration?formatContinueTime(data.duration):'—')));}
+        const timeLabel=`${Number.isFinite(elapsed)?formatContinueTime(elapsed):'—'} / ${duration?formatContinueTime(duration):'—'}`;if(timing.dataset.aniLabel!==timeLabel){timing.dataset.aniLabel=timeLabel;const position=document.createElement('span');position.className='ani-history-elapsed';position.textContent=Number.isFinite(elapsed)?formatContinueTime(elapsed):'—';timing.replaceChildren(position,document.createTextNode(' / '+(duration?formatContinueTime(duration):'—')));}
         let playback=info.querySelector('.ani-history-playback');if(!playback){playback=document.createElement('div');playback.className='ani-history-playback';timing.before(playback);}
         let position=playback.querySelector('.ani-history-position');
         if(!position){position=document.createElement('div');position.className='ani-history-position';playback.prepend(position);}

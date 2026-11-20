@@ -883,10 +883,20 @@
     const resume = [local, details?.playback, breakpoint, native]
       .filter(item => item?.elapsedSec > 0)
       .sort((a, b) => (b.watchedAt || 0) - (a.watchedAt || 0))[0];
-    const completed = Boolean(media?.ended || episodeIsComplete(local) || native?.completed ||
+    const completed = Boolean(media?.ended || episodeIsComplete(local) || episodeIsComplete(native) ||
+      episodeIsComplete({...details?.playback, durationSec: duration}) ||
       (media?.currentTime > 0 && episodeIsComplete({elapsedSec: media.currentTime, durationSec: duration})));
-    const position = media?.currentTime || resume?.elapsedSec || (native?.fraction || 0) * duration;
-    return {completed, duration, elapsed: completed ? duration : Math.min(duration, position)};
+    const fraction = Math.min(1, Math.max(0, Number(native?.fraction) || 0));
+    const position = media?.currentTime || resume?.elapsedSec || fraction * duration;
+    const elapsed = completed && duration ? duration : duration ? Math.min(duration, position) : position;
+    const progress = completed ? 1 : duration ? elapsed / duration : fraction;
+    const watchedWithoutTiming = Boolean((local?.watched || native?.watched) && !position && !fraction && !completed);
+    return {completed, duration, elapsed,
+      progress,
+      displayProgress: watchedWithoutTiming ? 1 : progress,
+      watchedWithoutTiming,
+      watched: Boolean(completed || position > 0 || fraction > 0 || local?.watched || native?.watched),
+    };
   }
 
   const recordVideoProgress = () => {
@@ -992,11 +1002,11 @@
         const title = card.querySelector('.history-anime-title')?.textContent?.trim() || `動畫 #${sn}`;
         const coverEl = card.querySelector('.postimg img');
         const cover = safeImageUrl(coverEl?.dataset.src || coverEl?.getAttribute('src'));
-        const episode = card.querySelector('.user-lastwatch')?.textContent?.trim() || '';
+        let episode = card.querySelector('.user-lastwatch')?.textContent?.trim() || '';
         const timingTxt = card.querySelector('.ani-history-timing')?.textContent || '';
         const nativeTxt = [...card.querySelectorAll('.history-lastwatch')].map((n) => n.textContent).join(' ');
         const minSec = nativeTxt.match(/(?:(\d+)\s*時\s*)?(?:(\d+)\s*分\s*)?(\d+)\s*秒/);
-        let elapsedSec = minSec ? (Number(minSec[1] || 0) * 3600 + Number(minSec[2]) * 60 + Number(minSec[3])) : 0;
+        let elapsedSec = minSec ? (Number(minSec[1] || 0) * 3600 + Number(minSec[2] || 0) * 60 + Number(minSec[3])) : 0;
         let durationSec = 0;
         const pb = card.querySelector('.progress-bar');
         const pbMax = Number(pb?.getAttribute('aria-valuemax'));
@@ -1011,7 +1021,8 @@
         const prev = data[sn] && typeof data[sn] === 'object' ? data[sn] : null;
         const eps = prev?.episodes && typeof prev.episodes === 'object' ? { ...prev.episodes } : {};
         const videoProgress = { ...prev?.videoProgress };
-        const previousVideo = videoSn && (prev?.videoSn === videoSn ? prev : videoProgress[videoSn]);
+        const previousVideo = videoSn && (prev?.videoSn === videoSn ? prev : videoProgress[videoSn]
+          || Object.values(eps).find(entry => entry?.videoSn === videoSn));
         const subList = document.querySelector(`.user-watchTime-list[data-anime-sn="${sn}"], #sub-list-${sn}`);
         let latestMs = prev?.watchedAt || 0;
         if (subList) {
@@ -1024,6 +1035,7 @@
             if (ms > latestMs) latestMs = ms;
             const eSn = getSnFromHref(a.getAttribute('href'));
             if (!ep || !eSn) continue;
+            if (eSn === videoSn) episode = ep;
             const existing = eps[ep];
             const entry = existing?.videoSn === eSn ? existing : videoProgress[eSn];
             const position = { ...entry, videoSn: eSn, watched: true, watchedAt: entry?.watchedAt || ms };
@@ -1062,6 +1074,7 @@
           episode: episode || prev?.episode || '',
           elapsedSec: elapsedSec || previousVideo?.elapsedSec || 0,
           durationSec: durationSec || previousVideo?.durationSec || 0,
+          completed: /觀看結束|已看完/.test(nativeTxt) || episodeIsComplete(previousVideo),
           watchedAt: prev?.watchedAt ? Math.max(prev.watchedAt, latestMs) : (latestMs || Date.now()),
           episodes: eps,
           videoProgress,
@@ -1320,7 +1333,7 @@
         .sort((a, b) => (b.watchedAt || 0) - (a.watchedAt || 0))
         .filter((it) => {
           if (q && !(it.title || '').toLocaleLowerCase().includes(q)) return false;
-          const isDone = it.durationSec > 0 && it.elapsedSec >= Math.max(1, it.durationSec - 15);
+          const isDone = episodeIsComplete(it);
           if (progFilter === 'completed') return isDone;
           if (progFilter === 'inprogress') return !isDone;
           return true;
@@ -1332,12 +1345,13 @@
       }
 
       const renderPermCardHtml = (it) => {
-        const hasDur = Number(it.durationSec) > 0;
-        const hasElapsed = Number(it.elapsedSec) > 0;
-        const pct = hasDur ? Math.min(100, Math.max(0, Math.round((it.elapsedSec / it.durationSec) * 100))) : 0;
-        const remSec = hasDur && hasElapsed ? Math.max(0, it.durationSec - it.elapsedSec) : null;
+        const {duration, elapsed, progress, completed} = resolveEpisodeProgress({local:it});
+        const hasDur = duration > 0;
+        const hasElapsed = elapsed > 0;
+        const pct = Math.round(progress * 100);
+        const remSec = hasDur && hasElapsed ? Math.max(0, duration - elapsed) : null;
         const progressLabel =
-          remSec === 0
+          completed || remSec === 0
             ? '已看完'
             : remSec !== null
             ? `已看 ${pct}% · 剩餘 ${Math.floor(remSec / 60)}分${String(Math.floor(remSec % 60)).padStart(2, '0')}秒`
@@ -1378,8 +1392,8 @@
                 <p class="history-anime-title ani-perm-title"><span class="ani-marquee-track">${escapeHtml(traditionalTitle(it.title))}</span></p>
                 <div class="ani-history-playback">
                   <div class="ani-history-position">
-                    <p class="ani-history-timing"><span class="ani-history-elapsed">${hasElapsed ? formatMmSs(it.elapsedSec) : '—'}</span> / ${hasDur ? formatMmSs(it.durationSec) : '—'}</p>
-                    ${hasDur && hasElapsed ? `<div class="progress-bar" role="progressbar" aria-label="觀看進度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><div class="progress ani-perm-bar-fill" style="width:${pct}%"></div></div>` : ''}
+                    <p class="ani-history-timing"><span class="ani-history-elapsed">${hasElapsed ? formatMmSs(elapsed) : '—'}</span> / ${hasDur ? formatMmSs(duration) : '—'}</p>
+                    ${pct > 0 ? `<div class="progress-bar" role="progressbar" aria-label="觀看進度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><div class="progress ani-perm-bar-fill" style="width:${pct}%"></div></div>` : ''}
                   </div>
                   ${it.episode ? `<span class="ani-history-episode ani-perm-ep-badge">EP.${escapeHtml(it.episode)}</span>` : ''}
                 </div>
@@ -2709,20 +2723,17 @@
   let episodeOrderRow;
   const episodeCardWatch = new WeakMap();
   const updateEpisodeCardWatch = (frame, watch) => {
-    const {local, native} = watch;
-    const {completed, duration, elapsed} = resolveEpisodeProgress(watch);
-    const progress = completed ? 100 : duration > 0 ? elapsed / duration * 100 : 0;
-    frame.style.setProperty('--episode-progress', progress + '%');
-    frame.querySelector('.ani-episode-card-progress').hidden = !(progress > 0);
-    let label = '';
-    if (elapsed > 0 && duration > 0) {
-      const time = seconds => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`;
-      label = `${time(Math.min(elapsed, duration))} / ${time(duration)}`;
-    } else if (completed) {
-      label = '已看完';
-    } else if (local?.watched || native?.watched) {
-      label = '已觀看';
+    const {completed, duration, elapsed, displayProgress, watched, watchedWithoutTiming} = resolveEpisodeProgress(watch);
+    const done = completed || watchedWithoutTiming;
+    const displayElapsed = done ? duration : elapsed;
+    frame.style.setProperty('--episode-progress', displayProgress * 100 + '%');
+    frame.querySelector('.ani-episode-card-progress').hidden = !watched;
+    if (displayElapsed > 0 || duration > 0) {
+      frame.dataset.playbackTime = `${displayElapsed > 0 ? formatMmSs(displayElapsed) : '—'} / ${duration > 0 ? formatMmSs(duration) : '—'}`;
+    } else {
+      delete frame.dataset.playbackTime;
     }
+    const label = done ? '已看完' : '';
     const status = frame.querySelector('.ani-episode-card-watch');
     status.dataset.label = label;
     status.setAttribute('aria-label', label);
@@ -2741,7 +2752,6 @@
       date.dataset.label = data.date;
       date.setAttribute('aria-label', `上架日期 ${data.date}`);
     }
-    if (data.duration > 0) frame.dataset.duration = Math.ceil(data.duration / 60) + ' 分鐘';
     const watch = episodeCardWatch.get(frame);
     watch.details = data;
     updateEpisodeCardWatch(frame, watch);
@@ -3207,7 +3217,7 @@
     if (!epGroupSubscribed) {
       epGroupSubscribed = true;
       settingsListeners.add(initLongEpisodeGrouping);
-      document.addEventListener('timeupdate', event => {
+      const syncPlayingCard = event => {
         const video = event.target;
         if (!video.matches?.('#ani_video video') || !Number.isFinite(video.duration) ||
             video.closest('.vjs-ad-playing')) return;
@@ -3216,7 +3226,10 @@
           watch.media = video;
           updateEpisodeCardWatch(frame, watch);
         }
-      }, true);
+      };
+      for (const event of ['timeupdate', 'seeked', 'ended']) {
+        document.addEventListener(event, syncPlayingCard, true);
+      }
     }
     const root = document.querySelector('#BH_background');
     if (root && !episodeListRootObserver) {

@@ -1605,7 +1605,7 @@ body #BH_background .ani-episode-heading:has(.ani-episode-section-toggle) > .ani
   transform: translateY(-50%);
   margin: 0;
 }
-body #BH_background .ani-ep-layout-switch::before {
+body #BH_background .ani-ep-layout-switch::after {
   content: "";
   width: 28px;
   height: 16px;
@@ -1613,7 +1613,7 @@ body #BH_background .ani-ep-layout-switch::before {
   border-radius: 999px;
   background: radial-gradient(circle at 8px center, #d9e6f4 4px, transparent 4.5px), #536478;
 }
-body #BH_background .ani-ep-layout-switch[aria-checked="true"]::before {
+body #BH_background .ani-ep-layout-switch[aria-checked="true"]::after {
   background: radial-gradient(circle at 20px center, #102235 4px, transparent 4.5px), var(--ani-accent, #8cc5ed);
 }
 body #BH_background :is(.ani-ep-order, .ani-ep-layout-switch):is(:hover, :focus-visible) {
@@ -1997,14 +1997,14 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
 .ani-episode-frame .ani-ep-playing-label { display: none; z-index: 1; }
 .ani-episode-frame .ani-ep-playing-label::after { content: '播放中'; font: 600 12px/1.4 system-ui; }
 .ani-blur-episode-thumbnails .ani-episode-frame img { filter: blur(8px); }
-.ani-episode-frame[data-label]::before, .ani-episode-frame[data-duration]::after, .ani-episode-card-watch {
+.ani-episode-frame[data-label]::before, .ani-episode-frame[data-playback-time]::after, .ani-episode-card-watch {
   position: absolute; z-index: 1; padding: 3px 7px; border-radius: 99px;
   background: rgb(10 23 41 / 62%); color: white; font-weight: 600;
   backdrop-filter: blur(10px) saturate(130%);
   font-family: inherit; font-size: 11px; line-height: 1.3;
 }
 .ani-episode-frame[data-label]::before { content: attr(data-label); bottom: 8px; left: 5px; }
-.ani-episode-frame[data-duration]::after { content: attr(data-duration); bottom: 8px; right: 5px; }
+.ani-episode-frame[data-playback-time]::after { content: attr(data-playback-time); bottom: 8px; right: 5px; white-space: nowrap; }
 .ani-episode-card-watch { top: 5px; right: 5px; }
 .ani-episode-card-watch::before { content: attr(data-label); }
 .ani-episode-card-metadata {

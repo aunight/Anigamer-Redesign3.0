@@ -26,6 +26,57 @@ function bootEnhancements(html, path, { sharedStorage = {}, fetchImpl, chromeMoc
   return dom;
 }
 
+test('episode progress prefers newer playback and displays watched records without timestamps as full bars', t => {
+  const dom = bootEnhancements('<div id="BH_background"></div>', '/');
+  t.after(() => dom.window.close());
+  const resolve = dom.window.AniEnhancements.resolveEpisodeProgress;
+  const partial = resolve({
+    local: {elapsedSec: 181, durationSec: 1420, watchedAt: 100},
+    native: {elapsedSec: 445, durationSec: 1420, watchedAt: 200},
+  });
+  assert.equal(partial.elapsed, 445);
+  assert.equal(partial.progress, 445 / 1420);
+  assert.equal(partial.displayProgress, partial.progress);
+  assert.equal(resolve({local: {completed: true}}).progress, 1);
+  assert.equal(resolve({details: {duration: 1420, playback: {elapsedSec: 1412}}}).progress, 1);
+  const historical = resolve({native: {watched: true}, details: {duration: 1420}});
+  assert.equal(historical.watched, true);
+  assert.equal(historical.completed, false);
+  assert.equal(historical.progress, 0);
+  assert.equal(historical.displayProgress, 1);
+  assert.equal(historical.watchedWithoutTiming, true);
+  assert.equal(resolve({details: {duration: 1420}}).displayProgress, 0);
+});
+
+test('episode thumbnails fill bars for native history entries with no saved seconds', async t => {
+  const episodes = Array.from({length: 7}, (_, i) => `<li><a href="?sn=${1001 + i}">${i + 1}</a></li>`).join('');
+  const html = `<nav><a href="/viewList.php?u=fixture">觀看紀錄</a></nav><div id="BH_background"><section class="season"><ul>${episodes}</ul></section></div>`;
+  const dom = bootEnhancements(html, '/animeVideo.php?sn=1001', {
+    fetchImpl: async url => String(url).includes('/anime/v3/history.php')
+      ? {ok: true, json: async () => ({data: {totalPage: 1, history: [{
+        animeSn: 10, videoSn: 1001, duration: 47, episode: 1, breakPoint: {breakPoint: 542},
+        history: Array.from({length: 5}, (_, i) => ({
+          videoSn: 1002 + i, title: `作品 [${2 + i}]`, duration: i === 4 ? undefined : 1420 / 60,
+        })),
+      }]}})}
+      : {ok: false},
+  });
+  t.after(() => dom.window.close());
+  await new Promise(resolve => setTimeout(resolve, 40));
+  const frames = [...dom.window.document.querySelectorAll('.ani-episode-frame')];
+  assert.equal(frames.length, 7);
+  assert.equal(frames[0].style.getPropertyValue('--episode-progress'), `${542 / (47 * 60) * 100}%`);
+  assert.equal(frames[0].dataset.playbackTime, '9:02 / 47:00');
+  assert.equal(frames[0].querySelector('.ani-episode-card-watch').hidden, true);
+  for (const frame of frames.slice(1, 6)) {
+    assert.equal(frame.style.getPropertyValue('--episode-progress'), '100%');
+    assert.equal(frame.querySelector('.ani-episode-card-watch').dataset.label, '已看完');
+  }
+  assert.equal(frames[1].dataset.playbackTime, '23:40 / 23:40');
+  assert.equal(frames[5].dataset.playbackTime, undefined);
+  assert.equal(frames[6].querySelector('.ani-episode-card-progress').hidden, true);
+});
+
 test('Collection status follows progress, accepts persistent overrides, and preserves link clicks', async (t) => {
   const card = (id, progress) => `
     <a class="theme-list-main" href="animeRef.php?sn=${id}">

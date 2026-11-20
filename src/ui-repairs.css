@@ -7509,7 +7509,7 @@ body.ani-blur-episode-thumbnails #ani_video .ani-ep-thumb img {
 #ani_video .ani-ep-playback progress::-webkit-progress-value { border-radius: 999px; background: var(--ani-accent, #3dafb6); }
 #ani_video .ani-ep-playback progress::-moz-progress-bar { border-radius: 999px; background: var(--ani-accent, #3dafb6); }
 #ani_video .ani-ep-time { font-size: 12px; white-space: nowrap; }
-#ani_video .ani-ep-row:has(> [aria-expanded="false"]) :is(.ani-ep-thumb, .ani-ep-stats, .ani-ep-description),
+#ani_video .ani-ep-row:has(> [aria-expanded="false"]) :is(.ani-ep-thumb, .ani-ep-time, .ani-ep-stats, .ani-ep-description),
 #ani_video .ani-ep-row:not([data-ani-watch-known]) .ani-ep-playback progress,
 #ani_video .ani-ep-row:not([data-ani-watch-known]):has(> [aria-expanded="false"]) .ani-ep-details,
 body.ani-hide-episode-description #ani_video .ani-ep-description,
@@ -7526,11 +7526,6 @@ body.ani-hide-episode-description #ani_video .ani-ep-description,
 }
 #ani_video .ani-ep-row:not(.is-playing):has(> [aria-expanded="false"]) .ani-ep-copy { padding-inline-end: 25px; }
 #ani_video .ani-ep-row:has(> [aria-expanded="false"]) .ani-ep-details { grid-column: 1 / -1; }
-#ani_video .ani-ep-row[data-ani-watch-known]:has(> [aria-expanded="false"]) .ani-ep-playback {
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  column-gap: 8px;
-}
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep-row:has(> [aria-expanded="false"]) {
   row-gap: 6px;
 }
