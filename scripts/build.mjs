@@ -1,10 +1,52 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 
 const root = process.cwd();
 const { format } = await import('prettier');
 const source = path.join(root, 'src');
 const out = path.join(root, 'dist');
+// Pin non-executable userscript resources to the exact committed source.
+// Push this commit before distributing the resulting userscript.
+const resourceRevision = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
+const externalResources = {
+  ani_catalog: 'studio-catalog.json',
+  ani_profiles: 'studio-profiles.json',
+  ani_directory_icons: 'studio-directory-icons.json',
+  ani_logos: 'studio-logos.json',
+  ani_content_css: 'content.css',
+  ani_effects_css: 'effects.css',
+  ani_settings_css: 'settings-ui.css',
+  ani_hero_css: 'hero-banner.css',
+  ani_dashboard_css: 'home-dashboard.css',
+  ani_repairs_css: 'ui-repairs.css',
+};
+for (const file of Object.values(externalResources)) {
+  if (file === 'ui-repairs.css') continue;
+  const committed = execFileSync('git', ['show', `${resourceRevision}:src/${file}`], { cwd: root, maxBuffer: 10 * 1024 * 1024 });
+  const normalize = bytes => bytes.toString('utf8').replaceAll('\r\n', '\n');
+  if (normalize(committed) !== normalize(fs.readFileSync(path.join(source, file)))) {
+    throw new Error(`Userscript resource src/${file} differs from HEAD; commit it before building.`);
+  }
+}
+// Preserve local edits without publishing them: apply the readable line changes
+// to the pinned stylesheet obtained from the installed resource.
+const repairsBase = execFileSync('git', ['show', `${resourceRevision}:src/ui-repairs.css`], { cwd: root, encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 }).replaceAll('\r\n', '\n');
+const repairsLocal = fs.readFileSync(path.join(source, 'ui-repairs.css'), 'utf8').replaceAll('\r\n', '\n');
+const repairsDiff = execFileSync('git', ['diff', '--no-color', '--no-ext-diff', '--unified=0', 'HEAD', '--', 'src/ui-repairs.css'], { cwd: root, encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 });
+const repairsChanges = [];
+for (const line of repairsDiff.split('\n')) {
+  const hunk = /^@@ -(\d+)(?:,(\d+))? \+\d+(?:,\d+)? @@/.exec(line);
+  if (hunk) {
+    const count = hunk[2] === undefined ? 1 : Number(hunk[2]);
+    repairsChanges.push([Number(hunk[1]) - (count ? 1 : 0), count, []]);
+  } else if (repairsChanges.length && line.startsWith('+') && !line.startsWith('+++')) {
+    repairsChanges.at(-1)[2].push(line.slice(1).replace(/\r$/, ''));
+  }
+}
+const verifyRepairs = repairsBase.split('\n');
+for (const [start, count, added] of [...repairsChanges].reverse()) verifyRepairs.splice(start, count, ...added);
+if (verifyRepairs.join('\n') !== repairsLocal) throw new Error('Unable to preserve local ui-repairs.css changes in userscript.');
 const version = JSON.parse(
   fs.readFileSync(path.join(source, 'manifest.json'), 'utf8'),
 ).version;
@@ -14,9 +56,6 @@ const motionCss = `/*! Animate.css 4.1.1 | https://animate.style/\n${animateLice
   ['_vars.css','_base.css','fading_entrances/fadeIn.css','fading_exits/fadeOut.css']
     .map(file=>fs.readFileSync(path.join(animateRoot,'source',file),'utf8').replace(/\.([a-z][\w-]*)/g,'.animate__$1')).join('\n');
 fs.writeFileSync(path.join(source,'motion.css'),motionCss);
-const css = ['content.css', 'effects.css', 'settings-ui.css', 'hero-banner.css', 'home-dashboard.css', 'ui-repairs.css', 'enhancements.css']
-  .map((file) => fs.readFileSync(path.join(source, file), 'utf8'))
-  .join('\n');
 const blackBars = fs.readFileSync(path.join(source, 'black-bars.js'), 'utf8');
 const entryCss = motionCss + '\n' + fs.readFileSync(path.join(source, 'page-entry.css'), 'utf8');
 const entryScript = fs.readFileSync(path.join(source, 'page-entry.js'), 'utf8');
@@ -32,6 +71,11 @@ const studioCatalog = fs.readFileSync(path.join(source, 'studio-catalog.js'), 'u
   .replace('STUDIO_PROFILE_DATA', () => fs.readFileSync(path.join(source, 'studio-profiles.json'), 'utf8'))
   .replace('STUDIO_DIRECTORY_ICON_DATA', () => fs.readFileSync(path.join(source, 'studio-directory-icons.json'), 'utf8'))
   .replace('STUDIO_LOGO_DATA', () => fs.readFileSync(path.join(source, 'studio-logos.json'), 'utf8'));
+const userscriptStudioCatalog = fs.readFileSync(path.join(source, 'studio-catalog.js'), 'utf8')
+  .replace('STUDIO_CATALOG_DATA', "JSON.parse(GM_getResourceText('ani_catalog'))")
+  .replace('STUDIO_PROFILE_DATA', "JSON.parse(GM_getResourceText('ani_profiles'))")
+  .replace('STUDIO_DIRECTORY_ICON_DATA', "JSON.parse(GM_getResourceText('ani_directory_icons'))")
+  .replace('STUDIO_LOGO_DATA', "JSON.parse(GM_getResourceText('ani_logos'))");
 const core = studioCatalog + "\n" + workOrigin + "\n" + opencc + "\n;" + episodeData + "\n" +
   fs.readFileSync(path.join(source, 'hero-banner.js'), 'utf8') +
   '\n' +
@@ -79,6 +123,8 @@ const metadata = `// ==UserScript==
 // @match        https://ani.gamer.com.tw/*
 // @run-at       document-start
 // @inject-into  content
+// @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
+${Object.entries(externalResources).map(([name, file]) => `// @resource     ${name} https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/${resourceRevision}/src/${file}`).join('\n')}
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -101,28 +147,31 @@ const metadata = `// ==UserScript==
 // @connect      geocoding-api.open-meteo.com
 // @connect      ipwho.is
 // @grant        GM_addStyle
+// @grant        GM_getResourceText
 // ==/UserScript==
 `;
 const license = fs.readFileSync(path.join(source, 'LICENSE'), 'utf8') + '\n' + fs.readFileSync(path.join(source, 'LICENSE.bilibili-margin'), 'utf8') + '\n' + fs.readFileSync(path.join(source, 'FONT-AWESOME-NOTICE.txt'), 'utf8');
 // 保留多行 CSS，讓安裝後的完整腳本也能閱讀與修改。
 const styleLiteral =
   '`' +
-  css.replaceAll('\\', '\\\\').replaceAll('`', '\\`').replaceAll('${', '\\${') +
+  fs.readFileSync(path.join(source, 'enhancements.css'), 'utf8').replaceAll('\\', '\\\\').replaceAll('`', '\\`').replaceAll('${', '\\${') +
   '`';
+const userscriptCore = core.replace(studioCatalog, userscriptStudioCatalog).replace(opencc, '');
 // Keep a stable DOM marker so installed scripts replace the older local
 // preview on this development browser, instead of running two renderers.
 const legacyGuard = `const reserve=()=>{if(!document.documentElement)return false;const marker=document.createElement('meta');marker.name='anigamer-ambilight-userscript';marker.dataset.aniPreview='installed';marker.dataset.aniV1='installed';document.documentElement.append(marker);return true;};if(!reserve()){const observer=new MutationObserver(()=>{if(reserve())observer.disconnect();});observer.observe(document,{childList:true,subtree:true});}`;
 const bundled =
   metadata +
-  `\n/* Inspired by WesselKroos/youtube-ambilight and iceorange-dev/bilibili-ambilight.\nhttps://github.com/WesselKroos/youtube-ambilight\nhttps://github.com/iceorange-dev/bilibili-ambilight\n${license}\n*/\n(()=>{\n'use strict';\n// 一、避免與舊版開發預覽重複執行\n${legacyGuard}\nGM_addStyle(${JSON.stringify(entryCss)});\n${entryScript}\nconst start=()=>{\n// 二、使用者設定儲存\n${bridge}\n// 三、主題與設定介面樣式\nGM_addStyle(${styleLiteral});\n// 四、設定定義與表單\n${settingsModule}\n// 五、黑條辨識\n${blackBars}\n// 六、光暈渲染\n${renderer}\n// 七、頁面整合與生命週期\n${core.replaceAll('__ANI_MEMBERSHIP_BACKGROUND__',membershipBackground)}\nGM_registerMenuCommand('設定',()=>document.querySelector('.ani-view-settings')?.click());\n};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();\n})();\n`;
-fs.writeFileSync(
-  path.join(out, 'ani-ambilight.user.js'),
-  await format(bundled, {
+  `\n/* Inspired by WesselKroos/youtube-ambilight and iceorange-dev/bilibili-ambilight.\nhttps://github.com/WesselKroos/youtube-ambilight\nhttps://github.com/iceorange-dev/bilibili-ambilight\n${license}\n*/\n(()=>{\n'use strict';\n// 一、避免與舊版開發預覽重複執行\n${legacyGuard}\nGM_addStyle(${JSON.stringify(entryCss)});\n${entryScript}\nconst start=()=>{\n// 二、使用者設定儲存\n${bridge}\n// 三、主題與設定介面樣式\nconst repairsLines=GM_getResourceText('ani_repairs_css').replaceAll('\\r\\n','\\n').split('\\n');\nfor(const [start,count,added] of ${JSON.stringify(repairsChanges)}.reverse()) repairsLines.splice(start,count,...added);\nGM_addStyle(['ani_content_css','ani_effects_css','ani_settings_css','ani_hero_css','ani_dashboard_css'].map(name => GM_getResourceText(name)).join('\\n') + '\\n' + repairsLines.join('\\n') + '\\n' + ${styleLiteral});\n// 四、設定定義與表單\n${settingsModule}\n// 五、黑條辨識\n${blackBars}\n// 六、光暈渲染\n${renderer}\n// 七、頁面整合與生命週期\n${userscriptCore.replaceAll('__ANI_MEMBERSHIP_BACKGROUND__',membershipBackground)}\nGM_registerMenuCommand('設定',()=>document.querySelector('.ani-view-settings')?.click());\n};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();\n})();\n`;
+const formattedUserscript = await format(bundled, {
     parser: 'babel',
     singleQuote: true,
     printWidth: 100,
-  }),
-);
+  });
+if (Buffer.byteLength(formattedUserscript, 'utf8') > 2_000_000) {
+  throw new Error('Userscript exceeds Greasy Fork’s 2 MB limit.');
+}
+fs.writeFileSync(path.join(out, 'ani-ambilight.user.js'), formattedUserscript);
 
 const extension = path.join(out, 'extension');
 fs.mkdirSync(extension, { recursive: true });
