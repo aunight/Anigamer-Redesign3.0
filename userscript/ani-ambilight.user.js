@@ -7814,14 +7814,14 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
 
       function mount(opts = {}) {
         const isHome = location.pathname === '/' || location.pathname === '/index.php';
-        const enabled = opts.enabled !== false && opts.themeEnabled !== false;
+        const themeEnabled = opts.themeEnabled !== false;
         const showFp = opts.showFootprint !== false;
         const showWx = opts.showWeather !== false;
 
-        startTracking(opts.enabled !== false && showFp);
+        startTracking(showFp);
 
         const existing = document.querySelector('#BH_background .ani-home-dash');
-        if (!isHome || !enabled || (!showFp && !showWx)) {
+        if (!isHome || !themeEnabled || (!showFp && !showWx)) {
           if (existing) {
             existing.querySelectorAll('section').forEach((s) => s._aniDispose?.());
             existing.remove();
