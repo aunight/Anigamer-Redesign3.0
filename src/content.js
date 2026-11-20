@@ -215,6 +215,9 @@
     document.addEventListener('playing', restoreSpeed, true);
     document.addEventListener('durationchange', syncDanmuHeat, true);
     document.addEventListener('playing', syncDanmuHeat, true);
+    document.addEventListener('change', (event) => {
+      if (event.target.matches?.('input[data-ani-plus-danmu-heat]')) syncDanmuHeat();
+    }, true);
     document.addEventListener('click', (event) => {
       if (!settings.themeEnabled) return;
       const item = event.target.closest?.('#ani_video .vjs-playback-rate .vjs-menu-item');
@@ -2822,7 +2825,9 @@
     const chart = progress?.querySelector('.ani-danmu-heat');
     const duration = player?.querySelector('video')?.duration;
     const sn = new URLSearchParams(location.search).get('sn') || '';
+    const plusHeat = document.querySelector('input[data-ani-plus-danmu-heat]');
     if (!fontSettingsKnown || !settings.themeEnabled || !settings.showDanmuHeat ||
+        plusHeat?.checked === false ||
         player?.matches(NON_EPISODE_PLAYER_SELECTOR) || !progress ||
         !Number.isFinite(duration) || duration <= 0 || !/^\d+$/.test(sn)) {
       chart?.remove();
@@ -7035,6 +7040,13 @@
         if (panelEl.closest('.ani-drawer-slot-extra')) {
           for (const fRow of panelEl.querySelectorAll('.ani-plus-form-row')) {
             const titleEl = fRow.querySelector(':scope > .ani-plus-row-title') || fRow.querySelector('.ani-plus-row-title');
+            if (titleEl?.querySelector('[data-ani-row-key="dm-track"]')) {
+              const toggle = fRow.querySelector('input[type="checkbox"]:not([data-ani-plus-danmu-heat])');
+              if (toggle) {
+                toggle.setAttribute('data-ani-plus-danmu-heat', '');
+                syncDanmuHeat();
+              }
+            }
             if (titleEl) {
               const firstIc = fRow.querySelector('.ani-row-icon');
               if (firstIc) {
