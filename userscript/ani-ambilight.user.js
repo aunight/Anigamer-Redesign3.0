@@ -575,6 +575,7 @@ body.ani-ambientlight-ui #BH_background #sub_list .edit.ani-danmu-action-icon > 
 
 body.ani-ambientlight-ui #BH_background .animate-theme-list > [data-ani-region="news"] {
   order: -1 !important;
+  border-block-end: 0 !important;
 }
 
 body.ani-ambientlight-ui #BH_background .animate-theme-list > [data-ani-region="news"][aria-expanded="true"] {
@@ -19913,9 +19914,9 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
               'ani-tab-content-rating',
             ]);
             for (const item of [...tabs.children]) {
-              const link = item.matches('a, button, #setting-aniplus')
+              const link = item.matches('.ani-tabs-link, a, button, #setting-aniplus')
                 ? item
-                : item.querySelector('a, button, #setting-aniplus');
+                : item.querySelector('.ani-tabs-link, a, button, #setting-aniplus');
               if (!link) continue;
               const href = (link.getAttribute('href') || '').trim();
               const id =

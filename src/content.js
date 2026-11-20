@@ -7714,7 +7714,7 @@
       const relocateExtraTabs = () => {
         const keepIds = new Set(['ani-tab-content-1', 'ani-tab-content-intro', 'ani-tab-content-rating']);
         for (const item of [...tabs.children]) {
-          const link = item.matches('a, button, #setting-aniplus') ? item : item.querySelector('a, button, #setting-aniplus');
+          const link = item.matches('.ani-tabs-link, a, button, #setting-aniplus') ? item : item.querySelector('.ani-tabs-link, a, button, #setting-aniplus');
           if (!link) continue;
           const href = (link.getAttribute('href') || '').trim();
           const id = link.id === 'setting-aniplus' ? 'ani-tab-content' : href.startsWith('#') ? href.slice(1) : '';

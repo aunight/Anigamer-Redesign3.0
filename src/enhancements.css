@@ -187,6 +187,7 @@ body.ani-ambientlight-ui #BH_background #sub_list .edit.ani-danmu-action-icon > 
 
 body.ani-ambientlight-ui #BH_background .animate-theme-list > [data-ani-region="news"] {
   order: -1 !important;
+  border-block-end: 0 !important;
 }
 
 body.ani-ambientlight-ui #BH_background .animate-theme-list > [data-ani-region="news"][aria-expanded="true"] {
