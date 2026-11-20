@@ -27,7 +27,12 @@ const renderer = fs.readFileSync(
 const workOrigin = fs.readFileSync(path.join(source, 'work-origin.js'), 'utf8');
 const episodeData = fs.readFileSync(path.join(source, 'episode-data.js'), 'utf8');
 const opencc = fs.readFileSync(path.join(root, 'node_modules/opencc-js/dist/umd/cn2t.js'), 'utf8');
-const core = workOrigin + "\n" + opencc + "\n;" + episodeData + "\n" +
+const studioCatalog = fs.readFileSync(path.join(source, 'studio-catalog.js'), 'utf8')
+  .replace('STUDIO_CATALOG_DATA', () => fs.readFileSync(path.join(source, 'studio-catalog.json'), 'utf8'))
+  .replace('STUDIO_PROFILE_DATA', () => fs.readFileSync(path.join(source, 'studio-profiles.json'), 'utf8'))
+  .replace('STUDIO_DIRECTORY_ICON_DATA', () => fs.readFileSync(path.join(source, 'studio-directory-icons.json'), 'utf8'))
+  .replace('STUDIO_LOGO_DATA', () => fs.readFileSync(path.join(source, 'studio-logos.json'), 'utf8'));
+const core = studioCatalog + "\n" + workOrigin + "\n" + opencc + "\n;" + episodeData + "\n" +
   fs.readFileSync(path.join(source, 'hero-banner.js'), 'utf8') +
   '\n' +
   fs.readFileSync(path.join(source, 'home-dashboard.js'), 'utf8') +
@@ -81,6 +86,7 @@ const metadata = `// ==UserScript==
 // @grant        GM_registerMenuCommand
 // @grant        GM_xmlhttpRequest
 // @connect      truth.bahamut.com.tw
+// @connect      gnn.gamer.com.tw
 // @connect      p2.bahamut.com.tw
 // @connect      i2.bahamut.com.tw
 // @connect      acg.gamer.com.tw
@@ -157,6 +163,7 @@ for (const file of [
   'LICENSE',
 ])
   fs.copyFileSync(path.join(source, file), path.join(extension, file));
+fs.writeFileSync(path.join(extension, 'studio-catalog.js'), studioCatalog);
 fs.writeFileSync(path.join(extension, 'opencc.js'), opencc);
 fs.writeFileSync(path.join(extension, 'hero-cache-worker.js'), workOrigin + '\n' + episodeData + '\n' + fs.readFileSync(path.join(source, 'hero-cache-worker.js'), 'utf8'));
 fs.cpSync(path.join(root, 'node_modules/opencc-js/LICENSES'), path.join(extension, 'opencc-licenses'), { recursive: true });

@@ -36,10 +36,10 @@
 body .ani-view-settings-panel {
   display: flex;
   flex-direction: column;
-  width: min(480px, calc(100% - 32px)) !important;
+  width: min(560px, calc(100% - 32px)) !important;
   height: min(800px, calc(100dvh - 96px));
   max-height: min(800px, calc(100dvh - 96px));
-  padding: 20px !important;
+  padding: 20px 20px 2px !important;
   overflow: hidden;
   overscroll-behavior: contain;
   border: 1px solid var(--ani-editor-line);
@@ -60,10 +60,17 @@ body .ani-view-settings-panel .ani-settings-heading {
   padding: 0 0 12px;
   background: transparent;
 }
+.ani-settings-scroll-frame {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
 .ani-settings-scroll {
   flex: 1;
   min-height: 0;
-  padding: 4px 12px 16px 0;
+  min-width: 0;
+  padding: 4px 12px 24px 0;
   overflow: auto;
   overscroll-behavior: contain;
   scroll-padding-top: 80px;
@@ -782,11 +789,12 @@ body .ani-view-settings-panel .ani-method-list button[aria-pressed='true'],
 @media (min-width: 1024px) {
   body .ani-view-settings-panel {
     inset: auto !important;
-    top: 50% !important;
+    top: 48% !important;
     left: 50% !important;
-    width: min(1040px, calc(100% - 64px)) !important;
+    width: min(1200px, calc(100% - 64px)) !important;
+    height: min(900px, calc(100dvh - 64px));
     max-height: calc(100dvh - 64px);
-    padding: 24px 28px !important;
+    padding: 18px 28px 2px !important;
     transform: translate(-50%, -50%) !important;
   }
   .ani-settings-home {
@@ -822,7 +830,9 @@ body .ani-view-settings-panel .ani-method-list button[aria-pressed='true'],
   }
   .ani-settings-detail {
     display: grid;
-    grid-template-columns: 190px minmax(0, 1fr);
+    position: relative;
+    min-height: 100%;
+    grid-template-columns: var(--settings-rail-width, 190px) minmax(0, 1fr);
     grid-template-rows: min-content minmax(0, 1fr);
     gap: 0 28px;
     align-items: start;
@@ -836,7 +846,6 @@ body .ani-view-settings-panel .ani-method-list button[aria-pressed='true'],
     top: 6px;
     gap: 4px;
     padding-right: 20px;
-    border-right: 1px solid var(--ani-editor-line);
   }
   body .ani-view-settings-panel .ani-settings-rail button {
     min-height: 46px;
@@ -882,9 +891,9 @@ body .ani-view-settings-panel .ani-method-list button[aria-pressed='true'],
 /* 七、手機：面板貼齊視窗，分類先選後進入。 */
 @media (max-width: 700px) {
   body .ani-view-settings-panel {
-    inset: 12px 12px auto;
+    inset: 8px 12px auto;
     width: auto !important;
-    height: calc(100dvh - 122px);
+    height: calc(100dvh - 24px);
     max-height: calc(100dvh - 24px);
     border-radius: 16px;
   }
@@ -960,7 +969,7 @@ body .ani-view-settings-panel {
   box-shadow: 0 24px 64px -12px rgb(0 0 0 / 60%);
 }
 body .ani-view-settings-panel .ani-settings-heading h2 {
-  font-size: 20px;
+  font-size: clamp(22px, 2.15vw, 30px);
   font-weight: 700;
 }
 
@@ -1131,32 +1140,77 @@ body .ani-view-settings-panel .ani-method-list button[aria-pressed='true'],
 .ani-view-settings-panel [data-settings-detail]:has([data-settings-page="credit"]:not([hidden])) [data-category-title] {
   font-size:clamp(25px,3vw,32px) !important;
 }
-.ani-view-settings-panel .ani-settings-heading {position:relative;z-index:1}
-.ani-view-settings-panel.ani-settings-scrolled .ani-settings-scroll {
-  --settings-top-fade:26px;
+@property --settings-top-fade {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
 }
-.ani-view-settings-panel.ani-settings-more .ani-settings-scroll {
-  --settings-bottom-fade:26px;
+body .ani-view-settings-panel .ani-settings-heading { position: relative; z-index: 1; }
+.ani-view-settings-panel.ani-settings-scrolled .ani-settings-scroll {
+  --settings-top-fade: 22px;
 }
 .ani-view-settings-panel .ani-settings-scroll {
-  mask-image:linear-gradient(to bottom,transparent,#000 var(--settings-top-fade,0px),#000 calc(100% - var(--settings-bottom-fade,0px)),transparent);
+  --settings-edge-mask: linear-gradient(to bottom, transparent, #000 var(--settings-top-fade, 0px), #000 calc(100% - 6px), transparent);
+  mask-image: var(--settings-edge-mask);
+  transition: --settings-top-fade 160ms ease-out;
 }
-.ani-view-settings-panel.ani-settings-more::after {
+.ani-view-settings-panel::after,
+.ani-view-settings-panel .ani-settings-heading::after {
   content: '';
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 36px;
   pointer-events: none;
-  background: linear-gradient(to top, rgb(0 0 0 / 28%), transparent);
-  backdrop-filter: blur(5px);
-  mask-image: linear-gradient(to top, black, transparent);
-  border-radius: 0 0 20px 20px;
+  mask-image: linear-gradient(to right, transparent, #000 16px, #000 calc(100% - 16px), transparent);
 }
-.ani-view-settings-panel.ani-settings-scrolled .ani-settings-heading::after {
-  content:'';position:absolute;inset:100% 0 auto;height:24px;pointer-events:none;
-  background:linear-gradient(to bottom,rgb(0 0 0 / 13%),transparent);
-  backdrop-filter:blur(5px);
-  mask-image:linear-gradient(to bottom,#000,transparent);
+.ani-view-settings-panel::after {
+  --settings-bottom-fade: linear-gradient(to top, #000, rgb(0 0 0 / 38%) 38%, rgb(0 0 0 / 12%) 65%, transparent);
+  inset: auto 0 0;
+  height: 22px;
+  background: linear-gradient(to top, rgb(0 0 0 / 34%), rgb(0 0 0 / 24%) 38%);
+  backdrop-filter: blur(5px);
+  mask-image: var(--settings-bottom-fade);
+}
+.ani-view-settings-panel .ani-settings-heading::after {
+  inset: calc(100% + 12px) 0 auto;
+  height: 22px;
+  opacity: 0;
+  transition: opacity 160ms ease-out;
+  mask-image: linear-gradient(to right, transparent, #000 5px, #000 calc(100% - 16px), transparent);
+  background: linear-gradient(to bottom, rgb(0 0 0 / 10%), rgb(0 0 0 / 3%) 50%, transparent);
+}
+.ani-view-settings-panel.ani-settings-scrolled .ani-settings-heading::after { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .ani-view-settings-panel .ani-settings-scroll,
+  .ani-view-settings-panel .ani-settings-heading::after {
+    transition: none;
+  }
+}
+@media (min-width: 1024px) {
+  .ani-view-settings-panel:has([data-settings-detail]:not([hidden])) {
+    --settings-rail-width: 190px;
+    --settings-divider: calc(var(--settings-rail-width) - 1px);
+    --settings-content-start: calc(var(--settings-rail-width) + 28px);
+  }
+  .ani-view-settings-panel:has([data-settings-detail]:not([hidden])) .ani-settings-scroll-frame::before {
+    content: '';
+    position: absolute;
+    inset: 12px auto 0 var(--settings-divider);
+    width: 1px;
+    z-index: 1;
+    background: linear-gradient(to bottom, transparent, var(--ani-editor-line) 5%, var(--ani-editor-line) 95%, transparent);
+    pointer-events: none;
+  }
+  .ani-view-settings-panel:has([data-settings-detail]:not([hidden])) .ani-settings-scroll {
+    mask-image: linear-gradient(#000, #000), var(--settings-edge-mask);
+    mask-size: var(--settings-rail-width) 100%, calc(100% - var(--settings-rail-width)) 100%;
+    mask-position: left, right;
+    mask-repeat: no-repeat;
+  }
+  .ani-view-settings-panel:has([data-settings-detail]:not([hidden])) .ani-settings-heading::after {
+    inset-inline: var(--settings-divider) 12px;
+  }
+  .ani-view-settings-panel:has([data-settings-detail]:not([hidden]))::after {
+    inset-inline: calc(28px + var(--settings-content-start)) 0;
+    mask-image: var(--settings-bottom-fade), linear-gradient(to right, transparent, #000 16px);
+    mask-composite: intersect;
+  }
 }

@@ -444,8 +444,16 @@ body.ani-theater-layout .subtitle #sub_list .sub-list-li > div:first-child {
   padding-block: var(--ani-danmu-row-spacing, 10px) !important;
 }
 body.ani-hide-info #BH_background section.data,
-body.ani-hide-related #BH_background > .container-player > :is(.old_list, .ani-watch-related-row),
-body.ani-hide-news #BH_background > .container-player > .animate-theme-list,
+body.ani-hide-info #BH_background .subtitle :is(.ani-tabs__item:has(> [href="#ani-tab-content-intro"]), #ani-tab-content-intro),
+body.ani-hide-related #BH_background > .container-player:has(> section.player) > .old_list,
+body.ani-hide-related #BH_background .ani-watch-related-row > .ani-watch-col.ani-watch-col-related,
+body.ani-hide-merch #BH_background > .container-player:has(> section.player) > :is(.store, .ani-merch-section),
+body.ani-hide-merch #BH_background .ani-watch-related-row > .ani-watch-col.ani-watch-col-merch,
+body.ani-hide-related.ani-hide-merch #BH_background > .container-player:has(> section.player) > .ani-watch-related-row:has(> .ani-watch-col),
+body.ani-hide-related #BH_background > .container-player:has(> section.player) > .ani-watch-related-row:not(:has(> .ani-watch-col-merch)),
+body.ani-hide-merch #BH_background > .container-player:has(> section.player) > .ani-watch-related-row:not(:has(> .ani-watch-col-related)),
+body.ani-hide-news #BH_background > .container-player:has(> section.player) > .animate-theme-list:has(.theme-extend-block),
+body.ani-hide-home-news.ani-home-page #BH_background #blockGNN,
 body.ani-hide-comments #BH_background :is(.commend-title, #w-post-box) {
   display: none !important;
 }
@@ -1604,23 +1612,6 @@ body.ani-layout-comments #w-post-box .comment_icon a {
 body.ani-ambientlight-ui #w-post-box :is(.reply-input, .input-article-content) {
   background: var(--ani-panel-soft) !important;
 }
-@media (min-width: 1000px) {
-  body.ani-layout-comments.ani-comments-double
-    #BH_background
-    :is(.commend-title, #w-post-box) {
-    width: min(
-      calc(100% - 48px),
-      calc(var(--ani-comment-width, 880px) * 1.5)
-    ) !important;
-    max-width: 1600px !important;
-  }
-  body.ani-layout-comments.ani-comments-double #w-post-box [id^='CBX'] {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0 24px;
-    align-items: start;
-  }
-}
 @media (max-width: 600px) {
   body.ani-layout-comments #BH_background .commend-title {
     padding: 16px !important;
@@ -2001,20 +1992,6 @@ body.ani-layout-comments #BH_background #w-post-box .reply-content__gpbp p {
   padding: 0 !important;
   margin: 0 !important;
   line-height: 1 !important;
-}
-@media (min-width: 1000px) {
-  body.ani-layout-comments.ani-comments-double
-    #w-post-box
-    [id^='CBX']
-    > .c-reply__item:not(.c-reply__editor) {
-    align-self: stretch;
-  }
-  body.ani-layout-comments.ani-comments-double
-    #w-post-box
-    .reply-content:not(.c-reply__editor .reply-content) {
-    grid-template-rows: auto 1fr auto auto;
-    align-content: start;
-  }
 }
 @media (pointer: coarse) {
   body.ani-layout-comments

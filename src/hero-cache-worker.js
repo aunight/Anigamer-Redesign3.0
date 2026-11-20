@@ -1,4 +1,12 @@
 chrome.runtime.onMessage.addListener((message, sender, reply) => {
+  if (message?.type === 'ani-conan-related-news' && sender.tab?.url?.startsWith('https://ani.gamer.com.tw/')) {
+    const id = String(message.articleId ?? '312186');
+    if (!/^\d{1,9}$/.test(id)) return;
+    fetch(`https://gnn.gamer.com.tw/detail.php?sn=${id}`, { signal: AbortSignal.timeout(8000) })
+      .then(response => response.ok ? response.text() : '')
+      .then(html => reply({ html }), () => reply({ html: '' }));
+    return true;
+  }
   if (message?.type === 'ani-fetch-ip') {
     (async () => {
       try {

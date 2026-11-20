@@ -57,7 +57,7 @@ test('catalog retains native actions, sorts loaded and late scores, and folds fi
   d.querySelector('.ani-load-more').click();
   await new Promise(resolve=>setTimeout(resolve,1800));
   assert.equal(d.querySelectorAll('.theme-list-main').length,3,'infinite loading deduplicates existing works');
-  assert.equal(d.querySelector('.ani-load-more').textContent,'已顯示全部動畫（共 3 部）');
+  assert(d.querySelector('.ani-load-more').hidden);
   const seasonal = d.querySelector('a[href$="sn=3"]');
   w.fetch = async () => ({ok:true,text:async()=>`<div class="season"><ul>${Array.from({length:10},(_,i)=>`<li><a>${41+i}</a></li>`).join('')}</ul></div>`});
   seasonal.querySelector('.theme-number').textContent = '共10集';

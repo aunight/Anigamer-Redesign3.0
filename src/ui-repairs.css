@@ -53,14 +53,16 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.animate-theme
   --ani-poster-footer: 80px;
   position: relative !important; display: block !important; height: auto !important;
   min-height: 0 !important; aspect-ratio: auto !important; box-sizing: border-box !important;
-  padding: 0 !important; overflow: visible !important;
+  padding: 0 !important; overflow: visible !important; border-radius: var(--ani-radius,12px) !important;
   transform: none !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.animate-theme-list, .old_list) .theme-list-main.ani-poster-card .anime-detail-block {
+  --ani-poster-footer-radius: var(--ani-radius,12px);
   position: relative !important; inset: auto !important;
   width: 100% !important; height: auto !important; min-height: var(--ani-poster-footer) !important;
   display: block !important; padding: 8px !important; margin: 0 !important;
-  box-sizing: border-box !important; border: 0 !important; border-radius: 0 0 12px 12px;
+  box-sizing: border-box !important; border: 0 !important;
+  border-radius: 0 0 var(--ani-poster-footer-radius) var(--ani-poster-footer-radius);
   background: var(--ani-card-bg,#172332) !important; overflow: visible !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.animate-theme-list, .old_list) .theme-list-main.ani-poster-card:is(:hover,:focus-within) .anime-detail-block { height: auto !important; }
@@ -100,7 +102,7 @@ body.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background
 }
 body.ani-ambientlight-ui #BH_background .theme-list-main.ani-poster-card > .ani-hover-outline {
   display: block !important; position: absolute; inset: 0 0 auto; width: 100%; pointer-events: none;
-  height: 100%; border: 1px solid var(--ani-line) !important; border-radius: var(--ani-radius,12px); box-sizing: border-box; z-index: 20;
+  height: 100%; border: 1px solid var(--ani-line) !important; border-radius: inherit; box-sizing: border-box; z-index: 20;
 }
 body.ani-ambientlight-ui #BH_background .theme-list-main.ani-poster-card:is(:hover,:focus-within) > .ani-hover-outline { border-color: var(--ani-accent) !important; }
 body.ani-catalog-page #BH_background .class-header { display: flex !important; flex-direction: column !important; align-items: flex-start !important; gap: 4px; }
@@ -152,7 +154,7 @@ body.ani-ambientlight-ui #BH_background #blockVideoInSeason .premium-info .ani-p
 body.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,#blockAnimeNewArrive,.animate-theme-list) .theme-list-main.ani-poster-card .theme-time { flex: 1 1 auto !important; min-width: 0; white-space: nowrap !important; overflow: hidden; text-overflow: ellipsis; }
 body.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,#blockAnimeNewArrive,.animate-theme-list) .theme-list-main.ani-poster-card .anime-detail-block { transition: none !important; }
 body.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,#blockAnimeNewArrive,.animate-theme-list) .theme-list-main.ani-poster-card:is(:hover,:focus-within) .theme-name { display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
-body.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-poster-rail .theme-list-block { mask-image: none !important; -webkit-mask-image: none !important; overflow: visible !important; clip-path: inset(-8px 0 -240px 0); }
+body.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-poster-rail:not(:where(.ani-studio-row *)) .theme-list-block { mask-image: none !important; -webkit-mask-image: none !important; overflow: visible !important; clip-path: inset(-8px 0 -240px 0); }
 body.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-poster-rail { overflow: visible !important; }
 body.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background > .container > .animate-theme-list { overflow: visible !important; }
 body.ani-ambientlight-ui #BH_background #blockVideoInSeason .anime-card-block .anime-name { font-size: 16px !important; }
@@ -368,6 +370,7 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani-info .data_ty
   body.ani-theme-light.ani-ambientlight-ui { --ani-glass: #f6f7f8; --ani-glass-hover: #fff; }
 }
 .ani-load-more { display: block; margin: 24px auto; padding: 12px 24px; border: 1px solid var(--ani-line); border-radius: 999px; color: var(--ani-text); background: var(--ani-glass); cursor: pointer; }
+.ani-load-more[hidden] { display: none !important; }
 body.ani-catalog-page .page_control[data-ani-infinite] { display: none !important; }
 /* Lightweight procedural backgrounds, independently selected from video glow. */
 [data-ani-background='silk'],[data-bg-style='silk'] { --ani-scene: repeating-conic-gradient(from 30deg at 30% 60%,#111521 0deg,#645c9866 30deg,#bdafd766 40deg,#111521 80deg); }
@@ -481,6 +484,11 @@ body.ani-ambientlight-ui #blockVideoInSeason .programlist-wrap .ani-week-expand,
 .ani-week-expand::after { grid-column: 3; grid-row: 1; }
 .ani-week-expand > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 .ani-week-expand svg { grid-column: 2; grid-row: 1; box-sizing: border-box; width: 44px; height: 44px; padding: 12px; border: 1px solid var(--ani-line); border-radius: 8px; background: var(--ani-glass); backdrop-filter: blur(16px); }
+#BH_background button.ani-week-expand:is(:hover, :focus-visible) > svg {
+  color: var(--ani-accent, #8cc5ed);
+  border-color: currentColor;
+  background: color-mix(in srgb, currentColor 28%, var(--ani-panel-soft, #192636));
+}
 body.ani-ambientlight-ui #BH_background #blockVideoInSeason .text-anime-info { box-shadow: none !important; }
 /* The footer's blur must not become the backdrop root of the image capsules. */
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .content-block { z-index: 1; background: transparent !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
@@ -564,7 +572,7 @@ body.ani-ambientlight-ui #BH_background .ani-poster-card .ani-poster-labels .lab
 /* Edge shading covers the images only; it cannot clip the expanding footer. */
 body.ani-ambientlight-ui #BH_background .ani-poster-rail::before,
 body.ani-ambientlight-ui #BH_background .ani-poster-rail::after { display: none !important; content: none !important; }
-body.ani-ambientlight-ui #BH_background .ani-poster-rail .theme-list-block { mask-image: none !important; -webkit-mask-image: none !important; }
+body.ani-ambientlight-ui #BH_background .ani-poster-rail:not(:where(.ani-studio-row *)) .theme-list-block { mask-image: none !important; -webkit-mask-image: none !important; }
 body.ani-ambientlight-ui #BH_background #continueWatch::before,
 body.ani-ambientlight-ui #BH_background #continueWatch::after { display: none !important; content: none !important; }
 body.ani-ambientlight-ui #BH_background #continueWatch .slick-list { mask-image: none !important; -webkit-mask-image: none !important; }
@@ -646,7 +654,6 @@ body.ani-history-page.ani-ambientlight-page #BH_background .ani-history-card .pl
 body.ani-history-page.ani-ambientlight-page #BH_background .ani-history-card .btn-set i { color: inherit !important; font-size: 26px !important; }
 body.ani-history-page.ani-ambientlight-page #BH_background .ani-history-card .delete-btn { top: 8px !important; right: 8px !important; width: 28px !important; height: 28px !important; z-index: 3; opacity: .55; }
 body.ani-history-page.ani-ambientlight-page #BH_background .user-watchTime-list { grid-column: var(--ani-history-column,1) / span 1 !important; position: relative !important; width: 100% !important; float: none !important; margin: 0 !important; padding: 0 !important; clear: none !important; box-sizing: border-box !important; }
-body.ani-history-page.ani-ambientlight-page #BH_background .user-watchTime-list::before { display: none !important; content: none !important; }
 body.ani-history-page.ani-ambientlight-ui #BH_background .watch-list-card { position: relative; background: #d8eaff09 !important; border: 1px solid #cedeed66 !important; border-radius: 16px !important; padding: 10px 24px !important; backdrop-filter: blur(24px); max-height: 290px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #9bafc366 transparent; }
 body.ani-history-page.ani-ambientlight-page #BH_background .user-watch-textlist { margin: 0 !important; height: auto !important; max-height: none !important; overflow: visible !important; padding-right: 12px !important; box-sizing: border-box; }
 body.ani-history-page.ani-ambientlight-ui #BH_background .watch-list-card { padding-right: 12px !important; scrollbar-gutter: stable; }
@@ -697,10 +704,6 @@ body.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .info-row > :is(.episode-block,.ani-continue-position) { position: relative; z-index: 6; background: linear-gradient(135deg,rgba(97,159,188,.88),rgba(64,119,150,.82)) !important; color: #fff !important; opacity: 1 !important; filter: none !important; }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #blockContinueWatch .info-row :is(.episode-watched,.ani-continue-position) { color: #fff !important; opacity: 1 !important; filter: none !important; }
 
-/* Reserve the compact footer; only its floating glass panel grows on hover. */
-body.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,#blockAnimeNewArrive,.animate-theme-list) .theme-list-main.ani-poster-card .anime-detail-block { height: var(--ani-poster-footer,80px) !important; }
-body.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,#blockAnimeNewArrive,.animate-theme-list) .theme-list-main.ani-poster-card:is(:hover,:focus-within) { z-index: 8; padding-bottom: var(--ani-poster-footer,80px) !important; }
-body.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,#blockAnimeNewArrive,.animate-theme-list) .theme-list-main.ani-poster-card:is(:hover,:focus-within) .anime-detail-block { position: absolute !important; inset: calc(100% - var(--ani-poster-footer,80px)) 0 auto !important; height: auto !important; min-height: var(--ani-poster-footer,80px) !important; z-index: 5; }
 body.ani-catalog-page.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,#blockAnimeNewArrive,.animate-theme-list) .theme-list-main.ani-poster-card:is(:hover,:focus-within) .anime-detail-block {
   background: color-mix(in srgb, var(--ani-base, #172332) 84%, transparent) !important;
   -webkit-backdrop-filter: blur(28px) saturate(120%) !important;
@@ -709,8 +712,7 @@ body.ani-catalog-page.ani-layout-related.ani-ambientlight-page.ani-ambientlight-
 body.ani-catalog-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .theme-list-main.ani-poster-card .anime-detail-block::before {
   filter: blur(18px) saturate(140%) !important;
 }
-body.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,#blockAnimeNewArrive,.animate-theme-list) .theme-list-main.ani-poster-card:is(:hover,:focus-within) .theme-name { height: auto !important; white-space: normal !important; overflow: visible !important; }
-.ani-poster-card:is(:hover,:focus-within) .theme-name .ani-title-marquee { white-space: normal; animation: none !important; transform: none !important; }
+.ani-poster-card.ani-card-has-overflow:is(:hover,:focus-within) .theme-name .ani-title-marquee { white-space: normal; animation: none !important; transform: none !important; }
 /* The image gradient is z=2. Its sibling footer used z=1, trapping even
    z=6 pills underneath the dark overlay. Keep the two stacking roots ordered. */
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .img-block { isolation: isolate; z-index: 0 !important; }
@@ -732,7 +734,7 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #blockVideoInSeaso
 /* Inner frost remains visible independently of the optional outer cover glow.
    Stretch the small sampled cover into this panel before blurring it; cropping
    a portrait at 85% samples a single flat colour instead of the artwork. */
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-poster-card .anime-detail-block::before { inset: -14px !important; background: var(--ani-card-cover,none) center/100% 100% no-repeat !important; filter: blur(12px) saturate(125%) !important; opacity: .58 !important; clip-path: inset(14px round 0 0 12px 12px); }
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-poster-card .anime-detail-block::before { inset: -14px !important; background: var(--ani-card-cover,none) center/100% 100% no-repeat !important; filter: blur(12px) saturate(125%) !important; opacity: .58 !important; clip-path: inset(14px round 0 0 var(--ani-poster-footer-radius,12px) var(--ani-poster-footer-radius,12px)); }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-poster-card .anime-detail-block::after { content: ''; display: block; position: absolute; inset: -12px; z-index: -2; border-radius: inherit; background: var(--ani-card-cover,none) center/100% 100% no-repeat; filter: blur(24px); opacity: var(--ani-card-glow-opacity,.3); pointer-events: none; }
 
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #blockContinueWatch .btn-next { background: #62ccd2eb !important; border: 1px solid #c2ffff80 !important; color: #082e3b !important; opacity: 1 !important; text-shadow: none !important; }
@@ -755,7 +757,6 @@ body.ani-history-page.ani-ambientlight-page #BH_background .watch-list-card { is
 /* Reserve footer geometry before hover to avoid switching layout modes. */
 body.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,#blockAnimeNewArrive,.animate-theme-list) .theme-list-main.ani-poster-card { padding-bottom: var(--ani-poster-footer,80px) !important; }
 body.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,#blockAnimeNewArrive,.animate-theme-list) .theme-list-main.ani-poster-card .anime-detail-block { position: absolute !important; inset: calc(100% - var(--ani-poster-footer,80px)) 0 auto !important; }
-.ani-poster-card .theme-name.ani-title-overflow { mask-image: linear-gradient(to right,transparent,#000 8px,#000 calc(100% - 14px),transparent); -webkit-mask-image: linear-gradient(to right,transparent,#000 8px,#000 calc(100% - 14px),transparent); }
 .ani-poster-card:is(:hover,:focus-within) .theme-name { mask-image: none !important; -webkit-mask-image: none !important; }
 body.ani-collection-page #BH_background .page_control[data-ani-infinite] { display: none !important; }
 body.ani-party-page.ani-ambientlight-ui #BH_background .party-kv-block { display: grid !important; grid-template-columns: minmax(0,1fr) minmax(280px,.9fr); align-items: center; gap: 40px; padding: clamp(28px,4vw,64px) !important; min-height: 0 !important; width: 100% !important; box-sizing: border-box; }
@@ -842,7 +843,11 @@ body.ani-ambientlight-ui #BH_background #continueWatch .slick-arrow[aria-disable
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #blockVideoInSeason .date-block :is(.pic-continue,.pic-selected-continue) { display: none !important; }
 body.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,#blockAnimeNewArrive,.animate-theme-list) .theme-list-main.ani-poster-card .anime-detail-block { padding-inline: 4px !important; }
 body.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,#blockAnimeNewArrive,.animate-theme-list) .theme-list-main.ani-poster-card .theme-info-block { padding-inline: 0 !important; }
-.ani-poster-card .theme-name.ani-title-overflow { mask-image: linear-gradient(to right,transparent,#000 4px,#000 calc(100% - 6px),transparent); -webkit-mask-image: linear-gradient(to right,transparent,#000 4px,#000 calc(100% - 6px),transparent); }
+.ani-poster-card .theme-name.ani-title-overflow {
+  --ani-poster-title-mask: linear-gradient(to right, transparent, #000 var(--ani-poster-title-fade, 4px), #000 calc(100% - var(--ani-poster-title-fade, 6px)), transparent);
+  -webkit-mask-image: var(--ani-poster-title-mask);
+  mask-image: var(--ani-poster-title-mask);
+}
 /* Compact membership hierarchy: summary, plans, ledger, notes. */
 body.ani-account-page.ani-account-has-plans #BH_background > .container { max-width: 1640px !important; margin-inline: auto !important; }
 body.ani-account-page #BH_background .usercard { padding: 0 !important; border-radius: 18px !important; }
@@ -868,13 +873,18 @@ body.ani-party-page #BH_background .ani-party-secondary .party-entrance-desc-blo
 body.ani-history-page .qa-icon img { filter: grayscale(1) brightness(1.2) !important; opacity: .7; }
 body.ani-history-page .qa-icon::after { background: #152233ed !important; color: #edf5fa !important; border: 1px solid #ffffff35; border-radius: 14px; padding: 14px 16px !important; backdrop-filter: blur(24px); box-shadow: 0 8px 24px #0003; font: 400 14px/1.7 system-ui,sans-serif !important; max-width: min(420px,80vw); }
 body.ani-history-page .qa-icon::before { border-bottom-color: #152233ed !important; }
-body.ani-history-page.ani-ambientlight-page #BH_background .user-watchTime-list { height: auto !important; opacity: 1 !important; overflow: visible !important; }
+body.ani-history-page.ani-ambientlight-page #BH_background .user-watchTime-list { height: auto !important; opacity: 1; overflow: visible !important; }
 body.ani-history-page .history-wrapper .anime-btn-show-more { border: 0 !important; background: transparent !important; }
 body.ani-history-page .history-wrapper .anime-btn-show-more :is(.before,.after) { display: none !important; }
 @media(max-width:800px) { .ani-membership-summary { grid-template-columns: 1fr; gap: 16px; } }
 @media(max-width:600px) { body.ani-party-page #BH_background .party-info .content { white-space: normal; } }
 
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-poster-card .theme-img-block > .ani-poster-labels { bottom: 8px !important; align-items: center !important; margin: 0 !important; }
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-studio-row .theme-img-block > .ani-poster-labels {
+  flex-direction: column;
+  align-items: flex-start !important;
+  max-width: none;
+}
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-poster-card .ani-poster-labels .label-edition { position: static !important; display: inline-flex; align-items: center; justify-content: center; margin: 0 !important; transform: none !important; min-height: 32px; }
 body.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,#blockAnimeNewArrive,.animate-theme-list) .theme-list-main.ani-poster-card .theme-number { min-height: 26px !important; box-sizing: border-box; justify-content: center; }
 body.ani-ambientlight-ui #BH_background .ani-poster-card .theme-time.ani-release-date { display: inline-flex !important; align-items: center; gap: 5px; }
@@ -1188,6 +1198,8 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #blockVideoInSeaso
 .ani-section-icon { display:block;width:28px;height:28px;flex:none;color:#d5e1ec; }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-more-capsule { display:inline-flex !important;align-items:center !important;justify-content:center;gap:8px;position:static !important;width:auto !important;height:auto !important;min-height:34px !important;padding:7px 14px !important;border:1px solid #cee6f53d !important;border-radius:999px !important;background:linear-gradient(135deg,#c3e3f51a,#b5d5f008) !important;backdrop-filter:blur(18px);color:var(--ani-text) !important;font:500 13px/20px var(--ani-font,system-ui,sans-serif) !important;text-decoration:none;box-sizing:border-box; }
 .ani-more-capsule > svg { width:17px;height:17px;flex:none; }
+.ani-more-capsule::before, .ani-more-capsule::after,
+.ani-more-capsule > p::before, .ani-more-capsule > p::after { content: none !important; }
 .ani-more-capsule > p { margin:0 !important;padding:0 !important;line-height:inherit !important;font:inherit !important; }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-more-capsule:hover { background:#bfe9f52d !important;border-color:#bfe9f580 !important; }
 /* Titles and excerpts determine card height on home and video pages alike. */
@@ -1197,10 +1209,10 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .extend-card:first
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .extend-card .extend-pic-block { position:relative !important;inset:auto !important;width:100% !important;height:auto !important;min-height:180px;aspect-ratio:auto !important;overflow:hidden;border-radius:17px 0 0 17px; }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .extend-pic-block img { position:absolute !important;inset:0;width:100% !important;height:100% !important;object-fit:cover; }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .extend-card .extend-content-block { position:static !important;display:flex !important;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:12px;padding:20px !important;width:auto !important;min-width:0;height:auto !important;max-height:none !important;overflow:visible !important;box-sizing:border-box; }
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .extend-card .extend-title { display:block !important;position:static !important;white-space:normal !important;overflow:visible !important;-webkit-line-clamp:unset !important;width:auto !important;height:auto !important;max-height:none !important;margin:0 !important;font-size:16px !important;line-height:1.55 !important;overflow-wrap:anywhere; }
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .extend-card .extend-content { display:block !important;position:static !important;white-space:normal !important;overflow:visible !important;-webkit-line-clamp:unset !important;width:auto !important;height:auto !important;max-height:none !important;margin:0 !important;font-size:13px !important;line-height:1.7 !important;overflow-wrap:anywhere;color:var(--ani-muted); }
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .extend-card .extend-title { display:block !important;position:static !important;white-space:normal !important;overflow:visible !important;-webkit-line-clamp:unset !important;width:auto !important;height:auto !important;max-height:none !important;margin:0 !important;font-size:clamp(19px, 1.4vw, 24px) !important;line-height:1.45 !important;overflow-wrap:anywhere; }
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .extend-card .extend-content { display:-webkit-box !important;-webkit-box-orient:vertical;position:static !important;white-space:normal !important;overflow:hidden !important;-webkit-line-clamp:5 !important;width:auto !important;height:auto !important;max-height:none !important;margin:0 !important;font-size:14px !important;line-height:1.7 !important;overflow-wrap:anywhere;color:var(--ani-muted) !important; }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .extend-card .btn-read-more { margin-top:auto !important; }
-@media(max-width:1100px) { body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .theme-extend-block { grid-template-columns:1fr; } }
+@media(max-width:760px) { body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .theme-extend-block { grid-template-columns:1fr; } }
 @media(max-width:550px) { body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .extend-card,body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .extend-card:first-child { grid-template-columns:1fr !important; } body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .extend-card .extend-pic-block { aspect-ratio:16/9 !important;border-radius:17px 17px 0 0; } }
 body.ani-ambientlight-page.ani-ambientlight-ui #ani_video .ani-age-consent { box-sizing:border-box;padding:0 !important;border:0 !important;border-radius:0 !important;background:transparent !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important;box-shadow:none !important;font-family:var(--ani-font,system-ui,sans-serif) !important; }
 body.ani-ambientlight-page.ani-ambientlight-ui #ani_video :is(.ani-consent-accept,.ani-consent-decline) { display:inline-flex !important;align-items:center;justify-content:center;min-width:96px !important;min-height:38px !important;height:auto !important;padding:9px 22px !important;margin:12px 10px 0 0 !important;border:1px solid #d5efff66 !important;border-radius:999px !important;font:500 14px/20px var(--ani-font,system-ui,sans-serif) !important;cursor:pointer; }
@@ -1268,8 +1280,167 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #blockVideoInSeaso
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #blockVideoInSeason :is(.ani-week-expand,.theme-show-more)::after { box-shadow:none !important;filter:none !important; }
 /* Lead story carries the emphasis; remaining stories keep equal columns. */
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .theme-extend-block > .extend-card:last-child:nth-child(odd) { grid-column:auto !important; }
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .theme-extend-block > .extend-card:first-child { grid-column:1 / -1 !important;grid-template-columns:minmax(220px,40%) minmax(0,1fr) !important;min-height:240px !important; }
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .theme-extend-block:not(:has(> :nth-child(4 of .extend-card))) > .extend-card:first-child { grid-column:1 / -1 !important;grid-template-columns:minmax(220px,40%) minmax(0,1fr) !important;min-height:240px !important; }
+#BH_background .ani-news-actions,
+body.ani-ambientlight-ui #BH_background .container-player:has(> section.player) .animate-theme-list:has(.theme-extend-block):not(:has(.theme-extend-block :is(a.extend-card[href]:not([hidden]), .extend-card:not([hidden]) a[href]))) {
+  display: none !important;
+}
+.ani-news-actions > [data-ani-region="news"] { flex: 1; min-width: 0; }
+.ani-articles-more { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; cursor: pointer; }
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-articles-more:not(:hover) {
+  border: 1px solid color-mix(in srgb, var(--ani-text, #e4edf5) 32%, transparent) !important;
+}
+.ani-articles-more svg { width: 17px; height: 17px; flex: none; }
+#BH_background .theme-extend-block .extend-card .extend-content { text-indent: 0 !important; }
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .theme-extend-block .extend-content[hidden] {
+  display: none !important;
+}
+.theme-extend-block:not(:has(> :nth-child(4 of .extend-card))) > .extend-card:first-child .extend-content {
+  -webkit-line-clamp: 7 !important;
+}
+.ani-news-actions > .ani-articles-more { position: absolute; inset-inline-end: 34px; z-index: 1; }
+body.ani-layout-watch #BH_background .ani-news-actions > [data-ani-region="news"] {
+  width: 100% !important;
+  margin: 0 !important;
+  padding-inline: 0 !important;
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+}
+body.ani-layout-watch.ani-layout-news #BH_background .ani-news-actions + .animate-theme-list:has(.theme-extend-block) {
+  margin-block-start: 0 !important;
+  padding-block-start: 8px !important;
+}
+body.ani-layout-watch.ani-layout-news #BH_background .ani-news-actions + .animate-theme-list > .theme-extend-block {
+  margin-block-start: 0 !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .theme-extend-block[data-ani-articles-expanded="false"] > :nth-child(n+5 of .extend-card) {
+  display: none !important;
+}
 @media(max-width:550px) { body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .theme-extend-block > .extend-card:first-child { grid-template-columns:1fr !important; } }
+
+/* Playback news shares the width of the other watch-page sections. */
+body.ani-layout-news.ani-ambientlight-ui #BH_background > .container-player:has(> section.player) {
+  > .ani-news-actions {
+    width: 100% !important;
+    margin-inline: 0 !important;
+    padding-inline: 0 !important;
+  }
+  > .ani-news-actions > [data-ani-region="news"] strong,
+  > .animate-theme-list:has(.theme-extend-block) .theme-title {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin-inline: 0 !important;
+    padding-inline: 0 !important;
+
+    &::before {
+      content: "";
+      width: 22px;
+      height: 22px;
+      flex: none;
+      background: currentColor;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='16' rx='2'/%3E%3Cpath d='M7 8h10M7 12h4v4H7zM14 12h3m-3 4h3'/%3E%3C/svg%3E") center / contain no-repeat;
+    }
+  }
+
+  > .animate-theme-list:has(.theme-extend-block) .theme-title > .ani-section-icon {
+    display: none !important;
+  }
+
+  > .animate-theme-list:has(.theme-extend-block) {
+    width: 100% !important;
+    max-width: none !important;
+    margin-inline: 0 !important;
+    margin-top: 8px !important;
+    padding-inline: 0 !important;
+    box-sizing: border-box;
+
+    > :is(.theme-title-block, .news-title-block) {
+      margin-inline: 0 !important;
+      padding-inline: 0 !important;
+    }
+  }
+}
+
+:is(
+  body.ani-layout-news.ani-ambientlight-ui #BH_background > .container-player:has(> section.player) > .animate-theme-list:has(.theme-extend-block),
+  body.ani-home-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:has(> .theme-extend-block)
+) {
+    .theme-extend-block {
+      width: 100% !important;
+      max-width: none !important;
+      margin-inline: 0 !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px !important;
+    }
+    .theme-extend-block > .extend-card {
+      display: grid !important;
+      grid-template-columns: minmax(104px, min(30%, 220px)) minmax(0, 1fr) !important;
+      min-height: 0 !important;
+      overflow: hidden !important;
+      align-items: stretch;
+    }
+    .theme-extend-block:is(:where(body.ani-home-page *), :not(:has(> :nth-child(4 of .extend-card)))) > .extend-card:first-child {
+      grid-column: 1 / -1 !important;
+      grid-template-columns: var(--ani-featured-news-columns, minmax(180px, min(32%, 360px)) minmax(0, 1fr)) !important;
+    }
+    .extend-card .extend-pic-block {
+      position: relative !important;
+      min-height: 100% !important;
+      aspect-ratio: auto !important;
+      border-radius: 0 !important;
+    }
+    .extend-card .extend-pic-block img {
+      position: absolute !important;
+      inset: 0;
+      height: 100% !important;
+      width: 100% !important;
+      object-fit: cover !important;
+    }
+    .extend-card .extend-content-block {
+      align-self: center;
+      padding: clamp(10px, 1vw, 16px) !important;
+      gap: 6px;
+    }
+    .extend-card .extend-title {
+      margin: 0 !important;
+      font-size: clamp(19px, 1.4vw, 24px) !important;
+      line-height: 1.45 !important;
+      font-weight: 700 !important;
+      line-break: strict;
+      overflow-wrap: break-word;
+      text-wrap: balance;
+    }
+    .extend-card .extend-content {
+      display: -webkit-box !important;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3 !important;
+      overflow: hidden !important;
+      font-size: 14px !important;
+    }
+    .theme-extend-block:is(:where(body.ani-home-page *), :not(:has(> :nth-child(4 of .extend-card)))) > .extend-card:first-child .extend-content {
+      -webkit-line-clamp: 5 !important;
+    }
+    .extend-card .btn-read-more {
+      margin-top: 4px !important;
+    }
+    @media (max-width: 760px) {
+      .theme-extend-block {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+    @media (max-width: 540px) {
+      --ani-featured-news-columns: minmax(0, 1fr);
+      .theme-extend-block > .extend-card,
+      .theme-extend-block > .extend-card:first-child {
+        grid-template-columns: minmax(0, 1fr) !important;
+      }
+      .extend-card .extend-pic-block {
+        min-height: 0 !important;
+        aspect-ratio: 16 / 9 !important;
+      }
+    }
+}
 
 body.ani-ambientlight-page.ani-ambientlight-ui #ani_video :is(.vjs-time-control,.vjs-res-button) :is(span,div,button) { font-family:var(--ani-font,system-ui,sans-serif) !important; }
 body.ani-ambientlight-page.ani-ambientlight-ui #ani_video .danmu-setting_btn::after { content:none !important; }
@@ -1336,11 +1507,34 @@ body.ani-collection-page.ani-ambientlight-page.ani-ambientlight-ui #BH_backgroun
 /* Scroll contents carry the rail; fixed frame pseudos carry edge shading. */
 body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .user-watch-textlist { padding:12px 16px 12px 36px !important;margin:0 !important;box-sizing:border-box;mask-image:none !important;-webkit-mask-image:none !important;box-shadow:none !important; }
 body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .user-watch-textlist li { overflow:visible !important; }
-body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .user-watchTime-list { position:relative;isolation:isolate; }
+body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .user-watchTime-list {
+  position: relative;
+  isolation: isolate;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+}
 body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .user-watchTime-list::before,
-body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .user-watchTime-list::after { content:'';position:absolute;left:1px;right:1px;height:30px;z-index:4;pointer-events:none;border-radius:inherit; }
-body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .user-watchTime-list::before { top:1px;background:linear-gradient(#182338aa,transparent); }
-body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .user-watchTime-list::after { bottom:1px;background:linear-gradient(transparent,#182338aa); }
+body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .user-watchTime-list::after {
+  content: '';
+  position: absolute;
+  inset-inline: 1px;
+  height: 14px;
+  z-index: 4;
+  pointer-events: none;
+  backdrop-filter: blur(3px);
+  background: rgb(4 9 17 / 22%);
+  mask-image: linear-gradient(var(--ani-history-edge-direction), #000, transparent);
+}
+body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .user-watchTime-list::before {
+  --ani-history-edge-direction: to bottom;
+  top: 1px;
+  border-radius: 15px 15px 0 0;
+}
+body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .user-watchTime-list::after {
+  --ani-history-edge-direction: to top;
+  bottom: 1px;
+  border-radius: 0 0 15px 15px;
+}
 /* Style the native poster as soon as the player mounts, before consent markup arrives. */
 body.ani-ambientlight-page.ani-ambientlight-ui #ani_video:not(.vjs-has-started) .vjs-poster {
   filter:blur(6px);
@@ -1568,7 +1762,7 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .extend-card .exte
   background:#0c142458;
 }
 @media (min-width:551px) {
-  body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .theme-extend-block > .extend-card:first-child {
+  body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .theme-extend-block:not(:has(> :nth-child(4 of .extend-card))) > .extend-card:first-child {
     grid-template-columns:minmax(180px,min(32%,420px)) minmax(0,1fr) !important;
   }
 }
@@ -1607,13 +1801,13 @@ body.ani-membership-page .ani-membership-background {
 .ani-membership-background > img:nth-child(7n) { grid-column:span 1;grid-row:span 4; }
 
 body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .history > .user-watch-list { align-self:start; }
-body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .user-watch-list > .user-watchTime-list {
-  margin-top:12px !important;
+body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.user-watch-list, .ani-perm-watch-slot) > .user-watchTime-list {
+  margin-top:16px !important;
   overflow:hidden !important;
   border-radius:16px !important;
   background-clip:padding-box;
 }
-body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .user-watch-list > .user-watchTime-list::after {
+body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.user-watch-list, .ani-perm-watch-slot) > .user-watchTime-list::after {
   border-radius:0;
 }
 
@@ -1794,11 +1988,11 @@ body.ani-membership-page #BH_background .ani-membership-plans .ani-plan-detail {
 
 /* Uniform history timeline line without overlap seams, and full bottom scroll clearance. */
 body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .watch-list-card {
-  max-height: 340px !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
+  max-height: none !important;
+  overflow: hidden !important;
   box-sizing: border-box !important;
-  padding: 12px 14px 20px !important;
+  padding: 0 !important;
+  scrollbar-gutter: auto;
 }
 body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .user-watch-textlist {
   --ani-history-row-gap: 6px;
@@ -1806,13 +2000,22 @@ body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .
   display: grid !important;
   gap: var(--ani-history-row-gap);
   background: none !important;
-  padding: 8px 8px 18px 36px !important;
-  max-height: none !important;
-  overflow: visible !important;
+  padding: 22px 16px 22px 46px !important;
+  max-height: 338px !important;
+  overflow: hidden auto !important;
+  align-content: start;
+  overflow-anchor: none;
+  scroll-padding-block: 22px;
+  scrollbar-width: thin;
+  scrollbar-color: #9bafc366 transparent;
+  scrollbar-gutter: stable;
 }
 body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .user-watch-textlist > li {
   margin: 0 !important;
   border: 0 !important;
+}
+body.ani-history-page.ani-ambientlight-page #BH_background .user-watchTime-list [data-ani-history-unnumbered] {
+  display: none !important;
 }
 body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .user-watch-textlist::before,
 body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .user-watch-textlist::after {
@@ -1844,15 +2047,11 @@ body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .
   border: 0 !important;
   background: #80808070 !important;
 }
-body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .user-watch-textlist > li:first-child::after {
+body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .user-watch-textlist > :nth-child(1 of li:not([data-ani-history-unnumbered]))::after {
   top: 50% !important;
 }
-body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .user-watch-textlist > li:last-child::after {
+body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .user-watch-textlist > :nth-last-child(1 of li:not([data-ani-history-unnumbered]))::after {
   bottom: 50% !important;
-}
-body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .user-watchTime-list::before,
-body.ani-history-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .user-watchTime-list::after {
-  height: 16px !important;
 }
 
 /* Keep current-day double-circle circular (no orange square box), align date pills flush left, and add cover glow to news/topic sidebars. */
@@ -1892,6 +2091,24 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .extend-card .exte
   position: relative !important;
   z-index: 1 !important;
 }
+body.ani-home-page.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:has(> .theme-extend-block)
+  > :is(.theme-title, .theme-title-block > .theme-title) {
+  display: inline-flex !important;
+  align-items: center;
+  color: var(--ani-text);
+}
+#BH_background #blockGNN > .news-title-block {
+  display: flex !important;
+  justify-content: space-between;
+  align-items: center;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+#BH_background #blockGNN > .news-title-block > h1.theme-title {
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
 
 /* Watch page & player controls: Vidstack-inspired airy frosted glass, clear popups, and clean icons */
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video :is(.vjs-control-bar, .vjs-menu, .control-bar-leftbtn, .control-bar-rightbtn, .danmutext_area) {
@@ -1912,6 +2129,18 @@ body.ani-ambientlight-page.ani-ambientlight-ui #ani_video .vjs-progress-control 
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #ani_video :is(.vjs-progress-holder, .vjs-load-progress, .vjs-play-progress) {
   border-radius: 999px !important;
+}
+#ani_video .vjs-progress-control > .ani-danmu-heat {
+  position: absolute;
+  inset: auto 0 calc(50% + 2px);
+  width: 100%;
+  height: 24px;
+  fill: var(--ani-accent, #a5d7ff);
+  opacity: .55;
+  pointer-events: none;
+}
+#ani_video:is(.vjs-ad-playing, .vjs-ad-loading, .vjs-anigamer-ad-playing, .vjs-anigamer-m3u8-ad-playing) .ani-danmu-heat {
+  display: none;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #ani_video .vjs-play-progress::after,
 body.ani-ambientlight-page.ani-ambientlight-ui #ani_video .vjs-mouse-display::before,
@@ -2622,6 +2851,10 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.videoframe, .
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.videoframe, #video-container, #ani_video, .videoframe > .video) {
   border-radius: 16px !important;
   overflow: hidden !important;
+}
+/* The native loading overlay can paint independently of the player frame. */
+body.ani-ambientlight-page.ani-ambientlight-ui:not(.ani-is-fullscreen, .ani-is-fullwindow) #BH_background #ani_video:not(.vjs-fullscreen, .vjs-fullwindow, .fullwindow) > .video-adHandler-background-blocker.loading {
+  border-radius: 16px !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui:is(.ani-is-fullscreen, :fullscreen, :-webkit-full-screen) #BH_background :is(.videoframe, #video-container, #ani_video, .video),
 :root:is(:fullscreen, :-webkit-full-screen) body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.videoframe, #video-container, #ani_video, .video),
@@ -3389,6 +3622,10 @@ body.ani-layout-nav.ani-ambientlight-ui :is(.top_sky, .ani-collection-search-cap
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .anime-title .anime_name .ani-title-actions > :is(#bgmtv, .ani-title-pill-link),
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .anime-title .ani-col-status-bar.is-watch-chip > .ani-col-status-chip {
   position: static !important;
+  margin: 0 !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.anime-title .anime_name .ani-title-actions > :is(#bgmtv, .ani-title-pill-link), .ani-ep-order, .ani-ep-layout-switch),
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .anime-title .ani-col-status-bar.is-watch-chip > .ani-col-status-chip {
   float: none !important;
   display: inline-flex !important;
   align-items: center !important;
@@ -3398,7 +3635,6 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .anime-title .ani-
   width: auto !important;
   min-width: 0 !important;
   height: 40px !important;
-  margin: 0 !important;
   padding: 0 14px !important;
   border-radius: 999px !important;
   background: rgba(255, 255, 255, 0.09) !important;
@@ -3413,7 +3649,7 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .anime-title .ani-
   white-space: nowrap !important;
   transition: background-color 0.16s ease, border-color 0.16s ease !important;
 }
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .anime-title .anime_name .ani-title-actions > :is(#bgmtv, .ani-title-pill-link):is(:hover, :focus-visible),
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.anime-title .anime_name .ani-title-actions > :is(#bgmtv, .ani-title-pill-link), .ani-ep-order, .ani-ep-layout-switch):is(:hover, :focus-visible),
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .anime-title .ani-col-status-bar.is-watch-chip > .ani-col-status-chip:is(:hover, :focus-visible) {
   background: rgba(61, 175, 182, 0.24) !important;
   border-color: rgba(61, 175, 182, 0.72) !important;
@@ -3576,12 +3812,6 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video :is(.da
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video #danmuToggle .vjs-menu-content {
   width: 300px !important;
-}
-body.ani-history-page.ani-ambientlight-ui #BH_background .watch-list-card {
-  padding-bottom: 34px !important;
-}
-body.ani-history-page.ani-ambientlight-page #BH_background .user-watch-textlist {
-  padding-bottom: 24px !important;
 }
 body.ani-theater-layout.ani-ambientlight-ui #BH_background section.player .subtitle #sub_list .sub-list-li .edit.ani-danmu-action-icon {
   display: inline-grid !important;
@@ -4045,7 +4275,7 @@ body.ani-ambientlight-ui #BH_background .plus_imagetool_box .plus_button_box.ani
   justify-content: center !important;
   transition: width 0.22s ease, padding 0.22s ease, background-color 0.16s ease, color 0.16s ease !important;
 }
-body.ani-ambientlight-ui #BH_background .plus_imagetool_box .plus_button_box.ani-tool-hover-pill:is(:hover, :focus-within) .plus_button:not(label) {
+body.ani-ambientlight-ui #BH_background .plus_imagetool_box .plus_button_box.ani-tool-hover-pill:is(:hover, :focus-within) .plus_button:not(label):not(.ani-tool-fixed-icon) {
   width: auto !important;
   padding: 0 14px !important;
 }
@@ -4071,10 +4301,16 @@ body.ani-ambientlight-ui #BH_background .plus_imagetool_box .plus_button_box.ani
   white-space: nowrap !important;
   transition: max-width 0.24s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.18s ease, margin-left 0.22s ease !important;
 }
-body.ani-ambientlight-ui #BH_background .plus_imagetool_box .plus_button_box.ani-tool-hover-pill:is(:hover, :focus-within) .ani-tool-hover-label {
+body.ani-ambientlight-ui #BH_background .plus_imagetool_box .plus_button_box.ani-tool-hover-pill:is(:hover, :focus-within) :not(.ani-tool-fixed-icon) > .ani-tool-hover-label {
   max-width: 110px !important;
   opacity: 1 !important;
   margin-left: 9px !important;
+}
+body.ani-ambientlight-ui #BH_background .plus_imagetool_box .plus_button_box.ani-tool-hover-pill:has(> .ani-tool-fixed-icon:only-child) {
+  gap: 0 !important;
+  padding: 0 !important;
+  width: 38px !important;
+  min-width: 38px !important;
 }
 
 /* Dark-mode centered popup modal for AniGamer Plus image fusion / reconstruction */
@@ -4162,6 +4398,7 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video.ani-min
   z-index: 2147483000 !important;
   border-radius: 14px !important;
   overflow: hidden !important;
+  background: #000 !important;
   box-shadow: 0 18px 48px rgba(0, 0, 0, 0.58), 0 0 0 1px rgba(255, 255, 255, 0.18) !important;
 }
 @media (max-width: 768px) {
@@ -4189,11 +4426,49 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video.ani-min
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-mini-pip-controls {
   display: none !important;
 }
+#ani_video .ani-playback-seek-group {
+  display: none;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video:not(.vjs-ad-playing, .vjs-ad-loading) .ani-playback-seek-group {
+  position: absolute;
+  inset-inline-end: clamp(12px, 2vw, 22px);
+  inset-block-end: calc(100% + 8px);
+  z-index: 2;
+  display: flex;
+  gap: 12px;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-playback-seek-group button {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 28%);
+  border-radius: 50%;
+  background: rgb(14 22 33 / 72%);
+  backdrop-filter: blur(14px);
+  color: white;
+  cursor: pointer;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-playback-seek-group button:is(:hover, :focus-visible) {
+  background: rgb(61 175 182 / 42%);
+  border-color: rgb(140 228 232 / 80%);
+}
+#ani_video .ani-playback-seek-group svg { width: 26px; height: 26px; }
+#ani_video .ani-playback-seek-group span {
+  position: absolute;
+  margin-top: 2px;
+  font: 700 11px/1 var(--ani-font, system-ui, sans-serif);
+}
+#ani_video:is(.vjs-ad-playing, .vjs-ad-loading) .ani-mini-pip-seek {
+  visibility: hidden;
+}
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video.ani-mini-pip .ani-mini-pip-controls {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 18px !important;
+  gap: 24px !important;
   position: absolute !important;
   inset: 0 !important;
   background: rgba(6, 12, 20, 0.34) !important;
@@ -4238,16 +4513,16 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video.ani-min
   display: none !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video.ani-mini-pip .ani-mini-pip-seek {
-  width: 42px !important;
-  height: 42px !important;
+  width: 48px !important;
+  height: 48px !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video.ani-mini-pip .ani-mini-pip-seek svg {
-  width: 22px !important;
-  height: 22px !important;
+  width: 26px !important;
+  height: 26px !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video.ani-mini-pip .ani-mini-pip-seek span {
   position: absolute !important;
-  font: 700 9px/1 var(--ani-font, system-ui, sans-serif) !important;
+  font: 700 11px/1 var(--ani-font, system-ui, sans-serif) !important;
   margin-top: 2px !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-mini-pip-return,
@@ -4409,7 +4684,6 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.videoframe, #
   background: transparent !important;
   box-shadow: none !important;
 }
-body.ani-ambientlight-page.ani-ambientlight-ui:is(.ani-pip-active, .ani-pip-dismissed) .ani-ambientlight-page-glow,
 body.ani-ambientlight-page.ani-ambientlight-ui:is(.ani-pip-active, .ani-pip-dismissed) .ani-ambientlight-host > canvas,
 body.ani-ambientlight-page.ani-ambientlight-ui #ani_video.ani-mini-pip > canvas:not(.vjs-danmu-canvas),
 body.ani-ambientlight-page.ani-ambientlight-ui.ani-pip-active .ani-ambientlight-canvas,
@@ -5224,7 +5498,7 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.ani-region-to
   transition: transform 0.2s ease !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.ani-region-toggle, .ani-section-toggle)[aria-expanded='false'] > span:not(.ani-section-icon) svg {
-  transform: rotate(-90deg) !important;
+  transform: none !important;
 }
 
 /* Player settings drawer moved below .anime-title */
@@ -5419,6 +5693,43 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .su
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle .ani-sidebar-scroll::-webkit-scrollbar {
   display: none !important;
 }
+.ani-sidebar-intro {
+  --ani-intro-fade-top: 0px;
+  --ani-intro-fade-bottom: 0px;
+}
+.ani-sidebar-intro.can-scroll-up { --ani-intro-fade-top: 24px; }
+.ani-sidebar-intro.can-scroll-down { --ani-intro-fade-bottom: 24px; }
+.ani-sidebar-intro > .ani-sidebar-scroll {
+  mask-image: linear-gradient(to bottom, transparent, #000 var(--ani-intro-fade-top),
+    #000 calc(100% - var(--ani-intro-fade-bottom)), transparent);
+}
+.ani-sidebar-intro::before,
+.ani-sidebar-intro::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  block-size: 24px;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  backdrop-filter: blur(5px);
+  transition: opacity 180ms ease-out;
+}
+.ani-sidebar-intro::before {
+  inset-block-start: 0;
+  background: linear-gradient(to bottom, rgb(0 0 0 / 20%), transparent);
+  mask-image: linear-gradient(to bottom, #000, transparent);
+}
+.ani-sidebar-intro::after {
+  inset-block-end: 0;
+  background: linear-gradient(to top, rgb(0 0 0 / 20%), transparent);
+  mask-image: linear-gradient(to top, #000, transparent);
+}
+.ani-sidebar-intro.can-scroll-up::before,
+.ani-sidebar-intro.can-scroll-down::after { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .ani-sidebar-intro::before, .ani-sidebar-intro::after { transition: none; }
+}
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle .ani-side-meta-grid {
   display: grid !important;
   grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
@@ -5432,6 +5743,14 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .su
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle .ani-side-meta-item.is-wide {
   grid-column: 1 / -1 !important;
+}
+body.ani-ambientlight-ui #BH_background section.player .subtitle a:is(.ani-side-studio-link,.ani-side-publisher-link) {
+  color:inherit;
+  text-decoration:underline;
+  text-underline-offset:3px;
+}
+body.ani-ambientlight-ui #BH_background section.player .subtitle a:is(.ani-side-studio-link,.ani-side-publisher-link):is(:hover,:focus-visible) {
+  color:var(--ani-accent);
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle .ani-side-pill {
   flex: none !important;
@@ -6936,7 +7255,8 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep
   max-height: calc(100% - 22px) !important;
   width: min(500px, 94%) !important;
   max-width: calc(100% - 24px) !important;
-  padding: clamp(10px, 2vw, 18px) clamp(10px, 2vw, 18px) 0 !important;
+  --ani-episode-panel-gutter: clamp(10px, 2vw, 18px);
+  padding: var(--ani-episode-panel-gutter) var(--ani-episode-panel-gutter) 0 !important;
   box-sizing: border-box !important;
   display: flex !important;
   flex-direction: column !important;
@@ -6983,22 +7303,34 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep
   border-color: rgba(76, 211, 220, 0.72) !important;
   color: #ffffff !important;
 }
+@property --ani-episode-fade-start {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+@property --ani-episode-fade-end {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep-drawer-scroll {
-  --ani-episode-fade-height: 28px;
+  --ani-episode-fade-top: 34px;
+  --ani-episode-fade-bottom: 52px;
   --ani-episode-fade-start: 0px;
   --ani-episode-fade-end: 0px;
+  transition: --ani-episode-fade-start 180ms ease-out, --ani-episode-fade-end 180ms ease-out;
   position: relative;
   display: flex;
   flex-direction: column;
   flex: 0 1 auto !important;
   min-height: 0 !important;
-  margin-inline-end: 4px;
+  margin-inline: calc(-1 * var(--ani-episode-panel-gutter));
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep-drawer-body {
   min-height: 0 !important;
-  padding: 14px 3px clamp(14px, 2vw, 22px) !important;
+  padding: 14px calc(var(--ani-episode-panel-gutter) + 3px) clamp(14px, 2vw, 22px) !important;
   overflow-y: auto !important;
-  scroll-padding-block: var(--ani-episode-fade-height);
+  scroll-padding-block: var(--ani-episode-fade-top) var(--ani-episode-fade-bottom);
   scrollbar-width: thin !important;
   scrollbar-color: var(--ani-muted, #9bafc3) transparent;
   container-type: inline-size;
@@ -7007,28 +7339,32 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep
 #ani_video .ani-ep-drawer-scroll::after {
   content: '';
   position: absolute;
-  inset-inline: 0 8px;
+  inset-inline: 0;
   z-index: 2;
-  height: var(--ani-episode-fade-height);
   pointer-events: none;
   opacity: 0;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(10px);
+  transition: opacity 180ms ease-out;
 }
 #ani_video .ani-ep-drawer-scroll::before {
   top: 0;
+  height: var(--ani-episode-fade-top);
+  background: linear-gradient(to bottom, rgb(0 0 0 / 36%), transparent);
   mask-image: linear-gradient(to bottom, #000, transparent);
 }
 #ani_video .ani-ep-drawer-scroll::after {
   bottom: 0;
+  height: var(--ani-episode-fade-bottom);
+  background: linear-gradient(to top, rgb(0 0 0 / 28%), transparent);
   mask-image: linear-gradient(to top, #000, transparent);
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep-drawer-scroll.can-scroll-up {
-  --ani-episode-fade-start: var(--ani-episode-fade-height);
+  --ani-episode-fade-start: var(--ani-episode-fade-top);
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep-drawer-scroll.can-scroll-down {
-  --ani-episode-fade-end: var(--ani-episode-fade-height);
+  --ani-episode-fade-end: var(--ani-episode-fade-bottom);
 }
-#ani_video .ani-ep-drawer-scroll:is(.can-scroll-up, .can-scroll-down) > .ani-ep-drawer-body {
+#ani_video .ani-ep-drawer-scroll > .ani-ep-drawer-body {
   mask-image: linear-gradient(
     to bottom,
     transparent,
@@ -7040,6 +7376,13 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep
 #ani_video .ani-ep-drawer-scroll.can-scroll-up::before,
 #ani_video .ani-ep-drawer-scroll.can-scroll-down::after {
   opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  #ani_video .ani-ep-drawer-scroll,
+  #ani_video .ani-ep-drawer-scroll::before,
+  #ani_video .ani-ep-drawer-scroll::after {
+    transition: none !important;
+  }
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep-drawer-grid {
   display: grid !important;
@@ -7058,8 +7401,8 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.ani-episode-s
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.ani-episode-shelf, .anime-title, .season) :is(.ani-last-watched-badge, li [class*='last-watch' i], li [class*='lastwatch' i]) {
   display: none !important;
 }
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.ani-episode-shelf, .anime-title, .season) :is(li, li.saw, .saw, li a, .ani-last-watched-pseudo)::before,
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.ani-episode-shelf, .anime-title, .season) :is(li, li.saw, .saw, li a, .ani-last-watched-pseudo)::after {
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.ani-episode-shelf, .anime-title, .season) :is(li, li.saw, .saw, li a, .ani-last-watched-pseudo):not(.ani-episode-cards a)::before,
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.ani-episode-shelf, .anime-title, .season) :is(li, li.saw, .saw, li a, .ani-last-watched-pseudo):not(.ani-episode-cards a)::after {
   content: none !important;
   display: none !important;
 }
@@ -7117,15 +7460,33 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video :is(.an
 #ani_video .ani-ep-row .ani-ep-thumb {
   grid-area: 2 / 1;
   position: relative; aspect-ratio: 16/9; overflow: hidden; border-radius: 8px;
-  background: var(--ani-card-bg, #182433);
 }
-#ani_video .ani-ep-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-#ani_video .ani-ep-thumb .ani-ep-playing-label {
+#ani_video .ani-ep-thumb img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: ani-ep-content-in .24s ease-out both;
+}
+@keyframes ani-ep-content-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+body.ani-blur-episode-thumbnails #ani_video .ani-ep-thumb img {
+  filter: blur(9px);
+  transform: scale(1.1);
+}
+#ani_video .ani-ep-thumb .ani-ep-playing-label,
+.ani-episode-cards li.playing .ani-episode-frame .ani-ep-playing-label {
   position: absolute; inset: 50% auto auto 50%; transform: translate(-50%, -50%);
   display: flex; align-items: center; gap: 6px; white-space: nowrap;
-  padding: 5px 9px; border-radius: 999px; background: var(--ani-ep-navy);
-  backdrop-filter: blur(7px);
-  -webkit-backdrop-filter: blur(7px);
+  padding: 5px 9px;
+  border: 1px solid rgb(255 255 255 / 22%);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ani-ep-navy, #142536) 55%, transparent);
+  backdrop-filter: blur(12px) saturate(135%);
+  -webkit-backdrop-filter: blur(12px) saturate(135%);
   box-shadow: 0 4px 14px rgb(0 0 0 / 65%);
   text-shadow: none !important;
   color: white; font-size: 11px; font-weight: 600;
@@ -7134,7 +7495,7 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video :is(.an
 #ani_video .ani-ep-meta { display: flex; align-items: baseline; gap: 12px; }
 #ani_video .ani-ep-meta strong { flex: none; font-size: 12px; font-weight: 600; }
 #ani_video .ani-ep-name { font-size: 16px; line-height: 1.45; font-weight: 650; }
-#ani_video .ani-ep-playback:not([hidden]) { display: grid; gap: 5px; }
+#ani_video .ani-ep-playback { display: grid; gap: 5px; }
 #ani_video .ani-ep-playback progress {
   appearance: none;
   width: 100%;
@@ -7145,10 +7506,13 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video :is(.an
   overflow: hidden;
 }
 #ani_video .ani-ep-playback progress::-webkit-progress-bar { border-radius: inherit; background: transparent; }
-#ani_video .ani-ep-playback progress::-webkit-progress-value { border-radius: 999px; background: var(--ani-muted, #b2c2d3); }
-#ani_video .ani-ep-playback progress::-moz-progress-bar { border-radius: 999px; background: var(--ani-muted, #b2c2d3); }
+#ani_video .ani-ep-playback progress::-webkit-progress-value { border-radius: 999px; background: var(--ani-accent, #3dafb6); }
+#ani_video .ani-ep-playback progress::-moz-progress-bar { border-radius: 999px; background: var(--ani-accent, #3dafb6); }
 #ani_video .ani-ep-time { font-size: 12px; white-space: nowrap; }
-#ani_video .ani-ep-row:has(> [aria-expanded="false"]) :is(.ani-ep-thumb, .ani-ep-stats, .ani-ep-time, .ani-ep-description, .ani-ep-details:has(> .ani-ep-playback[hidden])),
+#ani_video .ani-ep-row:has(> [aria-expanded="false"]) :is(.ani-ep-thumb, .ani-ep-stats, .ani-ep-description),
+#ani_video .ani-ep-row:not([data-ani-watch-known]) .ani-ep-playback progress,
+#ani_video .ani-ep-row:not([data-ani-watch-known]):has(> [aria-expanded="false"]) .ani-ep-details,
+body.ani-hide-episode-description #ani_video .ani-ep-description,
 #ani_video .ani-ep-description:empty {
   display: none;
 }
@@ -7162,12 +7526,16 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video :is(.an
 }
 #ani_video .ani-ep-row:not(.is-playing):has(> [aria-expanded="false"]) .ani-ep-copy { padding-inline-end: 25px; }
 #ani_video .ani-ep-row:has(> [aria-expanded="false"]) .ani-ep-details { grid-column: 1 / -1; }
+#ani_video .ani-ep-row[data-ani-watch-known]:has(> [aria-expanded="false"]) .ani-ep-playback {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 8px;
+}
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep-row:has(> [aria-expanded="false"]) {
   row-gap: 6px;
 }
 #ani_video .ani-ep-details { display: grid; min-width: 0; gap: 10px; }
-#ani_video .ani-ep-stats { display: flex; flex-wrap: wrap; gap: 5px; }
-#ani_video .ani-ep-stats:not(:has(> :not(:empty))) { display: none; }
+#ani_video .ani-ep-stats { display: flex; flex-wrap: wrap; gap: 5px; min-block-size: 23px; }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep-play {
   position: absolute;
   inset: 9px 11px auto auto;
@@ -7236,6 +7604,10 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep
 }
 #ani_video .ani-ep-views {
   --ani-ep-stat-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Cpath d='M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12Z'/%3E%3Ccircle cx='12' cy='12' r='2.5'/%3E%3C/svg%3E");
+}
+#ani_video .ani-ep-views:not(:empty) { animation: ani-ep-content-in .24s ease-out both; }
+@media (prefers-reduced-motion: reduce) {
+  #ani_video :is(.ani-ep-thumb img, .ani-ep-views:not(:empty)) { animation: none; }
 }
 @container (max-width: 370px) {
   body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep-row {
@@ -7411,6 +7783,12 @@ body.ani-layout-watch.ani-ambientlight-page #BH_background > .container-player:h
   gap: 24px !important;
   align-items: start !important;
 }
+@media (min-width: 800px) {
+  body.ani-layout-watch.ani-ambientlight-page:not(.ani-hide-related, .ani-hide-merch) #BH_background > .container-player:has(> section.player)
+    > .ani-watch-related-row.ani-watch-related-compact:has(> .ani-watch-col-related):has(> .ani-watch-col-merch) {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
 body.ani-layout-watch.ani-ambientlight-page #BH_background > .container-player:has(> section.player) > .commend-title {
   order: 6 !important;
 }
@@ -7528,14 +7906,6 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .old_list:not(:has
   box-sizing: border-box !important;
   overflow: visible !important;
 }
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .old_list:not(:has(.search_result)) .theme-list-main.ani-poster-card:is(:hover, :focus-within) {
-  z-index: 8 !important;
-}
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .old_list:not(:has(.search_result)) .theme-list-main.ani-poster-card:is(:hover, :focus-within) .anime-detail-block {
-  height: auto !important;
-  min-height: var(--ani-poster-footer, 68px) !important;
-  z-index: 5 !important;
-}
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .old_list:not(:has(.search_result)) .theme-list-main.ani-poster-card .theme-name {
   display: block !important;
   height: 1.5em !important;
@@ -7545,6 +7915,14 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .old_list:not(:has
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .old_list:not(:has(.search_result)) .theme-list-main.ani-poster-card .theme-name.ani-title-overflow {
+  --ani-poster-title-fade: 10px;
+  margin-inline: calc(-1 * var(--ani-poster-title-fade)) !important;
+  padding-inline: var(--ani-poster-title-fade) !important;
+  width: auto !important;
+  max-width: none !important;
+  box-sizing: border-box;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .old_list:not(:has(.search_result)) .theme-list-main.ani-poster-card.ani-card-has-overflow:is(:hover, :focus-within) .theme-name {
   height: auto !important;
@@ -7613,6 +7991,14 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .old_list:not(:has
   height: auto !important;
   box-shadow: none !important;
 }
+.theme-number.ani-movie-watched {
+  gap: 4px;
+}
+.theme-number.ani-movie-watched > svg {
+  width: 13px;
+  height: 13px;
+  flex: none;
+}
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-merch-section.ani-merch-no-scroll :is(.slick-arrow, .slick-prev, .slick-next, [class*='arrow'], [class*='prev'], [class*='next']):not(.ani-rail-arrow) {
   display: none !important;
 }
@@ -7636,7 +8022,7 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-merch-section
   padding: 12px !important;
   box-shadow: none !important;
   box-sizing: border-box !important;
-  transition: transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease !important;
+  transition: border-color 0.16s ease-out !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-merch-section :is(.store_item, .store_wrapper li, .ani-merch-card) img {
   width: 100% !important;
@@ -7645,10 +8031,8 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-merch-section
   border-radius: 12px !important;
   background: rgba(255, 255, 255, 0.04) !important;
 }
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-merch-section :is(.store_item, .store_wrapper li, .ani-merch-card):hover {
-  transform: translateY(-2px) !important;
-  border-color: rgba(76, 211, 220, 0.45) !important;
-  background: rgba(24, 37, 54, 0.82) !important;
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-merch-section :is(.store_item, .store_wrapper li, .ani-merch-card):is(:hover, :focus-within) {
+  border-color: var(--ani-accent, #39b6c2) !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-merch-section :is(.store_item, .store_wrapper li, .ani-merch-card) a:not(.ani-merch-buy-btn):not(.store_buy):not(.store_btn):not(.btn) {
   font-size: 13.5px !important;
@@ -7702,9 +8086,9 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-merch-section
   font: 600 13px/1 var(--ani-font, system-ui, sans-serif) !important;
   text-decoration: none !important;
   box-sizing: border-box !important;
-  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease !important;
+  transition: transform 0.16s ease-out !important;
 }
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-merch-section :is(.ani-merch-buy-btn, .store_buy, .store_btn, a.btn, button:not(.ani-rail-arrow)):hover {
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-merch-section :is(.ani-merch-buy-btn, .store_buy, .store_btn, a.btn, button:not(.ani-rail-arrow)):is(:hover, :focus-visible) {
   background: rgba(61, 175, 182, 0.28) !important;
   border-color: rgba(76, 211, 220, 0.78) !important;
   color: #7ef0f6 !important;
@@ -9308,7 +9692,6 @@ body.ani-light-mode #ani-redeem-modal {
   color: #254253 !important;
 }
 body.ani-light-mode #BH_background #blockAnimePublisherChannel .update-time p {color:#254253 !important}
-body.ani-ambientlight-ui #BH_background .old_list .ani-poster-card > .ani-hover-outline {display:none !important}
 body.ani-ambientlight-ui #BH_background #plusbox :is(.ani-plus-group-top,.ani-plus-cap-heading,.plus_row,.ani-setting-section,.ani-plus-subcard) {border-block:0 !important}
 body.ani-ambientlight-ui #BH_background #plusbox hr {display:none !important}
 
@@ -9468,6 +9851,21 @@ body.ani-layout-comments.ani-ambientlight-page.ani-ambientlight-ui #BH_backgroun
 }
 body.ani-layout-comments.ani-ambientlight-page #BH_background .commend-title {padding-inline:0 !important}
 body.ani-layout-comments #BH_background .commend-title .ani-comment-icon {width:22px !important;height:22px !important}
+body.ani-layout-watch.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(
+  .ani-episode-heading > h2,
+  .ani-episode-section-toggle > strong,
+  :is([data-ani-region="related"], [data-ani-region="merch"]) > strong,
+  .old_list:not(:has(.search_result)) :is(h2, .theme-title-block > .theme-title),
+  .ani-merch-section :is(.ani-merch-native-heading, .store > .theme-title-block > .theme-title),
+  .ani-news-actions [data-ani-region="news"] strong,
+  .animate-theme-list:has(.theme-extend-block) .theme-title,
+  .commend-title .commend-board p,
+  .ani-recommend-heading
+) {
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+}
 body.ani-ambientlight-ui #BH_background #ani-tab-content-2 .plus-keyword-header:has(select)::after {display:none !important}
 body.ani-ambientlight-ui #BH_background #ani-tab-content-2 select.plus-select {
   display:inline-flex !important;
@@ -9494,13 +9892,7 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-rating-option
   background:transparent !important; border-color:transparent !important; box-shadow:none !important;
 }
 body.ani-home-page.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,#blockAnimeNewArrive,.animate-theme-list) .theme-list-main.ani-poster-card {
-  align-self:start !important; --ani-poster-footer:84px; padding-bottom:var(--ani-poster-footer) !important;
-}
-body.ani-home-page.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,#blockAnimeNewArrive,.animate-theme-list) .theme-list-main.ani-poster-card .anime-detail-block {
-  position:absolute !important; inset:calc(100% - var(--ani-poster-footer,80px)) 0 auto !important; height:auto !important;
-  width:auto !important; box-sizing:border-box !important;
-  transition:background-color .16s ease-out !important;
-  min-height:var(--ani-poster-footer,80px) !important;
+  --ani-poster-footer:84px;
 }
 body.ani-layout-comments.ani-ambientlight-page.ani-ambientlight-ui #BH_background .commend-title .filter-nav {
   background:transparent !important;
@@ -9661,7 +10053,7 @@ body.ani-layout-comments #BH_background #w-post-box .reply-content__footer butto
 body.ani-layout-comments #BH_background #w-post-box .c-more-msg {color:var(--ani-muted,#a5b4c4) !important}
 body.ani-layout-comments .ani-comment-columns .ani-comment-recommendations a {font-size:18px;line-height:1.4}
 .ani-comment-recommendations .ani-rec-poster {position:relative;flex:none;width:clamp(90px,8vw,138px)}
-.ani-comment-recommendations .ani-rec-poster img {width:100%;display:block;aspect-ratio:16/9;object-fit:cover}
+.ani-comment-recommendations .ani-rec-poster img {width:100%;height:100%;display:block;object-fit:cover}
 .ani-rec-poster .ani-rec-episodes {position:absolute;bottom:5px;right:5px;border-radius:999px;color:white;background:#294355ed;font-size:12px;padding:3px 6px}
 .ani-rec-poster :is(.ani-history-score,.ani-rec-episodes):empty,
 .ani-comment-recommendations small:empty {display:none}
@@ -9846,10 +10238,10 @@ body.ani-layout-comments.ani-ambientlight-page.ani-ambientlight-ui #BH_backgroun
   :is(#w-post-box,.commend-title) { padding-inline:clamp(12px,1.2vw,24px) !important; }
   .commend-title { min-height:0 !important; height:auto !important; padding-block:6px 10px !important; margin-bottom:0 !important; }
   .commend-title::before,.commend-title::after { content:none !important; }
-  .commend-title :is(.commend-board p,.ani-recommend-heading) { font-size:clamp(24px,2vw,30px) !important; text-align:left; justify-content:flex-start; }
+  .commend-title :is(.commend-board p,.ani-recommend-heading) { text-align:left; justify-content:flex-start; }
   #w-post-box .webview_commendlist { padding-inline:0 !important; padding-bottom:0 !important; }
   #w-post-box .webview_commendlist > :is(.main-container_wall-post,.c-reply__editor) { box-sizing:border-box; padding-inline:clamp(12px,1.7vw,24px) !important; }
-  #w-post-box .webview_commendlist > .c-reply__editor { width:100% !important; margin-inline:0 !important; border-radius:0 !important; }
+  #w-post-box .webview_commendlist > .c-reply__editor { width:100% !important; margin-inline:0 !important; padding-inline-end:2px !important; border-radius:0 !important; }
   #w-post-box .reply_right a.reply_menu .ani-report-flag path { stroke:#fff !important; fill:none !important; }
   #w-post-box .c-reply__editor .comment_icon a { background:transparent !important; border:0 !important; border-radius:50% !important; box-sizing:border-box; }
   #w-post-box .c-reply__editor .comment_icon a:is(:hover,:focus-visible) { background:var(--ani-panel-soft) !important; }
@@ -9944,6 +10336,13 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background {
   section.player .subtitle [data-credit-panel] .ani-side-meta-item.is-wide { flex-basis:100%; }
   section.player .subtitle [data-credit-panel] .ani-side-meta-grid { overflow-x:auto; }
   section.player .subtitle [data-credit-panel] .ani-side-meta-val { white-space:nowrap !important; }
+  section.player .subtitle [data-credit-panel="製作團隊"] .ani-side-meta-grid {
+    display:grid !important;
+    grid-template-columns:repeat(auto-fit,minmax(min(100%, max(170px, calc((100% - 20px) / 2))),1fr)) !important;
+    overflow-x:visible;
+  }
+  section.player .subtitle [data-credit-panel="製作團隊"] .ani-side-meta-item { min-width:0 !important; align-items:baseline !important; }
+  section.player .subtitle [data-credit-panel="製作團隊"] .ani-side-meta-val { min-width:0; white-space:normal !important; overflow-wrap:anywhere; }
   @media(min-width:1150px) {
     #ani-tab-content-2 .ani-plus-native-format > div:has(> .ani-setting-item select) { display:grid !important; grid-template-columns:repeat(3,minmax(0,1fr)); gap:clamp(20px,2vw,36px) !important; align-items:center; }
     #ani-tab-content-2 .ani-plus-native-format > div > .ani-setting-item { min-width:0; margin:0 !important; }
@@ -9965,6 +10364,7 @@ body.ani-layout-comments .ani-comment-columns .ani-comment-recommendations > a:n
 }
 .ani-comment-recommendations > a > .ani-rec-poster {
   width: 100%;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
   border-radius: 7px;
 }
@@ -10013,9 +10413,6 @@ body.ani-layout-comments #BH_background .commend-title .ani-comment-sort {
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-watch-col-merch :is(.ani-merch-section,.store,.store_wrapper,.ani-section-toggle) {
   border-block:0 !important;
 }
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-watch-col-merch .ani-merch-card {
-  width:184px !important; border-radius:12px !important; padding:8px !important; box-shadow:none !important;
-}
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-body #plusbox.plus-settings-section {
   .ani-setting-section:has([data-ani-row-key="skip-op"]) { align-items:start; }
   .ani-plus-form-row:has([data-ani-row-key="skip-op"]) + .ani-setting-item > div:has(.progress_box) {
@@ -10048,25 +10445,22 @@ body.ani-light-mode.ani-ambientlight-page.ani-ambientlight-ui #BH_background sec
 }
 
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-watch-related-row {
+  --ani-related-card-height: 328px;
+
   .ani-watch-col :is(.theme-list-main.ani-poster-card,.ani-merch-card) {
     box-sizing:border-box !important;
-    border-radius:12px !important; border:1px solid var(--ani-line) !important;
-    box-shadow:none !important; transition:border-color .18s,background-color .18s !important;
+    box-shadow:none !important;
+  }
+  .ani-watch-col .ani-merch-card {
+    border-radius:12px !important;
+    border:1px solid var(--ani-line) !important;
   }
   .ani-watch-col .theme-list-main.ani-poster-card {
     width: 184px !important;
-    height: 328px !important;
+    height: var(--ani-related-card-height) !important;
+    border:0 !important;
   }
-  .ani-watch-col :is(.theme-list-main.ani-poster-card,.ani-merch-card):is(:hover,:focus-within) {
-    border-color:var(--ani-accent,#39b6c2) !important; transform:none !important;
-  }
-  .ani-watch-col-merch .ani-merch-card .ani-merch-meta-row {
-    width:100%; display:flex !important; align-items:center; justify-content:space-between !important; margin-top:auto;
-  }
-  .ani-watch-col-merch .ani-merch-card .ani-merch-buy-btn {
-    display:inline-grid !important; place-items:center; width:32px !important; min-width:32px !important;
-    height:32px !important; min-height:32px !important; padding:0 !important; margin:0 !important;
-  }
+
 }
 
 body.ani-layout-comments #BH_background .ani-comment-columns {
@@ -10089,24 +10483,6 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settin
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-watch-col-merch .ani-merch-section {
   .store_wrapper { min-width:0; overflow-x:auto; }
-  .store_wrapper .ani-merch-card { position:relative; isolation:isolate; overflow:hidden; }
-  .ani-merch-card::before { content:""; position:absolute; inset:0; z-index:-1; pointer-events:none; background:var(--ani-merch-cover) center/cover; filter:blur(25px); opacity:.22; }
-  .ani-merch-card > a { display:flex; flex-direction:column; height:100%; min-height:0; }
-  .ani-merch-card .ani-merch-meta-row { flex-direction:column; align-items:stretch !important; gap:4px !important; }
-  .ani-merch-meta-row .ani-merch-price {
-    display:flex !important;
-    justify-content:center !important;
-    width:100% !important;
-    margin:0 !important;
-    box-sizing:border-box;
-  }
-  .ani-merch-meta-row :is(.ani-merch-price,.products-price) {
-    padding-inline:0 !important;
-    text-align:center !important;
-  }
-  .ani-merch-meta-row .products-price { margin-inline:0 !important; }
-  .ani-merch-card .ani-merch-buy-btn { display:flex !important; align-items:center; justify-content:center; gap:6px; width:100% !important; }
-  .ani-merch-card .ani-merch-buy-btn svg { width:16px; height:16px; }
   &:not(.ani-merch-no-scroll) .store > :is(.next,.prev),
   &.store:not(.ani-merch-no-scroll) > :is(.next,.prev) { width:32px !important; min-width:32px !important; height:36px !important; }
   .store > .next, &.store > .next { right:4px !important; left:auto !important; }
@@ -10141,6 +10517,8 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settin
 }
 
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-watch-related-row {
+  --ani-related-expand-room: 52px;
+
   .ani-watch-col-related:has(> .ani-section-toggle) > .old_list > .theme-title-block {
     display: none !important;
   }
@@ -10148,7 +10526,12 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-watch-related
     grid-row: 1;
   }
   .old_list:not(:has(.search_result)) .ani-watch-poster-rail > ul {
-    padding-block-end: 16px !important;
+    box-sizing: border-box;
+    block-size: calc(var(--ani-related-card-height) + var(--ani-related-expand-room) + 12px) !important;
+    align-items: flex-start !important;
+    padding-block-end: 8px !important;
+    overflow-y: hidden !important;
+    overflow-anchor: none;
   }
   .ani-watch-poster-rail > .store_wrapper > ul {
     margin-block: 0 !important;
@@ -10159,96 +10542,143 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-watch-related
   }
   .old_list:not(:has(.search_result)) .theme-list-main.ani-poster-card {
     --ani-poster-footer: 76px;
+    --ani-poster-footer-overhang: var(--ani-related-expand-room);
 
     > .theme-img-block {
-      height: 100% !important;
-    }
-
-    .anime-detail-block {
-      height: var(--ani-poster-footer) !important;
-      overflow: hidden !important;
+      height: calc(var(--ani-related-card-height) - var(--ani-poster-footer) - var(--ani-poster-inset)) !important;
     }
 
     .theme-detail-info-block {
       margin-top: 4px !important;
     }
 
-    &.ani-card-has-overflow:is(:hover, :focus-within) .theme-name {
-      display: -webkit-box !important;
-      -webkit-box-orient: vertical;
-      -webkit-line-clamp: 2;
-      line-height: 1.25 !important;
-      max-height: 2.5em !important;
-      overflow: hidden !important;
-    }
-    .theme-name .ani-title-marquee {
-      display: inline;
-    }
+  }
+  .ani-watch-col-merch .ani-watch-poster-rail {
+    container-type: inline-size;
   }
   .ani-watch-col-merch .ani-merch-card {
-    width: min(410px, calc(100vw - 56px)) !important;
+    width: min(510px, 100cqw) !important;
     height: auto !important;
-    min-height: 156px !important;
+    min-height: 144px !important;
     padding: 0 !important;
     overflow: hidden;
+    justify-content: center !important;
+    background: var(--ani-panel-soft) !important;
+
+    &:is(:hover, :focus-within) {
+      border-color: var(--ani-accent, #39b6c2) !important;
+    }
 
     > a {
       display: grid !important;
-      grid-template-columns: minmax(88px, 32%) minmax(0, 1fr);
-      grid-template-rows: 1fr auto;
-      column-gap: 12px;
-      padding-inline-end: 12px;
+      grid-template-columns: clamp(72px, 24%, 128px) minmax(0, 1fr);
+      grid-template-rows: auto;
+      align-items: center;
+      gap: 8px 12px;
+      padding: 12px;
+      box-sizing: border-box;
       height: 100% !important;
-      min-height: 0;
+    }
+    > a:not(:has(> .ani-merch-copy)) {
+      grid-template-rows: 1fr auto;
+      row-gap: 24px;
+      > .products-card-img { grid-area: 1 / 1 / -1; }
+      > .products-name { grid-area: 1 / 2; align-self: start; }
+      > .ani-merch-meta-row { grid-area: 2 / 2; }
+    }
+    .ani-merch-copy {
+      display: grid;
+      min-width: 0;
+      row-gap: 24px;
     }
     .products-card-img {
-      grid-area: 1 / 1 / -1;
-      align-self: stretch;
+      align-self: center;
       width: 100% !important;
-      height: 100% !important;
-      min-height: 0;
-      aspect-ratio: auto !important;
-      object-fit: contain !important;
-      border-radius: 0 !important;
+      height: auto !important;
+      aspect-ratio: 1 !important;
+      object-fit: cover !important;
+      border-radius: 8px !important;
+      transition: transform .2s ease-out;
+    }
+    &:is(:hover, :focus-within) .products-card-img {
+      transform: scale(1.045);
     }
     .products-name {
-      grid-area: 1 / 2;
-      align-self: start;
       height: auto !important;
       max-height: none !important;
       padding: 0 !important;
-      margin: 12px 0 6px !important;
+      margin: 0 !important;
       text-align: start;
     }
     .products-name p {
       display: block !important;
       max-height: none !important;
       height: auto !important;
+      margin: 0 !important;
       white-space: normal !important;
       overflow: visible !important;
       overflow-wrap: anywhere;
       -webkit-line-clamp: unset !important;
     }
     .products-info:not(:has(> :not(.ani-merch-points))),
-    .products-price-area:empty {
+    .products-price-area:empty,
+    .ani-merch-copy .products-price-area[hidden] {
       display: none !important;
     }
     .ani-merch-meta-row {
-      grid-area: 2 / 2;
-      justify-content: end !important;
-      margin-block: 0 10px !important;
+      display: flex !important;
+      flex-flow: row wrap;
+      gap: 8px 12px;
+      align-items: center !important;
+      justify-content: space-between !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    .ani-merch-buy-btn {
+      position: relative;
+      display: inline-flex !important;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      width: auto !important;
+      min-height: 32px;
+      margin: 0 0 0 auto !important;
+      padding: 4px 10px !important;
+      white-space: nowrap;
+    }
+    .ani-merch-buy-btn:is(:hover, :focus-visible) {
+      transform: translateY(-2px) !important;
+    }
+    .ani-merch-buy-btn:hover::after {
+      content: '';
+      position: absolute;
+      inset: 0 0 -2px;
+      border-radius: inherit;
+    }
+    .ani-merch-buy-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ani-watch-col-merch .ani-merch-card,
+    .ani-watch-col-merch .ani-merch-card :is(.products-card-img, .ani-merch-buy-btn) {
+      transform: none !important;
+      transition: none !important;
     }
   }
   .ani-merch-price-line {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
-    gap: 6px;
-    width: 100%;
+    gap: 4px 8px;
   }
   .ani-merch-price-line .ani-merch-price {
     width: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
     font-size: 20px !important;
+    font-variant-numeric: tabular-nums;
   }
   .ani-merch-price-line .ani-merch-discount {
     padding: 2px 6px;
@@ -10307,18 +10737,10 @@ body.ani-ambientlight-page.ani-ambientlight-ui .toast_box .toast_content.hint {
   -webkit-backdrop-filter: blur(16px) saturate(125%);
 }
 
-@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-watch-col-merch .ani-merch-card .products-card-img {
-    transition: transform 200ms ease-out;
-  }
-
-  body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-watch-col-merch .ani-merch-card:is(:hover, :focus-within) .products-card-img {
-    transform: scale(1.045);
-  }
-}
-
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .plus_imagetool_box
-  :is(.ani-tools-toggle-btn, .shortcut-button, .ani-player-settings-toggle, .plus_button_box.ani-tool-hover-pill):is(:hover, :focus-within)
+  .ani-tools-toggle-btn:hover :is(.ani-tools-toggle-icon, .ani-tools-toggle-label),
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .plus_imagetool_box
+  :is(.shortcut-button, .ani-player-settings-toggle, .plus_button_box.ani-tool-hover-pill):is(:hover, :focus-within)
   :is(.ani-tool-glyph, .ani-tool-hover-label, .ani-shortcut-btn-glyph, .ani-shortcut-label, .ani-tools-toggle-icon, .ani-tools-toggle-label) {
   color:var(--ani-accent, #3dafb6) !important;
   -webkit-text-fill-color:currentColor !important;
@@ -10728,10 +11150,6 @@ html body[style*="--ani-starmap-badge-size"] #BH_background .theme-list-main :is
 html body[style*="--ani-starmap-badge-radius"] #BH_background .theme-list-main :is(.ani-poster-score, .ani-custom-rating, .ani-rating-skeleton) {
   border-radius: var(--ani-starmap-badge-radius) !important;
 }
-.ani-poster-score.ani-rating-low-sample::after {
-  content: '⚠';
-  margin-inline-start: .3em;
-}
 body.ani-watched-fade-enabled #BH_background .ani-starmap-progress-fade:not(:hover) .theme-img-block > img:not(.ani-low-rating-masked) {
   opacity: .4 !important;
 }
@@ -10841,4 +11259,552 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-wish .wis
 body.ani-ambientlight-page #BH_background .container:has(.old_list .search_result) > :is(.old_list, .animate-theme-list) {
   box-sizing: border-box;
   padding-inline-start: clamp(8px, 1.5vw, 24px) !important;
+}
+body #BH_background .container > .animate-theme-list.ani-explore-inactive.ani-explore-inactive, .ani-explore-inactive, .ani-studio-panel[hidden] { display:none !important; }
+.ani-studio-shell { width:100%; min-width:0; color:var(--ani-text); font-family:var(--ani-font,inherit); }
+.ani-studio-nav,.ani-studio-tools { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
+.ani-studio-nav { margin-block:12px; }
+.ani-studio-tools { justify-content:space-between; margin:28px 0 12px; }
+.ani-studio-shell .ani-studio-pill { font:inherit; border:1px solid var(--ani-line); color:var(--ani-text); background:var(--ani-panel); padding:8px 18px; border-radius:99px; cursor:pointer; }
+.ani-studio-shell button:is(:hover,:focus-visible,[aria-pressed=true]),.ani-studio-work:hover { border-color:var(--ani-accent); color:var(--ani-accent); }
+.ani-studio-panel h2 { margin:24px 0 14px; font-size:1.45em; }
+.ani-studio-features {
+  overflow-x:auto;
+  overflow-anchor:none;
+  scrollbar-width:none;
+}
+.ani-studio-features::-webkit-scrollbar {display:none;}
+.ani-studio-feature-track {
+  --tile:clamp(148px,14vw,224px);
+  display:flex;
+  gap:14px;
+  width:max-content;
+  overflow:clip;
+}
+.ani-studio-feature {
+  --studio-name-font: clamp(23px, 2.1vw, 32px);
+  --wide: min(calc(var(--tile) + max(
+    clamp(160px, calc(var(--ani-studio-title-length, 12) * 15px + 14px), 360px),
+    calc(var(--ani-studio-name-width, 12) * var(--studio-name-font) + 24px)
+  )), 94vw);
+  position:relative;
+  box-sizing:border-box;
+  flex:0 0 var(--tile);
+  height:calc(var(--tile) * 1.52);
+  pointer-events:none;
+}
+.ani-studio-feature.is-expanded {flex-basis:var(--wide);}
+.ani-studio-feature-surface {
+  position:absolute;
+  inset:0 auto 0 0;
+  width:var(--wide);
+  box-sizing:border-box;
+  pointer-events:auto;
+  clip-path:inset(0px calc(var(--wide) - var(--tile)) 0px 0px round var(--ani-radius,12px));
+  background:var(--ani-panel);
+  color:var(--ani-text);
+}
+.ani-studio-feature.is-expanded .ani-studio-feature-surface {
+  clip-path:inset(0px 0px 0px 0px round var(--ani-radius,12px));
+}
+.ani-studio-feature-rail {position:relative;min-width:0;}
+body.ani-ambientlight-page #BH_background .ani-studio-feature-rail > .ani-rail-arrow {top:50%;}
+body.ani-ambientlight-page #BH_background .ani-studio-feature-rail > .ani-rail-arrow:disabled {display:none;}
+.ani-studio-open {
+  position:relative;
+  container-type:inline-size;
+  display:grid;
+  grid-template-rows:1fr auto;
+  width:calc(var(--tile) - 2px);
+  height:100%;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:inherit;
+  font:inherit;
+  text-align:center;
+  cursor:pointer;
+}
+.ani-studio-feature-logo {
+  display:grid;
+  place-items:center;
+  min-height:0;
+  overflow:hidden;
+  background:radial-gradient(ellipse at center, color-mix(in srgb,var(--ani-accent) 19%,transparent), transparent 76%);
+}
+body.ani-light-mode .ani-studio-logo-light-contrast > img {filter:brightness(.32);}
+.ani-studio-compact-name {padding:10px 4px;}
+.is-expanded .ani-studio-open {padding:14px 8px 14px 14px;grid-template-rows:1fr;}
+.is-expanded .ani-studio-open .ani-studio-feature-logo {border-radius:8px;}
+.is-expanded .ani-studio-open .ani-studio-compact-name {position:absolute;opacity:0;pointer-events:none;}
+.ani-studio-feature.is-expanded .ani-studio-feature-surface > .ani-studio-heart {top:18px;left:calc(var(--tile) - 46px);}
+.ani-studio-feature-logo > img {
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  box-sizing:border-box;
+  padding:12%;
+  background:transparent;
+}
+.ani-studio-feature-logo > .ani-studio-mark {width:32px;height:32px;}
+.ani-studio-compact-name {
+  font-size:min(16px, calc((100cqi - 8px) / var(--ani-studio-name-width, 12)));
+  font-weight:750;
+  line-height:1.25;
+}
+.ani-studio-panel small {color:var(--ani-muted);}
+.ani-studio-profile {
+  position:absolute;
+  container-type:inline-size;
+  inset-block:8px;
+  left:var(--tile);
+  width:calc(var(--wide) - var(--tile) - 14px);
+  opacity:0;
+  transform:translateX(6px);
+  transition:opacity 160ms ease, transform 200ms ease;
+  display:grid;
+  align-content:safe center;
+  overflow-y:auto;
+  justify-items:start;
+  gap:4px;
+  min-width:0;
+  text-align:start;
+}
+.ani-studio-feature-name {
+  font-size:min(var(--studio-name-font), calc(100cqi / var(--ani-studio-name-width, 12)));
+  font-weight:800;
+  line-height:1.2;
+}
+.ani-studio-compact-name, .ani-studio-feature-name {
+  box-sizing:border-box;
+  min-width:0;
+  max-width:100%;
+  overflow:hidden;
+  white-space:nowrap;
+}
+.ani-studio-profile small {font-size:14px;line-height:1.4;}
+.ani-studio-feature-works {display:grid;gap:4px;margin-block:8px;font-size:15px;line-height:1.4;}
+.ani-studio-feature-works > span {white-space:normal;overflow-wrap:anywhere;line-break:strict;text-wrap:pretty;}
+.ani-studio-feature-works {max-width:100%;}
+.ani-studio-profile .ani-studio-actions {justify-content:flex-start;gap:8px;}
+.ani-studio-profile a {color:var(--ani-muted);text-decoration:underline;font-size:14px;}
+.ani-studio-slot {position:relative;display:flow-root;}
+.ani-studio-gallery {position:relative;}
+.ani-studio-placeholder {
+  overflow:hidden;
+  pointer-events:none;
+}
+.ani-studio-placeholder-card {
+  box-sizing:border-box;
+  padding:var(--ani-studio-poster-padding) var(--ani-studio-poster-padding) var(--ani-studio-poster-footer);
+  box-shadow:inset 0 0 0 1px var(--ani-line);
+  border-radius:var(--ani-radius,12px);
+  background:var(--ani-panel);
+}
+.ani-studio-placeholder-cover {
+  display:block;
+  position:relative;
+  aspect-ratio:2 / 3;
+  border-radius:max(6px, calc(var(--ani-radius,12px) - 4px));
+}
+.ani-studio-cover-placeholder {
+  position:absolute;
+  inset:0;
+  z-index:2;
+  display:grid;
+  place-items:center;
+  pointer-events:none;
+}
+:is(.ani-studio-placeholder-cover,.ani-studio-cover-placeholder) {
+  overflow:hidden;
+  background:color-mix(in srgb,var(--ani-text) 8%,var(--ani-base,#172332));
+}
+.ani-studio-cover-placeholder svg {width:26px;height:26px;color:var(--ani-muted);}
+.ani-studio-feature.is-expanded .ani-studio-profile {opacity:1;transform:none;}
+
+@media (prefers-reduced-motion:reduce) {
+  .ani-studio-feature,.ani-studio-profile {transition:none;}
+}
+.ani-studio-panel .theme-title { display:flex;align-items:center;gap:.5em; }
+.ani-studio-panel .theme-title > :is(svg,.ani-studio-favicon) { width:1em;height:1em;flex:none; }
+html body.ani-catalog-page #BH_background .ani-studio-identity .theme-title > .ani-studio-mark {
+  width:var(--ani-studio-mark-size);
+  height:var(--ani-studio-mark-size);
+}
+.ani-studio-mark { position:relative; display:inline-grid; place-items:center; flex:none; }
+.ani-studio-mark > :is(img,svg) { width:100%; height:100%; }
+.ani-studio-favicon { object-fit:contain; border-radius:4px; }
+.ani-studio-mark > .ani-studio-mark-fallback + img { position:absolute; inset:0; opacity:0; }
+.ani-studio-mark-fallback {
+  display:grid;
+  place-items:center;
+  width:100%;
+  height:100%;
+  box-sizing:border-box;
+  border-radius:4px;
+  background:color-mix(in srgb, var(--ani-base,#172332) 72%, var(--ani-text,#edf4fb) 28%);
+  color:var(--ani-text,#edf4fb);
+  font:700 9px/1 var(--ani-font,system-ui,sans-serif);
+}
+.ani-studio-portrait .ani-studio-mark-fallback,
+.ani-studio-feature-logo .ani-studio-mark-fallback {font-size:13px;}
+.ani-studio-mark-light-tile > img {box-sizing:border-box;padding:2px;background:#edf4f8;}
+.ani-studio-featured-header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:12px;
+  margin:20px 0 14px;
+}
+html body:is(.ani-catalog-page,.ani-collection-page) #BH_background .ani-studio-featured-header .theme-title {
+  margin:0!important;
+  font-size:clamp(21px,1.55vw,27px)!important;
+  font-weight:650!important;
+}
+.ani-studio-shell { margin-block:12px; }
+.ani-studio-panel .ani-studio-row :is(.theme-list-block,.ani-studio-poster-grid) {
+  display:grid!important; grid-auto-flow:column; grid-template-columns:none!important;
+  grid-auto-columns:var(--ani-studio-poster-width); gap:var(--ani-card-gap,16px);
+  padding-block:4px!important; max-width:100%;
+}
+.ani-studio-panel .ani-studio-row .theme-list-block {overflow-x:auto!important;}
+.ani-studio-row { min-width:0; scroll-margin-top:85px; }
+.ani-studio-panel .ani-studio-tools h2 {margin:0;}
+.ani-studio-directory {
+  margin-block:24px 0;
+  padding-block:16px 8px;
+  border-top:1px solid var(--ani-line);
+}
+.ani-studio-directory-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:12px;
+  margin-bottom:24px;
+}
+html body.ani-catalog-page #BH_background .ani-studio-directory-header > .theme-title {
+  margin:0!important;
+  font-size:clamp(20px,1.5vw,25px)!important;
+}
+.ani-studio-search-field {
+  position:relative;
+  width:min(100%,260px);
+}
+.ani-studio-search-field > svg {
+  position:absolute;
+  inset-inline-end:13px;
+  top:50%;
+  transform:translateY(-50%);
+  width:18px;
+  height:18px;
+  color:var(--ani-text);
+  pointer-events:none;
+}
+.ani-studio-search {
+  width:100%;
+  min-height:40px;
+  padding:8px 39px 8px 15px;
+  box-sizing:border-box;
+  border:1px solid var(--ani-line);
+  border-radius:999px;
+  background:var(--ani-panel);
+  color:var(--ani-text);
+  font:inherit;
+}
+.ani-studio-chips {display:flex;flex-wrap:wrap;gap:8px;}
+html body.ani-catalog-page #BH_background .ani-studio-directory :is(.ani-studio-chip,.ani-studio-show-more) {
+  min-height:38px;
+  max-width:100%;
+  padding:6px 14px;
+  border:1px solid var(--ani-line);
+  border-radius:999px;
+  background:var(--ani-panel);
+  color:var(--ani-text);
+  font:inherit;
+  overflow-wrap:anywhere;
+  cursor:pointer;
+}
+html body.ani-catalog-page #BH_background .ani-studio-directory :is(.ani-studio-chip,.ani-studio-show-more):hover {
+  border-color:var(--ani-accent);
+  background:color-mix(in srgb,var(--ani-accent) 15%,var(--ani-panel));
+}
+html body.ani-catalog-page #BH_background .ani-studio-directory .ani-studio-chip {
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+}
+.ani-studio-chip .ani-studio-mark {width:18px;height:18px;}
+.ani-studio-chip .ani-studio-mark-wide {width:36px;}
+.ani-studio-chip > svg {width:18px;height:18px;flex:none;}
+.ani-studio-directory [hidden],
+.ani-studio-featured-works[hidden] {display:none!important;}
+.ani-studio-show-more {display:inline-flex;align-items:center;gap:7px;}
+.ani-studio-show-more svg {width:16px;height:16px;}
+.ani-studio-no-results {margin:12px 0;color:var(--ani-muted);}
+.ani-studio-directory-works:empty {display:none;}
+.ani-studio-directory-works,.ani-studio-slot {overflow-anchor:none;}
+.ani-studio-panel {
+  --ani-studio-poster-width:clamp(145px,12vw,215px);
+  --ani-studio-poster-padding:8px;
+  --ani-studio-poster-footer:68px;
+  font-family:var(--ani-font,inherit);
+  color:var(--ani-text);
+}
+.ani-studio-panel h2.theme-title {font:inherit;font-size:clamp(20px,1.45vw,26px);font-weight:700;line-height:1.35;}
+html body.ani-catalog-page #BH_background .ani-studio-panel > h2.theme-title {font-size:clamp(21px,1.55vw,27px)!important;font-weight:650!important;}
+html body.ani-catalog-page #BH_background .ani-studio-panel .ani-studio-tools h2.theme-title {font-size:clamp(20px,1.5vw,25px)!important;font-weight:800!important;}
+.ani-studio-actions {display:flex;justify-content:flex-end;align-items:center;gap:8px;flex-wrap:wrap;}
+.ani-studio-panel .ani-studio-heart,.ani-studio-panel .ani-studio-watch {display:inline-flex;align-items:center;justify-content:center;height:32px;border:0;border-radius:999px;font:inherit;cursor:pointer;}
+#BH_background .ani-studio-panel .ani-studio-heart {
+  width:32px;
+  padding:7px;
+  box-sizing:border-box;
+  border:1px solid color-mix(in srgb, var(--ani-text,#edf4fb) 28%, transparent);
+  background:color-mix(in srgb, var(--ani-base,#172332) 78%, var(--ani-text,#edf4fb) 22%);
+  color:var(--ani-text,#fff);
+}
+.ani-studio-heart svg {width:100%;height:100%;}
+.ani-studio-heart[aria-pressed=true] svg {color:#f47da4;fill:currentColor;}
+.ani-studio-feature-surface > .ani-studio-heart {position:absolute;top:8px;left:calc(var(--tile) - 40px);}
+.ani-studio-panel .ani-studio-watch {padding:0 14px;color:var(--ani-panel);background:var(--ani-accent);font-weight:650;}
+.ani-studio-panel .ani-studio-watch {min-height:36px;gap:6px;font-size:15px;}
+.ani-studio-watch > svg {width:18px;height:18px;flex:none;}
+.ani-studio-tools .ani-studio-summary {
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;max-width:100%;
+  box-sizing:border-box;padding:12px 16px;border:1px solid var(--ani-line);
+  border-radius:var(--ani-radius,12px);background:var(--ani-panel);
+}
+.ani-studio-portrait {position:relative;width:52px;height:52px;display:grid;place-items:center;flex:none;}
+.ani-studio-portrait > .ani-studio-mark {width:38px;height:38px;}
+.ani-studio-portrait > .ani-studio-mark-logo {width:100%;}
+#BH_background .ani-studio-panel .ani-studio-portrait > .ani-studio-heart {
+  position:absolute;top:-4px;right:-4px;width:24px;height:24px;padding:4px;
+}
+.ani-studio-summary .ani-studio-identity {display:grid;gap:3px;min-width:0;overflow-wrap:anywhere;}
+.ani-studio-summary small {font-size:14px;line-height:1.45;color:var(--ani-muted);}
+.ani-studio-summary .ani-studio-actions {margin-inline-start:auto;}
+.ani-studio-panel a.ani-studio-site {
+  display:inline-grid;place-items:center;width:36px;height:36px;box-sizing:border-box;
+  border:1px solid var(--ani-line);border-radius:50%;color:var(--ani-muted);
+}
+.ani-studio-panel a.ani-studio-site:is(:hover,:focus-visible) {color:var(--ani-accent);border-color:currentColor;}
+.ani-studio-site svg {width:18px;height:18px;}
+.ani-studio-tools {align-items:center;}
+.ani-studio-tools > .ani-catalog-sort {margin-inline-start:auto!important;}
+html body.ani-catalog-page #BH_background .ani-studio-explore .filter-title-block > h1.theme-title {
+  display:none!important;
+}
+html body.ani-catalog-page #BH_background .filter-title-block:has(> .ani-catalog-right-tools) {
+  display:grid!important;
+  grid-auto-flow:column;
+  grid-auto-columns:max-content;
+  justify-content:flex-end!important;
+}
+html body.ani-catalog-page #BH_background .filter-title-block:has(> .ani-studio-shell) {
+  display:grid!important;
+  grid-template-columns:minmax(max-content,1fr);
+  grid-auto-flow:column;
+  grid-auto-columns:max-content;
+  align-items:center;
+  border-bottom:0!important;
+}
+html body.ani-catalog-page #BH_background > .container > .animate-theme-list.ani-studio-explore > .filter-title-block:has(> .ani-studio-shell) {
+  padding-bottom:4px!important;
+  margin-bottom:0!important;
+}
+html body.ani-catalog-page #BH_background .filter-title-block > .ani-studio-shell {
+  width:auto;
+  margin:0;
+}
+html body.ani-collection-page #BH_background .theme-title-block.ani-collection-studio-toolbar {
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding-block-end: 0 !important;
+}
+html body.ani-collection-page #BH_background .ani-collection-studio-toolbar > .ani-studio-shell {
+  width: auto;
+  margin: 0 auto 0 0;
+}
+@layer ani-catalog-visibility {
+  body.ani-collection-page #BH_background .ani-collection-studio-toolbar > .theme-title,
+  body.ani-collection-page #BH_background .ani-studio-explore.ani-studio-showing > :not(.ani-collection-studio-toolbar),
+  body.ani-collection-page #BH_background .ani-studio-showing > .ani-collection-studio-toolbar > :not(.ani-studio-shell, .ani-blur-quick-toggle, :has(.ani-blur-quick-toggle)),
+  body.ani-collection-page #BH_background .ani-studio-showing > .ani-collection-studio-toolbar :has(.ani-blur-quick-toggle) > :not(.ani-blur-quick-toggle, :has(.ani-blur-quick-toggle)) {
+    display: none !important;
+  }
+}
+html body.ani-catalog-page #BH_background .container > .animate-theme-list.ani-studio-explore.ani-studio-showing > :not(.filter-title-block),
+html body.ani-catalog-page #BH_background .container > .animate-theme-list.ani-studio-explore.ani-studio-showing > .filter-title-block > :not(.ani-studio-shell, .ani-blur-quick-toggle, .ani-catalog-right-tools:has(> .ani-blur-quick-toggle)),
+html body.ani-catalog-page #BH_background .ani-studio-showing > .filter-title-block > .ani-catalog-right-tools > :not(.ani-blur-quick-toggle) {
+  display:none!important;
+}
+html body.ani-catalog-page #BH_background > .container > .animate-theme-list.ani-studio-showing {
+  row-gap:0!important;
+}
+html body.ani-catalog-page #BH_background .ani-catalog-right-tools {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin:0!important;
+}
+html body.ani-catalog-page #BH_background .ani-catalog-right-tools > .ani-blur-quick-toggle {
+  margin-inline:0!important;
+}
+@media (max-width: 640px) {
+  html body.ani-catalog-page #BH_background .filter-title-block:has(> .ani-catalog-right-tools) {
+    grid-auto-flow:row;
+    grid-auto-columns:minmax(0,1fr);
+    justify-items:end;
+  }
+  html body.ani-catalog-page #BH_background .ani-catalog-right-tools {
+    flex-wrap:wrap;
+    justify-content:flex-end;
+  }
+}
+@media (max-width: 950px) {
+  html body.ani-catalog-page #BH_background .filter-title-block:has(> .ani-studio-shell) {
+    display:flex!important;
+    flex-wrap:wrap;
+    justify-content:flex-start!important;
+  }
+  html body.ani-catalog-page #BH_background .filter-title-block > .ani-studio-shell {
+    margin-inline-end:auto;
+  }
+}
+html body:is(.ani-catalog-page,.ani-collection-page) #BH_background .ani-studio-shell > .ani-catalog-sort {
+  height:auto!important;
+  min-height:54px!important;
+  padding:5px!important;
+}
+html body:is(.ani-catalog-page,.ani-collection-page) #BH_background .ani-studio-shell > .ani-catalog-sort > button {
+  height:auto!important;
+  min-height:42px!important;
+  padding-inline:clamp(10px,2vw,24px)!important;
+  font-size:16px!important;
+  transition:background-color 180ms ease, color 180ms ease, border-color 180ms ease;
+}
+html body:is(.ani-catalog-page,.ani-collection-page) #BH_background .ani-studio-shell > .ani-catalog-sort svg {
+  width:18px;
+  height:18px;
+}
+html body:is(.ani-catalog-page,.ani-collection-page) #BH_background .ani-studio-panel .ani-studio-row .theme-list-block {
+  overflow-x:auto!important;
+  margin-inline:0!important;
+  padding-inline:0!important;
+  clip-path:none;
+}
+body #BH_background .ani-studio-row .ani-poster-rail {
+  --ani-studio-edge: clamp(22px, 3vw, 56px);
+  --ani-studio-edge-left: 0px;
+  --ani-studio-edge-right: 0px;
+
+  &.ani-can-prev { --ani-studio-edge-left: var(--ani-studio-edge); }
+  &.ani-can-next { --ani-studio-edge-right: var(--ani-studio-edge); }
+  &:is(.ani-can-prev, .ani-can-next) > .theme-list-block {
+    mask-image: linear-gradient(to right, transparent, black var(--ani-studio-edge-left),
+      black calc(100% - var(--ani-studio-edge-right)), transparent);
+  }
+}
+html body:is(.ani-catalog-page,.ani-collection-page) #BH_background .ani-studio-panel .ani-studio-row .theme-list-main.ani-poster-card {
+  --ani-poster-footer:var(--ani-studio-poster-footer);
+  width:100%!important;
+  min-width:0!important;
+  margin:0!important;
+  float:none!important;
+}
+/* Keep the catalogue columns steady if an expanded card reaches the viewport edge. */
+html:has(body:is(.ani-catalog-page,.ani-collection-page)) {scrollbar-gutter:stable;}
+
+/* The cover and footer slot stay in place while a long title opens over the next row. */
+:is(
+  body.ani-layout-related.ani-ambientlight-page.ani-ambientlight-ui #BH_background .animate-theme-list:is(#blockHotAnime,#blockAnimeNewArrive,.animate-theme-list),
+  body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-watch-related-row .old_list:not(:has(.search_result))
+) .theme-list-main.ani-poster-card {
+  --ani-poster-inset:var(--ani-studio-poster-padding,8px);
+  align-self:start;
+  padding:var(--ani-poster-inset) var(--ani-poster-inset) var(--ani-poster-footer)!important;
+  overflow:visible!important;
+  transform:none!important;
+  transition-property:background-color,border-color,box-shadow!important;
+
+  &:is(:hover,:focus-within) {z-index:8!important;}
+  &:not(.ani-card-has-overflow:is(:hover,:focus-within)) > .ani-hover-outline {height:100%!important;}
+  > .anime-detail-block,
+  &:is(:hover,:focus-within) > .anime-detail-block {
+    position:absolute!important;
+    inset:calc(100% - var(--ani-poster-footer)) 0 auto!important;
+    height:var(--ani-poster-footer)!important;
+    width:100%!important;
+    margin-inline:0!important;
+    border-radius:0 0 var(--ani-poster-footer-radius) var(--ani-poster-footer-radius)!important;
+    overflow:hidden!important;
+    --ani-poster-footer-radius:var(--ani-radius,12px);
+  }
+
+  &.ani-card-has-overflow:is(:hover,:focus-within) {
+    .theme-name {height:auto!important;white-space:normal!important;overflow:visible!important;overflow-wrap:anywhere;}
+
+    > .anime-detail-block {
+      height:auto!important;
+      max-height:calc(var(--ani-poster-footer) + var(--ani-poster-footer-overhang,240px))!important;
+      overflow:auto!important;
+      pointer-events:auto!important;
+      scrollbar-width:none;
+    }
+  }
+}
+.ani-studio-row {position:relative;--ani-poster-footer-overhang:110px;}
+.ani-studio-row .ani-poster-rail {display:flow-root;}
+/* Keep the horizontal scrollport the same height as the pointer enters a card. */
+html body:is(.ani-catalog-page,.ani-collection-page) #BH_background .ani-studio-panel .ani-studio-row .theme-list-block {
+  padding-block-end:calc(4px + var(--ani-poster-footer-overhang))!important;
+  margin-block-end:calc(-1 * var(--ani-poster-footer-overhang))!important;
+  overflow-y:hidden!important;
+  overflow-anchor:none;
+  &:not(:has(.ani-card-has-overflow:is(:hover,:focus-within))) {
+    clip-path:inset(0 0 var(--ani-poster-footer-overhang));
+  }
+}
+.ani-studio-row:has(.ani-card-has-overflow:is(:hover,:focus-within)) {z-index:1;}
+@media (prefers-reduced-motion: reduce) {
+  html body:is(.ani-catalog-page,.ani-collection-page) #BH_background .ani-studio-shell > .ani-catalog-sort > button {transition:none;}
+}
+.ani-favorite-studios {margin-block:0 1.25rem;color:var(--ani-text);}
+.ani-favorite-studios[hidden] {display:none;}
+body:is(.ani-catalog-page,.ani-collection-page) #BH_background .ani-studio-panel:not([hidden]) ~ :is(.page_control,.ani-load-more) {display:none!important;}
+
+/* Poster and banner carousel arrows share hover and press feedback. */
+body:is(.ani-ambientlight-page, .ani-ambientlight-ui) #BH_background :is(
+  .ani-rail-arrow,
+  .ani-hero-arrow,
+  :is(#blockContinueWatch, #blockAnimePublisherChannel) :is(.slick-prev, .slick-next)
+):not(:disabled, .slick-disabled, [aria-disabled="true"]) {
+  --ani-arrow-tint-base: #172332;
+  transition: border-color 140ms ease, color 140ms ease, scale 120ms ease !important;
+  &:is(:hover, :focus-visible, :active) {
+    background: color-mix(in srgb, var(--ani-accent, #3dafb6) 45%, var(--ani-arrow-tint-base)) !important;
+    border-color: var(--ani-accent, #3dafb6) !important;
+    color: var(--ani-arrow-icon, #baf9ff) !important;
+  }
+  &:active {
+    background: color-mix(in srgb, var(--ani-accent, #3dafb6) 65%, var(--ani-arrow-tint-base)) !important;
+    scale: .9;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none !important;
+    &:active { scale: none; }
+  }
+}
+body:is(.ani-light-mode, .ani-theme-light):is(.ani-ambientlight-page, .ani-ambientlight-ui) #BH_background :is(
+  .ani-rail-arrow,
+  .ani-hero-arrow,
+  :is(#blockContinueWatch, #blockAnimePublisherChannel) :is(.slick-prev, .slick-next)
+) {
+  --ani-arrow-tint-base: #fff;
+  --ani-arrow-icon: #123d50;
 }

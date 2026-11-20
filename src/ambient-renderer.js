@@ -43,12 +43,13 @@
       vec2 q = (p - bounds.xy) / bounds.zw;
       vec2 outside = max(max(-q, q - 1.), 0.) * bounds.zw;
       float distance = length(outside);
-      // 影片中央不繪製。邊緣保留兩個畫布像素的底襯，避免低解析度
-      // 畫布放大插值時混入透明像素，露出一條暗縫；原影片尺寸不變。
+      // Blend behind the video so scroll and compositor timing cannot expose
+      // a hard transparent rectangle around its previous position.
       if(distance < .001){
         float inset=min(min(p.x-bounds.x,bounds.x+bounds.z-p.x),
           min(p.y-bounds.y,bounds.y+bounds.w-p.y));
-        result=inset<=2.?vec4(readFrame(clamp(q,0.,1.),0.),1.):vec4(0.);
+        float interior=smoothstep(0.,24.,inset);
+        result=vec4(readFrame(clamp(q,0.,1.),7.*interior),mix(1.,strength*.65,interior));
         return;
       }
       float size = min(bounds.z, bounds.w);
@@ -531,6 +532,13 @@
         const shape = (settings[shapeKey] ?? 50) / 100;
         const reach =
           Math.min(w, h) * (0.34 + settings.radius * 0.012) * (0.5 + shape);
+        // Soft backing continues under the video and overlaps the reflections.
+        const backingBlur = Math.max(8, Math.min(w, h) * 0.07);
+        ctx.save();
+        ctx.globalAlpha = 0.72;
+        ctx.filter = `blur(${backingBlur}px)`;
+        ctx.drawImage(frame, x - backingBlur, y - backingBlur, w + 2 * backingBlur, h + 2 * backingBlur);
+        ctx.restore();
         // Four clipped reflections preserve both spatial axes, including corners.
         const mx = Math.min(w, Math.max(reach, canvas.width));
         const my = Math.min(h, Math.max(reach, canvas.height));
@@ -610,15 +618,11 @@
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.restore();
-        // 與 GPU 使用相同的兩像素底襯，只消除畫布接縫，不裁切影片。
-        ctx.drawImage(frame, x, y, w, h);
-        ctx.clearRect(x + 2, y + 2, Math.max(0, w - 4), Math.max(0, h - 4));
         if (blend > 0) {
           ctx.save();
           ctx.globalAlpha = blend;
           ctx.drawImage(previous, 0, 0);
           ctx.restore();
-          ctx.clearRect(x + 2, y + 2, Math.max(0, w - 4), Math.max(0, h - 4));
         }
         return true;
       },

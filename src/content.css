@@ -228,17 +228,14 @@ body.ani-layout-watch :is(:fullscreen, :-webkit-full-screen, .vjs-fullscreen, .v
     justify-content: center !important;
     box-sizing: border-box !important;
     gap: 0px !important;
-    width: 68px !important;
-    height: 48px !important;
+    width: 64px !important;
+    height: 64px !important;
     min-height: 0 !important;
     margin: 0 auto !important;
     padding: 0 !important;
     border-radius: 12px !important;
     overflow: hidden !important;
-    transition:
-      height 0.2s cubic-bezier(0.22, 1, 0.36, 1),
-      background-color 0.16s ease,
-      color 0.16s ease !important;
+    transition: background-color 0.16s ease, color 0.16s ease, height 0.2s cubic-bezier(0.22, 1, 0.36, 1) !important;
   }
   body.ani-layout-nav .top_sky .mainmenu li a.ani-nav-icon-link .ani-nav-icon,
   body.ani-layout-nav .top_sky .mainmenu .ani-nav-more > button .ani-nav-icon {
@@ -250,7 +247,7 @@ body.ani-layout-watch :is(:fullscreen, :-webkit-full-screen, .vjs-fullscreen, .v
     position: absolute !important;
     left: 2px !important;
     right: 2px !important;
-    bottom: 9px !important;
+    bottom: 10px !important;
     display: block !important;
     height: 16px !important;
     line-height: 16px !important;
@@ -271,14 +268,13 @@ body.ani-layout-watch :is(:fullscreen, :-webkit-full-screen, .vjs-fullscreen, .v
   body.ani-layout-nav .top_sky .mainmenu li a.ani-nav-icon-link:hover,
   body.ani-layout-nav .top_sky .mainmenu .ani-nav-more > button:hover,
   body.ani-layout-nav .top_sky .mainmenu .ani-nav-more:hover > button {
-    gap: 0px !important;
-    width: 68px !important;
-    height: 72px !important;
-    min-height: 0 !important;
-    padding: 0 !important;
-    border-radius: 12px !important;
     background: rgba(11, 162, 154, 0.3) !important;
     color: #0fe0d4 !important;
+  }
+  body.ani-layout-nav .top_sky .mainmenu li.is-active a.ani-nav-icon-link,
+  body.ani-layout-nav .top_sky .mainmenu li a.ani-nav-icon-link:hover,
+  body.ani-layout-nav .top_sky .mainmenu .ani-nav-more:hover > button {
+    height: 80px !important;
   }
   body.ani-layout-nav .top_sky .mainmenu li.is-active a.ani-nav-icon-link .ani-nav-icon,
   body.ani-layout-nav .top_sky .mainmenu li a.ani-nav-icon-link:hover .ani-nav-icon,
@@ -313,6 +309,12 @@ body.ani-layout-watch :is(:fullscreen, :-webkit-full-screen, .vjs-fullscreen, .v
     top: 0 !important;
     left: calc(100% + 10px) !important;
     right: auto !important;
+  }
+}
+@media (min-width: 901px) and (prefers-reduced-motion: reduce) {
+  body.ani-layout-nav .top_sky .mainmenu :is(li a.ani-nav-icon-link, .ani-nav-more > button),
+  body.ani-layout-nav .top_sky .mainmenu :is(li a.ani-nav-icon-link, .ani-nav-more > button) :is(.ani-nav-icon, .ani-nav-short) {
+    transition: none !important;
   }
 }
 body.ani-ambientlight-ui .mainmenu li a {

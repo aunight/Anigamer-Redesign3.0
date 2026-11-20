@@ -10,6 +10,167 @@
   const WORK_META_CACHE_KEY = 'aniWorkMetaCacheV3';
   const LOCAL_MUTE_KEY = 'aniLocalMutedSendersV1';
   const EP_TITLES_CACHE_KEY = 'aniEpTitlesCacheV5';
+  const EP_METADATA_VERSION = 4;
+  // 繁中分集資料依中華電信 MOD 的第一季分集介紹改寫。
+  const slimeSeasonOneDescriptions = [
+    '三上悟遭人持刀襲擊，醒來後發現自己成了史萊姆，還在洞窟裡遇見被封印的暴風龍。',
+    '三上與暴風龍交上朋友，並獲得「利姆路」這個名字。他嘗試解開維魯多拉的封印，消息震撼了周邊各國。',
+    '離開洞窟後，利姆路遇見正受牙狼族威脅的哥布林。他決定守住村子，迎戰夜裡來襲的牙狼。',
+    '為替村子引進工匠，利姆路一行前往矮人王國，卻在入境時惹上麻煩。此時礦坑又傳來鎧龍失控的消息。',
+    '利姆路幫凱金解了圍，眾人到店裡慶祝。培斯塔大臣卻當面羞辱利姆路，凱金忍不住動了手。',
+    '村子迎來更多哥布林。利姆路也遇到一隊人類冒險者，其中一位叫靜，同樣來自日本。',
+    '靜回想自己從戰火中的東京被雷昂召喚到異世界的經過。寄宿在她體內的伊弗利特失控了。',
+    '靜想起當年救她的勇者。在生命的最後一刻，她將自己未了的心願託付給利姆路。',
+    '村子的建設逐漸上軌道，利姆路卻突然接到求救訊號。他趕到現場時，六名大鬼族正等著他。',
+    '利姆路得知大鬼族的家園遭半獸人大軍摧毀，背後似乎還有戴面具的魔人。他提議讓倖存者加入自己的陣營。',
+    '紅丸等人加入後，村子變得更加熱鬧。蜥人族的戈畢爾也找上門，想招攬哥布林對抗半獸人大軍。',
+    '半獸人君主率軍橫掃朱拉大森林。見情勢危急，守護森林的樹妖精托蕾妮向利姆路求援。',
+    '利姆路前往濕地尋求與蜥人族結盟，途中救了戈畢爾的妹妹。她拜託利姆路阻止哥哥貿然迎敵。',
+    '魔人喀爾謬德現身，準備利用半獸人君主掌控森林。得知真相後，半獸人君主做出自己的選擇。',
+    '戰鬥結束，各族開始商討戰後安排。利姆路說出他對蓋德的承諾，也試著找到讓大家共存的辦法。',
+    '城鎮剛恢復平靜，魔王蜜莉姆就突然登門。紅丸和蘭加都擋不住她，利姆路必須想辦法應對。',
+    '魔王卡利翁麾下的法比歐闖進城鎮，卻很快被蜜莉姆制伏。利姆路想弄清楚他這趟究竟為何而來。',
+    '法比歐對敗給蜜莉姆耿耿於懷。兩名小丑趁機接近他，宣稱暴風大妖渦能給他抗衡魔王的力量。',
+    '暴風大妖渦帶著成群巨鯊逼近城鎮。利姆路動員眾人迎敵，卻發現對方的力量遠超預期。',
+    '利姆路夢見靜教導被召喚到異世界的孩子。為了完成她的心願，他動身到英格拉西亞王國找那些學生。',
+    '利姆路接任老師，但對自己的未來感到不安的孩子們並不信任他。他提議先用一場模擬戰認識彼此。',
+    '孩子們的生命所剩無幾。利姆路相信高階精靈能救他們，便帶著大家前往精靈神域。',
+    '抵達精靈神域深處後，孩子們一一走上台座嘗試召喚精靈，利姆路在旁等候結果。',
+    '在利姆路轉生以前，靜與一群冒險者受邀討伐復活的惡魔。這項委託背後另有隱情。',
+  ];
+  // 採動畫瘋的系列連續集數。第二、三季依中華電信 MOD，第四季依 Prime Video 與 LiTV 的繁中介紹改寫。
+  const slimeSeasonDescriptions = {
+    1: { firstEpisode: 1, summaries: slimeSeasonOneDescriptions },
+    2: { firstEpisode: 25, summaries: [
+      '利姆路準備與獸王國建交。眾人忙著迎賓時，一輛由巨大魔獸拉動的虎車出現在眼前。',
+      '獸王國的交涉告一段落，利姆路準備前往德瓦崗參加友好儀式。紫苑堅持要跟著去。',
+      '利姆路與蓋札王會談並在典禮上致詞。公務結束後，他瞞著朱菜和紫苑，帶哥布達等人另有行程。',
+      '坦派斯特忙著準備迎接利姆路，尤姆則帶著新夥伴繆蘭到訪。法爾姆斯王國也在暗中行動。',
+      '繆蘭奉克雷曼之命採取行動。法爾姆斯派來的三名異世界人，也趁利姆路不在時對坦派斯特出手。',
+      '坦派斯特遭到攻擊，利姆路在回程也被攔截。出手的人是曾受靜教導的聖騎士坂口日向。',
+      '日向將利姆路逼入絕境，他只能用「暴食者」尋找生路。此時坦派斯特已在襲擊中遭受重創。',
+      '利姆路查明襲擊背後的陰謀，為失去的同伴悲痛不已。愛蓮帶來了一個意想不到的消息。',
+      '為了救回紫苑等人，利姆路決定成為魔王。決戰前，他向同伴坦承自己曾經是人類。',
+      '紅丸等人分頭執行反擊計畫，白老再次遇上恭彌和省吾。利姆路則親自迎戰法爾姆斯大軍。',
+      '利姆路集齊進化所需的靈魂，開始覺醒。睡意襲來前，他召喚惡魔去追捕逃跑的敵人。',
+      '法爾姆斯軍敗退後，坦派斯特仍有許多難題待解。拉斐爾此時帶來無限牢獄已被解析的消息。',
+      '慶祝同伴與維爾德拉歸來後，利姆路召集眾人商議下一步，準備公開魔王身分並向克雷曼宣戰。',
+      '各國代表來到坦派斯特商討局勢。另一頭，克雷曼一方也在謀劃下一步，而會議迎來意外來客。',
+      '利姆路提議讓尤姆成為法爾姆斯的新王。蓋札親口確認尤姆是否願意承擔這項重任。',
+      '克雷曼藉利姆路自稱魔王之事召集魔王盛宴。利姆路也開始部署對付克雷曼的行動。',
+      '為保護獸王國的居民，利姆路必須趕在克雷曼軍得手前行動。他聽取拉斐爾與秘書的建議調整對策。',
+      '克雷曼沒料到利姆路會如此反擊。金、雷昂和身為維爾德拉姊姊的維爾薩澤也開始留意這位新勢力。',
+      '紅丸率軍傳送到獸王國，迎戰克雷曼的部隊。相信卡利翁還活著的三獸士也投入戰鬥。',
+      '蘇菲亞與米德雷交手陷入苦戰。另一處戰場上，阿爾比思雖然壓制了亞姆札，局勢卻再次生變。',
+      '利姆路出發參加魔王盛宴。朱菜等人則前往克雷曼的領地，在城堡附近遇上敵人阻攔。',
+      '克雷曼讓蜜莉姆代自己出戰，打亂了原本的決鬥。利姆路迎戰蜜莉姆，紫苑則對上克雷曼。',
+      '克雷曼一方節節敗退。他情急之下命令蜜莉姆狂化，企圖讓所有人同歸於盡。',
+      '克雷曼覺醒後再度與利姆路對峙。兩人的恩怨和利姆路能否正式成為魔王，都將在這場決戰揭曉。',
+    ] },
+    3: { firstEpisode: 49, summaries: [
+      '利姆路以新任魔王身分結束盛宴，返回坦派斯特。迪亞布羅也回來了，並揭露他促成法爾姆斯求和的手段。',
+      '克雷曼之死打亂了優樹的計畫。另一方面，日向與魯米納斯等人商議該如何看待勢力逐漸壯大的利姆路。',
+      '利姆路開始處理森林各族的外交事務，派紅丸前往天狗族領地，也想到可以用開國祭招待各國與新居民。',
+      '城鎮周邊出現更強的魔物，培斯塔和凱金拿出結界裝置的原型。利姆路也為正煩惱如何帶領部下的蓋德安排任務。',
+      '日向在兩支騎士團的會議上提議與利姆路和談。一封看似向她下戰帖的訊息，卻使局勢變得複雜。',
+      '大主教遇害的假消息讓各國騎士集結到法爾姆斯，迪亞布羅設法挽回局勢。日向也在途中與聖騎士團會合。',
+      '日向在途中看見坦派斯特推動人魔共存的成果，對先前的挑釁更感困惑。同時，聖騎士的先鋒已開始進攻。',
+      '坦派斯特被迫迎戰聖騎士團。紫苑展現新能力，利姆路則正面接下日向從靜身上習得的劍技。',
+      '利姆路與日向的交鋒仍未結束。迪亞布羅則當著各國記者的面要求愛德華王與尤姆和談。',
+      '日向提議以全力一擊為決鬥畫下句點。利姆路成功接招後，她手中的劍卻突然失去控制。',
+      '七曜大師遭到魯米納斯處置，戰事落幕。利姆路趁機與日向、魯米納斯商談建交，也得知東方商人的線索。',
+      '坦派斯特各部門忙著籌備開國祭。朱菜想邀請同樣來自另一個世界的糕點師吉田到城裡。',
+      '各國陸續收到開國祭邀請。菈米莉絲一心想搬到坦派斯特，利姆路也發現她的能力能派上用場。',
+      '競技場完工後，利姆路與菈米莉絲接著規劃地下迷宮。當寶箱和陷阱逐步就緒，蜜莉姆突然現身。',
+      '森林各族代表前來謁見利姆路。典禮途中結界被打破，三名來意不善的訪客出現在會場。',
+      '紅丸為修築道路出使天狗族領地，但紅葉反對在山裡挖隧道。雙方僵持時，族長楓出面了。',
+      '利姆路請蒼影查探奴隸交易，卻得知涉案商會已被勇者正幸摧毀。正幸現在正朝坦派斯特而來。',
+      '法爾梅納斯成立後，利姆路赴英格拉西亞邀請學生和老師參加開國祭。返抵坦派斯特時，他們遇見了正幸。',
+      '開國祭前夕，白老以壽司招待各國賓客，眾人也試著讓米德雷體會料理的滋味。天帝艾爾梅西亞突然到場。',
+      '祭典開幕，日向帶孩子們逛攤位，利姆路也巡看各族同伴準備的演出與研究成果。',
+      '開國祭的武鬥大會開打，正幸一路晉級。臨時被利姆路推上場的哥布達，也被強敵逼出了底牌。',
+      '武鬥大會決賽前，摩邁爾通知利姆路金幣不夠支付貨款。艾爾梅西亞伸出援手，也問起他打算如何約束迪亞布羅。',
+      '正幸答應替地下迷宮做宣傳。開國祭最後一天，利姆路在觀眾面前開放迷宮並進行公開測試。',
+      '祭典結束後，利姆路趕去替摩邁爾解決貨款問題，提出建立經濟圈的構想，並提醒各國注意幕後的東方商人。',
+    ] },
+    4: { firstEpisode: 73, summaries: [
+      '開國祭過後，冒險者抱怨地下迷宮太難。利姆路召集夥伴討論經營方式，正幸提出了新點子。',
+      '休息區與獎金吸引更多挑戰者，迷宮的生意好轉。百人規模的綠亂小隊和入內修練的日向卻讓營運出現新難題。',
+      '利姆路一行用假魔體組隊，練習配合以對付綠亂小隊。另一頭，瑪莉安貝爾和優樹私下會面。',
+      '利姆路等人擊退綠亂小隊後繼續磨練配合，迷宮也因正幸而聲名大噪。西方諸國則開始討論魔國聯邦。',
+      '利姆路應邀出席評議會，以為加入一事已近定案。暗中掌控議會的瑪莉安貝爾早已準備對策。',
+      '利姆路解除影響議員的精神干預。艾洛利克王子卻在此時闖入，公開宣稱要討伐他。',
+      '利姆路阻止刺殺艾洛利克的計畫，坦派斯特也順利加入評議會。審問刺客時，他推知背後的主使者。',
+      '得知優樹可能受人操控，利姆路決定對自由公會提高警覺。即將成行的聯合調查卻讓他難以避開風險。',
+      '調查隊在克雷曼城堡下方發現古代遺跡，著手解析術式與壁畫。瑪莉安貝爾一行也正逼近。',
+      '瑪莉安貝爾的能力奈何不了利姆路，但優樹突然攔在兩人之間。自由公會的成員選擇相信自己的領袖。',
+      '蜜莉姆無法對昔日的朋友混沌龍下手。利姆路提出一個辦法，希望把原本的靈魂救出來。',
+      '坦派斯特在評議會的地位更加穩固，利姆路著手推動法治。視察途中，菈米莉絲突然緊急找他。',
+      '利姆路為迪亞布羅的請託開始製作附身體，研究室卻缺人手。一位魔王恰巧前來造訪。',
+      '迪亞布羅帶著新招攬的惡魔回到坦派斯特，魔國聯邦因此增添了一批戰力。',
+      '魔國聯邦持續擴張。同一時間，中庸小丑幫轉而主動接觸魔王雷昂。',
+      '魯米納斯與利姆路見面，商討接下來的計畫。',
+      '雷昂希望艾爾梅西亞協助尋找克蘿耶，格蘭貝爾的勢力卻在此時攻入魯貝利歐斯。',
+      '戴絲特蘿莎出面應付西方諸國的危機。利姆路與雷昂會合，試圖弄清格蘭貝爾的真正目的。',
+      '格蘭貝爾的目的終於明朗，利姆路等人發現阻止他的時間已經所剩無幾。',
+      '日向在克蘿耶體內恢復意識。兩人這才發現，技能發動後她們已身在兩千年前。',
+      '克蘿耶和日向遇見魯米納斯，並以克羅諾亞的身分展開漫長的旅途。',
+      '克羅諾亞破封後失控，利姆路召來維爾德拉應戰，並與雷昂聯手尋找解救克蘿耶和日向的方法。',
+      '紫苑在與蘭斯洛的交戰中正視自己的弱點，能力也隨之進化。另一邊，利姆路等人準備展開救援。',
+      '利姆路設法平息克羅諾亞的暴走。魯米納斯也終於得知，格蘭貝爾為何如此執著於讓勇者覺醒。',
+    ] },
+  };
+  const slimeSeasonTitles = {
+    1: '暴風龍維魯多拉｜與哥布林們的邂逅｜哥布林村的戰鬥｜在矮人王國｜英雄王加澤爾・多瓦格｜靜｜爆炎支配者｜繼承的願望｜大鬼族的襲擊｜豬頭帝｜加維爾前來拜見！｜錯亂的齒輪｜大激戰｜吞噬萬物者｜朱拉森林大同盟｜魔王蜜莉姆來襲｜集結的人們｜悄悄逼近的惡意｜暴風大妖渦｜神樂坂優樹｜靜小姐的學生們｜迷宮攻略｜靈魂的救贖｜外傳：黑與假面',
+    2: '利姆路忙碌的日常｜與獸王國的交易｜再次來到樂園｜謀略的法爾姆斯王國｜災厄的前奏曲｜展開行動的麗人｜絕望｜希望｜賭上所有的一切｜神之怒｜魔王誕生｜解放者｜造訪者們｜人魔會談｜來自菈米莉絲的消息｜會議漫舞｜會戰前夕｜魔王們｜開宴的信號｜在因緣之地｜食指阿德曼｜魔王盛宴｜起死回生｜八星魔王',
+    3: '惡魔與謀策｜聖人的意圖｜和平的日子｜各自的職責｜兩翼會議｜步步逼近的人們｜聖魔激戰｜越陷越深的誤解｜七曜密謀｜神與魔王｜和解與協定｜開幕準備｜各國與邀請函｜迷宮與暴風龍｜謁見典禮｜紅丸的災難｜閃光的勇者｜賓客如雲｜前夜祭｜開國祭｜武鬥大會｜與勇者的決鬥｜迷宮開放｜祭典過後',
+    4: '嶄新的日子｜進化的迷宮｜組成假魔體小隊｜邀請函｜最初的一步｜西方諸國評議會｜幕後黑手的真面目｜貪婪的布局｜遺跡調查｜貪婪之主｜蜜莉姆的朋友｜進化的魔國聯邦｜新的夥伴們｜黑色軍團｜不祥的氣息｜黎明勇者格蘭｜集結之地魯貝利歐斯｜西方動亂｜死亡與消失｜勇者克羅諾亞·前篇｜勇者克羅諾亞·後篇｜靈魂的所在｜格蘭貝爾的希望｜勇者覺醒',
+  };
+  const slimeSpinoffEpisodes = {
+    diary: {
+      titles: '魔物城鎮的居民們｜春天的空氣｜朱拉的夏天｜穿泳裝過一天｜重現夏日祭典｜逐漸改變｜魔王來了！｜收成的秋天｜冬天的到來｜白雪覆蓋的魔物城鎮｜聖誕老人在哪裡｜享受新年假期',
+      // 中華電信 MOD、MyVideo 的繁中分集介紹。
+      summaries: [
+        '利姆路想把轉生後的經歷寫成日記，卻發現一時寫不完，索性放下筆去看看城裡的日常。',
+        '春天到了。為了讓城鎮能自己供應糧食，利姆路號召各族居民一起開墾種菜。',
+        '朱拉迎來意外炎熱的夏天。利姆路懷疑這氣溫和自己有關，便帶哥布達等人去抓蟲轉換心情。',
+        '利姆路一行到森林另一端的湖邊消暑。換上泳裝後，朱菜和紫苑卻對利姆路的打扮有意見。',
+        '為了重現記憶中的日本夏日祭典，利姆路和居民準備攤販、浴衣、盆舞與煙火。',
+        '盂蘭盆節到了，靜回來看看利姆路過得如何，卻撞見他穿著兔女郎裝。',
+        '魔王蜜莉姆突然造訪坦派斯特，打亂了城裡原本平靜的日常。',
+        '秋天收成豐富，居民們開始籌辦豐收祭，也為即將到來的冬天做準備。',
+        '冬季來臨，利姆路為了避免火災，帶著居民上街巡邏並提醒大家注意用火。',
+        '大雪堆到連門都推不開。坦派斯特正式進入冬季，也有人迫不及待想去滑雪。',
+        '利姆路突發奇想，打算在坦派斯特辦一場比前世還熱鬧的聖誕節。',
+        '忙完年末活動，坦派斯特換上新年盛裝。利姆路打扮成鏡餅，和大家一起迎接新年。',
+      ],
+    },
+    coleus: {
+      titles: '前往柯里烏斯國｜大怪盜阿悟｜紫與薔薇',
+      // LiTV 的繁中分集介紹。
+      summaries: [
+        '教師生活告一段落前，利姆路接下優樹的委託，前往柯里烏斯調查王位之爭。替公主診治時，他察覺有人在背後動手腳。',
+        '利姆路走訪支持王子的貴族，保羅則在酒館失了手。兩名王子的衝突一觸即發，利姆路派紅丸與蒼影阻止。',
+        '公主出面勸住兩位王子，自己卻被古斯塔夫擄走。保羅試圖救人，魯米納斯與紫色始祖也在此時現身。',
+      ],
+    },
+  };
+  // Episode numbers follow AniGamer. Summaries are paraphrased from Prime Video and Shochiku's story pages.
+  const polarOppositesSeasonTwoDescriptions = {
+    13: '鈴木和谷準備一起過交往後的第一個平安夜。谷為了約會學做蛋糕，認真的模樣讓鈴木心動。',
+    14: '寒假裡，山田約西一起寫作業，想趁見面時表明心意，卻一直找不到開口的機會。',
+    15: '元旦那天，鈴木突然受邀到谷家拜年。一想到要面對谷的家人，她就緊張得頻頻出糗。',
+    16: '平和東在放學路上化解先前的誤會。另一邊，西在梨花子的鼓勵下，說出自己對山田的感情。',
+    17: '情人節當天，山田準備和西約會。他一直找不到時機告白，出門前仍在反覆思量該怎麼開口。',
+    18: '學期結束，東希望即使重新分班也能繼續和平來往。她還沒弄清楚自己的心意，新學年就要開始了。',
+    19: '春假裡，剛成為情侶的山田和西去水族館約會。開學後，東和平則發現兩人被分到了不同班。',
+    20: '升上高三，大家開始為畢業後的方向煩惱。鈴木因備考而少了和谷相處的時間，谷也正為自己的下一步猶豫。',
+    21: '東察覺自己喜歡平，試著把雀躍藏在心裡。鈴木滿心期待畢業後的生活，身旁的谷卻顯得心事重重。',
+    22: '考試愈來愈近，鈴木和谷一起念書、互相打氣。察覺谷還在為升學方向猶豫，鈴木想給他做決定的空間。',
+    23: '東發現自己喜歡平，仍和他保持距離。鈴木則擔心埋頭準備考試的谷把自己逼得太緊。',
+    24: '大家各自迎來入學考，接著便是畢業典禮。東準備離開時，平想到畢業後或許難再見面，下意識拉住了她。',
+    25: '谷回想鈴木是怎麼一步步走進自己的生活。春天來臨，兩人即將展開遠距離交往，在車站迎來分別。',
+  };
   const OFFSHELF_CACHE_KEY = 'aniOffshelfCacheV1';
   const TAG_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
   const WORK_META_TTL_MS = 14 * 24 * 60 * 60 * 1000;
@@ -34,10 +195,11 @@
   const COL_STATUS_ICONS = {
     all: '<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/>',
     plan: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
-    watching: '<polygon points="6 4 20 12 6 20 6 4"/>',
+    watching: '<polygon points="6 4 20 12 6 20" fill="currentColor" stroke="none"/>',
     completed: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/>',
-    paused: '<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>',
+    paused: '<g fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></g>',
     unset: '<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1"/>',
+    auto: '<path d="M20 7v5h-5M4 17v-5h5"/><path d="M6 7a7 7 0 0 1 12-1l2 6M4 12l2 6a7 7 0 0 0 12-1"/>',
     clear: '<path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>',
     add: '<path d="M12 5v14M5 12h14"/>',
   };
@@ -94,13 +256,12 @@
       if (!container || !itemSelector) return;
       const items = [...container.querySelectorAll(itemSelector)]
         .filter((el) => {
-          if (el.hidden) return false;
+          if (el.hidden || el.hasAttribute('data-ani-ep-hidden')) return false;
           for (const cls of [
             'ani-col-status-hidden',
             'ani-catalog-excluded',
             'ani-origin-hidden',
             'ani-dm-filtered-hidden',
-            'ani-ep-chunk-hidden',
           ]) {
             if (el.classList.contains(cls)) return false;
           }
@@ -320,10 +481,32 @@
     }
   };
 
-  // ── Feature 1A: 「我的動畫」自訂收藏狀態分流 (/mygather.php) ──
+  // 「我的動畫」收藏狀態：手動標記優先，其餘依集數進度分類。
   let colActiveFilter = 'all';
   let colStatesCache = null;
   let colBusy = false;
+
+  function syncCollectionStatesOnStorage(refresh) {
+    window.addEventListener('storage', event => {
+      if (event.key !== COL_STATUS_KEY) return;
+      try {
+        colStatesCache = JSON.parse(event.newValue) || {};
+      } catch {
+        return;
+      }
+      refresh();
+    });
+  }
+
+  async function saveCollectionStatus(sn, choice) {
+    colStatesCache = await storageGet(COL_STATUS_KEY, {});
+    if (Object.hasOwn(COL_STATUS_MAP, choice)) {
+      colStatesCache[sn] = { status: choice, updatedAt: Date.now() };
+    } else {
+      delete colStatesCache[sn];
+    }
+    await storageSet(COL_STATUS_KEY, colStatesCache);
+  }
 
   const initCollectionStatusTagger = async () => {
     if (location.pathname !== '/mygather.php') return;
@@ -343,14 +526,17 @@
         for (const card of list.querySelectorAll('.theme-list-main')) {
           const sn = getSnFromHref(card.getAttribute('href'));
           const entry = sn ? colStatesCache[sn] : null;
-          const st = entry?.status && COL_STATUS_MAP[entry.status] ? entry.status : '';
+          const manual = entry?.status && Object.hasOwn(COL_STATUS_MAP, entry.status) ? entry.status : '';
+          const progress = card.querySelector('.theme-number')?.textContent.match(/(\d+)\s*\/\s*(\d+)/);
+          let status = manual || 'unset';
+          if (!manual && progress) {
+            const [, watched, total] = progress.map(Number);
+            status = watched === 0 ? 'plan' : watched >= total ? 'completed' : 'watching';
+          }
           counts.all++;
-          if (st) counts[st]++;
-          else counts.unset++;
+          counts[status]++;
 
-          const matched =
-            colActiveFilter === 'all' ||
-            (colActiveFilter === 'unset' ? !st : st === colActiveFilter);
+          const matched = colActiveFilter === 'all' || status === colActiveFilter;
           if (card.classList.contains('ani-col-status-hidden') === matched) {
             card.classList.toggle('ani-col-status-hidden', !matched);
             visibilityChanged = true;
@@ -376,9 +562,8 @@
             }
             const clearOpt = document.createElement('button');
             clearOpt.type = 'button';
-            clearOpt.className = 'is-clear';
             clearOpt.dataset.choice = '';
-            clearOpt.innerHTML = `${enhIcon(COL_STATUS_ICONS.clear, 14)}<span>清除標記</span>`;
+            clearOpt.innerHTML = `${enhIcon(COL_STATUS_ICONS.auto, 14)}<span>自動</span>`;
             menu.append(clearOpt);
             bar.append(chip, menu);
             imgHost.append(bar);
@@ -400,26 +585,21 @@
               const btn = ev.target.closest('button[data-choice]');
               if (!btn) return;
               const choice = btn.dataset.choice;
-              if (choice && COL_STATUS_MAP[choice]) {
-                colStatesCache[sn] = { status: choice, updatedAt: Date.now() };
-              } else {
-                delete colStatesCache[sn];
-              }
               menu.hidden = true;
-              await storageSet(COL_STATUS_KEY, colStatesCache);
+              await saveCollectionStatus(sn, choice);
               applyAndSync();
             });
           }
           const chipEl = bar?.querySelector('.ani-col-status-chip');
-          if (chipEl && chipEl.dataset.status !== st) {
-            chipEl.dataset.status = st;
-            const labelTxt = st ? COL_STATUS_MAP[st] : '標記狀態';
-            const iconKey = st || 'add';
-            chipEl.innerHTML = enhIcon(COL_STATUS_ICONS[iconKey], 15);
+          if (chipEl && (chipEl.dataset.status !== status || chipEl.dataset.manualStatus !== manual)) {
+            chipEl.dataset.status = status;
+            chipEl.dataset.manualStatus = manual;
+            const labelTxt = COL_STATUS_MAP[status] || '未同步';
+            chipEl.innerHTML = enhIcon(COL_STATUS_ICONS[status] || COL_STATUS_ICONS.add, 15);
             chipEl.title = labelTxt;
-            chipEl.setAttribute('aria-label', st ? `收藏分類：${COL_STATUS_MAP[st]}` : '標記收藏分類');
+            chipEl.setAttribute('aria-label', `收藏分類：${labelTxt}`);
             for (const opt of bar.querySelectorAll('.ani-col-status-menu button[data-choice]')) {
-              const isAct = Boolean(st && opt.dataset.choice === st);
+              const isAct = opt.dataset.choice === manual;
               opt.classList.toggle('is-active', isAct);
               opt.setAttribute('aria-pressed', String(isAct));
             }
@@ -430,12 +610,12 @@
           const section = document.createElement('section');
           section.className = 'class_list ani-custom-status-filter';
           section.setAttribute('role', 'group');
-          section.setAttribute('aria-label', '自訂收藏分類');
+          section.setAttribute('aria-label', '收藏狀態');
           const header = document.createElement('div');
           header.className = 'ani-extra-filter-header';
           header.innerHTML = `<h3>${enhIcon('<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>', 20)}收藏狀態</h3>`;
           const ul = document.createElement('ul');
-          for (const [key, label] of [['all', '全部'], ...COL_STATUS_META, ['unset', '未分類']]) {
+          for (const [key, label] of [['all', '全部'], ...COL_STATUS_META, ['unset', '未同步']]) {
             const li = document.createElement('li');
             const btn = document.createElement('button');
             btn.type = 'button';
@@ -490,12 +670,13 @@
     const rootListWrap = document.querySelector('.animate-theme-list');
     if (rootListWrap && !rootListWrap.dataset.aniColStatusObs) {
       rootListWrap.dataset.aniColStatusObs = '1';
+      syncCollectionStatesOnStorage(applyAndSync);
       let t = 0;
       new MutationObserver(() => {
         if (colBusy) return;
         clearTimeout(t);
         t = setTimeout(applyAndSync, 40);
-      }).observe(rootListWrap, { childList: true, subtree: true });
+      }).observe(rootListWrap, { childList: true, characterData: true, subtree: true });
     }
   };
 
@@ -506,13 +687,12 @@
     );
     if (!favBtn || favBtn.parentElement?.querySelector('.ani-col-status-bar.is-watch-chip')) return;
 
-    const refLink = document.querySelector('.anime_name a[href*="animeRef.php?sn="], a[href*="animeRef.php?sn="]');
+    const refLink = document.querySelector('.anime_name a[href*="animeRef.php?sn="], .anime-title a[href*="animeRef.php?sn="]');
     const gatherMatch = (favBtn.getAttribute('onclick') || '').match(/toggleGather\(\s*\d+\s*,\s*(\d+)/);
     const sn =
-      getSnFromHref(refLink?.getAttribute('href')) ||
-      gatherMatch?.[1] ||
       (location.pathname === '/animeRef.php' ? getSnFromHref(location.href) : '') ||
-      getSnFromHref(location.href);
+      gatherMatch?.[1] ||
+      getSnFromHref(refLink?.getAttribute('href'));
     if (!sn) return;
 
     if (colStatesCache === null) {
@@ -538,9 +718,8 @@
     }
     const clearOpt = document.createElement('button');
     clearOpt.type = 'button';
-    clearOpt.className = 'is-clear';
     clearOpt.dataset.choice = '';
-    clearOpt.innerHTML = `${enhIcon(COL_STATUS_ICONS.clear, 14)}<span>清除標記</span>`;
+    clearOpt.innerHTML = `${enhIcon(COL_STATUS_ICONS.auto, 14)}<span>自動</span>`;
     menu.append(clearOpt);
     bar.append(chip, menu);
     favBtn.after(bar);
@@ -548,20 +727,20 @@
 
     const syncChip = () => {
       const entry = colStatesCache?.[sn];
-      const st = entry?.status && COL_STATUS_MAP[entry.status] ? entry.status : '';
+      const st = entry?.status && Object.hasOwn(COL_STATUS_MAP, entry.status) ? entry.status : '';
       chip.dataset.status = st;
-      const labelTxt = st ? COL_STATUS_MAP[st] : '標記狀態';
-      const iconKey = st || 'add';
+      const labelTxt = st ? COL_STATUS_MAP[st] : '自動';
+      const iconKey = st || 'auto';
       chip.innerHTML = `${enhIcon(COL_STATUS_ICONS[iconKey], 15)}<span>${escapeHtml(labelTxt)}</span>`;
-      chip.title = labelTxt;
-      chip.setAttribute('aria-label', st ? `收藏分類：${COL_STATUS_MAP[st]}` : '標記收藏分類');
+      chip.setAttribute('aria-label', `收藏分類：${labelTxt}`);
       for (const opt of menu.querySelectorAll('button[data-choice]')) {
-        const isAct = Boolean(st && opt.dataset.choice === st);
+        const isAct = opt.dataset.choice === st;
         opt.classList.toggle('is-active', isAct);
         opt.setAttribute('aria-pressed', String(isAct));
       }
     };
     syncChip();
+    syncCollectionStatesOnStorage(() => { if (bar.isConnected) syncChip(); });
 
     chip.addEventListener('click', (ev) => {
       ev.preventDefault();
@@ -575,15 +754,10 @@
       const btn = ev.target.closest('button[data-choice]');
       if (!btn) return;
       const choice = btn.dataset.choice;
-      if (choice && COL_STATUS_MAP[choice]) {
-        colStatesCache[sn] = { status: choice, updatedAt: Date.now() };
-      } else {
-        delete colStatesCache[sn];
-      }
       menu.hidden = true;
-      await storageSet(COL_STATUS_KEY, colStatesCache);
+      await saveCollectionStatus(sn, choice);
       syncChip();
-      showToast(choice && COL_STATUS_MAP[choice] ? `已標記為「${COL_STATUS_MAP[choice]}」` : '已清除收藏狀態標記');
+      showToast(choice && COL_STATUS_MAP[choice] ? `已標記為「${COL_STATUS_MAP[choice]}」` : '已切換為自動分類');
     });
   };
 
@@ -677,8 +851,9 @@
     const score =
       document.querySelector('.acg-score .score-overall-number, .score-overall-number')?.textContent?.trim() || '';
     const video = document.querySelector('#ani_video video');
-    const elapsedSec = video && Number.isFinite(video.currentTime) ? Math.floor(video.currentTime) : 0;
-    let durationSec = video && Number.isFinite(video.duration) && video.duration >= 60 ? Math.floor(video.duration) : 0;
+    const isEpisodeMedia = video && !video.closest('.vjs-ad-playing, .vjs-ad-loading, .vjs-anigamer-ad-playing, .vjs-anigamer-m3u8-ad-playing, .ani-age-screen-ready, .ani-has-consent');
+    const elapsedSec = isEpisodeMedia && Number.isFinite(video.currentTime) ? Math.floor(video.currentTime) : 0;
+    let durationSec = isEpisodeMedia && Number.isFinite(video.duration) && video.duration >= 60 ? Math.floor(video.duration) : 0;
     if (!durationSec) {
       for (const script of document.querySelectorAll('script[type="application/ld+json"]')) {
         try {
@@ -696,8 +871,23 @@
     if (!durationSec && video && Number.isFinite(video.duration) && video.duration > 0 && elapsedSec > 0) {
       durationSec = Math.floor(video.duration);
     }
-    return { sn, videoSn, title, episode, latestEp, cover, score, elapsedSec, durationSec };
+    return { sn, videoSn, title, episode, latestEp, cover, score, elapsedSec, durationSec, completed: Boolean(isEpisodeMedia && video.ended) };
   };
+
+  const episodeIsComplete = position => Boolean(position?.completed ||
+    (position?.durationSec > 0 && position?.elapsedSec >= Math.max(1, position.durationSec - 15)));
+
+  function resolveEpisodeProgress({details, local, native, breakpoint, media}) {
+    const duration = [media?.duration, local?.durationSec, native?.durationSec, details?.duration]
+      .map(Number).find(value => Number.isFinite(value) && value > 0) || 0;
+    const resume = [local, details?.playback, breakpoint, native]
+      .filter(item => item?.elapsedSec > 0)
+      .sort((a, b) => (b.watchedAt || 0) - (a.watchedAt || 0))[0];
+    const completed = Boolean(media?.ended || episodeIsComplete(local) || native?.completed ||
+      (media?.currentTime > 0 && episodeIsComplete({elapsedSec: media.currentTime, durationSec: duration})));
+    const position = media?.currentTime || resume?.elapsedSec || (native?.fraction || 0) * duration;
+    return {completed, duration, elapsed: completed ? duration : Math.min(duration, position)};
+  }
 
   const recordVideoProgress = () => {
     if (location.pathname !== '/animeVideo.php') return Promise.resolve();
@@ -707,14 +897,25 @@
     return mutatePermanentHistory((data) => {
       const prev = data[info.sn] && typeof data[info.sn] === 'object' ? data[info.sn] : {};
       const prevEps = prev.episodes && typeof prev.episodes === 'object' ? { ...prev.episodes } : {};
-      if (info.episode) {
-        prevEps[info.episode] = {
-          videoSn: info.videoSn || prevEps[info.episode]?.videoSn || info.sn,
-          watchedAt: now,
-          durationSec: info.durationSec || prevEps[info.episode]?.durationSec || 0,
-          elapsedSec: info.elapsedSec || prevEps[info.episode]?.elapsedSec || 0,
-        };
+      const videoProgress = { ...prev.videoProgress };
+      const previousEpisode = prevEps[info.episode];
+      if (previousEpisode?.videoSn && previousEpisode.videoSn !== info.videoSn) {
+        videoProgress[previousEpisode.videoSn] ||= previousEpisode;
       }
+      const previousVideo = videoProgress[info.videoSn]
+        || (previousEpisode?.videoSn === info.videoSn ? previousEpisode : null)
+        || (prev.videoSn === info.videoSn ? prev : null);
+      const position = {
+        videoSn: info.videoSn,
+        watchedAt: info.elapsedSec > 0 ? now : previousVideo?.watchedAt || 0,
+        durationSec: info.durationSec || previousVideo?.durationSec || 0,
+        elapsedSec: info.elapsedSec || previousVideo?.elapsedSec || 0,
+        completed: episodeIsComplete(previousVideo) || episodeIsComplete(info),
+      };
+      if (info.episode) {
+        prevEps[info.episode] = position;
+      }
+      delete videoProgress[info.videoSn];
       const prevCover = isLandscapeOgBanner(prev.cover) ? '' : (prev.cover || '');
       data[info.sn] = {
         ...prev,
@@ -725,10 +926,12 @@
         score: info.score || prev.score || '',
         latestEp: info.latestEp || prev.latestEp || '',
         episode: info.episode || prev.episode || '',
-        elapsedSec: info.elapsedSec > 0 ? info.elapsedSec : (prev.elapsedSec || 0),
-        durationSec: info.durationSec > 0 ? info.durationSec : (prev.durationSec || 0),
+        elapsedSec: position.elapsedSec,
+        durationSec: position.durationSec,
+        completed: position.completed,
         watchedAt: now,
         episodes: prevEps,
+        videoProgress,
       };
       return true;
     });
@@ -748,6 +951,7 @@
           recordVideoProgress();
         }
       });
+      video.addEventListener('pause', () => { recordVideoProgress(); });
       video.addEventListener('ended', () => { recordVideoProgress(); });
     };
     const v = document.querySelector('#ani_video video');
@@ -781,7 +985,7 @@
       let changed = false;
       for (const card of cards) {
         const more = card.querySelector('.more-btn');
-        const play = card.querySelector('.play-btn, .click-area');
+        const play = card.querySelector('.play-btn[href]') || card.querySelector('.click-area[href]');
         const videoSn = getSnFromHref(play?.getAttribute('href'));
         const sn = more?.dataset.anime || card.querySelector('[data-anime-sn]')?.dataset.animeSn || videoSn;
         if (!sn) continue;
@@ -791,7 +995,7 @@
         const episode = card.querySelector('.user-lastwatch')?.textContent?.trim() || '';
         const timingTxt = card.querySelector('.ani-history-timing')?.textContent || '';
         const nativeTxt = [...card.querySelectorAll('.history-lastwatch')].map((n) => n.textContent).join(' ');
-        const minSec = nativeTxt.match(/(?:(\d+)\s*時\s*)?(\d+)\s*分\s*(\d+)\s*秒/);
+        const minSec = nativeTxt.match(/(?:(\d+)\s*時\s*)?(?:(\d+)\s*分\s*)?(\d+)\s*秒/);
         let elapsedSec = minSec ? (Number(minSec[1] || 0) * 3600 + Number(minSec[2]) * 60 + Number(minSec[3])) : 0;
         let durationSec = 0;
         const pb = card.querySelector('.progress-bar');
@@ -806,21 +1010,25 @@
 
         const prev = data[sn] && typeof data[sn] === 'object' ? data[sn] : null;
         const eps = prev?.episodes && typeof prev.episodes === 'object' ? { ...prev.episodes } : {};
+        const videoProgress = { ...prev?.videoProgress };
+        const previousVideo = videoSn && (prev?.videoSn === videoSn ? prev : videoProgress[videoSn]);
         const subList = document.querySelector(`.user-watchTime-list[data-anime-sn="${sn}"], #sub-list-${sn}`);
         let latestMs = prev?.watchedAt || 0;
         if (subList) {
           for (const a of subList.querySelectorAll('a')) {
-            const eTitle = a.querySelector('.history-list-anime-title')?.dataset?.aniOriginalTitle || a.querySelector('.history-list-anime-title')?.textContent || '';
+            const title = a.querySelector('.history-list-anime-title');
+            const eTitle = (title?.dataset.aniOriginalTitle || title?.textContent || '').normalize('NFKC');
             const ep = eTitle.match(/\[\s*(\d+(?:\.\d+)?)\s*\]/)?.[1] || eTitle.match(/EP\.(\d+(?:\.\d+)?)/i)?.[1];
             const dateStr = a.querySelector('.date')?.textContent?.trim();
             const ms = parseDateToMs(dateStr);
             if (ms > latestMs) latestMs = ms;
-            if (ep) {
-              const eSn = getSnFromHref(a.getAttribute('href')) || videoSn || sn;
-              if (!eps[ep] || (eps[ep].watchedAt || 0) < ms) {
-                eps[ep] = { videoSn: eSn, watchedAt: ms, elapsedSec: eps[ep]?.elapsedSec || 0 };
-              }
-            }
+            const eSn = getSnFromHref(a.getAttribute('href'));
+            if (!ep || !eSn) continue;
+            const existing = eps[ep];
+            const entry = existing?.videoSn === eSn ? existing : videoProgress[eSn];
+            const position = { ...entry, videoSn: eSn, watched: true, watchedAt: entry?.watchedAt || ms };
+            if (!existing || existing.videoSn === eSn) eps[ep] = position;
+            else videoProgress[eSn] = position;
           }
         }
         if (episode && !eps[episode]) {
@@ -852,10 +1060,11 @@
           tags: cachedTags,
           studio: cachedStudio,
           episode: episode || prev?.episode || '',
-          elapsedSec: elapsedSec || prev?.elapsedSec || 0,
-          durationSec: durationSec || prev?.durationSec || 0,
+          elapsedSec: elapsedSec || previousVideo?.elapsedSec || 0,
+          durationSec: durationSec || previousVideo?.durationSec || 0,
           watchedAt: prev?.watchedAt ? Math.max(prev.watchedAt, latestMs) : (latestMs || Date.now()),
           episodes: eps,
+          videoProgress,
         };
         data[sn] = merged;
         changed = true;
@@ -969,7 +1178,7 @@
     filterCard.querySelector('.ani-perm-search-icon')?.addEventListener('click', () => searchEl?.focus());
     const gridEl = panel.querySelector('.ani-perm-grid');
     const clearBtn = filterCard.querySelector('[data-perm-clear]');
-    const openDrawers = new Set();
+    let openDrawerSn = null;
     let clearArmed = false;
 
     const syncTabState = (records) => {
@@ -1135,7 +1344,9 @@
             : '';
         const rawCover = safeImageUrl(it.cover);
         const cover = isLandscapeOgBanner(rawCover) ? '' : rawCover;
-        const epKeys = Object.keys(it.episodes || {}).sort((a, b) => Number(b) - Number(a));
+        const epKeys = Object.keys(it.episodes || {})
+          .filter(episode => /^\d+(?:\.\d+)?$/.test(episode))
+          .sort((a, b) => Number(b) - Number(a));
         const epListHtml = epKeys
           .map((ep) => {
             const epObj = it.episodes[ep] || {};
@@ -1145,7 +1356,7 @@
           })
           .join('');
         const drawerId = `perm-sub-list-${escapeHtml(it.sn)}`;
-        const open = Boolean(epListHtml) && openDrawers.has(String(it.sn));
+        const open = Boolean(epListHtml) && openDrawerSn === String(it.sn);
         const resumeSn = encodeURIComponent(it.videoSn || it.sn);
         const watchedDate = formatDateTime(it.watchedAt);
         const updateTxt = it.latestEp ? `已更新至 EP.${it.latestEp}` : '';
@@ -1200,6 +1411,9 @@
         monthGroups.get(label).push(it);
       }
 
+      const openDrawerId = openDrawerSn === null ? '' : `perm-sub-list-${openDrawerSn}`;
+      const readEpisodeScroller = () => document.getElementById(openDrawerId)?.querySelector('.user-watch-textlist');
+      const episodeScrollTop = openDrawerId ? readEpisodeScroller()?.scrollTop : undefined;
       panel.innerHTML = [...monthGroups.entries()]
         .map(
           ([monthLabel, groupItems]) => `
@@ -1209,6 +1423,10 @@
           </div>`,
         )
         .join('');
+      if (episodeScrollTop !== undefined) {
+        const scroller = readEpisodeScroller();
+        if (scroller) scroller.scrollTop = episodeScrollTop;
+      }
       for (const titleEl of panel.querySelectorAll('.ani-perm-title')) {
         applyShadowMarquee(titleEl);
       }
@@ -1238,52 +1456,28 @@
         animateFilterSwitch(pb, panel, '.ani-perm-card');
       });
     }
+    const setDrawerOpen = (button, open) => {
+      const slot = button.closest('.ani-perm-watch-slot');
+      const card = slot.querySelector('.ani-perm-card');
+      const drawer = slot.querySelector('.ani-perm-ep-drawer');
+      card.classList.toggle('is-open', open);
+      button.setAttribute('aria-expanded', String(open));
+      button.setAttribute('aria-label', `${open ? '收合' : '展開'}每集紀錄`);
+      globalThis.aniAnimateHistoryDrawer(drawer, open);
+    };
     panel.addEventListener('click', async (ev) => {
       const moreBtn = ev.target.closest('[data-perm-more]');
       if (moreBtn) {
         ev.preventDefault();
         ev.stopPropagation();
-        const slot = moreBtn.closest('.ani-perm-watch-slot');
-        const card = slot?.querySelector('.ani-perm-card');
-        const drawer = slot?.querySelector('.ani-perm-ep-drawer');
-        if (card && drawer) {
-          const sn = moreBtn.dataset.permMore;
-          const open = !openDrawers.has(sn);
-          if (open) openDrawers.add(sn);
-          else openDrawers.delete(sn);
-          card.classList.toggle('is-open', open);
-          moreBtn.setAttribute('aria-expanded', String(open));
-          moreBtn.setAttribute('aria-label', `${open ? '收合' : '展開'}每集紀錄`);
-          drawer.getAnimations?.().forEach((animation) => animation.cancel());
-          const reduced = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
-          if (open) {
-            drawer.style.display = 'block';
-            if (!reduced && typeof drawer.animate === 'function') {
-              const h = drawer.scrollHeight || 200;
-              drawer.animate(
-                [
-                  { opacity: 0, maxHeight: '0px', transform: 'translateY(-6px)' },
-                  { opacity: 1, maxHeight: `${h}px`, transform: 'translateY(0)' },
-                ],
-                { duration: 220, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
-              );
-            }
-          } else if (!reduced && typeof drawer.animate === 'function') {
-            const h = drawer.scrollHeight || 200;
-            const anim = drawer.animate(
-              [
-                { opacity: 1, maxHeight: `${h}px`, transform: 'translateY(0)' },
-                { opacity: 0, maxHeight: '0px', transform: 'translateY(-6px)' },
-              ],
-              { duration: 190, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
-            );
-            anim.onfinish = () => {
-              if (!card.classList.contains('is-open')) drawer.style.display = 'none';
-            };
-          } else {
-            drawer.style.display = 'none';
-          }
+        const sn = moreBtn.dataset.permMore;
+        const open = openDrawerSn !== sn;
+        if (open && openDrawerSn !== null) {
+          const previous = panel.querySelector('[data-perm-more][aria-expanded="true"]');
+          if (previous) setDrawerOpen(previous, false);
         }
+        openDrawerSn = open ? sn : null;
+        setDrawerOpen(moreBtn, open);
         return;
       }
       const del = ev.target.closest('[data-perm-delete]');
@@ -1291,7 +1485,7 @@
       ev.preventDefault();
       ev.stopPropagation();
       const sn = del.dataset.permDelete;
-      openDrawers.delete(sn);
+      if (openDrawerSn === sn) openDrawerSn = null;
       await mutatePermanentHistory((data) => {
         if (!Object.hasOwn(data, sn)) return false;
         delete data[sn];
@@ -1374,7 +1568,7 @@
       clearBtn.classList.remove('is-armed');
       setClearLabel('清空');
       await storageSet(PERM_HIST_KEY, {});
-      openDrawers.clear();
+      openDrawerSn = null;
       showToast('已清空永久本地紀錄');
       renderGrid();
     });
@@ -1936,6 +2130,7 @@
 
   // ── Feature 3: 避雷薄碼 / 預覽圖模糊遮罩 ──
   let blurBusy = false;
+  let appliedStudioBlurCards = new WeakSet();
   let blurSubscribed = false;
 
   const clearSpoilerBlurFromCover = (cover) => {
@@ -1958,7 +2153,7 @@
     try {
       const enabled = Boolean(currentSettings.spoilerBlurEnabled);
       const quickBtn = document.querySelector('.ani-blur-quick-toggle');
-      if (quickBtn) {
+      if (quickBtn && quickBtn.getAttribute('aria-pressed') !== String(enabled)) {
         renderBlurToggleInner(quickBtn, enabled);
       }
 
@@ -1991,6 +2186,7 @@
       for (const card of cards) {
         const cover = card.querySelector('.theme-img-block, .anime-pic, .ani-perm-cover-wrap, .postimg');
         if (!cover) continue;
+        if (card.closest('.ani-studio-panel')) appliedStudioBlurCards.add(card);
 
         let match = globalMode;
         if (!match) {
@@ -2064,8 +2260,15 @@
       document.querySelector('.ani-perm-io-actions');
     const filterSection = document.querySelector('.filter-section');
     const filterToggle = filterSection?.querySelector(':scope > .ani-filter-toggle');
+    const collectionSort = location.pathname === '/mygather.php'
+      ? document.querySelector('.ani-collection-sort-host > .ani-collection-sort-segment')
+      : null;
+    const existingToggle = document.querySelector('.ani-blur-quick-toggle');
 
-    if ((topRightSortHost || filterToggle || filterSection) && !document.querySelector('.ani-blur-quick-toggle')) {
+    if (collectionSort && existingToggle && collectionSort.previousElementSibling !== existingToggle) {
+      collectionSort.before(existingToggle);
+    }
+    if ((collectionSort || topRightSortHost || filterSection) && !existingToggle) {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'ani-blur-quick-toggle';
@@ -2073,7 +2276,22 @@
       btn.addEventListener('click', async () => {
         await writeSettings({ spoilerBlurEnabled: !currentSettings.spoilerBlurEnabled });
       });
-      if (topRightSortHost) {
+      const catalogToolbar = location.pathname === '/animeList.php' && document.querySelector('.filter-title-block');
+      if (collectionSort) {
+        collectionSort.before(btn);
+      } else if (catalogToolbar) {
+        const sort = catalogToolbar.querySelector(':scope > .btn-newanime-filter');
+        if (sort) {
+          const actions = document.createElement('div');
+          actions.className = 'ani-catalog-right-tools';
+          const segment = catalogToolbar.querySelector(':scope > .ani-catalog-sort');
+          sort.before(actions);
+          actions.append(btn, sort);
+          if (segment) actions.append(segment);
+        } else {
+          catalogToolbar.append(btn);
+        }
+      } else if (topRightSortHost) {
         topRightSortHost.append(btn);
       } else if (filterSection) {
         filterSection.classList.add('has-top-right-blur-toggle');
@@ -2085,18 +2303,29 @@
     if (!blurSubscribed) {
       blurSubscribed = true;
       settingsListeners.add(() => {
+        appliedStudioBlurCards = new WeakSet();
         applySpoilerBlur();
       });
     }
 
     await applySpoilerBlur();
 
-    for (const host of document.querySelectorAll('.animate-theme-list, .newanime-block, .history-wrapper')) {
+    for (const host of document.querySelectorAll('.animate-theme-list:not(.ani-studio-row), .ani-studio-panel, .newanime-block, .history-wrapper')) {
       if (host.dataset.aniSpoilerObs) continue;
       host.dataset.aniSpoilerObs = '1';
       let t = 0;
-      new MutationObserver(() => {
+      const isStudioPanel = host.matches('.ani-studio-panel');
+      new MutationObserver(records => {
         if (blurBusy) return;
+        if (isStudioPanel) {
+          const needsUpdate = records.some(record => [...record.addedNodes].some(node => {
+            if (node.nodeType !== 1) return false;
+            if (!currentSettings.spoilerBlurEnabled) return Boolean(node.querySelector('.ani-spoiler-blurred'));
+            return (node.matches('.theme-list-main') && !appliedStudioBlurCards.has(node)) ||
+              [...node.querySelectorAll('.theme-list-main')].some(card => !appliedStudioBlurCards.has(card));
+          }));
+          if (!needsUpdate) return;
+        }
         clearTimeout(t);
         t = setTimeout(() => { applySpoilerBlur(); }, 120);
       }).observe(host, { childList: true, subtree: true });
@@ -2471,39 +2700,347 @@
   let episodeListId = 0;
   const observedEpisodeLists = new WeakSet();
   const episodePreviewRenderers = new WeakMap();
+  const episodeListSnapshots = new WeakMap();
+  const episodeTrackStates = new WeakMap();
   let episodeListRootObserver;
+  let episodeOrder = 'asc';
+  let episodeOrderButton;
+  let episodeLayoutSwitch;
+  let episodeOrderRow;
+  const episodeCardWatch = new WeakMap();
+  const updateEpisodeCardWatch = (frame, watch) => {
+    const {local, native} = watch;
+    const {completed, duration, elapsed} = resolveEpisodeProgress(watch);
+    const progress = completed ? 100 : duration > 0 ? elapsed / duration * 100 : 0;
+    frame.style.setProperty('--episode-progress', progress + '%');
+    frame.querySelector('.ani-episode-card-progress').hidden = !(progress > 0);
+    let label = '';
+    if (elapsed > 0 && duration > 0) {
+      const time = seconds => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`;
+      label = `${time(Math.min(elapsed, duration))} / ${time(duration)}`;
+    } else if (completed) {
+      label = '已看完';
+    } else if (local?.watched || native?.watched) {
+      label = '已觀看';
+    }
+    const status = frame.querySelector('.ani-episode-card-watch');
+    status.dataset.label = label;
+    status.setAttribute('aria-label', label);
+    status.hidden = !label;
+  };
+  async function loadEpisodeCard(frame, originalSn) {
+    const sn = frame.dataset.videoSn;
+    const details = /^\d+$/.test(sn) ? globalThis.aniGetEpisodeDetails?.(sn) : null;
+    const original = originalSn && originalSn !== sn ? globalThis.aniGetEpisodeDetails?.(originalSn) : null;
+    void renderEpisodeCardCover(frame, original, details);
+    const data = await details;
+    if (!frame.isConnected || !data) return;
+    const date = frame.parentElement.querySelector('.ani-episode-card-date');
+    if (date && data.date) {
+      date.dateTime = data.date.replaceAll('/', '-');
+      date.dataset.label = data.date;
+      date.setAttribute('aria-label', `上架日期 ${data.date}`);
+    }
+    if (data.duration > 0) frame.dataset.duration = Math.ceil(data.duration / 60) + ' 分鐘';
+    const watch = episodeCardWatch.get(frame);
+    watch.details = data;
+    updateEpisodeCardWatch(frame, watch);
+  }
+  async function renderEpisodeCardCover(frame, original, details) {
+    const cover = safeImageUrl((await original)?.cover) || safeImageUrl((await details)?.cover);
+    if (!frame.isConnected) return;
+    if (cover.startsWith('https://')) {
+      frame.parentElement.style.setProperty('--ani-card-cover', `url(${JSON.stringify(cover)})`);
+      const image = document.createElement('img');
+      image.alt = '';
+      image.decoding = 'async';
+      image.src = cover;
+      try {
+        await image.decode();
+        if (frame.isConnected) frame.append(image);
+      } catch {
+        // The card can still show its episode number and history.
+      }
+    }
+  }
+  const episodeCardObserver = typeof IntersectionObserver === 'function' ? new IntersectionObserver(entries => {
+    for (const entry of entries) if (entry.isIntersecting) {
+      episodeCardObserver.unobserve(entry.target);
+      void loadEpisodeCard(entry.target, episodeCardWatch.get(entry.target)?.originalSn);
+    }
+  }) : null;
+
+  const episodeTitleObserver = typeof ResizeObserver === 'function' ? new ResizeObserver(entries => {
+    const headings = new Set();
+    for (const { target } of entries) {
+      const heading = target.closest('.ani-episode-card-heading');
+      if (heading) headings.add(heading);
+    }
+    headings.forEach(applyShadowMarquee);
+  }) : null;
+
+  const episodeSurfaceObserver = typeof ResizeObserver === 'function' ? new ResizeObserver(entries => {
+    const cards = new Set(entries.map(({target}) => target.closest('a')));
+    for (const card of cards) {
+      const description = card?.querySelector('.ani-episode-card-description');
+      const reveal = description?.querySelector('.ani-episode-card-synopsis-reveal');
+      if (!reveal) continue;
+      card.style.setProperty('--ani-episode-surface-height', `${description.offsetTop + reveal.offsetHeight + 1}px`);
+    }
+  }) : null;
+
+  function isMovieEpisodeTrack(label) {
+    return /^(?:(?:中文|國語|日文)?電影(?:版)?|劇場版)\s*[:：]?$/.test(label);
+  }
+
+  function normalizeBilingualEpisodeTracks(tracks) {
+    const dubbed = tracks.findIndex(track => /^(?:中文配音|中配|國語配音|國語|(?:中文|國語)電影)(?:版)?$/.test(track.label));
+    if (dubbed < 0) return;
+    const original = tracks.findIndex(track => /^(?:電影|日文電影|日文(?:配音)?|日語(?:配音)?|日配|本篇|正片)(?:版)?$/.test(track.label));
+    tracks[dubbed].label = '中文配音';
+    if (original < 0) return;
+    tracks[original].label = '日文配音';
+    if (original > dubbed) [tracks[dubbed], tracks[original]] = [tracks[original], tracks[dubbed]];
+  }
+
+  function syncEpisodeTracks(season) {
+    const tracks = [...season.querySelectorAll(':scope > ul')].map((list, index) => {
+      const before = list.previousElementSibling;
+      const range = before?.matches('.ani-ep-group-bar') ? before : null;
+      const heading = (range || list).previousElementSibling;
+      const title = heading?.matches('p') ? heading : null;
+      const expand = list.nextElementSibling?.matches('.ani-ep-list-expand') ? list.nextElementSibling : null;
+      return { list, title, label: title?.textContent.trim() || (index === 0 ? '本篇' : ''), controls: [range, expand] };
+    });
+    normalizeBilingualEpisodeTracks(tracks);
+    let state = episodeTrackStates.get(season);
+    if (!currentSettings.themeEnabled || tracks.length < 2 || tracks.some(track => !track.label)) {
+      state?.bar.remove();
+      episodeTrackStates.delete(season);
+      for (const node of season.querySelectorAll(':scope > .ani-episode-track-hidden')) {
+        node.classList.remove('ani-episode-track-hidden');
+      }
+      return;
+    }
+    if (!state) {
+      const bar = document.createElement('div');
+      bar.className = 'ani-episode-track-choices ani-catalog-sort';
+      bar.setAttribute('role', 'group');
+      bar.setAttribute('aria-label', '分集分類');
+      season.prepend(bar);
+      state = { bar, active: tracks.find(track => track.list.querySelector('li.playing'))?.list };
+      episodeTrackStates.set(season, state);
+    }
+    const refresh = () => {
+      for (const [index, track] of tracks.entries()) {
+        const active = track.list === state.active;
+        state.bar.children[index].setAttribute('aria-pressed', String(active));
+        track.title?.classList.add('ani-episode-track-hidden');
+        for (const node of [track.list, ...track.controls]) node?.classList.toggle('ani-episode-track-hidden', !active);
+      }
+    };
+    if (!tracks.some(track => track.list === state.active)) state.active = tracks[0].list;
+    if (state.tracks?.length !== tracks.length ||
+      tracks.some((track, index) => track.list !== state.tracks[index].list || track.label !== state.tracks[index].label)) {
+      state.bar.replaceChildren(...tracks.map(track => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = track.label;
+        button.onclick = () => {
+          state.active = track.list;
+          syncEpisodeTracks(season);
+        };
+        return button;
+      }));
+    }
+    state.tracks = tracks;
+    refresh();
+  }
 
   const initLongEpisodeGrouping = () => {
     if (location.pathname !== '/animeVideo.php') return;
+    const lists = [...document.querySelectorAll('.season ul')];
+    const cardsAvailable = currentSettings.themeEnabled &&
+      lists.every(ul => ul.children.length <= 100 && ![...ul.querySelectorAll('li a')].some(a => Number(a.textContent.trim()) > 100));
+    const cardMode = cardsAvailable && currentSettings.episodeThumbnailGrid;
     const applyGrouping = (ul) => {
-      const items = [...ul.querySelectorAll(':scope > li')];
+      const items = [...ul.children].filter(item => item.tagName === 'LI');
       const existingBar = ul.previousElementSibling?.matches('.ani-ep-group-bar') ? ul.previousElementSibling : null;
       const next = ul.nextElementSibling;
       const existingExpand = next?.matches('.ani-ep-list-expand') ? next : null;
-      if (items.length < 2) {
-        episodePreviewRenderers.delete(ul);
+      ul.classList.toggle('ani-episode-cards', Boolean(cardMode));
+      if (cardMode) {
         existingBar?.remove();
         existingExpand?.remove();
-        for (const li of items) li.classList.remove('ani-ep-chunk-hidden');
+        const trackLabel = ul.previousElementSibling?.textContent.trim() || '';
+        const isMovie = isMovieEpisodeTrack(trackLabel);
+        const isDub = /^(?:中文配音|中配|國語配音|國語)(?:版)?$/.test(trackLabel);
+        const originals = new Map();
+        if (isDub) {
+          const mainList = ul.parentElement.querySelector(':scope > ul');
+          if (mainList && mainList !== ul) {
+            for (const link of mainList.querySelectorAll(':scope > li > a')) {
+              const number = link.textContent.trim();
+              const videoSn = link.dataset.aniVideoSn || new URL(link.href, location.href).searchParams.get('sn');
+              if (/^\d+(?:\.\d+)?$/.test(number) && /^\d+$/.test(videoSn || '')) originals.set(Number(number), videoSn);
+            }
+          }
+        }
+        episodePreviewRenderers.delete(ul);
+        episodeListSnapshots.delete(ul);
+        ul.classList.remove('ani-ep-one-row');
+        ul.classList.add('ani-ep-managed');
+        ul.dataset.aniEpRendered = 'true';
+        if ((ul.dataset.aniEpOrder || 'asc') !== episodeOrder) {
+          ul.append(...items.reverse());
+          ul.dataset.aniEpOrder = episodeOrder;
+        }
+        const pendingCards = [];
+        for (const li of items) {
+          li.removeAttribute('data-ani-ep-hidden');
+          const link = li.querySelector('a');
+          if (!link || link.querySelector('.ani-episode-frame')) continue;
+          link.removeAttribute('title');
+          const frame = document.createElement('span');
+          frame.className = 'ani-episode-frame';
+          const number = link.textContent.trim();
+          if (!isMovie) frame.dataset.label = /^\d+(?:\.\d+)?$/.test(number) ? 'EP.' + number : number;
+          const playingBadge = document.createElement('span');
+          playingBadge.className = 'ani-ep-playing-label';
+          playingBadge.innerHTML = '<span class="ani-ep-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>';
+          frame.append(playingBadge);
+          const progress = document.createElement('span');
+          progress.className = 'ani-episode-card-progress';
+          progress.hidden = true;
+          progress.setAttribute('aria-hidden', 'true');
+          frame.append(progress);
+          const status = document.createElement('span');
+          status.className = 'ani-episode-card-watch';
+          status.setAttribute('role', 'img');
+          status.hidden = true;
+          frame.append(status);
+          frame.dataset.videoSn = link.dataset.aniVideoSn || new URL(link.href, location.href).searchParams.get('sn') || '';
+          const originalSn = originals.get(Number(number));
+          episodeCardWatch.set(frame, { originalSn });
+          pendingCards.push(frame);
+          link.prepend(frame);
+          const heading = document.createElement('span');
+          heading.className = 'ani-episode-card-heading';
+          heading.dataset.title = link.dataset.aniEpTitle || '';
+          const titleTrack = document.createElement('span');
+          titleTrack.className = 'ani-marquee-track';
+          titleTrack.dataset.title = heading.dataset.title;
+          heading.append(titleTrack);
+          const date = document.createElement('time');
+          date.className = 'ani-episode-card-date';
+          date.innerHTML = enhIcon('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4m8-4v4M3 10h18"/>', 12);
+          const metadata = document.createElement('span');
+          metadata.className = 'ani-episode-card-metadata';
+          metadata.append(heading);
+          const description = document.createElement('span');
+          description.className = 'ani-episode-card-description';
+          description.dataset.text = link.dataset.aniEpDescription || '';
+          const synopsis = document.createElement('span');
+          synopsis.className = 'ani-episode-card-synopsis';
+          synopsis.dataset.text = description.dataset.text;
+          const synopsisReveal = document.createElement('span');
+          synopsisReveal.className = 'ani-episode-card-synopsis-reveal';
+          const details = document.createElement('span');
+          details.className = 'ani-episode-card-details';
+          details.append(synopsis, date);
+          synopsisReveal.append(details);
+          description.append(synopsisReveal);
+          const glow = document.createElement('span');
+          glow.className = 'ani-episode-card-glow';
+          glow.setAttribute('aria-hidden', 'true');
+          link.append(metadata, description, glow);
+          episodeTitleObserver?.observe(heading);
+          episodeTitleObserver?.observe(titleTrack);
+          episodeSurfaceObserver?.observe(link);
+          episodeSurfaceObserver?.observe(synopsisReveal);
+          if (episodeCardObserver) episodeCardObserver.observe(frame);
+          else void loadEpisodeCard(frame, originalSn);
+        }
+        if (pendingCards.length) {
+          globalThis.aniGetEpisodeWatchHistory?.(pendingCards.map(frame => frame.dataset.videoSn)).then(history => {
+            for (const frame of pendingCards) {
+              if (!frame.isConnected) continue;
+              const watch = episodeCardWatch.get(frame);
+              Object.assign(watch, history.get(frame.dataset.videoSn));
+              updateEpisodeCardWatch(frame, watch);
+            }
+          });
+        }
+        return;
+      }
+      for (const frame of ul.querySelectorAll('.ani-episode-frame')) {
+        episodeCardObserver?.unobserve(frame);
+        const link = frame.parentElement;
+        episodeSurfaceObserver?.unobserve(link);
+        const reveal = link.querySelector('.ani-episode-card-synopsis-reveal');
+        if (reveal) episodeSurfaceObserver?.unobserve(reveal);
+        const heading = link.querySelector('.ani-episode-card-heading');
+        if (heading) {
+          episodeTitleObserver?.unobserve(heading);
+          episodeTitleObserver?.unobserve(heading.firstElementChild);
+          heading.parentElement.remove();
+        }
+        link.querySelector('.ani-episode-card-description')?.remove();
+        link.querySelector('.ani-episode-card-glow')?.remove();
+        link.style.removeProperty('--ani-card-cover');
+        link.style.removeProperty('--ani-episode-surface-height');
+        frame.remove();
+      }
+      if (items.length < 2) {
+        episodePreviewRenderers.delete(ul);
+        episodeListSnapshots.delete(ul);
+        existingBar?.remove();
+        existingExpand?.remove();
+        for (const li of items) li.removeAttribute('data-ani-ep-hidden');
         delete ul.dataset.aniEpActiveGroup;
         delete ul.dataset.aniEpExpanded;
+        delete ul.dataset.aniEpRendered;
         ul.classList.remove('ani-ep-managed', 'ani-ep-one-row');
         return;
       }
       ul.classList.add('ani-ep-managed');
 
-      const CHUNK_SIZE = 25;
-      const chunks = [];
-      for (let i = 0; i < items.length; i += CHUNK_SIZE) {
-        chunks.push({ start: i, end: Math.min(items.length - 1, i + CHUNK_SIZE - 1) });
+      if ((ul.dataset.aniEpOrder || 'asc') !== episodeOrder) {
+        items.reverse();
+        ul.append(...items);
+        ul.dataset.aniEpOrder = episodeOrder;
       }
-
       const grouped = currentSettings.episodeAutoGroup && items.length >= 50;
-      if (!grouped) ul.dataset.aniEpActiveGroup = 'all';
-      else ul.dataset.aniEpActiveGroup ||= 'all';
+      const previous = episodeListSnapshots.get(ul);
+      if (previous?.grouped === grouped && previous.items.length === items.length &&
+          previous.items.every((item, index) => item === items[index])) return;
+      episodeListSnapshots.set(ul, { grouped, items });
+
+      const chunkSize = 25;
+      const compact = grouped && items.length > chunkSize * 5;
+      const descending = episodeOrder === 'desc';
+      const itemAt = index => items[descending ? items.length - 1 - index : index];
+      const episodeLabel = index => itemAt(index)?.querySelector('a')?.textContent.trim() || String(index + 1);
+      const chunks = [];
+      for (let start = 0; start < items.length;) {
+        let end = Math.min(start + chunkSize, items.length) - 1;
+        // Absorb a trailing singleton in long lists without moving any earlier boundary.
+        if (compact && end === items.length - 2) end++;
+        const first = episodeLabel(start);
+        const last = episodeLabel(end);
+        const numericLabel = /^\d+(?:\.\d+)?$/;
+        const label = start === end ? first : (numericLabel.test(first) && numericLabel.test(last)
+          ? `${first}–${last}`
+          : `${start + 1}–${end + 1}`);
+        chunks.push({ id: String(chunks.length), start, end, label });
+        start = end + 1;
+      }
+      const orderedChunks = descending ? [...chunks].reverse() : chunks;
+      if (!grouped || !chunks[Number(ul.dataset.aniEpActiveGroup)]) ul.dataset.aniEpActiveGroup = 'all';
 
       const bar = existingBar || document.createElement('div');
       bar.className = 'ani-ep-group-bar';
+      bar.classList.toggle('ani-ep-group-compact', compact);
       bar.setAttribute('role', 'group');
       bar.setAttribute('aria-label', '集數區間分組');
       bar.innerHTML = '';
@@ -2517,41 +3054,54 @@
         ul.after(expand);
       }
 
+      let rangeTrigger, rangeLabel, rangeMenu, previousGroup, nextGroup;
+      let activeIndex = 0;
+      const groupOptions = [{ id: 'all', label: '全部' }, ...orderedChunks];
+      let visibleStart, visibleEnd, visiblePreview;
       const renderVisibility = () => {
         const active = ul.dataset.aniEpActiveGroup;
         for (const btn of bar.querySelectorAll('.ani-ep-group-btn')) {
           btn.setAttribute('aria-pressed', String(btn.dataset.epGroup === active));
         }
+        if (rangeTrigger) {
+          activeIndex = groupOptions.findIndex(option => option.id === active);
+          rangeLabel.textContent = groupOptions[activeIndex].label;
+          previousGroup.disabled = activeIndex === 0;
+          nextGroup.disabled = activeIndex === groupOptions.length - 1;
+          [...rangeMenu.children].forEach((option, index) => {
+            option.setAttribute('aria-selected', String(index === activeIndex));
+          });
+        }
         const all = active === 'all';
         const expanded = ul.dataset.aniEpExpanded === 'true';
-        ul.classList.toggle('ani-ep-one-row', all && !expanded);
+        const preview = all && !expanded;
+        ul.classList.toggle('ani-ep-one-row', preview);
         expand.hidden = !all;
         expand.setAttribute('aria-expanded', String(all && expanded));
         expand.firstElementChild.textContent = expanded ? '收合集數' : '展開全部集數';
+        // Determine how many tiles fit without making the hidden rows participate in layout.
+        const width = ul.clientWidth || ul.getBoundingClientRect().width;
+        const columns = width > 0 ? Math.max(1, Math.floor((width + 8) / 68)) : 6;
+        ul.style.setProperty('--ani-ep-columns', String(columns));
+        let start = 0;
+        let end = items.length - 1;
         if (all) {
-          for (const li of items) li.classList.remove('ani-ep-chunk-hidden');
-          if (expanded) return;
-          const listBounds = ul.getBoundingClientRect();
-          const first = items[0].getBoundingClientRect();
-          const nextRow = listBounds.width > 0 && first.width > 0
-            ? items.findIndex((item, index) => {
-                if (index === 0) return false;
-                const bounds = item.getBoundingClientRect();
-                return bounds.top > first.top + 2 || bounds.right > listBounds.right + 1 || bounds.left < listBounds.left - 1;
-              })
-            : 6;
-          if (nextRow > 0 && nextRow < items.length) {
-            for (const li of items.slice(nextRow)) li.classList.add('ani-ep-chunk-hidden');
-          } else {
-            expand.hidden = true;
-          }
-          return;
+          if (!expanded) end = Math.min(end, columns - 1);
+          expand.hidden = !expanded && items.length <= columns;
+        } else {
+          const group = chunks[Number(active)];
+          start = descending ? items.length - 1 - group.end : group.start;
+          end = descending ? items.length - 1 - group.start : group.end;
         }
-        const gIdx = Math.min(chunks.length - 1, Math.max(0, Number(active) || 0));
-        const { start, end } = chunks[gIdx];
+        if (start === visibleStart && end === visibleEnd && preview === visiblePreview) return;
+        visibleStart = start;
+        visibleEnd = end;
+        visiblePreview = preview;
         items.forEach((li, idx) => {
-          li.classList.toggle('ani-ep-chunk-hidden', idx < start || idx > end);
+          // The player resets episode classes after loading its playback state.
+          li.toggleAttribute('data-ani-ep-hidden', idx < start || idx > end);
         });
+        ul.dataset.aniEpRendered = 'true';
       };
       episodePreviewRenderers.set(ul, renderVisibility);
       expand.onclick = () => {
@@ -2563,40 +3113,91 @@
         }
       };
 
-      if (grouped) chunks.forEach((ch, idx) => {
-        const firstLabel = (items[ch.start]?.textContent || '').trim() || String(ch.start + 1);
-        const lastLabel = (items[ch.end]?.textContent || '').trim() || String(ch.end + 1);
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'ani-ep-group-btn';
-        btn.dataset.epGroup = String(idx);
-        if (ch.start === ch.end) {
-          btn.textContent = firstLabel;
-        } else {
-          btn.textContent = /^\d+(?:\.\d+)?$/.test(firstLabel) && /^\d+(?:\.\d+)?$/.test(lastLabel)
-            ? `${firstLabel}–${lastLabel}`
-            : `${ch.start + 1}–${ch.end + 1}`;
-        }
-        btn.addEventListener('click', () => {
-          ul.dataset.aniEpActiveGroup = String(idx);
-          renderVisibility();
-          animateFilterSwitch(btn, ul, 'li');
-        });
-        bar.append(btn);
-      });
-
-      const allBtn = document.createElement('button');
-      allBtn.type = 'button';
-      allBtn.className = 'ani-ep-group-btn';
-      allBtn.dataset.epGroup = 'all';
-      allBtn.textContent = '全部';
-      allBtn.addEventListener('click', () => {
-        ul.dataset.aniEpActiveGroup = 'all';
-        ul.dataset.aniEpExpanded = 'true';
+      const selectGroup = (id, button) => {
+        ul.dataset.aniEpActiveGroup = id;
+        if (id === 'all') ul.dataset.aniEpExpanded = String(!compact);
         renderVisibility();
-        animateFilterSwitch(allBtn, ul, 'li');
-      });
-      bar.prepend(allBtn);
+        if (button) animateFilterSwitch(button);
+      };
+      if (compact) {
+        const rangeField = document.createElement('div');
+        rangeField.className = 'ani-ep-range-field ani-catalog-date-field';
+        rangeTrigger = document.createElement('button');
+        rangeTrigger.type = 'button';
+        rangeTrigger.className = 'ani-ep-range-trigger';
+        rangeTrigger.setAttribute('aria-haspopup', 'listbox');
+        rangeTrigger.setAttribute('aria-expanded', 'false');
+        rangeLabel = document.createElement('span');
+        rangeLabel.id = `${ul.id}-range-label`;
+        rangeTrigger.setAttribute('aria-labelledby', rangeLabel.id);
+        rangeTrigger.append(rangeLabel);
+
+        rangeMenu = document.createElement('div');
+        rangeMenu.id = `${ul.id}-ranges`;
+        rangeMenu.className = 'ani-ep-range-menu';
+        rangeMenu.setAttribute('aria-label', '集數區間');
+        rangeMenu.setAttribute('role', 'listbox');
+        rangeMenu.setAttribute('popover', 'auto');
+        rangeTrigger.setAttribute('popovertarget', rangeMenu.id);
+        for (const { id, label } of groupOptions) {
+          const option = document.createElement('button');
+          option.type = 'button';
+          option.setAttribute('role', 'option');
+          option.textContent = label;
+          option.onclick = () => {
+            selectGroup(id);
+            rangeMenu.hidePopover?.();
+            rangeTrigger.focus();
+          };
+          rangeMenu.append(option);
+        }
+        rangeMenu.addEventListener('beforetoggle', event => {
+          const opening = event.newState === 'open';
+          rangeTrigger.setAttribute('aria-expanded', String(opening));
+          if (!opening) return;
+          const rect = rangeTrigger.getBoundingClientRect();
+          const below = window.innerHeight - rect.bottom;
+          rangeMenu.style.left = `${rect.left}px`;
+          rangeMenu.style.width = `${rect.width}px`;
+          const openBelow = below >= 180 || below >= rect.top;
+          rangeMenu.style.top = openBelow ? `${rect.bottom + 6}px` : 'auto';
+          rangeMenu.style.bottom = openBelow ? 'auto' : `${window.innerHeight - rect.top + 6}px`;
+          rangeMenu.style.maxHeight = `${Math.min(300, (openBelow ? below : rect.top) - 12)}px`;
+        });
+        rangeMenu.addEventListener('toggle', event => {
+          if (event.newState === 'open') rangeMenu.children[activeIndex]?.focus();
+        });
+        rangeMenu.addEventListener('keydown', event => {
+          const index = [...rangeMenu.children].indexOf(event.target);
+          const target = { ArrowDown: index + 1, ArrowUp: index - 1, Home: 0, End: groupOptions.length - 1 }[event.key];
+          if (target === undefined) return;
+          event.preventDefault();
+          rangeMenu.children[Math.max(0, Math.min(groupOptions.length - 1, target))]?.focus();
+        });
+        rangeField.append(rangeTrigger, rangeMenu);
+        const makeStepButton = (step, label) => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'ani-ep-group-btn';
+          button.setAttribute('aria-label', label);
+          button.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="${step < 0 ? 'm15 6-6 6 6 6' : 'm9 6 6 6-6 6'}"/></svg>`;
+          button.onclick = () => selectGroup(groupOptions[activeIndex + step].id);
+          return button;
+        };
+        previousGroup = makeStepButton(-1, '上一組集數');
+        nextGroup = makeStepButton(1, '下一組集數');
+        bar.append(previousGroup, rangeField, nextGroup);
+      } else if (grouped) {
+        for (const { id, label } of groupOptions) {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'ani-ep-group-btn';
+          btn.dataset.epGroup = id;
+          btn.textContent = label;
+          btn.onclick = () => selectGroup(id, btn);
+          bar.append(btn);
+        }
+      }
 
       if (grouped && !existingBar) ul.before(bar);
       if (!grouped) existingBar?.remove();
@@ -2606,30 +3207,94 @@
     if (!epGroupSubscribed) {
       epGroupSubscribed = true;
       settingsListeners.add(initLongEpisodeGrouping);
+      document.addEventListener('timeupdate', event => {
+        const video = event.target;
+        if (!video.matches?.('#ani_video video') || !Number.isFinite(video.duration) ||
+            video.closest('.vjs-ad-playing')) return;
+        for (const frame of document.querySelectorAll('.ani-episode-cards li.playing .ani-episode-frame')) {
+          const watch = episodeCardWatch.get(frame);
+          watch.media = video;
+          updateEpisodeCardWatch(frame, watch);
+        }
+      }, true);
     }
     const root = document.querySelector('#BH_background');
     if (root && !episodeListRootObserver) {
       episodeListRootObserver = new MutationObserver(records => {
-        if (records.some(record => [...record.addedNodes].some(node => node.nodeType === 1 &&
-          (node.matches('.season, .season ul') || node.querySelector('.season'))))) initLongEpisodeGrouping();
+        if (records.some(record =>
+          record.target.matches?.('.season ul') ||
+          [...record.addedNodes, ...record.removedNodes].some(node => node.nodeType === 1 &&
+            (node.matches('.season, ul.ani-ep-managed, .season ul') || node.querySelector('.season')))
+        )) initLongEpisodeGrouping();
       });
       episodeListRootObserver.observe(root, { childList: true, subtree: true });
     }
-    for (const ul of document.querySelectorAll('.season ul')) {
+    const firstList = lists.find(ul => ul.children.length > 1) ||
+      (cardsAvailable && lists.find(ul => ul.children.length));
+    const heading = firstList?.closest('.ani-episode-shelf')?.querySelector('.ani-episode-heading');
+    if (firstList) {
+      if (!episodeOrderButton) {
+        episodeOrderButton = document.createElement('button');
+        episodeOrderButton.type = 'button';
+        episodeOrderButton.className = 'ani-ep-order';
+        episodeOrderButton.innerHTML = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h9m-9 6h7m-7 6h5"/><path data-episode-order-arrow/></svg><span></span>';
+        episodeOrderButton.onclick = () => {
+          episodeOrder = episodeOrder === 'asc' ? 'desc' : 'asc';
+          initLongEpisodeGrouping();
+        };
+      }
+      const label = episodeOrder === 'asc' ? '正序' : '倒序';
+      if (episodeOrderButton.textContent !== label) {
+        episodeOrderButton.lastElementChild.textContent = label;
+        episodeOrderButton.querySelector('[data-episode-order-arrow]').setAttribute('d',
+          episodeOrder === 'asc' ? 'M18 18V6m-3 3 3-3 3 3' : 'M18 6v12m-3-3 3 3 3-3');
+        episodeOrderButton.setAttribute('aria-label', `集數${label}，點擊切換`);
+      }
+      if (!episodeOrderRow) {
+        episodeOrderRow = document.createElement('div');
+        episodeOrderRow.className = 'ani-ep-order-row';
+        episodeLayoutSwitch = document.createElement('button');
+        episodeLayoutSwitch.type = 'button';
+        episodeLayoutSwitch.className = 'ani-ep-layout-switch';
+        episodeLayoutSwitch.setAttribute('role', 'switch');
+        episodeLayoutSwitch.setAttribute('aria-label', '使用原版選集');
+        episodeLayoutSwitch.textContent = '原版';
+        episodeLayoutSwitch.onclick = () => void writeSettings({ episodeThumbnailGrid: !currentSettings.episodeThumbnailGrid });
+        episodeOrderRow.append(episodeOrderButton);
+      }
+      if (cardsAvailable) {
+        episodeLayoutSwitch.setAttribute('aria-checked', String(!cardMode));
+        if (episodeLayoutSwitch.parentElement !== episodeOrderRow) episodeOrderRow.append(episodeLayoutSwitch);
+      } else {
+        episodeLayoutSwitch.remove();
+      }
+      episodeOrderButton.hidden = firstList.children.length < 2;
+      if (heading) {
+        const expand = heading.querySelector('.ani-episode-section-toggle');
+        if (expand && expand.previousElementSibling !== episodeOrderRow) expand.before(episodeOrderRow);
+        else if (episodeOrderRow.parentElement !== heading) heading.append(episodeOrderRow);
+      } else {
+        const season = firstList.closest('.season');
+        if (episodeOrderRow.nextElementSibling !== season) season.before(episodeOrderRow);
+      }
+    } else {
+      episodeOrderRow?.remove();
+    }
+    for (const ul of lists) {
       applyGrouping(ul);
       if (observedEpisodeLists.has(ul)) continue;
       observedEpisodeLists.add(ul);
-      new MutationObserver(() => applyGrouping(ul)).observe(ul, { childList: true });
       if (typeof ResizeObserver === 'function') {
         let width;
         new ResizeObserver(([entry]) => {
           if (width === entry.contentRect.width) return;
           width = entry.contentRect.width;
-          if (ul.dataset.aniEpActiveGroup === 'all' && ul.dataset.aniEpExpanded !== 'true') {
-            episodePreviewRenderers.get(ul)?.();
-          }
+          episodePreviewRenderers.get(ul)?.();
         }).observe(ul);
       }
+    }
+    for (const season of new Set(lists.map(ul => ul.closest('.ani-episode-shelf .season')).filter(Boolean))) {
+      syncEpisodeTracks(season);
     }
   };
 
@@ -2637,8 +3302,8 @@
   const getCleanAnimeTitle = () => {
     const raw = (document.querySelector('.anime_name h1')?.textContent || document.title || '').trim();
     return raw
-      .replace(/\s*(?:\[\s*\d+(?:\.\d+)?\s*\]|EP\.?\s*\d+(?:\.\d+)?)\s*$/i, '')
-      .replace(/\s*-\s*巴哈姆特動畫瘋.*$/, '')
+      .replace(/\s*(?:線上看\s*)?-\s*巴哈姆特動畫瘋.*$/, '')
+      .replace(/(?:\s*(?:\[\s*(?:\d+(?:\.\d+)?|中文配音|中配|國語(?:配音)?|雙語|特別篇|OAD|OVA)\s*\]|EP\.?\s*\d+(?:\.\d+)?))+\s*$/i, '')
       .trim();
   };
 
@@ -2744,14 +3409,20 @@
     if (!season.dataset.aniEpTipWired) {
       season.dataset.aniEpTipWired = '1';
       const showTip = (link) => {
-        const epTitle = link?.dataset?.aniEpTitle;
         link.removeAttribute('title');
+        if (link.closest('.ani-episode-cards')) {
+          tip.hidden = true;
+          return;
+        }
+        const epTitle = link.dataset.aniEpTitle;
+        const synopsis = document.body.classList.contains('ani-hide-episode-description') ? '' : link.dataset.aniEpDescription;
         const airdate = link.dataset.aniUploadDate || '';
         tip.innerHTML = `
           ${epTitle ? `<div class="ani-ep-tip-title">${escapeHtml(epTitle)}</div>` : ''}
+          ${synopsis ? `<div class="ani-ep-tip-synopsis">${escapeHtml(synopsis)}</div>` : ''}
           ${airdate ? `<time class="ani-ep-tip-date" datetime="${escapeHtml(airdate.replaceAll('/', '-'))}">${escapeHtml(airdate)}</time>` : ''}
         `;
-        tip.hidden = !epTitle && !airdate;
+        tip.hidden = !epTitle && !synopsis && !airdate;
         if (!tip.hidden) {
           const rect = link.getBoundingClientRect();
           const box = tip.getBoundingClientRect();
@@ -2793,7 +3464,7 @@
         ? cachedEntry.episodes
         : null;
 
-    if (!epMap || cachedEntry.metadataVersion !== 3) {
+    if (!epMap || cachedEntry.metadataVersion !== EP_METADATA_VERSION) {
       const acgUrl = document.querySelector('a[href*="acg.gamer.com.tw/acgDetail.php?s="]')?.href || '';
       let resp = await sendWorkerMessage({ type: 'ani-fetch-episode-titles', title: cleanTitle, acgUrl });
       if (!resp?.ok && typeof fetchEpisodeTitles === 'function' && typeof GM_xmlhttpRequest === 'function') {
@@ -2806,7 +3477,7 @@
       }
       if (resp?.ok && resp.episodes && Object.keys(resp.episodes).length > 0) {
         epMap = resp.episodes;
-        cache[cleanTitle] = { ts: Date.now(), metadataVersion: 3, episodes: epMap };
+        cache[cleanTitle] = { ts: Date.now(), metadataVersion: EP_METADATA_VERSION, episodes: epMap };
         const keys = Object.keys(cache);
         if (keys.length > 120) {
           keys.sort((a, b) => (cache[b]?.ts || 0) - (cache[a]?.ts || 0)).slice(120).forEach((k) => delete cache[k]);
@@ -2816,23 +3487,80 @@
     }
 
     const mainEpisodes = season.querySelector('ul');
+    const movieWork = /劇場版/.test(cleanTitle) ||
+      /\[(?:(?:中文|國語|日文)?電影(?:版)?|劇場版)\]/.test(document.querySelector('.anime_name h1')?.textContent || '');
+    const movieName = cleanTitle
+      .replace(/(?:\s*\[\s*(?:(?:中文|國語|日文)?電影(?:版)?|劇場版)\s*\])+\s*$/, '')
+      .replace(/^(?:劇場版\s*)?關於我轉生變成史萊姆這檔事\s*(?:劇場版\s*)?(?=紅蓮之絆篇|蒼海之淚篇)/, '');
+    const movieSubtitle = movieName.match(/^.+?劇場版\s*[:：・－—-]?\s*(.+)$/)?.[1] || movieName;
+    const workSynopsis = () => document.querySelector('.ani-side-synopsis')?.textContent.trim() ||
+      [...document.querySelectorAll('#BH_background section.data .data-intro > p')]
+        .map(paragraph => paragraph.textContent.trim()).join(' ');
+    const isPolarOpposites = /^相反的你和我(?:\s*第[二2][季期])?$/.test(cleanTitle);
+    const slimeSeasonLabel = cleanTitle.match(/^關於我轉生變成史萊姆這檔事(?:\s*第([一二三四1-4])[季期])?$/);
+    const slimeSeasonNumber = slimeSeasonLabel &&
+      (Number(slimeSeasonLabel[1]) || '一二三四'.indexOf(slimeSeasonLabel[1] || '一') + 1);
+    const slimeSeason = slimeSeasonDescriptions[slimeSeasonNumber];
+    const slimeSpinoff = /^(?:轉生史萊姆日記(?:\s*關於我轉生變成史萊姆這檔事)?|關於我轉生變成史萊姆這檔事\s*轉生史萊姆日記)$/.test(cleanTitle)
+      ? slimeSpinoffEpisodes.diary
+      : /^關於我轉生變成史萊姆這檔事\s*柯里烏斯之夢$/.test(cleanTitle) ? slimeSpinoffEpisodes.coleus : null;
+    const verifiedTitles = (slimeSeasonTitles[slimeSeasonNumber] || slimeSpinoff?.titles)?.split('｜');
     for (const a of season.querySelectorAll('li a')) {
       const rawEp = (a.textContent || '').trim();
       const numMatch = rawEp.match(/(\d+(?:\.\d+)?)/)?.[1];
       const epData = epMap?.[rawEp] || (numMatch ? epMap?.[numMatch] || epMap?.[String(Number(numMatch))] : null);
-      if (epData?.name) {
-        a.dataset.aniEpTitle = traditionalTitle(epData.name);
-        if (epData.airdate) a.dataset.aniEpAirdate = epData.airdate;
+      const list = a.closest('ul');
+      const previous = list?.previousElementSibling;
+      const listLabel = (previous?.matches('.ani-ep-group-bar') ? previous.previousElementSibling : previous)?.textContent.trim() || '';
+      const isStoryList = (list === mainEpisodes && (!slimeSeason || !/特別篇|OAD|OVA/i.test(listLabel))) ||
+        /^(?:中文配音|中配|國語配音|國語)(?:版)?$/.test(listLabel);
+      const episodeNumber = Number(numMatch);
+      const isMovie = isMovieEpisodeTrack(listLabel) ||
+        (movieWork && list?.querySelectorAll('li a').length === 1 && isStoryList);
+      const verifiedIndex = episodeNumber - (slimeSeason?.firstEpisode || 1);
+      const episodeTitle = isMovie ? movieSubtitle : isStoryList ? epData?.name || verifiedTitles?.[verifiedIndex]
+        : slimeSeason || slimeSpinoff ? null : epData?.name;
+      if (episodeTitle) {
+        a.dataset.aniEpTitle = traditionalTitle(episodeTitle);
+        const heading = a.querySelector('.ani-episode-card-heading');
+        if (heading) {
+          heading.dataset.title = a.dataset.aniEpTitle;
+          heading.firstElementChild.dataset.title = a.dataset.aniEpTitle;
+        }
+        if (epData?.airdate) a.dataset.aniEpAirdate = epData.airdate;
         a.removeAttribute('title');
       }
-      const description = typeof epData?.description === 'string' ? epData.description.trim() : '';
       // Bangumi lists the main episodes separately from specials.
-      if (a.closest('ul') === mainEpisodes && /\p{Script=Han}/u.test(description) &&
-          !/[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u.test(description)) {
-        a.dataset.aniEpDescription = traditionalTitle(description);
-      } else {
-        delete a.dataset.aniEpDescription;
+      const description = a.querySelector('.ani-episode-card-description');
+      const synopsis = description?.querySelector('.ani-episode-card-synopsis');
+      if (isStoryList || isMovie) {
+        const source = typeof epData?.description === 'string' ? epData.description : '';
+        // Some episode records put staff credits in the description field.
+        const story = source.split(/(?:^|\r?\n)[^\S\r\n]*(?:[＜<【\[]\s*)?(?:(?:STAFF|製作團隊|製作人員)(?:\s*[＞>】\]])?(?=\s|[:：]|$)|(?:[｜|]\s*)?(?:脚本|腳本|劇本|分鏡|分镜|絵コンテ|演出|原畫|原画|作畫監督|作画監督|原畫\s*[/／]\s*作監|作監)\s*[:：])/i)[0];
+        const chinese = story.split(/\r?\n[^\S\r\n]*\r?\n/)
+          .map(paragraph => paragraph.trim())
+          .filter(paragraph => /\p{Script=Han}/u.test(paragraph) &&
+            !/[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u.test(paragraph));
+        const verifiedStory = slimeSeason || slimeSpinoff ? (slimeSeason || slimeSpinoff).summaries[verifiedIndex]
+          : chinese.join(' ') || (isMovie ? workSynopsis() : '') ||
+            (isPolarOpposites ? polarOppositesSeasonTwoDescriptions[episodeNumber] : '');
+        if (verifiedStory) {
+          const text = traditionalTitle(verifiedStory).replace(/\s+/g, ' ').trim();
+          const maxLength = 82;
+          const characters = Array.from(text);
+          const excerpt = characters.slice(0, maxLength).join('');
+          const completeSentences = excerpt.match(/^.*[。！？!?]/u)?.[0];
+          a.dataset.aniEpDescription = characters.length <= maxLength
+            ? text
+            : completeSentences || excerpt.trimEnd() + '…';
+          if (description) description.dataset.text = a.dataset.aniEpDescription;
+          if (synopsis) synopsis.dataset.text = a.dataset.aniEpDescription;
+          continue;
+        }
       }
+      delete a.dataset.aniEpDescription;
+      if (description) description.dataset.text = '';
+      if (synopsis) synopsis.dataset.text = '';
     }
     season.dispatchEvent(new Event('ani-episode-titles-ready'));
     const hovered = season.querySelector('li a:hover, li a:focus');
@@ -3009,16 +3737,19 @@
     fetchTagSnSet,
     buildCatalogPageUrl,
     recordVideoProgress,
+    resolveEpisodeProgress,
+    isMovieEpisodeTrack,
+    normalizeBilingualEpisodeTracks,
     initBrowseFilters: initCatalogEnhancements,
     reinit: async () => {
       await readSettings();
+      initLongEpisodeGrouping();
       await initCollectionStatusTagger();
       await initWatchCollectionStatusButton();
       initCatalogEnhancements();
       await initSpoilerBlur();
       await initDanmuListTools();
       initCommentSendButton();
-      initLongEpisodeGrouping();
       await initEpisodeTitleTooltips();
       initOffshelfAlerts();
       initVideoHistoryTracker();
@@ -3031,13 +3762,16 @@
 
   const boot = async () => {
     await readSettings();
+    initLongEpisodeGrouping();
     await initCollectionStatusTagger();
-    await initWatchCollectionStatusButton();
     initCatalogEnhancements();
+    if (location.pathname === '/animeVideo.php') document.documentElement.dataset.aniEpisodePreview = 'true';
+    document.documentElement.dataset.aniEnhancementsUiReady = 'true';
+    window.dispatchEvent(new Event('ani-enhancements-ui-ready'));
+    await initWatchCollectionStatusButton();
     await initSpoilerBlur();
     await initDanmuListTools();
     initCommentSendButton();
-    initLongEpisodeGrouping();
     await initEpisodeTitleTooltips();
     initOffshelfAlerts();
     initVideoHistoryTracker();

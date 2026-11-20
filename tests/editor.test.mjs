@@ -18,6 +18,15 @@ let mutations=0;const OriginalObserver=w.MutationObserver;
 w.MutationObserver=class extends OriginalObserver{constructor(fn){super((entries,observer)=>{mutations++;if(mutations>100)throw new Error('Observer feedback loop');fn(entries,observer);});}};
 fixtures.insertAdjacentHTML('beforeend', '<div id="blockVideoInSeason"><div class="newanime-nav"><div class="btn-newanime-filter"><p class="newanime-filter-text">依更新日排列</p><ul class="filter-items"><li class="item-newupdate">依更新日排列</li><li class="item-famous">依平均人氣排列</li></ul></div></div></div>');
 for (const item of w.document.querySelectorAll('.filter-items li')) item.addEventListener('click', () => { w.document.querySelector('.newanime-filter-text').textContent = item.textContent; });
+let syncMiniPlayerIntersection;
+w.IntersectionObserver = class {
+  constructor(callback, options) {
+    if (options?.rootMargin === '-48px 0px 0px') syncMiniPlayerIntersection = callback;
+  }
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
 for(const file of ['settings.js','topbar-bridge.js','content.js'])w.eval(fs.readFileSync('src/'+file,'utf8'));
 assert.equal(w.document.body.dataset.aniBackground,'silk','extension/page reload retains this tab random background');
 const sendButton=playerBar.querySelector('.danmu-send_btn');
@@ -36,6 +45,25 @@ assert.equal(sortOptions.children[0].getAttribute('aria-pressed'), 'false');
 sortOptions.children[0].click();
 assert.equal(sortOptions.children[0].getAttribute('aria-pressed'), 'true');
 const panel=w.document.querySelector('.ani-view-settings-panel'),change=(key,value)=>{const e=panel.querySelector(`[data-setting="${key}"]`);if(e.type==='checkbox')e.checked=value;else e.value=value;e.dispatchEvent(new w.Event('input',{bubbles:true}));};
+let heatRequests = 0;
+w.fetch = async (url, init) => {
+  assert.equal(url, '/ajax/danmuGet.php');
+  assert.equal(init.body.get('sn'), '48204');
+  heatRequests++;
+  return { ok: true, json: async () => [{ time: 100 }, { time: 500 }, { time: 501 }] };
+};
+const heatVideo = w.document.querySelector('video');
+Object.defineProperty(heatVideo, 'duration', { configurable: true, value: 120 });
+playerBar.insertAdjacentHTML('afterbegin', '<div class="vjs-progress-control"></div>');
+heatVideo.dispatchEvent(new w.Event('durationchange'));
+await new Promise(resolve => setTimeout(resolve, 0));
+assert.equal(panel.querySelector('[data-setting="showDanmuHeat"]').checked, true);
+assert(playerBar.querySelector('.ani-danmu-heat path'));
+change('showDanmuHeat', false);
+assert.equal(playerBar.querySelector('.ani-danmu-heat'), null);
+change('showDanmuHeat', true);
+assert(playerBar.querySelector('.ani-danmu-heat path'));
+assert.equal(heatRequests, 1);
 assert.equal(panel.querySelector('[data-setting="method"]').value,'diffuse','Fresh defaults use the requested soft diffusion');
 assert.equal(panel.querySelector('[data-setting="diffusionDepth"]').value,'100');
 assert.equal(panel.querySelector('[data-category-shortcut="general"]').getAttribute('aria-current'),'page','Settings open directly to first category 一般設定');
@@ -67,10 +95,52 @@ change('episodesLayout',false);assert.equal(w.document.querySelector('.ani-episo
 change('navLayout',false);assert.equal(w.document.body.classList.contains('ani-layout-nav'),false);assert.equal(w.document.body.classList.contains('ani-layout-info'),true);
 for(const key of ['cinema','charcoal','paper','forest','violet','reading']){panel.querySelector(`[data-theme-preset="${key}"]`).click();assert.equal(panel.querySelector(`[data-theme-preset="${key}"]`).getAttribute('aria-pressed'),'true');assert.equal(panel.querySelector('[data-setting="playerLayout"]').value,'columns');assert.equal(panel.querySelector('[data-setting="customWatchWidth"]').checked,false);}
 
+{
+  const slot = w.document.querySelector('.videoframe');
+  const player = slot.querySelector('#ani_video');
+  let bottom = -100;
+  slot.getBoundingClientRect = () => ({ top: bottom - 300, bottom, height: 300 });
+  const intersect = () => syncMiniPlayerIntersection([{ boundingClientRect: slot.getBoundingClientRect() }]);
+  assert(panel.querySelector('[data-settings-page="general"] [data-setting="scrollMiniPlayer"]'));
+  intersect();
+  assert(player.classList.contains('ani-mini-pip'));
+  const video = player.querySelector('video');
+  Object.defineProperty(video, 'duration', { value: 30 });
+  const mainSeek = player.querySelector('.ani-playback-seek-group');
+  const miniSeek = player.querySelector('.ani-mini-pip-controls');
+  const seek = (group, direction) => group.querySelector(`[data-ani-playback-seek="${direction}"]`);
+  video.currentTime = 3;
+  seek(miniSeek, -1).click();
+  assert.equal(video.currentTime, 0);
+  seek(miniSeek, 1).click();
+  assert.equal(video.currentTime, 5);
+  change('playbackSeekSeconds', 12);
+  assert.equal(seek(mainSeek, 1).getAttribute('aria-label'), '快轉 12 秒');
+  assert(!seek(mainSeek, 1).hasAttribute('title') && !seek(miniSeek, 1).hasAttribute('title'));
+  assert.equal(seek(miniSeek, -1).textContent, '12');
+  seek(mainSeek, 1).click();
+  assert.equal(video.currentTime, 17);
+  seek(miniSeek, 1).click();
+  seek(miniSeek, 1).click();
+  assert.equal(video.currentTime, 30);
+  player.classList.add('vjs-ad-playing');
+  seek(mainSeek, -1).click();
+  assert.equal(video.currentTime, 30);
+  player.classList.remove('vjs-ad-playing');
+  change('scrollMiniPlayer', false);
+  assert(!player.classList.contains('ani-mini-pip'));
+  assert.equal(slot.style.minHeight, '');
+  intersect();
+  assert(!player.classList.contains('ani-mini-pip'));
+  change('scrollMiniPlayer', true);
+  assert(player.classList.contains('ani-mini-pip'));
+  bottom = 48;
+  intersect();
+  assert(!player.classList.contains('ani-mini-pip'));
+  assert.equal(slot.style.minHeight, '');
+}
 assert.equal(w.AniAmbientSettings.defaults.quickCollapse,true);
-assert.equal(w.AniAmbientSettings.defaults.commentArrangement,'single');
-change('commentArrangement','double');assert.equal(w.document.body.classList.contains('ani-comments-double'),false);
-change('commentArrangement','single');assert.equal(w.document.body.classList.contains('ani-comments-double'),false);
+assert.equal(panel.querySelector('[data-setting="commentArrangement"], [data-setting="foldComments"]'), null);
 assert.ok(w.document.querySelector('.ani-watch-tools').previousElementSibling.matches('section.player'),'Viewing tools follow the native player');
 assert.equal(w.AniAmbientSettings.defaults.hideDanmuScrollbar,true);
 assert.ok(w.document.querySelector('.ani-region-fold-control'),'Default page provides fold controls');
@@ -89,7 +159,7 @@ episodeButton.click();assert.equal(season.hidden,false);assert.equal(episodeButt
 change('episodeStyle','wrap');assert.equal(shelf.querySelector('.ani-region-toggle'),null);assert.equal(season.hidden,false);
 for(const [flag,selector] of [['foldInfo','section.data'],['foldRelated','.old_list'],['foldNews','.animate-theme-list']]){
   change(flag,true);const target=w.document.querySelector(selector),button=w.document.querySelector('[aria-controls="'+target.id+'"]');
-  assert.ok(button,'Enabled section must provide a control');button.click();assert.equal(target.hidden,true);assert.equal(button.getAttribute('aria-expanded'),'false');
+  assert.ok(button,`${flag} must provide a control`);button.click();assert.equal(target.hidden,true);assert.equal(button.getAttribute('aria-expanded'),'false');
   change(flag,false);assert.equal(target.hidden,false);assert.equal(button.isConnected,false);
 }
 for(const key of ['showInfo','showRelated','showNews','showComments'])change(key,false);
@@ -183,7 +253,12 @@ w.document.querySelector('.top_sky .sky').append(ratingLauncher);
 await Promise.resolve();
 assert.equal(w.document.documentElement.dataset.aniRatingIntegrated, 'true');
 const ratingPage = panel.querySelector('[data-settings-page="rating"]');
-const openRating = () => panel.querySelector('[data-category-shortcut="rating"]').click();
+const about = panel.querySelector('[data-settings-page="credit"]');
+const ratingShortcut = panel.querySelector('[data-category-shortcut="rating"]');
+const openRating = () => {
+  const home = panel.querySelector('[data-settings-home]');
+  (home.hidden ? ratingShortcut : home.querySelector('[data-category="rating"]')).click();
+};
 if (panel.hidden) w.document.querySelector('.ani-view-settings').click();
 openRating();
 assert.equal(ratingPage.hidden, false);
@@ -196,7 +271,10 @@ assert.equal(embedded.dataset.aniStarmapEmbedded, 'true');
 assert.equal(embedded.querySelector('#ani-rating-modal').hasAttribute('aria-modal'), false);
 assert.equal(embedded.hasAttribute('style'), false, 'the external backdrop cannot cover settings');
 assert.equal(embedded.querySelector('#ani-rating-modal').hasAttribute('style'), false);
-assert(panel.querySelector('[data-category-shortcut="rating"] svg'));
+assert.equal(about.querySelector('[data-category="rating"]'), null);
+assert.equal(ratingShortcut.getAttribute('aria-current'), 'page');
+assert.equal(ratingShortcut.previousElementSibling.dataset.categoryShortcut, 'content');
+assert.equal(panel.querySelector('[data-settings-back]').getAttribute('aria-label'), '返回設定分類');
 const ratingTabs = [...embedded.querySelectorAll('.ani-rating-tabs [role="tab"]')];
 assert.deepEqual(ratingTabs.map(button => button.textContent), ['顯示與篩選', '徽章外觀', '效能與快取', '資料與維護']);
 assert(ratingTabs.every(button => button.querySelector('svg')));
@@ -239,6 +317,10 @@ assert.equal(ratingExports, 1);
 assert.equal(embedded.querySelector('#arm-save, #arm-cancel'), null);
 assert.equal(ratingSaves, 0);
 assert.equal(ratingPage.hidden, false);
+panel.querySelector('[data-settings-back]').click();
+assert.equal(ratingPage.hidden, true);
+assert.equal(panel.querySelector('[data-settings-home]').hidden, false);
+openRating();
 w.document.querySelector('.ani-view-settings').click();
 assert.equal(w.document.getElementById('ani-rating-overlay'), null);
 w.document.querySelector('.ani-view-settings').click();

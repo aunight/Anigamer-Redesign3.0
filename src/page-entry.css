@@ -1,4 +1,9 @@
 html[data-ani-booting='true'] { background:#111c2b !important;overflow:hidden !important; }
+html[data-ani-booting='true'] > body { opacity: 0 !important; }
+html[data-ani-episode-preview='true'] #BH_background .season ul:not([data-ani-ep-rendered]) > li:nth-of-type(n + 7),
+html[data-ani-episode-preview='true'] #BH_background .ani-season-more-btn {
+  display: none !important;
+}
 /* The opaque intro covers the live page until the crossfade begins. */
 #ani_video .vjs-poster { filter:blur(6px); }
 .ani-home-intro {
@@ -58,14 +63,6 @@ html[data-ani-booting='true'] { background:#111c2b !important;overflow:hidden !i
 .ani-route-cover { position: fixed; inset: 0; z-index: 2147483000; pointer-events: none; background: #111c2b; transition: opacity 120ms ease-out; }
 .ani-route-visible { opacity: 0; }
 @media (prefers-reduced-motion: reduce) { .ani-route-cover { transition: none; } }
-
-/* Let the native confirmation paint as soon as the player supplies it. */
-html:has(#ani_video .ncc-choosebar:not([hidden], [style*="display: none"], [style*="display:none"]) .choose-btn-agree)
-  > :is(.ani-home-intro, .ani-route-cover),
-html:has(#ani_video .ani-age-ready:not([hidden], [style*="display: none"], [style*="display:none"]))
-  > :is(.ani-home-intro, .ani-route-cover) {
-  display: none;
-}
 
 /* Native review stars have a viewBox, but no intrinsic width or height. */
 #acg_review .user-star-block svg.user-star {

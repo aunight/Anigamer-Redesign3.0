@@ -11,7 +11,9 @@ test('history keeps native controls and keeps each episode list inside its ownin
   const more=d.querySelector('.more-btn'),details=d.querySelector('.user-watchTime-list');
   d.querySelector('.user-lastwatch').textContent = '1';
   d.querySelector('.click-area').setAttribute('href', 'animeVideo.php?sn=99');
-  details.insertAdjacentHTML('beforeend', '<a href="animeVideo.php?sn=7"><span class="history-list-anime-title">測試作品 [7]</span></a>');
+  details.insertAdjacentHTML('beforeend', '<a href="animeVideo.php?sn=7"><span class="history-list-anime-title">測試作品 ［７］</span></a>');
+  details.style.backgroundColor = '#182433';
+  details.insertAdjacentHTML('beforeend', '<ul class="user-watch-textlist"><li><a href="animeVideo.php?sn=8"><span class="history-list-anime-title">測試作品 特別篇</span><span class="date">54 分前</span></a></li></ul>');
   d.querySelector('#BH_background').insertAdjacentHTML('beforeend', `
     <div class="animate-theme-list">
       <a class="theme-list-main" href="animeRef.php?sn=101">
@@ -26,6 +28,8 @@ test('history keeps native controls and keeps each episode list inside its ownin
   assert.equal(details.parentElement.id, 'list-1');
   assert(details.previousElementSibling.classList.contains('anime-card'));
   assert.equal(details.dataset.aniOwner,'101');
+  assert(!details.closest('.ani-bgm-toast'), 'short episode history must never be styled as a player toast');
+  assert(!details.querySelector('.ani-bgm-toast-icon'));
   assert.equal(d.querySelector('.ani-history-play-label').textContent,'繼續觀看');
   assert.equal(more.hasAttribute('title'),false,'no browser tooltip duplicates the native action');
   assert.equal(d.querySelector('.ani-history-score').textContent,'★ 4.8');
@@ -40,6 +44,13 @@ test('history keeps native controls and keeps each episode list inside its ownin
   assert.equal(d.querySelector('.ani-history-progress-text').textContent,'已看 25% · 剩餘 18分00秒');
   assert(d.querySelector('.postimg .ani-history-score'),'rating shares the poster corner design');
   assert.equal(d.querySelector('.history-list-anime-title').textContent,'EP.6');
+  assert.deepEqual(
+    [...details.querySelectorAll('.history-list-anime-title')]
+      .filter(label => !label.closest('[data-ani-history-unnumbered]'))
+      .map(label => label.textContent),
+    ['EP.6', 'EP.7'],
+  );
+  assert.equal(details.querySelector('li[data-ani-history-unnumbered] .date').textContent, '54 分前');
   const favorite=d.querySelector('.ani-history-favorite');assert(favorite);assert.equal(favorite.getAttribute('aria-pressed'),'true');
   assert.equal(favorite.parentElement.className,'postimg');
   assert.equal(details.parentElement.id,'list-1');

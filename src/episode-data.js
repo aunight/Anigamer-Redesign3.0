@@ -1,4 +1,4 @@
-// Traditional Chinese episode summaries based on Bangumi subject 634708.
+// Traditional Chinese summaries for episodes with a Japanese-only source.
 const traditionalEpisodeDescriptions = new Map([
   [1749241, '颯太在自家咖啡店替小春解圍，發現看似冷淡的她其實怕生，也不擅長拍照。他決定教她拍照，幫她交朋友。'],
   [1749242, '小春鼓起勇氣約颯太喝珍珠奶茶。兩人因拍照越走越近，但她提出週末一起吃甜點時，颯太卻婉拒了。'],
@@ -7,6 +7,8 @@ const traditionalEpisodeDescriptions = new Map([
   [1749245, '互相告白後，颯太和小春迎來第一次約會。擔心感情停滯的颯太向凜香求助，凜香也開始察覺自己的心意。'],
   [1749246, '颯太和小春到海邊玩，除了遇見當地女孩圓花，還和朋友們會合。害羞的小春卻因為穿泳裝躲到岩石後面。'],
   [1749247, '泳裝被看見後，小春慌張逃走。在圓花直率的勸說和鼓勵下，她決定回去面對颯太。'],
+  // https://sasapi-anime.com/story_2nd.html
+  [1748350, '小嗶誤觸直播，把自己和艾莎的影像傳上網。星崎小姐、鄰居妹妹等人循著影片找到了他們的藏身處。'],
 ]);
 
 async function fetchEpisodeTitles(rawTitle, request = fetch, acgUrl = '') {

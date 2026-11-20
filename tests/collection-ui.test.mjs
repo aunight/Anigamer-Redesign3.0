@@ -4,10 +4,115 @@ import test from 'node:test';
 import { JSDOM } from 'jsdom';
 function boot(html,path){const dom=new JSDOM(html,{url:'https://ani.gamer.com.tw'+path,runScripts:'outside-only',pretendToBeVisual:true});const w=dom.window;w.matchMedia=()=>({matches:false,addEventListener(){}});w.fetch=async()=>({ok:true,text:async()=>'<div class="theme-list-block"><a class="theme-list-main" href="animeRef.php?sn=2"></a></div>'});for(const file of ['page-entry.js','settings.js','content.js'])w.eval(fs.readFileSync('src/'+file,'utf8'));return dom;}
 const card=(id,year,progress)=>`<a class="theme-list-main" href="animeRef.php?sn=${id}"><div class="theme-img-block"><img class="theme-img"><span class="ani-watch-progress-badge">看到第 ${progress} 話</span></div><div class="anime-detail-block"><div class="theme-info-block"><p class="theme-name">作品${id}</p><div class="theme-detail-info-block"><p class="theme-time">${year} 春番</p><span class="theme-number">${progress} / 12 集</span></div></div></div></a>`;
+test('related movies show a check only when completed while specials retain episode progress', async t => {
+  const movie = card(1, 2026, 0).replace('作品1', '作品劇場版').replace(' / 12 集', ' / 1 集');
+  const tagged = card(2, 2026, 0).replace(' / 12 集', ' / 1 集')
+    .replace('<div class="anime-detail-block">', '<div class="anime-detail-block"><span class="label-edition">電影</span>');
+  const special = card(3, 2026, 0).replace(' / 12 集', ' / 1 集');
+  const dom = boot(`<div id="BH_background"><section class="old_list"><div class="theme-list-block">${movie}${tagged}${special}</div></section></div>`, '/animeVideo.php?sn=101');
+  t.after(() => dom.window.close());
+  const labels = [...dom.window.document.querySelectorAll('.old_list .theme-number')].map(node => node.textContent);
+  assert.deepEqual(labels, ['電影', '電影', '0 / 1 集']);
+  const w = dom.window;
+  const [watched, unfinished] = w.document.querySelectorAll('.old_list .theme-number');
+  w.localStorage.setItem('aniPermanentHistoryV1', JSON.stringify({
+    1: {title: '作品劇場版', completed: true},
+    2: {title: '作品2', elapsedSec: 40, durationSec: 3600},
+  }));
+  w.eval(fs.readFileSync('src/enhancements.js', 'utf8'));
+  await new Promise(resolve => setTimeout(resolve, 20));
+  assert.equal(watched.querySelectorAll('svg').length, 1);
+  assert.equal(watched.title, '已看過');
+  assert.equal(unfinished.querySelector('svg'), null);
+});
+test('studio view restores its tab and scroll positions and prepares nearby rows separately', t => {
+  const dom = new JSDOM('<main><section><div class="filter-title-block"></div></section></main>', {
+    url: 'https://ani.gamer.com.tw/animeList.php', runScripts: 'outside-only',
+  });
+  t.after(() => dom.window.close());
+  const w = dom.window;
+  let intersect;
+  const idle = [];
+  const scrolls = [];
+  w.ResizeObserver = class { observe() {} disconnect() {} };
+  w.IntersectionObserver = class {
+    constructor(callback) { intersect = callback; }
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+  w.requestIdleCallback = callback => idle.push(callback);
+  w.matchMedia = () => ({matches: true});
+  w.scrollTo = options => scrolls.push(options);
+  w.STUDIO_CATALOG_DATA = [
+    [1, 1, '作品 1', '2025', '100', '12 集', '', [], ['ufotable']],
+    [2, 2, '作品 2', '2026', '200', '12 集', '', [], ['MAPPA']],
+    [3, 3, '作品 3', '2026', '50', '12 集', '', [], ['Other Studio']],
+    [4, 4, '作品 4', '2026', '40', '12 集', '', [], Array.from({length: 13}, (_, index) => `Test Studio ${index}`)],
+    [5, 5, '作品 5', '2026', '60', '12 集', '', [], ['Wonderland', 'Fanworks']],
+  ];
+  w.STUDIO_PROFILE_DATA = {};
+  w.STUDIO_LOGO_DATA = {};
+  w.STUDIO_DIRECTORY_ICON_DATA = {};
+  w.history.replaceState({native: true, aniStudioView: {active: true, top: 640, rails: {ufotable: 125}}}, '');
+  w.eval(fs.readFileSync('src/studio-catalog.js', 'utf8'));
+  const d = w.document;
+  w.mountStudioCatalog(d.querySelector('section'), () => {}, () => {});
+  const studioTab = [...d.querySelectorAll('.ani-studio-shell button')].find(button => button.textContent === '製作組動畫');
+  assert.equal(studioTab.getAttribute('aria-pressed'), 'true');
+  assert.equal(scrolls.at(-1).top, 640);
+  const slots = [...d.querySelectorAll('.ani-studio-slot')];
+  intersect(slots.map(target => ({target, isIntersecting: true})));
+  assert.equal(idle.length, 1);
+  idle.shift()();
+  assert.equal(slots[0].querySelector('.theme-list-block').scrollLeft, 125);
+  assert.equal(slots[1].querySelector('.theme-list-block'), null);
+  idle.shift()();
+  assert(slots[1].querySelector('.theme-list-block'));
+  w.scrollY = 720;
+  w.dispatchEvent(new w.Event('pagehide'));
+  assert.equal(w.history.state.aniStudioView.top, 720);
+  assert.equal(w.history.state.native, true);
+  const directory = d.querySelector('.ani-studio-directory');
+  const featuredWorks = d.querySelector('.ani-studio-featured-works');
+  const other = [...directory.querySelectorAll('.ani-studio-chip')].find(button => button.lastElementChild?.textContent === 'Other Studio');
+  assert(other, directory.textContent);
+  const all = directory.querySelector('.ani-studio-chip');
+  const search = directory.querySelector('input');
+  other.click();
+  const row = directory.querySelector('.ani-studio-row');
+  assert.equal(other.getAttribute('aria-pressed'), 'true');
+  assert.equal(featuredWorks.hidden, true);
+  other.click();
+  assert.equal(all.getAttribute('aria-pressed'), 'true');
+  assert.equal(featuredWorks.hidden, false);
+  search.value = 'Other Studio';
+  search.dispatchEvent(new w.Event('input'));
+  other.click();
+  assert.equal(directory.querySelector('.ani-studio-row'), row);
+  search.value = '';
+  search.dispatchEvent(new w.Event('input'));
+  search.dispatchEvent(new w.Event('search'));
+  assert.equal(all.getAttribute('aria-pressed'), 'true');
+  assert.equal(featuredWorks.hidden, false);
+  assert.equal(directory.querySelector('.ani-studio-row'), null);
+  const more = directory.querySelector('.ani-studio-show-more');
+  assert.equal(more.hidden, false);
+  search.value = 'Studio';
+  search.dispatchEvent(new w.Event('input'));
+  assert.equal(directory.querySelectorAll('.ani-studio-chip').length, 15);
+  assert.equal(more.hidden, true);
+  search.value = 'w';
+  search.dispatchEvent(new w.Event('input'));
+  const matchingNames = [...directory.querySelectorAll('.ani-studio-chip')].slice(1)
+    .map(button => button.lastElementChild.textContent);
+  assert.deepEqual(matchingNames, ['Wonderland', 'Fanworks']);
+});
 test('collection shares the catalog panel and combines official classifications with collection filters', async t => {
   const dom = boot(`<div id="BH_background"><div class="container"><div class="animate-theme-list"><div class="theme-list-block">${card(1,2026,12)}${card(2,2025,3)}${card(3,2026,0)}</div></div></div></div>`, '/mygather.php');
   t.after(() => dom.window.close());
   const w = dom.window, d = w.document;
+  w.eval(fs.readFileSync('src/enhancements.js', 'utf8'));
   const requests = [];
   w.fetch = async input => {
     requests.push(new URL(input, w.location.href).searchParams);
@@ -17,20 +122,21 @@ test('collection shares the catalog panel and combines official classifications 
   let clicks = 0;
   cards[0].addEventListener('click', e => { e.preventDefault(); clicks++; });
   const group = name => d.querySelector(`[role="group"][aria-label="${name}"]`);
-  const click = (name, text) => [...group(name).querySelectorAll('button')].find(b => b.textContent === text).click();
-  const hidden = () => cards.map(c => c.hidden);
-  click('觀看狀態', '已追完');
+  const click = (name, text) => [...group(name).querySelectorAll('button')].find(b => (b.querySelector('span') || b).textContent === text).click();
+  const hidden = () => cards.map(c => c.hidden || c.classList.contains('ani-col-status-hidden'));
+  await new Promise(resolve => setTimeout(resolve, 40));
+  click('收藏狀態', '已看完');
   assert.deepEqual(hidden(), [false,true,true]);
   const year = d.querySelector('[aria-label="播出年份"]');
   const selectYear = value => { year.value = value; year.dispatchEvent(new w.Event('change')); };
   selectYear('2025');
-  assert(cards.every(c => c.hidden));
+  assert(hidden().every(Boolean));
   selectYear('');
   click('播出季度', '冬番');
-  assert(cards.every(c => c.hidden));
+  assert(hidden().every(Boolean));
   click('播出季度', '春番');
   assert.deepEqual(hidden(), [false,true,true]);
-  click('觀看狀態', '全部');
+  click('收藏狀態', '全部');
   const toggle = d.querySelector('.ani-filter-toggle');
   const body = d.getElementById(toggle.getAttribute('aria-controls'));
   assert(body.contains(group('對象')));
@@ -77,13 +183,15 @@ test('homepage cover glow samples artwork rather than the clock icon',()=>{
  assert.equal(dom.window.document.querySelector('.anime-card-block').style.getPropertyValue('--ani-card-cover'),'url("https://p2.bahamut.com.tw/B/2KU/cover.JPG")');dom.window.close();
 });
 
-test('collection loads the next page in place and reapplies active filters',async()=>{
+test('collection loads the next page in place and reapplies active filters',async t=>{
  const dom=new JSDOM(`<div id="BH_background"><div class="container"><div class="animate-theme-list"><div class="theme-list-block">${card(1,2026,12)}</div></div><div class="page_control"><div class="page_number"><span class="now">1</span><a href="mygather.php?page=2">2</a></div></div></div></div>`,{url:'https://ani.gamer.com.tw/mygather.php',runScripts:'outside-only',pretendToBeVisual:true});
  const w=dom.window;w.matchMedia=()=>({matches:false,addEventListener(){}});w.IntersectionObserver=class{observe(){}};w.AbortSignal.timeout=()=>undefined;
+ t.after(() => dom.window.close());
  w.fetch=async(url)=>({ok:true,text:async()=>String(url).includes('page=2')?`<div class="theme-list-block">${card(2,2025,3)}</div>`:'<li class="type"><ul class="tag-list"><li class="tag">校園</li></ul></li>'});
- for(const f of ['settings.js','content.js'])w.eval(fs.readFileSync('src/'+f,'utf8'));
- const d=w.document;[...d.querySelectorAll('[role="group"][aria-label="觀看狀態"] button')].find(b=>b.textContent==='已追完').click();d.querySelector('.ani-load-more').click();await new Promise(r=>setTimeout(r,1800));
- assert.equal(d.querySelectorAll('.theme-list-main').length,2);assert(d.querySelector('a[href="animeRef.php?sn=2"]').hidden);assert(d.querySelector('.page_control').hidden);assert.equal(d.querySelector('.ani-load-more').textContent,'已顯示全部動畫（共 2 部）');dom.window.close();
+ for(const f of ['settings.js','content.js','enhancements.js'])w.eval(fs.readFileSync('src/'+f,'utf8'));
+ await new Promise(r=>setTimeout(r,40));
+ const d=w.document;d.querySelector('[data-filter-status="completed"]').click();d.querySelector('.ani-load-more').click();await new Promise(r=>setTimeout(r,1800));
+ assert.equal(d.querySelectorAll('.theme-list-main').length,2);assert(d.querySelector('a[href="animeRef.php?sn=2"]').classList.contains('ani-col-status-hidden'));assert(d.querySelector('.page_control').hidden);assert(d.querySelector('.ani-load-more').hidden);
 });
 
 test('collection origin filter searches later pages and combines with the current broadcast season', async t => {

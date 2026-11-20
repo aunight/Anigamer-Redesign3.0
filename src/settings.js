@@ -71,6 +71,13 @@
     accentStrength: 50,
     showInfo: true,
     showRelated: true,
+    showMerch: true,
+    showHomeNews: true,
+    blurEpisodeThumbnails: false,
+    episodeThumbnailGrid: true,
+    showEpisodeDescription: true,
+    scrollMiniPlayer: true,
+    playbackSeekSeconds: 5,
     showNews: true,
     showComments: true,
     quickCollapse: true,
@@ -82,13 +89,11 @@
     customFontGoogle: true,
     danmuFontEnabled: false,
     commentWidth: 880,
-    commentArrangement: 'single',
     settingsOpacity: 70,
     collapsedPlayerSpacing: 24,
     foldInfo: false,
     foldRelated: false,
     foldNews: false,
-    foldComments: false,
     episodeStyle: 'wrap',
     commentDensity: 'comfortable',
     commentImageWidth: 440,
@@ -96,6 +101,7 @@
     danmuRowSpacing: 10,
     danmuWidth: 340,
     showDanmu: true,
+    showDanmuHeat: true,
     cropBars: true,
     coverBars: false,
     barThreshold: 20,
@@ -182,22 +188,9 @@
     ['quickCollapse', '在各區塊顯示收合按鈕', 'boolean'],
     ['hideDanmuScrollbar', '隱藏彈幕列表捲軸（仍可捲動）', 'boolean'],
     ['commentWidth', '留言區寬度上限', 640, 1600, 40, ' px'],
-    [
-      'commentArrangement',
-      '留言排列',
-      'select',
-      [
-        ['single', '單欄閱讀'],
-        ['double', '雙欄並排（寬螢幕）'],
-      ],
-    ],
     ['foldInfo', '作品資訊的收合按鈕', 'boolean'],
     ['foldRelated', '相關動畫的收合按鈕', 'boolean'],
     ['foldNews', '相關新聞的收合按鈕', 'boolean'],
-    ['foldComments', '留言區的收合按鈕', 'boolean'],
-    ['showInfo', '顯示作品資訊', 'boolean'],
-    ['showRelated', '顯示相關動畫', 'boolean'],
-    ['showNews', '顯示相關新聞', 'boolean'],
     ['showComments', '顯示留言區', 'boolean'],
     [
       'episodeStyle',
@@ -301,6 +294,7 @@
         ['commentOpacity', '留言區背景不透明度', 0, 100, 5, '%'],
         ['watchWidth', '劇院最大寬度', 1000, 2200, 40, ' px'],
         ['showDanmu', '顯示旁邊的彈幕列表', 'boolean'],
+        ['showDanmuHeat', '顯示彈幕熱度', 'boolean'],
       ],
     },
     {
@@ -358,8 +352,18 @@
       name: '一般',
       fields: [
         ['hideSidebarAds', '隱藏右側頁面廣告', 'boolean'],
-        ['showFootprint', '首頁顯示動畫瘋足跡（改作自 bilibili-margin）', 'boolean'],
-        ['showWeather', '首頁顯示天氣實況卡片（改作自 bilibili-margin）', 'boolean'],
+        ['showFootprint', '顯示動畫瘋足跡', 'boolean'],
+        ['showWeather', '顯示天氣實況', 'boolean'],
+        ['showHomeNews', '顯示首頁新聞', 'boolean'],
+        ['showInfo', '顯示作品簡介', 'boolean'],
+        ['showRelated', '顯示相關動畫', 'boolean'],
+        ['showNews', '顯示相關新聞', 'boolean'],
+        ['showMerch', '顯示相關商品', 'boolean'],
+        ['showEpisodeDescription', '顯示分集簡介', 'boolean'],
+        ['blurEpisodeThumbnails', '模糊分集截圖', 'boolean'],
+        ['episodeThumbnailGrid', '六欄縮圖選集（100 集以內）', 'boolean'],
+        ['scrollMiniPlayer', '下滑時顯示子母畫面', 'boolean'],
+        ['playbackSeekSeconds', '快轉／倒轉秒數', 1, 60, 1, ' 秒'],
         ['spoilerBlurEnabled', '啟用避雷薄碼遮罩（依標籤／關鍵字模糊封面）', 'boolean'],
         ['spoilerBlurTags', '避雷遮罩標籤（以逗號分隔，如 BL,GL,血腥暴力,年齡限制）', 'text'],
         ['spoilerBlurKeywords', '避雷遮罩作品關鍵字（以逗號分隔）', 'text'],
@@ -382,7 +386,7 @@
     {
       id: 'general',
       name: '一般設定',
-      description: '常用開關、深淺切換與設定備份',
+      description: '首頁與播放頁顯示、避雷與設定備份',
       keys: groups[4].fields.map((f) => f[0]),
     },
     {
@@ -491,9 +495,7 @@
       description: '隱藏資訊、收合集數與留言',
       keys: [
         'showDanmu',
-        'showInfo',
-        'showRelated',
-        'showNews',
+        'showDanmuHeat',
         'showComments',
         ...contentFields
           .filter((f) => !f[0].startsWith('show'))
@@ -736,6 +738,8 @@
     const result = { ...base };
     if (!values || typeof values !== 'object' || Array.isArray(values))
       return result;
+    if (base === defaults && typeof values.showRelated === 'boolean' && !Object.hasOwn(values, 'showMerch'))
+      result.showMerch = values.showRelated;
     for (const key of Object.keys(defaults)) {
       if (!Object.hasOwn(values, key)) continue;
       const field = fields.get(key),
@@ -908,6 +912,7 @@
         .join('') +
       '</div><p class="ani-settings-help">套用主題會改變配色、文字大小與透明度。影片排列和光暈速度不會跟著改。</p>';
     const sectionHeadings = {
+      general: { showFootprint: '首頁', showInfo: '播放頁', spoilerBlurEnabled: '避雷與提醒' },
       themes: { colorTheme: '自訂配色' },
       light: { intensity: '亮度與色彩', blur: '畫面細節' },
       surfaces: {
@@ -930,10 +935,25 @@
       + '<button type="button" class="ani-pill-btn" data-action="export"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>匯出設定</span></button>'
       + '<button type="button" class="ani-pill-btn" data-action="import"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><span>匯入設定</span></button>'
       + '<input type="file" data-import-file accept="application/json,.json" hidden></div>';
+    const additionalCredits = [
+      ['動畫瘋資訊+', '作品資料與主題曲', 'https://greasyfork.org/zh-TW/scripts/448708-%E5%8B%95%E7%95%AB%E7%98%8B%E8%B3%87%E8%A8%8A', 'Greasy Fork'],
+      ['動畫瘋連結 BGM.TV 點格子', '播放頁追番入口', 'https://greasyfork.org/zh-TW/scripts/567535-%E5%8B%95%E7%95%AB%E7%98%8B%E9%80%A3%E7%B5%90-bgm-tv-%E9%BB%9E%E6%A0%BC%E5%AD%90', 'Greasy Fork'],
+      ['Bangumi 自動更新觀看進度', '追番進度同步', 'https://greasyfork.org/zh-TW/scripts/567536-bangumi-%E8%87%AA%E5%8B%95%E6%9B%B4%E6%96%B0%E8%A7%80%E7%9C%8B%E9%80%B2%E5%BA%A6', 'Greasy Fork'],
+      ['動畫瘋評分顯示', '作品卡片與評分', 'https://greasyfork.org/zh-TW/scripts/470517-%E5%8B%95%E7%95%AB%E7%98%8B%E8%A9%95%E5%88%86%E9%A1%AF%E7%A4%BA', 'Greasy Fork'],
+      ['StarMap 評分星圖', '評分顯示與設定', 'https://greasyfork.org/zh-TW/scripts/584454-%E5%8B%95%E6%BC%AB%E7%98%8B-starmap-%E8%A9%95%E5%88%86%E6%98%9F%E5%9C%96', 'Greasy Fork'],
+      ['動畫瘋截圖工具', '播放畫面截圖', 'https://greasyfork.org/zh-TW/scripts/388826-%E5%8B%95%E7%95%AB%E7%98%8B-%E6%88%AA%E5%9C%96%E5%B7%A5%E5%85%B7', 'Greasy Fork'],
+      ['動畫瘋影片擷圖小工具', '播放器擷圖操作', 'https://greasyfork.org/zh-TW/scripts/420561-%E5%B7%B4%E5%93%88%E5%A7%86%E7%89%B9%E5%8B%95%E7%95%AB%E7%98%8B%E5%BD%B1%E7%89%87%E6%93%B7%E5%9C%96%E5%B0%8F%E5%B7%A5%E5%85%B7', 'GreasyFork'],
+      ['youtube-ambilight', '環境光取樣技術', 'https://github.com/WesselKroos/youtube-ambilight', 'GitHub'],
+      ['bilibili-ambilight', '環境光取樣技術', 'https://github.com/iceorange-dev/bilibili-ambilight', 'GitHub'],
+      ['OpenCC-JS', '繁體中文轉換', 'https://github.com/nk2028/opencc-js', 'GitHub'],
+      ['Animate.css', '介面動態效果', 'https://github.com/animate-css/animate.css', 'GitHub'],
+    ].map(([name, description, url, platform]) =>
+      `<li><strong>${name}</strong><span>${description}</span><a class="ani-pill-btn ani-pill-sm" href="${url}" target="_blank" rel="noopener noreferrer">${platform}</a></li>`
+    ).join('');
     const creditCard =
       '<div class="ani-credit-card">'
       + '<div class="ani-credit-head">'
-      + '<div><h4 class="ani-credit-title">動畫瘋沉浸重製版 3.0</h4><p class="ani-credit-sub">Anigamer-Redesign 3.0 · v3.0.2 · MIT</p></div>'
+      + '<div><h4 class="ani-credit-title">動畫瘋沉浸重製版 3.0</h4><p class="ani-credit-sub">Anigamer-Redesign 3.0 · v3.0.3 · MIT</p></div>'
       + '<div class="ani-credit-actions">'
       + '<button type="button" class="ani-pill-btn is-accent" data-action="check-update"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg><span>檢測更新</span></button>'
       + '<a class="ani-pill-btn" href="https://github.com/aunight/Anigamer-Redesign3.0" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true" fill="currentColor" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M6.766 11.328c-2.063-.25-3.516-1.734-3.516-3.656 0-.781.281-1.625.75-2.188-.203-.515-.172-1.609.063-2.062.625-.078 1.468.25 1.968.703.594-.187 1.219-.281 1.985-.281.765 0 1.39.094 1.953.265.484-.437 1.344-.765 1.969-.687.218.422.25 1.515.046 2.047.5.593.766 1.39.766 2.203 0 1.922-1.453 3.375-3.547 3.64.531.344.89 1.094.89 1.954v1.625c0 .468.391.734.86.547C13.781 14.359 16 11.53 16 8.03 16 3.61 12.406 0 7.984 0 3.563 0 0 3.61 0 8.031a7.88 7.88 0 0 0 5.172 7.422c.422.156.828-.125.828-.547v-1.25c-.219.094-.5.156-.75.156-1.031 0-1.64-.562-2.078-1.609-.172-.422-.36-.672-.719-.719-.187-.015-.25-.093-.25-.187 0-.188.313-.328.625-.328.453 0 .844.281 1.25.86.313.452.64.655 1.031.655s.641-.14 1-.5c.266-.265.47-.5.657-.656" /></svg><span>GitHub</span></a>'
@@ -942,13 +962,13 @@
       + '<p class="ani-credit-update-msg" data-update-status role="status"></p>'
       + '<h4 class="ani-settings-subheading">Credits</h4>'
       + '<ul class="ani-credit-list">'
-      + '<li><strong>秋夜</strong><span>重製與維護</span><a class="ani-pill-btn ani-pill-sm" href="https://www.aunight.pw/" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span>官方網站</span></a></li>'
+      + '<li><strong>秋夜 AuNight</strong><span>重製與維護</span><a class="ani-pill-btn ani-pill-sm" href="https://www.aunight.pw/" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span>官方網站</span></a></li>'
       + '<li><strong>anigamer-ambilight</strong><span>環境光基底</span><a class="ani-pill-btn ani-pill-sm" href="https://github.com/Hinataragi/anigamer-ambilight" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span>GitHub</span></a></li>'
       + '<li><strong>bilibili-margin</strong><span>首頁足跡＆天氣卡片</span><a class="ani-pill-btn ani-pill-sm" href="https://github.com/jiuyang5354/bilibili-margin" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span>GitHub</span></a></li>'
       + '<li><strong>Liquid Ripple Shader</strong><span>開場動態波紋特效</span><a class="ani-pill-btn ani-pill-sm" href="https://21st.dev/@saurabh-2607/components/great-ui-liquid-ripple-shader" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span>21ST</span></a></li>'
       + '<li><strong>Lens Switch</strong><span>深淺模式鏡片開關</span><a class="ani-pill-btn ani-pill-sm" href="https://uberdesigner.ai/t/lens-switch" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span>uberdesigner</span></a></li>'
       + '<li><strong>動畫瘋·Plus</strong><span>播放器工具列整合</span><a class="ani-pill-btn ani-pill-sm" href="https://greasyfork.org/zh-TW/scripts/369990-%E5%8B%95%E7%95%AB%E7%98%8B-plus" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span>GreasyFork</span></a></li>'
-      + '</ul></div>';
+      + additionalCredits + '</ul></div>';
     return (
       '<div class="ani-settings-home" data-settings-home>' +
       categories
@@ -1008,7 +1028,7 @@
         input.closest('.ani-setting-row').hidden =
           methodKeys[values.method] !== key;
     }
-    for (const key of ['foldInfo', 'foldRelated', 'foldNews', 'foldComments']) {
+    for (const key of ['foldInfo', 'foldRelated', 'foldNews']) {
       const input = root.querySelector(`[data-setting="${key}"]`);
       if (input)
         input.closest('.ani-setting-row').hidden = Boolean(
@@ -1108,13 +1128,17 @@
         node.hidden = Boolean(id);
       for (const page of root.querySelectorAll('[data-settings-page]'))
         page.hidden = page.dataset.settingsPage !== id;
+      const category = categories.find((item) => item.id === id);
+      const page = [...root.querySelectorAll('[data-settings-page]')].find((item) => item.dataset.settingsPage === id);
+      const parent = categories.find((item) => item.id === page?.dataset.settingsParent);
+      const back = root.querySelector('[data-settings-back]');
+      back.querySelector('span').textContent = parent?.name || '所有設定';
+      back.setAttribute('aria-label', parent ? `返回${parent.name}` : '返回設定分類');
       for (const item of root.querySelectorAll('[data-category-shortcut]')) {
-        if (item.dataset.categoryShortcut === id)
+        if (item.dataset.categoryShortcut === (parent?.id || id))
           item.setAttribute('aria-current', 'page');
         else item.removeAttribute('aria-current');
       }
-      const category = categories.find((item) => item.id === id);
-      const page = [...root.querySelectorAll('[data-settings-page]')].find((item) => item.dataset.settingsPage === id);
       root.querySelector('[data-category-title]').textContent = category?.name || page?.getAttribute('aria-label') || '';
       root.querySelector('[data-reset-category]').hidden = !category?.keys.length;
       (root.nodeType === 9
@@ -1123,6 +1147,12 @@
       ).scrollTop = 0;
       status.textContent = '';
       root.dispatchEvent(new CustomEvent('ani-settings-navigate', { detail: id }));
+    };
+    const navigateBack = () => {
+      const previous = current;
+      const page = root.querySelector(`[data-settings-page="${previous}"]`);
+      navigate(page?.dataset.settingsParent || '');
+      root.querySelector(`[data-category="${previous}"]`)?.focus({ preventScroll: true });
     };
     const firstCat = categories[0]?.id || 'general';
     navigate(firstCat);
@@ -1182,22 +1212,14 @@
             .focus({ preventScroll: true });
       }
       if (event.target.closest('[data-settings-back]')) {
-        const previous = current;
-        navigate('');
-        root
-          .querySelector(`[data-category="${previous}"]`)
-          ?.focus({ preventScroll: true });
+        navigateBack();
       }
     });
     root.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && current) {
         event.preventDefault();
         event.stopPropagation();
-        const previous = current;
-        navigate('');
-        root
-          .querySelector(`[data-category="${previous}"]`)
-          ?.focus({ preventScroll: true });
+        navigateBack();
       }
     });
     root.addEventListener('input', (event) => {
@@ -1266,7 +1288,7 @@
       const msgEl = root.querySelector('[data-update-status]');
       if (!msgEl) return;
       msgEl.textContent = '正在檢測最新版本…';
-      const curVer = '3.0.2';
+      const curVer = '3.0.3';
       const parseVer = (v) => String(v || '').replace(/^v/i, '').split('.').map((n) => Number.parseInt(n, 10) || 0);
       const cmp = (a, b) => {
         const pa = parseVer(a), pb = parseVer(b);
