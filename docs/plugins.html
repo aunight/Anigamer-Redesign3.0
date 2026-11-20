@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>動畫瘋重製版 3.0 — 推薦附加油猴腳本一鍵安裝</title>
+  <style>
+    :root {
+      --bg: #0c1420;
+      --panel: rgba(20, 32, 48, 0.78);
+      --border: rgba(189, 215, 236, 0.18);
+      --text: #eef5fc;
+      --muted: #9eb4ca;
+      --accent: #3dafb6;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 40px 18px 64px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 20% 15%, rgba(61, 175, 182, 0.18), transparent 45%),
+                  radial-gradient(circle at 80% 80%, rgba(92, 124, 200, 0.16), transparent 50%),
+                  var(--bg);
+    }
+    .wrap {
+      max-width: 820px;
+      margin: 0 auto;
+    }
+    .card {
+      padding: 28px;
+      border-radius: 20px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(22px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      font-weight: 700;
+    }
+    .sub {
+      margin: 0 0 20px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 40px;
+      padding: 0 18px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(48, 71, 93, 0.42);
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 160ms ease, background-color 160ms ease, transform 140ms ease;
+    }
+    button:hover {
+      border-color: rgba(205, 232, 255, 0.55);
+      background: rgba(71, 102, 130, 0.52);
+    }
+    button:active { transform: scale(0.97); }
+    button.primary {
+      background: var(--accent);
+      border-color: rgba(194, 255, 255, 0.45);
+      color: #062530;
+    }
+    button.primary:hover {
+      background: #4fc3ca;
+    }
+    .list {
+      display: grid;
+      gap: 10px;
+    }
+    .item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(13, 22, 34, 0.55);
+    }
+    .item label {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      cursor: pointer;
+      flex: 1 1 auto;
+    }
+    .item input[type="checkbox"] {
+      margin-top: 3px;
+      width: 17px;
+      height: 17px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+    .name {
+      font-size: 15px;
+      font-weight: 650;
+      margin-bottom: 3px;
+    }
+    .desc {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: none;
+    }
+    .links a {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--text);
+      text-decoration: none;
+      font-size: 12.5px;
+      font-weight: 600;
+    }
+    .links a:hover {
+      border-color: var(--accent);
+      color: #aef7fc;
+    }
+    .status {
+      margin-top: 14px;
+      font-size: 13px;
+      color: #aef7fc;
+      min-height: 20px;
+    }
+    .note {
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(61, 175, 182, 0.1);
+      border: 1px solid rgba(61, 175, 182, 0.3);
+      color: #d6eef2;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>動畫瘋重製版 3.0 — 推薦附加腳本一鍵安裝</h1>
+      <p class="sub">
+        請先確認瀏覽器已安裝 <strong>Tampermonkey</strong> 或 <strong>Violentmonkey</strong>，並允許此頁面開啟多個分頁彈窗。勾選欲安裝的相容腳本後點擊「一鍵依序開啟安裝頁」，即可自動逐一彈出 <code>.user.js</code> 安裝確認畫面。
+      </p>
+
+      <div class="toolbar">
+        <button type="button" class="primary" id="install-selected">一鍵依序開啟安裝頁</button>
+        <button type="button" id="select-all">全選</button>
+        <button type="button" id="select-none">全部取消</button>
+      </div>
+
+      <div class="list" id="plugin-list"></div>
+      <div class="status" id="status" role="status"></div>
+
+      <div class="note">
+        若瀏覽器攔截了彈出視窗，請在網址列右側選擇「一律允許彈出式視窗」後再試一次，或直接點擊各列右側的「單獨安裝」連結。
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const PLUGINS = [
+      {
+        id: '369990',
+        name: '動畫瘋·Plus',
+        cat: '功能增強',
+        desc: '強化播放器進階設定、彈幕熱度圖、預覽截圖卡片等常用功能（已深度融合工具列與設定抽屜）',
+        page: 'https://greasyfork.org/zh-TW/scripts/369990-%E5%8B%95%E7%95%AB%E7%98%8B-plus',
+        install: 'https://update.greasyfork.org/scripts/369990/%E5%8B%95%E7%95%AB%E7%98%8B%C2%B7Plus.user.js',
+        checked: true,
+      },
+      {
+        id: '448708',
+        name: '動畫瘋資訊+（aniInfo+）',
+        cat: '聲優／主題曲',
+        desc: '整合日文聲優、OP／ED 主題曲與 AniList / MAL / Wikipedia 備援資料進右側「作品簡介」分頁',
+        page: 'https://greasyfork.org/zh-TW/scripts/448708-%E5%8B%95%E7%95%AB%E7%98%8B%E8%B3%87%E8%A8%8A',
+        install: 'https://update.greasyfork.org/scripts/448708/%E5%8B%95%E7%95%AB%E7%98%8B%E8%B3%87%E8%A8%8A%2B.user.js',
+        checked: true,
+      },
+      {
+        id: '470517',
+        name: '動畫瘋評分顯示',
+        cat: '評分顯示',
+        desc: '於片庫與列表海報卡片顯示動畫評分星數',
+        page: 'https://greasyfork.org/zh-TW/scripts/470517-%E5%8B%95%E7%95%AB%E7%98%8B%E8%A9%95%E5%88%86%E9%A1%AF%E7%A4%BA',
+        install: 'https://update.greasyfork.org/scripts/470517/%E5%8B%95%E7%95%AB%E7%98%8B%E8%A9%95%E5%88%86%E9%A1%AF%E7%A4%BA.user.js',
+        checked: true,
+      },
+      {
+        id: '584454',
+        name: '[動漫瘋] StarMap - 評分星圖',
+        cat: '評分星圖',
+        desc: '提供視覺化評分星圖與數據分析檢視',
+        page: 'https://greasyfork.org/zh-TW/scripts/584454-%E5%8B%95%E6%BC%AB%E7%98%8B-starmap-%E8%A9%95%E5%88%86%E6%98%9F%E5%9C%96',
+        install: 'https://update.greasyfork.org/scripts/584454/%5B%E5%8B%95%E6%BC%AB%E7%98%8B%5D%20StarMap%20-%20%E8%A9%95%E5%88%86%E6%98%9F%E5%9C%96.user.js',
+        checked: true,
+      },
+      {
+        id: '388826',
+        name: '動畫瘋 - 截圖工具',
+        cat: '截圖工具',
+        desc: '播放器快速擷取高畫質影片畫面',
+        page: 'https://greasyfork.org/zh-TW/scripts/388826-%E5%8B%95%E7%95%AB%E7%98%8B-%E6%88%AA%E5%9C%96%E5%B7%A5%E5%85%B7',
+        install: 'https://update.greasyfork.org/scripts/388826/%E5%8B%95%E7%95%AB%E7%98%8B%20-%20%E6%88%AA%E5%9C%96%E5%B7%A5%E5%85%B7.user.js',
+        checked: false,
+      },
+      {
+        id: '420561',
+        name: '巴哈姆特動畫瘋影片擷圖小工具',
+        cat: '截圖工具',
+        desc: '另一款輕量動畫瘋影片截圖工具',
+        page: 'https://greasyfork.org/zh-TW/scripts/420561-%E5%B7%B4%E5%93%88%E5%A7%86%E7%89%B9%E5%8B%95%E7%95%AB%E7%98%8B%E5%BD%B1%E7%89%87%E6%93%B7%E5%9C%96%E5%B0%8F%E5%B7%A5%E5%85%B7',
+        install: 'https://update.greasyfork.org/scripts/420561/%E5%B7%B4%E5%93%88%E5%A7%86%E7%89%B9%E5%8B%95%E7%95%AB%E7%98%8B%E5%BD%B1%E7%89%87%E6%93%B7%E5%9C%96%E5%B0%8F%E5%B7%A5%E5%85%B7.user.js',
+        checked: false,
+      },
+      {
+        id: '567535',
+        name: '動畫瘋連結 BGM.TV 點格子',
+        cat: 'Bangumi 連動',
+        desc: '在標題動作列直接連結 Bangumi.tv 進度點格子',
+        page: 'https://greasyfork.org/zh-TW/scripts/567535-%E5%8B%95%E7%95%AB%E7%98%8B%E9%80%A3%E7%B5%90-bgm-tv-%E9%BB%9E%E6%A0%BC%E5%AD%90',
+        install: 'https://update.greasyfork.org/scripts/567535/%E5%8B%95%E7%95%AB%E7%98%8B%E9%80%A3%E7%B5%90%20BGM.TV%20%E9%BB%9E%E6%A0%BC%E5%AD%90.user.js',
+        checked: true,
+      },
+      {
+        id: '567536',
+        name: 'Bangumi 自動更新觀看進度',
+        cat: 'Bangumi 連動',
+        desc: '觀看影片時自動同步更新 Bangumi 追番集數',
+        page: 'https://greasyfork.org/zh-TW/scripts/567536-bangumi-%E8%87%AA%E5%8B%95%E6%9B%B4%E6%96%B0%E8%A7%80%E7%9C%8B%E9%80%B2%E5%BA%A6',
+        install: 'https://update.greasyfork.org/scripts/567536/Bangumi%20%E8%87%AA%E5%8B%95%E6%9B%B4%E6%96%B0%E8%A7%80%E7%9C%8B%E9%80%B2%E5%BA%A6.user.js',
+        checked: true,
+      },
+    ];
+
+    const listEl = document.getElementById('plugin-list');
+    const statusEl = document.getElementById('status');
+
+    listEl.innerHTML = PLUGINS.map((p) => `
+      <div class="item">
+        <label>
+          <input type="checkbox" data-plugin-id="${p.id}" ${p.checked ? 'checked' : ''}>
+          <div>
+            <div class="name">${p.name} <span style="font-size:12px;color:#82eef5;font-weight:500;">· ${p.cat}</span></div>
+            <div class="desc">${p.desc}</div>
+          </div>
+        </label>
+        <div class="links">
+          <a href="${p.page}" target="_blank" rel="noopener">介紹頁</a>
+          <a href="${p.install}" target="_blank" rel="noopener">單獨安裝</a>
+        </div>
+      </div>
+    `).join('');
+
+    document.getElementById('select-all').addEventListener('click', () => {
+      listEl.querySelectorAll('input[type="checkbox"]').forEach((c) => { c.checked = true; });
+    });
+    document.getElementById('select-none').addEventListener('click', () => {
+      listEl.querySelectorAll('input[type="checkbox"]').forEach((c) => { c.checked = false; });
+    });
+
+    document.getElementById('install-selected').addEventListener('click', async () => {
+      const selected = PLUGINS.filter((p) => listEl.querySelector(`input[data-plugin-id="${p.id}"]`)?.checked);
+      if (!selected.length) {
+        statusEl.textContent = '請至少勾選 1 個附加腳本。';
+        return;
+      }
+      let blocked = 0;
+      for (let i = 0; i < selected.length; i++) {
+        statusEl.textContent = `正在開啟第 ${i + 1} / ${selected.length} 個安裝頁：${selected[i].name}…`;
+        const win = window.open(selected[i].install, '_blank', 'noopener');
+        if (!win) blocked++;
+        await new Promise((r) => setTimeout(r, 400));
+      }
+      statusEl.textContent = blocked
+        ? `已觸發 ${selected.length} 個安裝頁（有 ${blocked} 個可能被瀏覽器封鎖彈窗，請允許彈出視窗或點擊右側「單獨安裝」）。`
+        : `已依序開啟全部 ${selected.length} 個腳本安裝頁，請於 Tampermonkey / Violentmonkey 分頁點選安裝即可！`;
+    });
+  </script>
+</body>
+</html>
