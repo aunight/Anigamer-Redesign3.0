@@ -189,6 +189,10 @@ body.ani-ambientlight-ui #BH_background .animate-theme-list > [data-ani-region="
   order: -1 !important;
 }
 
+body.ani-ambientlight-ui #BH_background .animate-theme-list > [data-ani-region="news"][aria-expanded="true"] {
+  margin-block-end: 16px !important;
+}
+
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .theme-extend-block.ani-fold-content[hidden] {
   display: none !important;
 }

@@ -576,6 +576,10 @@ body.ani-ambientlight-ui #BH_background .animate-theme-list > [data-ani-region="
   order: -1 !important;
 }
 
+body.ani-ambientlight-ui #BH_background .animate-theme-list > [data-ani-region="news"][aria-expanded="true"] {
+  margin-block-end: 16px !important;
+}
+
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .theme-extend-block.ani-fold-content[hidden] {
   display: none !important;
 }
@@ -9643,7 +9647,9 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
           ],
         };
         for (const [key, [selector, name, flag, visible, order]] of Object.entries(regions)) {
-          const target = document.querySelector('#BH_background ' + selector);
+          const target = key === 'news' && location.pathname !== '/animeVideo.php'
+            ? null
+            : document.querySelector('#BH_background ' + selector);
           let state = regionFolds.get(key);
           const enabled =
             settings.themeEnabled &&

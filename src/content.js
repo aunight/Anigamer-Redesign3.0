@@ -902,7 +902,9 @@
     for (const [key, [selector, name, flag, visible, order]] of Object.entries(
       regions,
     )) {
-      const target = document.querySelector('#BH_background ' + selector);
+      const target = key === 'news' && location.pathname !== '/animeVideo.php'
+        ? null
+        : document.querySelector('#BH_background ' + selector);
       let state = regionFolds.get(key);
       const enabled =
         settings.themeEnabled &&
