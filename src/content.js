@@ -3707,7 +3707,18 @@
         tool.closest('.plus_button_box')?.classList.add('ani-tool-hover-pill');
       }
     }
-    const captureRoots = [...new Set([document.querySelector('#BH_background .image_tool'), plusToolBox?.parentElement].filter(Boolean))];
+    const captureRoots = [...new Set([
+      ...document.querySelectorAll('#BH_background .image_tool'),
+      plusToolBox?.parentElement,
+    ].filter(Boolean))];
+    for (const root of captureRoots) {
+      if (!root.matches('.image_tool') || root.contains(plusToolBox)) continue;
+      const trigger = [...root.querySelectorAll('button, a, input[type="button"]')]
+        .find(el => /^(?:截圖|擷圖|螢幕截圖)$/.test((el.value || el.textContent).trim()));
+      if (!trigger) continue;
+      root.classList.add('ani-standalone-capture');
+      trigger.classList.add('ani-standalone-capture-trigger');
+    }
     const captureIcons = [
       { re: /播放|預覽|play|preview/i, path: '<polygon points="7 5 19 12 7 19 7 5" fill="currentColor" stroke="none"/>' },
       { re: /下載|儲存|保存|save|download/i, path: '<path d="M12 4v11m0 0-4-4m4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>' },
@@ -7693,13 +7704,17 @@
 
       const relocateExtraTabs = () => {
         const keepIds = new Set(['ani-tab-content-1', 'ani-tab-content-intro', 'ani-tab-content-rating']);
-        for (const item of [...tabs.querySelectorAll(':scope > .ani-tabs__item')]) {
-          const link = item.querySelector('.ani-tabs-link');
+        for (const item of [...tabs.children]) {
+          const link = item.matches('a, button') ? item : item.querySelector('a, button');
           if (!link) continue;
           const href = (link.getAttribute('href') || '').trim();
           const id = href.startsWith('#') ? href.slice(1) : '';
           if (keepIds.has(id)) continue;
+          const isPlus = /動畫瘋\s*[·・．.]?\s*Plus/i.test(link.textContent || '');
+          if (!item.matches('.ani-tabs__item') && !isPlus) continue;
+          if (!id && !isPlus) continue;
           item.hidden = true;
+          item.classList.add('ani-relocated-player-tab');
           if (id && id !== 'ani-tab-content-2') {
             const targetPane = document.getElementById(id) || tabContent.querySelector(`#${CSS.escape(id)}`);
             if (targetPane) {
@@ -8466,7 +8481,7 @@
         // Ignore class mutations we caused if already synced; catch external injections like 動畫瘋·Plus
         if (muts.some((m) => m.type === 'childList')) relocateExtraTabs();
       });
-      tabObserver.observe(tabs, { childList: true });
+      tabObserver.observe(tabs, { childList: true, subtree: true });
       tabContent.dataset.aniTabsReady = 'true';
     }
     if (document.querySelector('.subtitle .ani-tab-content[data-ani-tabs-ready="true"]')) {

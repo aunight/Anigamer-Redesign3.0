@@ -526,6 +526,24 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-fs
   text-overflow: clip;
 }
 
+body.ani-ambientlight-ui #BH_background .ani-segmented-tabs > .ani-relocated-player-tab[hidden] {
+  display: none !important;
+}
+
+body.ani-ambientlight-ui #BH_background .ani-standalone-capture {
+  background: transparent !important;
+  border: 0 !important;
+  color: var(--ani-text, #edf5ff) !important;
+}
+
+body.ani-ambientlight-ui #BH_background .ani-standalone-capture-trigger {
+  padding: 6px 14px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgb(185 223 245 / 35%) !important;
+  background: rgb(20 34 51 / 80%) !important;
+  color: #edf5ff !important;
+}
+
 /* ── Toast notification fallback (enlarged capsule with checkmark icon) ── */
 .ani-enh-toast {
   position: fixed;
@@ -13548,11 +13566,20 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
         const captureRoots = [
           ...new Set(
             [
-              document.querySelector('#BH_background .image_tool'),
+              ...document.querySelectorAll('#BH_background .image_tool'),
               plusToolBox?.parentElement,
             ].filter(Boolean),
           ),
         ];
+        for (const root of captureRoots) {
+          if (!root.matches('.image_tool') || root.contains(plusToolBox)) continue;
+          const trigger = [...root.querySelectorAll('button, a, input[type="button"]')].find((el) =>
+            /^(?:截圖|擷圖|螢幕截圖)$/.test((el.value || el.textContent).trim()),
+          );
+          if (!trigger) continue;
+          root.classList.add('ani-standalone-capture');
+          trigger.classList.add('ani-standalone-capture-trigger');
+        }
         const captureIcons = [
           {
             re: /播放|預覽|play|preview/i,
@@ -19826,13 +19853,17 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
               'ani-tab-content-intro',
               'ani-tab-content-rating',
             ]);
-            for (const item of [...tabs.querySelectorAll(':scope > .ani-tabs__item')]) {
-              const link = item.querySelector('.ani-tabs-link');
+            for (const item of [...tabs.children]) {
+              const link = item.matches('a, button') ? item : item.querySelector('a, button');
               if (!link) continue;
               const href = (link.getAttribute('href') || '').trim();
               const id = href.startsWith('#') ? href.slice(1) : '';
               if (keepIds.has(id)) continue;
+              const isPlus = /動畫瘋\s*[·・．.]?\s*Plus/i.test(link.textContent || '');
+              if (!item.matches('.ani-tabs__item') && !isPlus) continue;
+              if (!id && !isPlus) continue;
               item.hidden = true;
+              item.classList.add('ani-relocated-player-tab');
               if (id && id !== 'ani-tab-content-2') {
                 const targetPane =
                   document.getElementById(id) || tabContent.querySelector(`#${CSS.escape(id)}`);
@@ -20869,7 +20900,7 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
             // Ignore class mutations we caused if already synced; catch external injections like 動畫瘋·Plus
             if (muts.some((m) => m.type === 'childList')) relocateExtraTabs();
           });
-          tabObserver.observe(tabs, { childList: true });
+          tabObserver.observe(tabs, { childList: true, subtree: true });
           tabContent.dataset.aniTabsReady = 'true';
         }
         if (document.querySelector('.subtitle .ani-tab-content[data-ani-tabs-ready="true"]')) {

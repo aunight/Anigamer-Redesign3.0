@@ -139,6 +139,24 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-fs
   text-overflow: clip;
 }
 
+body.ani-ambientlight-ui #BH_background .ani-segmented-tabs > .ani-relocated-player-tab[hidden] {
+  display: none !important;
+}
+
+body.ani-ambientlight-ui #BH_background .ani-standalone-capture {
+  background: transparent !important;
+  border: 0 !important;
+  color: var(--ani-text, #edf5ff) !important;
+}
+
+body.ani-ambientlight-ui #BH_background .ani-standalone-capture-trigger {
+  padding: 6px 14px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgb(185 223 245 / 35%) !important;
+  background: rgb(20 34 51 / 80%) !important;
+  color: #edf5ff !important;
+}
+
 /* ── Toast notification fallback (enlarged capsule with checkmark icon) ── */
 .ani-enh-toast {
   position: fixed;
