@@ -504,8 +504,8 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-fs
   top: 22px;
   transform: translateX(-50%);
   max-width: min(38vw, 520px);
-  padding: 3px 14px;
-  border-radius: 10px;
+  padding: 6px 18px;
+  border-radius: 999px;
   background: rgba(15, 24, 36, 0.54);
   border: 1px solid rgba(255, 255, 255, 0.16);
   backdrop-filter: blur(12px);
