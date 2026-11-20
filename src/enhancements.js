@@ -3325,9 +3325,7 @@
     const playerEl = document.querySelector('#ani_video');
     if (!playerEl) return;
 
-    const titleH1 = document.querySelector('.anime-title .anime_name h1');
-    const rawTitleText = (titleH1?.textContent || '').trim();
-    const animeTitleText = rawTitleText ? rawTitleText.replace(/\s*\[([^\]]+)\]\s*$/, ' EP.$1') : '';
+    const animeTitleText = getCleanAnimeTitle().replace(/\s*\[(?:電影|劇場版)\]\s*$/, '');
 
     let fsTitle = playerEl.querySelector('.ani-fs-title');
     if (!fsTitle && animeTitleText) {
@@ -3364,12 +3362,10 @@
 
     const playingLink = document.querySelector('.season li.playing a');
     const epSub = playingLink?.dataset?.aniEpTitle || '';
-    const epNum = (playingLink?.textContent || '').trim();
     if (subBox) {
       const st = subBox.querySelector('.ani-marquee-track');
       if (epSub) {
-        const formatted = epNum && !/^第\s*\d+/.test(epSub) ? `EP.${epNum}　${epSub}` : epSub;
-        if (st) st.textContent = formatted;
+        if (st && st.textContent !== epSub) st.textContent = epSub;
         subBox.hidden = false;
       } else {
         if (st) st.textContent = '';

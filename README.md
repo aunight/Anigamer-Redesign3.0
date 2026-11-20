@@ -47,7 +47,8 @@
 - **付費方案、序號兌換與全站全面現代化**：全面重製包含首頁、播放頁、搜尋頁、會員狀態與付費頁面在內的全站介面，提供專屬漸層會員背景卡片、非同步載入方案保留原生操作與自訂兌換彈窗。
 
 ### 5. 第三方腳本／擴充功能深度相容 & 批次安裝
-- [**動畫瘋·Plus**](https://greasyfork.org/zh-TW/scripts/369990-%E5%8B%95%E7%95%AB%E7%98%8B-plus)：將左側／上方工具列與進階設定抽屜整合為統一暗色玻璃風格，支援 hover 展開文字、全螢幕／劇院模式快速選集與彈幕熱度圖開關連動；截圖預覽卡片 4 顆操作鈕重製為 **30px 深藍圓底搭配純白向量圖示**。
+- **動畫瘋·Plus Chrome 擴充版**提供截圖、錄影、影像融合與子母畫面等工具。重製版會套用玻璃工具列與截圖預覽樣式，並把 Plus 設定併入播放器設定抽屜。[擴充版官方安裝頁](https://xu3u04u48.github.io/Anime_Crazy_Dot_Plus/)
+- **動畫瘋·Plus Greasy Fork 腳本版**提供自動接續下一集、空降座標等播放輔助，設定也會併入抽屜。Plus 作者建議兩個版本擇一啟用，以免衝突。[Greasy Fork 腳本版](https://greasyfork.org/zh-TW/scripts/369990)
 - [**動畫瘋資訊+（aniInfo+）**](https://greasyfork.org/zh-TW/scripts/448708-%E5%8B%95%E7%95%AB%E7%98%8B%E8%B3%87%E8%A8%8A)：將日文聲優與 OP／ED 主題曲整合進右側邊欄分頁並將 Wiki／YouTube 改為向量圖示按鈕；當 Syoboi 日曆因連線限流回傳非 JSON 或查無資料時，透過 Background Service Worker（`hero-cache-worker.js`）自動改以 **AniList GraphQL**、**MyAnimeList (Jikan)** 與 **Wikipedia API** 補齊。
 - **追番／評分／截圖常用油猴腳本**：
   - 追番點格子：[**動畫瘋連結 BGM.TV 點格子**](https://greasyfork.org/zh-TW/scripts/567535-%E5%8B%95%E7%95%AB%E7%98%8B%E9%80%A3%E7%B5%90-bgm-tv-%E9%BB%9E%E6%A0%BC%E5%AD%90)、[**Bangumi 自動更新觀看進度**](https://greasyfork.org/zh-TW/scripts/567536-bangumi-%E8%87%AA%E5%8B%95%E6%9B%B4%E6%96%B0%E8%A7%80%E7%9C%8B%E9%80%B2%E5%BA%A6)（自動偵測並整合至標題動作列）

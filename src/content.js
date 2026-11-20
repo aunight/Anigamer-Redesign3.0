@@ -3370,7 +3370,7 @@
         }
       }
       const rawTitleText=titleH1?.textContent.trim();
-      const animeTitleText=rawTitleText?rawTitleText.replace(/\s*\[([^\]]+)\]\s*$/,' EP.$1'):'';
+      const animeTitleText=rawTitleText?.replace(/(?:\s*\[[^\]]+\])+\s*$/, '');
       if(animeTitleText&&!playerEl.querySelector('.ani-fs-title')){
         const fsTitle=document.createElement('div');
         fsTitle.className='ani-fs-title';
@@ -3716,9 +3716,16 @@
       plusToolBox?.parentElement,
     ].filter(Boolean))];
     const legacyCapture = document.querySelector('#BH_background .but_ct');
-    if (legacyCapture && legacyCapture.parentElement?.querySelector('#ct_output')) {
+    if (legacyCapture && !legacyCapture.dataset.aniCaptureOrigin && legacyCapture.parentElement?.querySelector('#ct_output')) {
       legacyCapture.parentElement.classList.add('ani-standalone-capture');
+      legacyCapture.dataset.aniCaptureOrigin = 'true';
       legacyCapture.classList.add('ani-standalone-capture-trigger');
+    }
+    const captureToolbar = plusToolBox || document.querySelector('.ani-drawer-toggles');
+    if (legacyCapture?.dataset.aniCaptureOrigin && captureToolbar && !captureToolbar.contains(legacyCapture)) {
+      legacyCapture.parentElement.classList.add('ani-capture-moved');
+      captureToolbar.append(legacyCapture);
+      legacyCapture.title = '截圖（F8）';
     }
     for (const root of captureRoots) {
       if (!root.matches('.image_tool') || root.contains(plusToolBox)) continue;
@@ -9828,10 +9835,24 @@
       }
     }
   }
+  const settingsToastSelector = '.plus-toast-item, #toast-container > .toast, .toast_box .toast_content';
+  function hideSettingsSavedNotice(node) {
+    const element = node.nodeType === 1 ? node : node.parentElement;
+    const enclosing = element?.closest(settingsToastSelector);
+    if (!enclosing && !/設定/.test(element?.textContent || '')) return;
+    const notices = enclosing ? [enclosing] : element.querySelectorAll(settingsToastSelector);
+    for (const notice of notices) {
+      const text = notice.textContent.replace(/\s+/g, '').replace(/^[✓✔✅]|[。！!]$/g, '');
+      notice.classList.toggle('ani-settings-save-notice', /^設定(?:已(?:儲存|保存)|(?:儲存|保存)成功)$/.test(text));
+    }
+  }
   const preloadNoticeObserver = new MutationObserver((records) => {
     for (const record of records) {
-      if (record.type === 'characterData') hideRatingPreloadNotice(record.target);
-      else for (const node of record.addedNodes) hideRatingPreloadNotice(node);
+      const nodes = record.type === 'characterData' ? [record.target] : record.addedNodes;
+      for (const node of nodes) {
+        hideRatingPreloadNotice(node);
+        hideSettingsSavedNotice(node);
+      }
     }
   });
   preloadNoticeObserver.observe(document.documentElement, {

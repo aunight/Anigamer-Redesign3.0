@@ -47,7 +47,8 @@
 本腳本已針對下列常用油猴腳本進行介面融合與排版最佳化：
 
 - **功能增強／截圖工具**：
-  - [動畫瘋·Plus](https://greasyfork.org/zh-TW/scripts/369990-%E5%8B%95%E7%95%AB%E7%98%8B-plus)（自動整合工具列、彈幕熱度圖開關連動、預覽截圖卡片與設定抽屜）
+  - **動畫瘋·Plus Chrome 擴充版**提供截圖、錄影與影像融合，重製版會整合工具列、截圖預覽與設定抽屜。[擴充版官方安裝頁](https://xu3u04u48.github.io/Anime_Crazy_Dot_Plus/)
+  - **動畫瘋·Plus Greasy Fork 腳本版**提供自動接續下一集、空降座標等播放輔助，重製版會整合設定抽屜。Plus 作者建議兩個版本擇一啟用。[Greasy Fork 腳本版](https://greasyfork.org/zh-TW/scripts/369990)
   - [動畫瘋 - 截圖工具](https://greasyfork.org/zh-TW/scripts/388826-%E5%8B%95%E7%95%AB%E7%98%8B-%E6%88%AA%E5%9C%96%E5%B7%A5%E5%85%B7)
   - [巴哈姆特動畫瘋影片擷圖小工具](https://greasyfork.org/zh-TW/scripts/420561-%E5%B7%B4%E5%93%88%E5%A7%86%E7%89%B9%E5%8B%95%E7%95%AB%E7%98%8B%E5%BD%B1%E7%89%87%E6%93%B7%E5%9C%96%E5%B0%8F%E5%B7%A5%E5%85%B7)
 - **聲優／主題曲資料整合**：

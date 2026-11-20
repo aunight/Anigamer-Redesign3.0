@@ -1188,7 +1188,12 @@ body.ani-account-page #BH_background .ani-current-plan .paycard { border-color:#
 body.ani-account-page #BH_background .ani-membership-plans .ani-payment-trigger { background:linear-gradient(135deg,#7acdd345,#386a7f5c) !important;border-color:#b7f6f3ad !important;box-shadow:inset 0 1px 0 #efffff4d,0 5px 18px #061b2a36; }
 @media(max-width:650px) { body.ani-account-page #BH_background .ani-membership-plans .paycard { min-height:320px !important; } }
 body.ani-ambientlight-ui #BH_background #blockVideoInSeason .text-anime-info .text-anime-name { top:50% !important;bottom:auto !important;transform:translateY(-50%) !important;height:auto !important;display:block !important;-webkit-line-clamp:unset !important; }
-body.ani-ambientlight-ui #BH_background #blockVideoInSeason .newanime-wrap { position:relative; }
+body.ani-ambientlight-ui #BH_background #blockVideoInSeason .newanime-wrap {
+  position: relative;
+  border-color: transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #blockVideoInSeason .newanime-wrap.ani-date-following .anime-date-info { visibility:hidden !important;opacity:0 !important; }
 .ani-date-cursor { display:none;position:absolute;z-index:60;padding:4px 14px;border-radius:8px;background:var(--ani-accent,#3dafb6);color:#fff;font:600 12px/20px var(--ani-font,system-ui,sans-serif);pointer-events:none;white-space:nowrap; }
 .ani-date-following > .ani-date-cursor { display:block; }
@@ -2499,8 +2504,11 @@ body.ani-ambientlight-page.ani-ambientlight-ui #ani_video #danmuToggle .vjs-menu
   background: transparent !important;
 }
 
-/* Watch page: frosted sidebar & consistent card spacing */
-body.ani-theater-layout.ani-ambientlight-ui #BH_background section.player.ani-ambientlight-stage > .subtitle {
+/* Keep the sidebar surface consistent across both player layouts. */
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player.ani-ambientlight-stage > .subtitle {
+  background:
+    linear-gradient(160deg, rgba(var(--ani-scene-right-rgb, 110, 125, 145), var(--ani-panel-tint, 0.14)), transparent 55%),
+    rgba(var(--ani-surface-rgb), var(--ani-panel-opacity, 0.82)) !important;
   backdrop-filter: blur(26px) saturate(140%) !important;
   -webkit-backdrop-filter: blur(26px) saturate(140%) !important;
   border: 1px solid rgba(216, 236, 255, 0.14) !important;
@@ -4441,8 +4449,8 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-pl
   position: relative;
   display: inline-grid;
   place-items: center;
-  width: 46px;
-  height: 46px;
+  width: 54px;
+  height: 54px;
   padding: 0;
   border: 1px solid rgb(255 255 255 / 28%);
   border-radius: 50%;
@@ -4455,11 +4463,12 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-pl
   background: rgb(61 175 182 / 42%);
   border-color: rgb(140 228 232 / 80%);
 }
-#ani_video .ani-playback-seek-group svg { width: 26px; height: 26px; }
+#ani_video .ani-playback-seek-group svg { width: 36px; height: 36px; }
 #ani_video .ani-playback-seek-group span {
   position: absolute;
-  margin-top: 2px;
-  font: 700 11px/1 var(--ani-font, system-ui, sans-serif);
+  margin-top: 1px;
+  font: 700 12px/1 var(--ani-font, system-ui, sans-serif);
+  font-variant-numeric: tabular-nums;
 }
 #ani_video:is(.vjs-ad-playing, .vjs-ad-loading) .ani-mini-pip-seek {
   visibility: hidden;
@@ -5808,6 +5817,28 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .su
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle .ani-side-extra-block a {
   color: #ffffff !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle .ani-side-extra-block .grid.cast {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) 24px !important;
+  gap: 6px 10px !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani-tab-content-intro .grid.cast a:is(.ani-wiki-link, :has(.ani-wiki-svg)) {
+  display: inline-grid !important;
+  place-items: center;
+  justify-self: end !important;
+  width: 24px !important;
+  height: 20px !important;
+  padding: 0 !important;
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--ani-text) !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani-tab-content-intro .grid.cast a:is(.ani-wiki-link, :has(.ani-wiki-svg)):is(:hover, :focus-visible) {
+  background: var(--ani-panel-soft) !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani-tab-content-intro .grid.cast .ani-wiki-svg {
+  color: currentColor !important;
 }
 
 /* 作品評分 radial score + distribution + my stars */
@@ -10723,6 +10754,10 @@ body.ani-layout-comments.ani-ambientlight-ui #BH_background #w-post-box .reply-c
   p.reply-content__bp {
     --ani-comment-count-hover: #f87171;
   }
+}
+
+.ani-settings-save-notice {
+  display: none !important;
 }
 
 body.ani-ambientlight-page.ani-ambientlight-ui .toast_box .toast_content.hint {

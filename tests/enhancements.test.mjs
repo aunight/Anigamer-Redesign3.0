@@ -692,7 +692,8 @@ test('Phase 5: long-series episode grouping, Bangumi/AniList episode title toolt
   const fsSub = dW.querySelector('#ani_video .ani-fs-title .ani-fs-subtitle');
   assert(fsMain && fsSub, 'fullscreen title main and top-center subtitle elements exist');
   assert.equal(fsSub.hidden, false);
-  assert.match(fsSub.textContent, /EP\.33\s+命運的交會點/);
+  assert.equal(fsMain.textContent, '雙城之戰測試篇');
+  assert.equal(fsSub.textContent, '命運的交會點');
   ep33Link.dataset.aniUploadDate = '2026/10/20';
   ep33Link.getBoundingClientRect = () => ({ top: 100, bottom: 136, left: 48, width: 36 });
   ep33Link.dispatchEvent(new wW.MouseEvent('mouseover', { bubbles: true }));

@@ -108,6 +108,9 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-fs
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+#ani_video .ani-fs-title :is(.ani-fs-title-main, .ani-fs-subtitle, .ani-marquee-track) {
+  font-family: var(--ani-font, system-ui, sans-serif) !important;
+}
 #ani_video .ani-fs-title-main[data-ani-marquee='true'] {
   text-overflow: clip;
 }
@@ -159,6 +162,10 @@ body.ani-ambientlight-ui #BH_background .ani-standalone-capture-trigger {
 
 body.ani-ambientlight-ui #BH_background .ani-standalone-capture > span {
   color: inherit !important;
+}
+
+body.ani-ambientlight-ui #BH_background .ani-capture-moved > span {
+  display: none !important;
 }
 
 body.ani-ambientlight-ui #BH_background #sub_list .sub-list-li .edit.ani-danmu-action-icon {
@@ -1283,6 +1290,53 @@ html body #BH_background section.player .subtitle #ani-tab-content-1.ani-has-dm-
 body #BH_background .subtitle #ani-tab-content-1.ani-has-dm-tools #sub_list .sub-list-li {
   height: auto !important;
   max-height: none !important;
+}
+/* The native layout also receives the compact redesigned danmu rows. */
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle #sub_list .sub-list-li {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  padding: 0 !important;
+  line-height: 1.5 !important;
+  color: var(--ani-muted) !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle #sub_list .sub-list-li > div:first-child {
+  display: grid !important;
+  position: static !important;
+  float: none !important;
+  transform: none !important;
+  grid-template-columns: 58px minmax(0, 1fr);
+  align-items: start;
+  gap: 8px;
+  width: 100% !important;
+  max-width: none !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: var(--ani-danmu-row-spacing, 10px) 12px !important;
+  box-sizing: border-box;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle #sub_list .sub-list-li :is(b, .sub_content) {
+  display: block !important;
+  position: static !important;
+  float: none !important;
+  width: auto !important;
+  max-width: none !important;
+  min-width: 0;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 20px !important;
+  color: var(--ani-muted) !important;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle #sub_list .sub-list-li b {
+  font-size: 11px !important;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle #sub_list .sub-list-li .sub_content {
+  font-size: var(--ani-danmu-font, 13px) !important;
+  white-space: pre-wrap !important;
+  overflow-wrap: anywhere;
 }
 body #BH_background #ani-tab-content-1.ani-has-dm-tools > .ani-danmu-tools-bar {
   position: absolute !important;
