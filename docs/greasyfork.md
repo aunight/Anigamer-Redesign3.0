@@ -4,7 +4,7 @@
 
 > ⚠️ **測試版本說明**：本版本仍在測試與調整中，有任何問題歡迎[提 Issue](https://github.com/aunight/Anigamer-Redesign3.0/issues)。
 
-![動畫瘋重製版 3.0 首頁預覽](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/preview-home.jpg)
+![動畫瘋重製版 3.0 首頁預覽](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/preview-home-20261120.jpg)
 
 ---
 
