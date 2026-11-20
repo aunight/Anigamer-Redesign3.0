@@ -1,3 +1,32 @@
+(function setFavicon() {
+  if (window.self !== window.top) return;
+  const bundledIcon = '__ANI_FAVICON_URL__';
+  const href = bundledIcon.startsWith('data:')
+    ? bundledIcon
+    : globalThis.chrome?.runtime?.getURL?.('icon-32.png');
+  if (!href) return;
+
+  const install = () => {
+    const head = document.head;
+    if (!head || head.querySelector('#ani-favicon')) return;
+    // Wait for the site's icon links so none compete with the replacement.
+    for (const icon of head.querySelectorAll('link[rel~="icon" i]')) icon.remove();
+    const icon = document.createElement('link');
+    icon.id = 'ani-favicon';
+    icon.rel = 'icon';
+    icon.type = 'image/png';
+    icon.setAttribute('sizes', '32x32');
+    icon.href = href;
+    head.append(icon);
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', install, { once: true });
+  } else {
+    install();
+  }
+})();
+
 (function mountIntro() {
   if(window.self!==window.top)return;
   const root = document.documentElement;

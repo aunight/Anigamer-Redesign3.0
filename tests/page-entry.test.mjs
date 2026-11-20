@@ -41,6 +41,20 @@ function markReady(w, enhancements = false) {
   w.dispatchEvent(new w.Event(enhancements ? 'ani-enhancements-ui-ready' : 'ani-ui-ready'));
 }
 
+test('the project favicon replaces native tab icons after the head is parsed', async t => {
+  const { w } = createPage(t);
+  w.chrome = { runtime: { getURL: file => `chrome-extension://test-extension/${file}` } };
+  w.eval(entry);
+  w.document.head.insertAdjacentHTML('beforeend', '<link rel="shortcut icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/touch.png">');
+  await new Promise(resolve => w.document.addEventListener('DOMContentLoaded', resolve, { once: true }));
+
+  const icons = w.document.head.querySelectorAll('link[rel~="icon"]');
+  assert.equal(icons.length, 1);
+  assert.equal(icons[0].href, 'chrome-extension://test-extension/icon-32.png');
+  assert.equal(icons[0].getAttribute('sizes'), '32x32');
+  assert(w.document.head.querySelector('link[rel="apple-touch-icon"]'));
+});
+
 test('the opening waits for both UI phases and its minimum duration but does not wait for web fonts', t => {
   const { w, timers, paint, fire } = createPage(t);
   w.document.body.remove();

@@ -58,7 +58,9 @@ const motionCss = `/*! Animate.css 4.1.1 | https://animate.style/\n${animateLice
 fs.writeFileSync(path.join(source,'motion.css'),motionCss);
 const blackBars = fs.readFileSync(path.join(source, 'black-bars.js'), 'utf8');
 const entryCss = motionCss + '\n' + fs.readFileSync(path.join(source, 'page-entry.css'), 'utf8');
-const entryScript = fs.readFileSync(path.join(source, 'page-entry.js'), 'utf8');
+const favicon = 'data:image/png;base64,' + fs.readFileSync(path.join(source, 'icon-32.png')).toString('base64');
+const entryScript = fs.readFileSync(path.join(source, 'page-entry.js'), 'utf8')
+  .replace('__ANI_FAVICON_URL__', favicon);
 const renderer = fs.readFileSync(
   path.join(source, 'ambient-renderer.js'),
   'utf8',

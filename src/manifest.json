@@ -98,7 +98,8 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "membership-background.png"
+        "membership-background.png",
+        "icon-32.png"
       ],
       "matches": [
         "https://ani.gamer.com.tw/*"
