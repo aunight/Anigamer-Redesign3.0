@@ -2,7 +2,7 @@
 // @name         動畫瘋沉浸重製版 3.0｜Anigamer-Redesign 3.0
 // @namespace    https://ani.gamer.com.tw/ani-ambientlight
 // @author       秋夜
-// @version      3.0.7
+// @version      3.0.8
 // @description  動畫瘋環境光與沉浸重製介面：毛玻璃播放器、開場液態波紋、首頁足跡熱力圖＆天氣實況（靈感改作自 Hinataragi/anigamer-ambilight、jiuyang5354/bilibili-margin 與 GreatUI）。非官方。
 // @homepageURL  https://github.com/aunight/Anigamer-Redesign3.0
 // @supportURL   https://github.com/aunight/Anigamer-Redesign3.0/issues
@@ -13,16 +13,16 @@
 // @run-at       document-start
 // @inject-into  content
 // @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
-// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b155728f3cd1987a29ccef98285fe70459b35df3/src/studio-catalog.json
-// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b155728f3cd1987a29ccef98285fe70459b35df3/src/studio-profiles.json
-// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b155728f3cd1987a29ccef98285fe70459b35df3/src/studio-directory-icons.json
-// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b155728f3cd1987a29ccef98285fe70459b35df3/src/studio-logos.json
-// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b155728f3cd1987a29ccef98285fe70459b35df3/src/content.css
-// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b155728f3cd1987a29ccef98285fe70459b35df3/src/effects.css
-// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b155728f3cd1987a29ccef98285fe70459b35df3/src/settings-ui.css
-// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b155728f3cd1987a29ccef98285fe70459b35df3/src/hero-banner.css
-// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b155728f3cd1987a29ccef98285fe70459b35df3/src/home-dashboard.css
-// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b155728f3cd1987a29ccef98285fe70459b35df3/src/ui-repairs.css
+// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/54cd8c557ffdb2bc11c59c350bc463bb8375599b/src/studio-catalog.json
+// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/54cd8c557ffdb2bc11c59c350bc463bb8375599b/src/studio-profiles.json
+// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/54cd8c557ffdb2bc11c59c350bc463bb8375599b/src/studio-directory-icons.json
+// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/54cd8c557ffdb2bc11c59c350bc463bb8375599b/src/studio-logos.json
+// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/54cd8c557ffdb2bc11c59c350bc463bb8375599b/src/content.css
+// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/54cd8c557ffdb2bc11c59c350bc463bb8375599b/src/effects.css
+// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/54cd8c557ffdb2bc11c59c350bc463bb8375599b/src/settings-ui.css
+// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/54cd8c557ffdb2bc11c59c350bc463bb8375599b/src/hero-banner.css
+// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/54cd8c557ffdb2bc11c59c350bc463bb8375599b/src/home-dashboard.css
+// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/54cd8c557ffdb2bc11c59c350bc463bb8375599b/src/ui-repairs.css
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -357,68 +357,28 @@ Additional section icons: film, newspaper, comments.
     const repairsLines = GM_getResourceText('ani_repairs_css').replaceAll('\r\n', '\n').split('\n');
     for (const [start, count, added] of [
       [
-        1190,
-        1,
-        [
-          'body.ani-ambientlight-ui #BH_background #blockVideoInSeason .newanime-wrap {',
-          '  position: relative;',
-          '  border-color: transparent !important;',
-          '  outline: none !important;',
-          '  box-shadow: none !important;',
-          '}',
-        ],
-      ],
-      [
-        2501,
-        2,
-        [
-          '/* Keep the sidebar surface consistent across both player layouts. */',
-          'body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player.ani-ambientlight-stage > .subtitle {',
-          '  background:',
-          '    linear-gradient(160deg, rgba(var(--ani-scene-right-rgb, 110, 125, 145), var(--ani-panel-tint, 0.14)), transparent 55%),',
-          '    rgba(var(--ani-surface-rgb), var(--ani-panel-opacity, 0.82)) !important;',
-        ],
-      ],
-      [4443, 2, ['  width: 54px;', '  height: 54px;']],
-      [4457, 1, ['#ani_video .ani-playback-seek-group svg { width: 36px; height: 36px; }']],
-      [
-        4460,
-        2,
-        [
-          '  margin-top: 1px;',
-          '  font: 700 12px/1 var(--ani-font, system-ui, sans-serif);',
-          '  font-variant-numeric: tabular-nums;',
-        ],
-      ],
-      [
-        5811,
+        4727,
         0,
         [
-          'body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle .ani-side-extra-block .grid.cast {',
-          '  grid-template-columns: repeat(2, minmax(0, 1fr)) 24px !important;',
-          '  gap: 6px 10px !important;',
-          '}',
-          'body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani-tab-content-intro .grid.cast a:is(.ani-wiki-link, :has(.ani-wiki-svg)) {',
-          '  display: inline-grid !important;',
-          '  place-items: center;',
-          '  justify-self: end !important;',
-          '  width: 24px !important;',
-          '  height: 20px !important;',
-          '  padding: 0 !important;',
-          '  border-color: transparent !important;',
-          '  background: transparent !important;',
-          '  box-shadow: none !important;',
-          '  color: var(--ani-text) !important;',
-          '}',
-          'body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani-tab-content-intro .grid.cast a:is(.ani-wiki-link, :has(.ani-wiki-svg)):is(:hover, :focus-visible) {',
-          '  background: var(--ani-panel-soft) !important;',
-          '}',
-          'body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani-tab-content-intro .grid.cast .ani-wiki-svg {',
-          '  color: currentColor !important;',
+          'body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .subtitle .ani-plus-danmu-count > div > div {',
+          '  width: auto !important;',
+          '  padding-inline: 0 !important;',
           '}',
         ],
       ],
-      [10727, 0, ['.ani-settings-save-notice {', '  display: none !important;', '}', '']],
+      [
+        5459,
+        4,
+        [
+          'body.ani-ambientlight-ui #BH_background :is(#ani-info, #ani-tab-content-intro) a:is(.ani-yt-link, :has(.ani-yt-svg)) {',
+          '  background: transparent !important;',
+          '  border-color: transparent !important;',
+          '  box-shadow: none !important;',
+          '}',
+          'body.ani-ambientlight-ui #BH_background :is(#ani-info, #ani-tab-content-intro) a:is(.ani-yt-link, :has(.ani-yt-svg)):is(:hover, :focus-visible) .ani-yt-svg {',
+          '  color: #ff7777 !important;',
+        ],
+      ],
     ].reverse())
       repairsLines.splice(start, count, ...added);
     GM_addStyle(
@@ -1733,6 +1693,9 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .su
   min-height: 0 !important;
   max-height: none !important;
   padding: 0 !important;
+  margin: 0 !important;
+  flex: none !important;
+  border-block: 0 !important;
   line-height: 1.5 !important;
   color: var(--ani-muted) !important;
 }
@@ -1749,7 +1712,24 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .su
   height: auto !important;
   min-height: 0 !important;
   padding: var(--ani-danmu-row-spacing, 10px) 12px !important;
+  margin: 0 !important;
   box-sizing: border-box;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle #sub_list .sub-list-li > div:nth-child(2):has(.edit, .name, .ani-dm-local-mute) {
+  display: none !important;
+  position: static !important;
+  float: none !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  box-sizing: border-box;
+  padding: 0 12px 10px 78px !important;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle #sub_list .sub-list-li:is(:hover, :focus-within) > div:nth-child(2):has(.edit, .name, .ani-dm-local-mute) {
+  display: flex !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle #sub_list .sub-list-li :is(b, .sub_content) {
   display: block !important;
@@ -3678,7 +3658,7 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
         const creditCard =
           '<div class="ani-credit-card">' +
           '<div class="ani-credit-head">' +
-          '<div><h4 class="ani-credit-title">動畫瘋沉浸重製版 3.0</h4><p class="ani-credit-sub">Anigamer-Redesign 3.0 · v3.0.7 · MIT</p></div>' +
+          '<div><h4 class="ani-credit-title">動畫瘋沉浸重製版 3.0</h4><p class="ani-credit-sub">Anigamer-Redesign 3.0 · v3.0.8 · MIT</p></div>' +
           '<div class="ani-credit-actions">' +
           '<button type="button" class="ani-pill-btn is-accent" data-action="check-update"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg><span>檢測更新</span></button>' +
           '<a class="ani-pill-btn" href="https://github.com/aunight/Anigamer-Redesign3.0" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true" fill="currentColor" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M6.766 11.328c-2.063-.25-3.516-1.734-3.516-3.656 0-.781.281-1.625.75-2.188-.203-.515-.172-1.609.063-2.062.625-.078 1.468.25 1.968.703.594-.187 1.219-.281 1.985-.281.765 0 1.39.094 1.953.265.484-.437 1.344-.765 1.969-.687.218.422.25 1.515.046 2.047.5.593.766 1.39.766 2.203 0 1.922-1.453 3.375-3.547 3.64.531.344.89 1.094.89 1.954v1.625c0 .468.391.734.86.547C13.781 14.359 16 11.53 16 8.03 16 3.61 12.406 0 7.984 0 3.563 0 0 3.61 0 8.031a7.88 7.88 0 0 0 5.172 7.422c.422.156.828-.125.828-.547v-1.25c-.219.094-.5.156-.75.156-1.031 0-1.64-.562-2.078-1.609-.172-.422-.36-.672-.719-.719-.187-.015-.25-.093-.25-.187 0-.188.313-.328.625-.328.453 0 .844.281 1.25.86.313.452.64.655 1.031.655s.641-.14 1-.5c.266-.265.47-.5.657-.656" /></svg><span>GitHub</span></a>' +
@@ -12770,72 +12750,49 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
           '<svg class="ani-player-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4.5" width="19" height="15" rx="2.5"/><rect x="11.5" y="10.5" width="7" height="5.5" rx="1.2" fill="currentColor" stroke="none"/></svg>';
         icons['.vjs-indent-button'] =
           '<svg class="ani-player-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5.5" width="19" height="13" rx="2.2"/><path d="M6.5 9.5h11v5h-11z" fill="currentColor" fill-opacity="0.25" stroke="none"/></svg>';
-        for (const el of document.querySelectorAll('.subtitle *')) {
-          const txt = el.textContent || '';
-          if (!/本動畫共\s*[\d,]+\s*筆彈幕/.test(txt)) continue;
-          if ([...el.children].some((c) => /本動畫共/.test(c.textContent || ''))) continue;
-          const tipHost = el.closest('.anime-tip, .danmu-tip, .sub-list-tip') || el.parentElement;
-          if (
-            !tipHost ||
-            (tipHost.closest('.ani-danmu-count-lines') && !tipHost.matches('.anime-tip'))
-          )
-            continue;
-          tipHost.classList.add('ani-danmu-count-box');
-          const refresh = tipHost
-            .closest('#ani-tab-content-1')
-            ?.querySelector(':scope > button.refresh');
-          if (refresh) tipHost.append(refresh);
-          for (const icon of tipHost.querySelectorAll(
-            'i, svg, img, .material-icons, .material-icons-round, .qa-icon',
-          )) {
-            if (
-              !icon.closest('button.refresh') &&
-              !icon.classList.contains('ani-danmu-count-icon') &&
-              !icon.closest('.ani-danmu-count-icon')
-            ) {
-              icon.classList.add('ani-danmu-hidden-info');
-              icon.style.setProperty('display', 'none', 'important');
-            }
-          }
-          if (!tipHost.querySelector(':scope > .ani-danmu-count-icon')) {
-            tipHost.insertAdjacentHTML(
-              'afterbegin',
-              '<svg class="ani-danmu-count-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4.5" width="19" height="15" rx="3.2"/><path d="M6.5 9.5h5M13.5 9.5h4M6.5 14h3.5M12 14h5.5"/></svg>',
-            );
-          }
-          let linesBox = tipHost.querySelector(':scope > .ani-danmu-count-lines');
-          if (!linesBox) {
-            linesBox = document.createElement('div');
-            linesBox.className = 'ani-danmu-count-lines';
-            tipHost.append(linesBox);
-          }
-          for (const node of [...tipHost.childNodes]) {
-            if (
-              node === linesBox ||
-              node.matches?.('button.refresh') ||
-              (node.nodeType === 1 &&
-                (node.classList.contains('ani-danmu-count-icon') ||
-                  node.classList.contains('ani-danmu-hidden-info')))
-            )
-              continue;
-            if (node.nodeType === 3 && !node.nodeValue.trim()) continue;
-            if (node.nodeType === 3) {
-              const sp = document.createElement('span');
-              sp.textContent = node.nodeValue.trim();
-              if (/^(?:本動畫共|動畫瘋[·.]Plus)/.test(sp.textContent))
-                sp.className = 'ani-danmu-count-short';
-              linesBox.append(sp);
-              node.remove();
-            } else {
-              if (
-                /^(?:本動畫共|動畫瘋[·.]Plus)/.test((node.textContent || '').trim()) &&
-                (node.textContent || '').trim().length <= 26
-              ) {
-                node.classList.add('ani-danmu-count-short');
+        const danmuPane = document.querySelector('.subtitle #ani-tab-content-1');
+        if (danmuPane && !danmuPane.dataset.aniCountObserved) {
+          danmuPane.dataset.aniCountObserved = 'true';
+          const tipSelector = '.anime-tip, .danmu-tip, .sub-list-tip';
+          const styleCounts = () => {
+            for (const tip of danmuPane.querySelectorAll(tipSelector)) {
+              const counts = tip.querySelector(':scope > div');
+              if (!counts || !counts.textContent.trim()) continue;
+              tip.classList.add('ani-danmu-count-box');
+              // Plus replaces the contents of .anime-tip > div after filtering.
+              counts.classList.add('ani-danmu-count-lines');
+              counts.classList.toggle(
+                'ani-plus-danmu-count',
+                /動畫瘋[·.]Plus\s*已過濾/.test(counts.textContent),
+              );
+              for (const icon of counts.querySelectorAll(
+                'i, svg, img, .material-icons, .material-icons-round, .qa-icon',
+              )) {
+                if (!icon.closest('.is-hint, button')) icon.classList.add('ani-danmu-hidden-info');
               }
-              linesBox.append(node);
+              if (!tip.querySelector(':scope > .ani-danmu-count-icon')) {
+                tip.insertAdjacentHTML(
+                  'afterbegin',
+                  '<svg class="ani-danmu-count-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4.5" width="19" height="15" rx="3.2"/><path d="M6.5 9.5h5M13.5 9.5h4M6.5 14h3.5M12 14h5.5"/></svg>',
+                );
+              }
             }
-          }
+          };
+          const observer = new MutationObserver((records) => {
+            if (
+              records.some(
+                ({ target, addedNodes }) =>
+                  target.parentElement?.closest(tipSelector) ||
+                  target.closest?.(tipSelector) ||
+                  [...addedNodes].some(
+                    (node) => node.matches?.(tipSelector) || node.querySelector?.(tipSelector),
+                  ),
+              )
+            )
+              styleCounts();
+          });
+          styleCounts();
+          observer.observe(danmuPane, { childList: true, characterData: true, subtree: true });
         }
         const toggle = document.querySelector('#danmuToggle');
         if (toggle && !toggle.dataset.aniStateBound) {

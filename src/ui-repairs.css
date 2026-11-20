@@ -4725,6 +4725,10 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .subtitle .ani-dan
   margin: 0 !important;
   padding: 0 !important;
 }
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .subtitle .ani-plus-danmu-count > div > div {
+  width: auto !important;
+  padding-inline: 0 !important;
+}
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .subtitle .ani-danmu-count-lines > .ani-danmu-count-short {
   white-space: nowrap !important;
 }
@@ -5457,10 +5461,13 @@ body.ani-ambientlight-ui #BH_background :is(#ani-info, #ani-tab-content-intro) a
   border-color: rgba(61, 175, 182, 0.72) !important;
   color: #ffffff !important;
 }
-body.ani-ambientlight-ui #BH_background :is(#ani-info, #ani-tab-content-intro) a.ani-yt-link:hover {
-  background: rgba(235, 72, 72, 0.28) !important;
-  border-color: rgba(255, 110, 110, 0.72) !important;
-  color: #ffffff !important;
+body.ani-ambientlight-ui #BH_background :is(#ani-info, #ani-tab-content-intro) a:is(.ani-yt-link, :has(.ani-yt-svg)) {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+body.ani-ambientlight-ui #BH_background :is(#ani-info, #ani-tab-content-intro) a:is(.ani-yt-link, :has(.ani-yt-svg)):is(:hover, :focus-visible) .ani-yt-svg {
+  color: #ff7777 !important;
 }
 body.ani-ambientlight-ui #BH_background :is(#ani-info, #ani-tab-content-intro) svg:is(.ani-wiki-svg, .ani-yt-svg) {
   width: 14px !important;

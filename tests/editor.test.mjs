@@ -27,8 +27,11 @@ w.IntersectionObserver = class {
   unobserve() {}
   disconnect() {}
 };
+const danmuSidebar = w.document.querySelector('.subtitle');
+danmuSidebar.innerHTML = '<div id="ani-tab-content-1"><div class="anime-tip"><div>本動畫共 433 筆彈幕</div></div></div>';
+const nativeDanmuCount = danmuSidebar.querySelector('.anime-tip > div');
 for(const file of ['settings.js','topbar-bridge.js','content.js'])w.eval(fs.readFileSync('src/'+file,'utf8'));
-assert.equal(w.document.body.dataset.aniBackground,'silk','extension/page reload retains this tab random background');
+assert.equal(danmuSidebar.querySelector('.anime-tip > div'), nativeDanmuCount);
 const sendButton=playerBar.querySelector('.danmu-send_btn');
 assert.equal(sendButton.getAttribute('aria-label'),'發送彈幕');
 assert(sendButton.querySelector('.ani-send-glyph'),'send icon follows the supplied paper-plane reference');
@@ -351,4 +354,9 @@ assert.equal(w.document.getElementById('ani-rating-overlay'), null);
 w.document.querySelector('.ani-view-settings').click();
 openRating();
 assert.equal(ratingPage.querySelector('#arm-mask-toggle').getAttribute('aria-checked'), 'true', 'storage fallback survives reopening');
+nativeDanmuCount.innerHTML = '<div><i class="material-icons">info_outline</i><div>本動畫共 433 筆彈幕<br>動畫瘋·Plus已過濾 3 筆彈幕</div></div>';
+await new Promise(resolve => setTimeout(resolve, 0));
+assert(nativeDanmuCount.classList.contains('ani-plus-danmu-count'));
+assert.match(nativeDanmuCount.textContent, /Plus已過濾 3 筆彈幕/);
+assert.equal(w.document.body.dataset.aniBackground,'silk','extension/page reload retains this tab random background');
 dom.window.close();console.log('Passed: native geometry, bounded observer, reversible layouts, themes, per-setting reset, eight grouped methods, old and newer backup import, embedded rating settings.');
