@@ -3,6 +3,34 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { JSDOM } from 'jsdom';
 
+test('related poster scores only fetch near the viewport', async t => {
+  const cards = [101, 102].map(id => `<a class="theme-list-main" href="/animeVideo.php?sn=${id}"><div class="theme-img-block"><img class="theme-img"></div></a>`).join('');
+  const dom = new JSDOM(`<div id="BH_background"><section class="old_list"><div class="theme-list-block">${cards}</div></section></div>`, {
+    url: 'https://ani.gamer.com.tw/animeVideo.php?sn=99', runScripts: 'outside-only', pretendToBeVisual: true,
+  });
+  t.after(() => dom.window.close());
+  const w = dom.window;
+  w.matchMedia = () => ({ matches: false, addEventListener() {} });
+  const observed = new Map();
+  w.IntersectionObserver = class {
+    constructor(callback) { this.callback = callback; }
+    observe(target) { observed.set(target, this); }
+    unobserve(target) { observed.delete(target); }
+  };
+  const requests = [];
+  w.AniAmbientFetch = async url => {
+    requests.push(String(url));
+    return { ok: true, text: async () => '' };
+  };
+  for (const file of ['settings.js', 'content.js']) w.eval(fs.readFileSync(`src/${file}`, 'utf8'));
+  const [first, second] = w.document.querySelectorAll('.theme-list-main');
+  const posterRequests = () => requests.filter(url => /sn=10[12]$/.test(url));
+  assert.deepEqual(posterRequests(), []);
+  assert(observed.has(second));
+  observed.get(first).callback([{ target: first, isIntersecting: true }]);
+  assert.deepEqual(posterRequests(), [first.href]);
+});
+
 test('catalog retains native actions, sorts loaded and late scores, and folds filters', async t => {
   const card = `<a class="theme-list-main" href="animeRef.php?sn=1"><div class="theme-img-block"><img class="theme-img" alt="作品"><div class="btn-favorite"></div><div class="tm-acg-rating">★ 4.9 / 5<span>(100 人評價)</span></div><div class="ani-watch-progress-badge">看到第 6 話（最新第 7 話）</div></div><div class="anime-detail-block"><div class="anime-tag-row"><div class="anime-label-block"></div></div><div class="theme-info-block"><p class="theme-name">測試動畫</p><div class="theme-detail-info-block"><p class="theme-time">年份：2026/10</p><span class="theme-number">共7集</span></div></div></div></a>`;
   const group = (name) => `<section class="class_list"><div class="class-header"><h3>${name}</h3></div><ul><li class="now"><a href="#">全部</a></li><li><a href="#">動作</a></li></ul></section>`;

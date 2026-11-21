@@ -2322,6 +2322,30 @@
     sync();
   }
 
+  const fallbackScoreSections = '.old_list,#blockHotAnime,[id^="blockAnimeNewArrive"]';
+  const fallbackScoreObserver = typeof IntersectionObserver === 'function' && new IntersectionObserver(entries => {
+    for (const { target, isIntersecting } of entries) {
+      if (!isIntersecting) continue;
+      fallbackScoreObserver.unobserve(target);
+      fetchFallbackPosterScore(target);
+    }
+  }, { rootMargin: '120px' });
+
+  function fetchFallbackPosterScore(card) {
+    if (!card.isConnected || card.dataset.aniScoreRequested || card.querySelector('.ani-poster-score')) return;
+    card.dataset.aniScoreRequested = 'true';
+    const section = card.closest(fallbackScoreSections);
+    aniFetch(card.href, { timeoutMs: 8000 })
+      .then(response => response.ok ? response.text() : '')
+      .then(html => {
+        const score = parseScoreFromVideoHtml(html);
+        if (score && card.isConnected && section?.isConnected) {
+          card.dataset.aniRelatedScore = score;
+          enhancePosterRails([section]);
+        }
+      }).catch(() => {});
+  }
+
   function enhancePosterRails(sections) {
     syncNativeWatch();
     for (const section of sections || document.querySelectorAll('#BH_background .animate-theme-list, #BH_background .old_list:not(:has(.search_result))')) {
@@ -2392,15 +2416,13 @@
           if (starMapScoreObserver) starMapScoreObserver.observe(card);
           else fetchStarMapScore(card);
         }
-        if (!scoreText && image && section.matches('.old_list,#blockHotAnime,[id^="blockAnimeNewArrive"]') && !card.dataset.aniScoreRequested && card.matches('a[href*="animeRef.php?sn="],a[href*="animeVideo.php?sn="]')) {
-          card.dataset.aniScoreRequested = 'true';
-          aniFetch(card.href).then(response => response.ok ? response.text() : '').then(html => {
-            const value = parseScoreFromVideoHtml(html);
-            if (value && card.isConnected) {
-              card.dataset.aniRelatedScore = value;
-              enhancePosterRails();
-            }
-          }).catch(() => {});
+        if (!scoreText && image && section.matches(fallbackScoreSections) && !card.dataset.aniScoreRequested && card.matches('a[href*="animeRef.php?sn="],a[href*="animeVideo.php?sn="]')) {
+          if (fallbackScoreObserver && !section.querySelector('.ani-owned-rating-toggle:checked')) {
+            fallbackScoreObserver.observe(card);
+          } else {
+            if (fallbackScoreObserver) fallbackScoreObserver.unobserve(card);
+            fetchFallbackPosterScore(card);
+          }
         }
         if (score && !score.classList.contains('ani-rating-source')) score.classList.add('ani-rating-source');
         if (scoreText && image && !image.querySelector('.ani-poster-score')) {
@@ -2643,6 +2665,11 @@
       input.addEventListener('change', sync);
       actions.append(group);
       sync();
+      if (section?.matches(fallbackScoreSections)) {
+        const loadScoresForSort = () => { if (input.checked) enhancePosterRails([section]); };
+        input.addEventListener('change', loadScoresForSort);
+        loadScoresForSort();
+      }
     }
     const qaInfoSvg = '<svg class="ani-info-i-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4"/><circle cx="12" cy="8.2" r="0.6" fill="currentColor" stroke="none"/></svg>';
     for (const qa of document.querySelectorAll('.qa-icon')) {

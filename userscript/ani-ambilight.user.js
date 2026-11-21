@@ -2,7 +2,7 @@
 // @name         動畫瘋沉浸重製版 3.0｜Anigamer-Redesign 3.0
 // @namespace    https://ani.gamer.com.tw/ani-ambientlight
 // @author       秋夜
-// @version      3.0.10
+// @version      3.0.11
 // @description  動畫瘋環境光與沉浸重製介面：毛玻璃播放器、開場液態波紋、首頁足跡熱力圖＆天氣實況（靈感改作自 Hinataragi/anigamer-ambilight、jiuyang5354/bilibili-margin 與 GreatUI）。非官方。
 // @homepageURL  https://github.com/aunight/Anigamer-Redesign3.0
 // @supportURL   https://github.com/aunight/Anigamer-Redesign3.0/issues
@@ -13,16 +13,16 @@
 // @run-at       document-start
 // @inject-into  content
 // @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
-// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/942379bdd3244f9b2a320ed5b6e9be3fdf2ae2b2/src/studio-catalog.json
-// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/942379bdd3244f9b2a320ed5b6e9be3fdf2ae2b2/src/studio-profiles.json
-// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/942379bdd3244f9b2a320ed5b6e9be3fdf2ae2b2/src/studio-directory-icons.json
-// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/942379bdd3244f9b2a320ed5b6e9be3fdf2ae2b2/src/studio-logos.json
-// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/942379bdd3244f9b2a320ed5b6e9be3fdf2ae2b2/src/content.css
-// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/942379bdd3244f9b2a320ed5b6e9be3fdf2ae2b2/src/effects.css
-// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/942379bdd3244f9b2a320ed5b6e9be3fdf2ae2b2/src/settings-ui.css
-// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/942379bdd3244f9b2a320ed5b6e9be3fdf2ae2b2/src/hero-banner.css
-// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/942379bdd3244f9b2a320ed5b6e9be3fdf2ae2b2/src/home-dashboard.css
-// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/942379bdd3244f9b2a320ed5b6e9be3fdf2ae2b2/src/ui-repairs.css
+// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/17fb5c8f25ac04454555d8b5a7f006a20b981fdc/src/studio-catalog.json
+// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/17fb5c8f25ac04454555d8b5a7f006a20b981fdc/src/studio-profiles.json
+// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/17fb5c8f25ac04454555d8b5a7f006a20b981fdc/src/studio-directory-icons.json
+// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/17fb5c8f25ac04454555d8b5a7f006a20b981fdc/src/studio-logos.json
+// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/17fb5c8f25ac04454555d8b5a7f006a20b981fdc/src/content.css
+// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/17fb5c8f25ac04454555d8b5a7f006a20b981fdc/src/effects.css
+// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/17fb5c8f25ac04454555d8b5a7f006a20b981fdc/src/settings-ui.css
+// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/17fb5c8f25ac04454555d8b5a7f006a20b981fdc/src/hero-banner.css
+// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/17fb5c8f25ac04454555d8b5a7f006a20b981fdc/src/home-dashboard.css
+// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/17fb5c8f25ac04454555d8b5a7f006a20b981fdc/src/ui-repairs.css
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -11817,6 +11817,41 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         sync();
       }
 
+      const fallbackScoreSections = '.old_list,#blockHotAnime,[id^="blockAnimeNewArrive"]';
+      const fallbackScoreObserver =
+        typeof IntersectionObserver === 'function' &&
+        new IntersectionObserver(
+          (entries) => {
+            for (const { target, isIntersecting } of entries) {
+              if (!isIntersecting) continue;
+              fallbackScoreObserver.unobserve(target);
+              fetchFallbackPosterScore(target);
+            }
+          },
+          { rootMargin: '120px' },
+        );
+
+      function fetchFallbackPosterScore(card) {
+        if (
+          !card.isConnected ||
+          card.dataset.aniScoreRequested ||
+          card.querySelector('.ani-poster-score')
+        )
+          return;
+        card.dataset.aniScoreRequested = 'true';
+        const section = card.closest(fallbackScoreSections);
+        aniFetch(card.href, { timeoutMs: 8000 })
+          .then((response) => (response.ok ? response.text() : ''))
+          .then((html) => {
+            const score = parseScoreFromVideoHtml(html);
+            if (score && card.isConnected && section?.isConnected) {
+              card.dataset.aniRelatedScore = score;
+              enhancePosterRails([section]);
+            }
+          })
+          .catch(() => {});
+      }
+
       function enhancePosterRails(sections) {
         syncNativeWatch();
         for (const section of sections ||
@@ -11942,21 +11977,19 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             if (
               !scoreText &&
               image &&
-              section.matches('.old_list,#blockHotAnime,[id^="blockAnimeNewArrive"]') &&
+              section.matches(fallbackScoreSections) &&
               !card.dataset.aniScoreRequested &&
               card.matches('a[href*="animeRef.php?sn="],a[href*="animeVideo.php?sn="]')
             ) {
-              card.dataset.aniScoreRequested = 'true';
-              aniFetch(card.href)
-                .then((response) => (response.ok ? response.text() : ''))
-                .then((html) => {
-                  const value = parseScoreFromVideoHtml(html);
-                  if (value && card.isConnected) {
-                    card.dataset.aniRelatedScore = value;
-                    enhancePosterRails();
-                  }
-                })
-                .catch(() => {});
+              if (
+                fallbackScoreObserver &&
+                !section.querySelector('.ani-owned-rating-toggle:checked')
+              ) {
+                fallbackScoreObserver.observe(card);
+              } else {
+                if (fallbackScoreObserver) fallbackScoreObserver.unobserve(card);
+                fetchFallbackPosterScore(card);
+              }
             }
             if (score && !score.classList.contains('ani-rating-source'))
               score.classList.add('ani-rating-source');
@@ -12304,6 +12337,13 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           input.addEventListener('change', sync);
           actions.append(group);
           sync();
+          if (section?.matches(fallbackScoreSections)) {
+            const loadScoresForSort = () => {
+              if (input.checked) enhancePosterRails([section]);
+            };
+            input.addEventListener('change', loadScoresForSort);
+            loadScoresForSort();
+          }
         }
         const qaInfoSvg =
           '<svg class="ani-info-i-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4"/><circle cx="12" cy="8.2" r="0.6" fill="currentColor" stroke="none"/></svg>';
