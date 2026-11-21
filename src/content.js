@@ -7894,6 +7894,7 @@
       let credits = [];
       let introScrollObserver;
       const escHtml = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      let staffGridObserver;
       const populateIntroPane = () => {
         if (!introPane) return;
         const acgUrl = document.querySelector('section.data a[href*="acgDetail.php"]')?.href;
@@ -8131,6 +8132,7 @@
           html += '</section>';
         }
         const prevScroll = introPane.querySelector('.ani-sidebar-scroll')?.scrollTop || 0;
+        staffGridObserver?.disconnect();
         introPane.innerHTML = html + '</div>';
         for (const {name,grid} of groups) {
           if (grid?.children.length) introPane.querySelector(`[data-credit-panel="${name}"]`).append(grid.cloneNode(true));
@@ -8143,6 +8145,23 @@
           for (const panel of introPane.querySelectorAll('[data-credit-panel]')) panel.hidden = panel.dataset.creditPanel !== choice.dataset.creditChoice;
         };
         window.__aniIconifyInfoLinks?.(introPane);
+        const staffGrid = introPane.querySelector('[data-credit-panel="製作團隊"] .ani-side-meta-grid');
+        if (staffGrid && typeof ResizeObserver === 'function') {
+          let previousWidth = 0;
+          staffGridObserver = new ResizeObserver(([entry]) => {
+            const width = entry.contentRect.width;
+            if (width === previousWidth) return;
+            previousWidth = width;
+            if (!width) return;
+            const gap = parseFloat(getComputedStyle(staffGrid).columnGap) || 0;
+            const items = [...staffGrid.querySelectorAll(':scope > .ani-side-meta-item')];
+            staffGrid.classList.add('ani-measure-staff');
+            const widths = items.map(item => item.getBoundingClientRect().width);
+            staffGrid.classList.remove('ani-measure-staff');
+            items.forEach((item, index) => item.classList.toggle('is-wide', widths[index] > (width - gap) / 2));
+          });
+          staffGridObserver.observe(staffGrid);
+        }
         const newScrollEl = introPane.querySelector('.ani-sidebar-scroll');
         newScrollEl.scrollTop = prevScroll;
         const syncIntroEdges = () => {
