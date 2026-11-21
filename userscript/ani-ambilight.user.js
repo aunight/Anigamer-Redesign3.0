@@ -2,7 +2,7 @@
 // @name         動畫瘋沉浸重製版 3.0｜Anigamer-Redesign 3.0
 // @namespace    https://ani.gamer.com.tw/ani-ambientlight
 // @author       秋夜
-// @version      3.0.11
+// @version      3.1.0
 // @description  動畫瘋環境光與沉浸重製介面：毛玻璃播放器、開場液態波紋、首頁足跡熱力圖＆天氣實況（靈感改作自 Hinataragi/anigamer-ambilight、jiuyang5354/bilibili-margin 與 GreatUI）。非官方。
 // @homepageURL  https://github.com/aunight/Anigamer-Redesign3.0
 // @supportURL   https://github.com/aunight/Anigamer-Redesign3.0/issues
@@ -13,16 +13,16 @@
 // @run-at       document-start
 // @inject-into  content
 // @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
-// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/17fb5c8f25ac04454555d8b5a7f006a20b981fdc/src/studio-catalog.json
-// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/17fb5c8f25ac04454555d8b5a7f006a20b981fdc/src/studio-profiles.json
-// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/17fb5c8f25ac04454555d8b5a7f006a20b981fdc/src/studio-directory-icons.json
-// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/17fb5c8f25ac04454555d8b5a7f006a20b981fdc/src/studio-logos.json
-// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/17fb5c8f25ac04454555d8b5a7f006a20b981fdc/src/content.css
-// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/17fb5c8f25ac04454555d8b5a7f006a20b981fdc/src/effects.css
-// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/17fb5c8f25ac04454555d8b5a7f006a20b981fdc/src/settings-ui.css
-// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/17fb5c8f25ac04454555d8b5a7f006a20b981fdc/src/hero-banner.css
-// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/17fb5c8f25ac04454555d8b5a7f006a20b981fdc/src/home-dashboard.css
-// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/17fb5c8f25ac04454555d8b5a7f006a20b981fdc/src/ui-repairs.css
+// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/04801a2a4a4346c06e1b0eb883061de5ee341593/src/studio-catalog.json
+// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/04801a2a4a4346c06e1b0eb883061de5ee341593/src/studio-profiles.json
+// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/04801a2a4a4346c06e1b0eb883061de5ee341593/src/studio-directory-icons.json
+// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/04801a2a4a4346c06e1b0eb883061de5ee341593/src/studio-logos.json
+// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/04801a2a4a4346c06e1b0eb883061de5ee341593/src/content.css
+// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/04801a2a4a4346c06e1b0eb883061de5ee341593/src/effects.css
+// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/04801a2a4a4346c06e1b0eb883061de5ee341593/src/settings-ui.css
+// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/04801a2a4a4346c06e1b0eb883061de5ee341593/src/hero-banner.css
+// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/04801a2a4a4346c06e1b0eb883061de5ee341593/src/home-dashboard.css
+// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/04801a2a4a4346c06e1b0eb883061de5ee341593/src/ui-repairs.css
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -20513,6 +20513,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               .replace(/&/g, '&amp;')
               .replace(/</g, '&lt;')
               .replace(/>/g, '&gt;');
+          let staffGridObserver;
           const populateIntroPane = () => {
             if (!introPane) return;
             const acgUrl = document.querySelector('section.data a[href*="acgDetail.php"]')?.href;
@@ -20878,6 +20879,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               html += '</section>';
             }
             const prevScroll = introPane.querySelector('.ani-sidebar-scroll')?.scrollTop || 0;
+            staffGridObserver?.disconnect();
             introPane.innerHTML = html + '</div>';
             for (const { name, grid } of groups) {
               if (grid?.children.length)
@@ -20895,6 +20897,27 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                 panel.hidden = panel.dataset.creditPanel !== choice.dataset.creditChoice;
             };
             window.__aniIconifyInfoLinks?.(introPane);
+            const staffGrid = introPane.querySelector(
+              '[data-credit-panel="製作團隊"] .ani-side-meta-grid',
+            );
+            if (staffGrid && typeof ResizeObserver === 'function') {
+              let previousWidth = 0;
+              staffGridObserver = new ResizeObserver(([entry]) => {
+                const width = entry.contentRect.width;
+                if (width === previousWidth) return;
+                previousWidth = width;
+                if (!width) return;
+                const gap = parseFloat(getComputedStyle(staffGrid).columnGap) || 0;
+                const items = [...staffGrid.querySelectorAll(':scope > .ani-side-meta-item')];
+                staffGrid.classList.add('ani-measure-staff');
+                const widths = items.map((item) => item.getBoundingClientRect().width);
+                staffGrid.classList.remove('ani-measure-staff');
+                items.forEach((item, index) =>
+                  item.classList.toggle('is-wide', widths[index] > (width - gap) / 2),
+                );
+              });
+              staffGridObserver.observe(staffGrid);
+            }
             const newScrollEl = introPane.querySelector('.ani-sidebar-scroll');
             newScrollEl.scrollTop = prevScroll;
             const syncIntroEdges = () => {
