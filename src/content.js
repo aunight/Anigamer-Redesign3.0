@@ -340,7 +340,6 @@
     const timer=setTimeout(cleanup,duration+120);
     element.addEventListener('animationend',end);element.classList.add('animate__animated',animationClass);siteAnimations.set(element,cleanup);
   }
-  document.addEventListener('visibilitychange', () => document.body?.classList.toggle('ani-background-paused',document.hidden));
   function applySelectedFont() {
     const font =
       settings.fontFamily === 'custom' && settings.customFontName
@@ -430,7 +429,6 @@
     } else if(!settings.themeEnabled) themeLock?.remove();
     if (document.body) {
       document.body.classList.toggle('ani-home-page',location.pathname === '/' || location.pathname === '/index.php');
-      document.body.classList.toggle('ani-video-page', location.pathname === '/animeVideo.php');
       document.body.classList.toggle('ani-party-page',location.pathname === '/party_entrance.php');
       document.body.classList.toggle('ani-collection-page',location.pathname === '/mygather.php');
       document.body.classList.toggle('ani-history-page',location.pathname === '/viewList.php');
@@ -5472,6 +5470,36 @@
   }
   const historyMetadata = new Map(), historyMetadataQueue = [];
   let historyMetadataActive = 0;
+  let historyUpdateFrame = null;
+  const historyMetadataCards = new WeakMap();
+  const historyMetadataObserver = location.pathname === '/viewList.php' && typeof IntersectionObserver === 'function'
+    ? new IntersectionObserver((entries, observer) => {
+      for (const { target, isIntersecting } of entries) {
+        if (!isIntersecting || !target.isConnected) continue;
+        observer.unobserve(target);
+        const { id, href } = historyMetadataCards.get(target);
+        loadHistoryMetadata(id, href);
+      }
+    }, { rootMargin: '450px 0px' })
+    : null;
+
+  function observeHistoryMetadata(card, id, href) {
+    if (!id) return;
+    if (!historyMetadataObserver) { loadHistoryMetadata(id, href); return; }
+    const previous = historyMetadataCards.get(card);
+    if (previous?.id === id && previous.href === href) return;
+    historyMetadataCards.set(card, { id, href });
+    historyMetadataObserver.observe(card);
+  }
+
+  function scheduleHistoryRefresh() {
+    if (historyUpdateFrame !== null) return;
+    historyUpdateFrame = requestAnimationFrame(() => {
+      historyUpdateFrame = null;
+      enhanceWatchHistory();
+    });
+  }
+
   function loadHistoryMetadata(id,href) {
     if(!id||!/^\d+$/.test(id)||typeof fetch!=='function')return;
     const url=new URL(href||`animeRef.php?sn=${id}`,location.href);
@@ -5498,12 +5526,12 @@
             meta={tags,studio:studioNode?.textContent.trim().replace(/\s+/g,' ').slice(0,80)||'',duration,favorite:ids?{acgSn:ids[1],animeSn:ids[2],saved:favorite.classList.contains('ordered')}:null};
             try{localStorage.setItem(cacheKey,JSON.stringify({value:meta,expires:Date.now()+5*60000}));}catch{}
           }
-          historyMetadata.set(key,meta);enhanceWatchHistory();
+          historyMetadata.set(key,meta);scheduleHistoryRefresh();
         })().catch(()=>{}).finally(()=>{historyMetadataActive--;work();});
       }
     };work();
   }
-  window.addEventListener('resize',()=>{if(location.pathname==='/viewList.php')requestAnimationFrame(enhanceWatchHistory);},{passive:true});
+  if (location.pathname === '/viewList.php') window.addEventListener('resize', scheduleHistoryRefresh, { passive: true });
   function animateHistoryDrawer(details, open) {
     details.getAnimations?.().forEach(animation => animation.cancel());
     if (open) details.style.display = 'block';
@@ -5532,6 +5560,9 @@
     if(location.pathname!=='/viewList.php'||!settings.themeEnabled)return;
     for(const card of document.querySelectorAll('.user-watch-list > .anime-card')) {
       card.classList.add('ani-history-card');
+      const cover = card.querySelector('.postimg img');
+      if (cover && !cover.hasAttribute('loading')) cover.loading = 'lazy';
+      if (cover && !cover.hasAttribute('decoding')) cover.decoding = 'async';
       const title=card.querySelector('.history-anime-title');
       title?.removeAttribute('title');
       if (title) {
@@ -5609,7 +5640,7 @@
         let updated=info.querySelector('.ani-history-update');if(!updated){updated=document.createElement('p');updated.className='ani-history-update';}if(updated.parentElement!==secondary)secondary.append(updated);
         const scorePill=card.querySelector('.ani-history-score'),poster=card.querySelector('.postimg');if(scorePill&&poster&&scorePill.parentElement!==poster)poster.append(scorePill);
         const latest=nativeText.match(/已更新至\s*第?\s*(\d+)\s*集/),updateText=latest?`已更新至 EP.${latest[1]}`:'';if(updated.textContent!==updateText)updated.textContent=updateText;
-        loadHistoryMetadata(id,href);
+        observeHistoryMetadata(card, id, href);
       }
       const actions=card.querySelector('.btn-set');
       if(data?.favorite&&actions&&!card.querySelector('.ani-history-favorite')){
