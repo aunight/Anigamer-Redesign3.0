@@ -326,7 +326,7 @@ test('Phase 2: catalog negative tags, keyword exclude, origin classification, pa
         <div class="theme-detail-info-block"><p class="theme-time">年份：2026/04</p><span class="theme-number">共12集</span></div>
       </div></div>
     </a>`;
-  const group = (name) => `<section class="class_list"><div class="class-header"><h3>${name}</h3></div><ul><li class="now"><a href="#">全部</a></li><li><a href="animeList.php?tags=異世界">異世界</a></li><li><a href="animeList.php?tags=戀愛">戀愛</a></li></ul></section>`;
+  const group = (name) => `<section class="class_list"><div class="class-header"><h3>${name}</h3></div><ul><li class="now"><a href="#">全部</a></li><li><a href="animeList.php?tags=異世界">異世界</a></li><li><a href="animeList.php?tags=戀愛">戀愛</a></li>${name === '對象' ? '<li><a href="animeList.php?tags=年齡限制">年齡限制</a></li>' : ''}</ul></section>`;
   const html = `<div id="BH_background"><div class="container"><div class="animate-theme-list">
     <div class="filter-section">${group('屬性')}<div class="class-wrapper">${group('類型')}${group('對象')}</div></div>
     <div class="theme-list-block">${catCard(201, '轉生異世界冒險')}${catCard(202, '敗北女角太多了')}${catCard(203, '夜晚的水母不會游泳')}</div>
@@ -390,6 +390,13 @@ test('Phase 2: catalog negative tags, keyword exclude, origin classification, pa
   d.querySelector('.ani-exclude-clear').click();
   await new Promise((r) => setTimeout(r, 30));
   assert.equal(cards.some((c) => c.classList.contains('ani-catalog-excluded')), false);
+  cards[1].insertAdjacentHTML('beforeend', '<span class="label-edition ani-age-restricted" aria-label="年齡限制">18+</span>');
+  const ageExclusion = d.querySelector('.ani-exclude-pill[data-exclude-tag="年齡限制"]');
+  ageExclusion.click();
+  assert(cards[1].classList.contains('ani-catalog-excluded'), 'Age badges exclude cards before the tag request returns');
+  assert(!cards[2].classList.contains('ani-catalog-excluded'));
+  ageExclusion.click();
+  assert(!cards[1].classList.contains('ani-catalog-excluded'));
 
   // 2B: Origin filter queries worker meta & keeps only 原創動畫 (sn=203)
   const originStatus = d.querySelector('.ani-origin-status');
@@ -792,6 +799,15 @@ test('bilingual tracks use Japanese and Chinese labels and only movie tracks omi
     assert.deepEqual(tabs.map(tab => tab.textContent), labels);
     assert.equal(document.querySelector('.ani-ep-row.is-playing')?.dataset.videoSn, '8102');
     assert.equal(document.querySelector('.ani-ep-row .ani-ep-meta strong')?.textContent, movieTracks.includes(1) ? '電影' : 'EP.1');
+    const episodeButton = document.querySelector('.ani-episodes-control');
+    const drawer = document.querySelector('.ani-player-episodes-drawer');
+    episodeButton.click();
+    assert.equal(drawer.getAttribute('aria-hidden'), 'true');
+    episodeButton.click();
+    drawer.querySelector('.ani-ep-drawer-panel').click();
+    assert.equal(drawer.getAttribute('aria-hidden'), 'false');
+    document.body.click();
+    assert.equal(drawer.getAttribute('aria-hidden'), 'true');
   }
 });
 
@@ -831,6 +847,35 @@ test('Polar Opposites season two fills missing Traditional Chinese episode descr
     assert.equal(card.querySelector('.ani-episode-card-synopsis').dataset.text, synopsis);
     assert.equal(card.querySelector('.ani-episode-card-details > .ani-episode-card-synopsis + time')?.className, 'ani-episode-card-date');
   }
+});
+
+test('next episode uses a future schedule and the work widescreen cover', async t => {
+  const dom = bootEnhancements(`<div id="BH_background">
+    <div class="anime-title"><div class="anime_name"><h1>連載測試 [1]</h1></div><div class="anime_info_detail">上架時間：2099/11/13 23:30</div></div>
+    <section class="season"><ul><li><a href="?sn=5001">1</a></li><li><a href="?sn=5002">2</a></li></ul></section>
+  </div>`, '/animeVideo.php?sn=5001', {
+    chromeMock: { runtime: { lastError: null, sendMessage(message, done) {
+      done(message.type === 'ani-fetch-episode-titles' ? {
+        ok: true, episodes: { 3: { jp: '最終話', airdate: '2099-11-27', description: '旅程の終わり。\n\n兩人再次踏上旅程。\n腳本：測試' } },
+      } : {});
+    } } },
+  });
+  t.after(() => dom.window.close());
+  dom.window.AniAmbientFetch = async () => ({
+    ok: true, text: async () => '<div class="program-card"><div class="title-row"><h5 class="title">連載測試</h5></div><div class="theme-img-bg" style="background-image: url(https://example.com/work.jpg)"></div></div>',
+  });
+  await new Promise(resolve => setTimeout(resolve, 50));
+  const preview = dom.window.document.querySelector('.ani-upcoming-episode');
+  assert.equal(preview.querySelector('strong').textContent, '連載測試');
+  assert.equal(preview.previousElementSibling.querySelector('a').textContent, '2');
+  assert.equal(preview.querySelector('.ani-upcoming-episode-status').textContent, '即將更新');
+  assert.equal(preview.querySelector('time span').textContent, '11/27 23:30');
+  assert.equal(preview.querySelector('time').dateTime, '2099-11-27T23:30:00+08:00');
+  assert.equal(preview.querySelector('.ani-upcoming-episode-number').textContent, 'EP.3');
+  assert.equal(preview.querySelector('img').src, 'https://example.com/work.jpg');
+  assert.equal(preview.querySelector('.ani-episode-frame time').dateTime, '2099-11-27T23:30:00+08:00');
+  assert.equal(preview.querySelector('.ani-episode-card-description').dataset.text, '兩人再次踏上旅程。');
+  assert.equal(preview.querySelector('.ani-upcoming-hover-date'), null);
 });
 
 test('Slime first season uses verified Traditional Chinese summaries only for episodes 1 to 24', async t => {

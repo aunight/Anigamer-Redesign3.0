@@ -3,12 +3,15 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {JSDOM} from 'jsdom';
 
-test('history keeps native controls and keeps each episode list inside its owning card slot',async()=>{
+test('history keeps native controls and keeps each episode list inside its owning card slot',async t=>{
   const dom=new JSDOM(`<body><div id="BH_background"><div class="center-container"><div class="history"><div class="user-watch-list" id="list-1"><div class="anime-card"><a class="click-area" href="animeVideo.php?sn=1"></a><div class="postimg"><img></div><div class="anime-info"><p class="history-anime-title">測試作品</p><div class="tm-acg-rating">★ 4.8 / 5 (10 人評價)</div><p class="history-lastwatch">觀看至 <span class="user-lastwatch">6</span> 集｜已更新至 第12集</p><p class="history-lastwatch">觀看至 06 分 00 秒</p><div class="progress-bar"><div class="progress" style="width:50%"></div></div></div><div class="delete-btn" data-anime-sn="101"></div><div class="btn-set"><a class="play-btn" href="animeVideo.php?sn=1"></a><div class="more-btn" data-anime="101"></div></div></div></div><div class="user-watch-list" id="list-2"></div><div class="user-watchTime-list" id="sub-list-101" data-anime-sn="101" style="display:none"><a href="animeVideo.php?sn=1"><span class="history-list-anime-title">測試作品 [6]</span><span class="date">2026.11.17 12:30</span></a></div></div></div></div></body>`,{url:'https://ani.gamer.com.tw/viewList.php?u=fixture',runScripts:'outside-only',pretendToBeVisual:true});
+  t.after(() => dom.window.close());
   const w=dom.window,d=w.document;
   w.matchMedia=()=>({matches:false,addEventListener(){}});
   w.fetch=async()=>({ok:true,text:async()=>'<li class="type"><span class="title">作品分類</span><ul class="tag-list"><li class="tag">奇幻</li><li class="tag">冒險</li></ul></li><li><span class="title">製作廠商</span><p>NUT</p></li><script type="application/ld+json">{"@type":"VideoObject","duration":"PT24M"}</script><button class="ordered" onclick="animefun.toggleGather(123,101,$(this))"></button>'});
   const more=d.querySelector('.more-btn'),details=d.querySelector('.user-watchTime-list');
+  d.querySelector('.center-container').insertAdjacentHTML('afterbegin', '<div class="theme-title-block"><h1 class="theme-title">觀看紀錄</h1></div>');
+  d.querySelector('.progress-bar').remove();
   d.querySelector('.user-lastwatch').textContent = '1';
   d.querySelector('.click-area').setAttribute('href', 'animeVideo.php?sn=99');
   details.insertAdjacentHTML('beforeend', '<a href="animeVideo.php?sn=7"><span class="history-list-anime-title">測試作品 ［７］</span></a>');
@@ -23,7 +26,7 @@ test('history keeps native controls and keeps each episode list inside its ownin
   d.querySelector('.center-container').append(details);
   let nativeClicks=0;
   more.addEventListener('click',()=>{nativeClicks++;const open=d.querySelector('.anime-card').classList.toggle('is-open');details.style.display=open?'block':'none';});
-  for(const file of ['settings.js','content.js'])w.eval(fs.readFileSync(`src/${file}`,'utf8'));
+  for(const file of ['settings.js','content.js','enhancements.js'])w.eval(fs.readFileSync(`src/${file}`,'utf8'));
   assert(d.body.classList.contains('ani-history-page'));
   assert.equal(details.parentElement.id, 'list-1');
   assert(details.previousElementSibling.classList.contains('anime-card'));
@@ -36,12 +39,17 @@ test('history keeps native controls and keeps each episode list inside its ownin
   assert.equal(more.getAttribute('aria-expanded'),'false');
   more.click();await new Promise(r=>setTimeout(r,40));
   assert.equal(more.getAttribute('aria-expanded'),'true');
-  assert.equal(d.querySelector('.ani-history-meta').textContent,'動畫類型：奇幻、冒險\n製作組：NUT','metadata comes from native public labels');
+  const metadata = d.querySelector('.ani-history-meta:not(.ani-history-studios)');
+  assert.deepEqual([...metadata.querySelectorAll('.ani-history-meta-tag')].map(tag => tag.textContent), ['奇幻', '冒險']);
+  const studio = d.querySelector('.history-anime-title + .ani-history-studios a.ani-history-studio-link');
+  assert.equal(studio.textContent, 'NUT');
+  assert.equal(studio.getAttribute('href'), '/animeList.php?studio=NUT');
+  assert(studio.querySelector('svg'));
   assert.equal(nativeClicks,1,'native event remains attached');
   assert.equal(d.querySelector('.ani-history-timing').textContent,'6:00 / 24:00');
   assert.equal(d.querySelector('.ani-history-episode').textContent,'EP.6');
   assert.equal(d.querySelector('.theme-number').textContent,'7 / 12 集');
-  assert.equal(d.querySelector('.ani-history-progress-text').textContent,'已看 25% · 剩餘 18分00秒');
+  assert.equal(d.querySelector('.ani-history-progress-text'), null);
   assert(d.querySelector('.postimg .ani-history-score'),'rating shares the poster corner design');
   assert.equal(d.querySelector('.history-list-anime-title').textContent,'EP.6');
   assert.deepEqual(
@@ -67,6 +75,8 @@ test('history keeps native controls and keeps each episode list inside its ownin
   w.innerWidth=1200;w.dispatchEvent(new w.Event('resize'));await new Promise(r=>setTimeout(r,40));
   assert.equal(details.parentElement.id,'list-1');
   await new Promise(r=>setTimeout(r,220));
+  assert.equal(d.querySelectorAll('.ani-perm-tabs [role="tab"]').length, 2);
+  assert.equal(d.querySelector('.ani-rating-options'), null);
   assert.equal(d.querySelectorAll('.ani-history-score').length,1,'enhancement is idempotent');
   more.dataset.listCode='1';w.dispatchEvent(new w.Event('resize'));await new Promise(r=>setTimeout(r,40));
   const beforeNative=nativeClicks;more.click();assert.equal(nativeClicks,beforeNative,'native clone/slide handler is bypassed for native history cards');assert.equal(details.style.display,'block');assert.equal(d.querySelectorAll('.tmp-list').length,0);more.click();assert.equal(details.style.display,'none');

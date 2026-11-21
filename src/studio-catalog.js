@@ -2,6 +2,10 @@ const favoriteStudioPrefix = 'ani-favorite-studio:';
 const studioCatalogData = STUDIO_CATALOG_DATA;
 const studioProfileData = STUDIO_PROFILE_DATA;
 const studioDirectoryIcons = STUDIO_DIRECTORY_ICON_DATA;
+
+function studioAliasLabel(alias) {
+  return (/[\p{Script=Hiragana}\p{Script=Katakana}]/u.test(alias) ? '日文名：' : '常稱：') + alias;
+}
 const studioRepresentativeTitles = {
   ufotable: ['鬼滅之刃', 'Fate/stay night [Unlimited Blade Works]'],
   'A-1 Pictures': ['刀劍神域', '輝夜姬想讓人告白'],
@@ -16,6 +20,7 @@ const studioRepresentativeTitles = {
   bones: ['鋼之鍊金術師 BROTHERHOOD', '路人超能100'],
   'Doga Kobo': ['【我推的孩子】', '輕鬆百合'],
   'Studio Pierrot': ['火影忍者', 'BLEACH 死神'],
+  WolfsBane: ['彼得・格里爾的賢者時間', '快藏好！瑪琪娜同學!!'],
 };
 const studioLogosNeedingLightContrast = new Set([
   'A-1 Pictures', 'MAPPA', '8-bit', 'WIT STUDIO', 'bones', 'Doga Kobo', 'Studio Pierrot', 'Actas',
@@ -319,7 +324,7 @@ function mountStudioCatalog(host, enhanceCards, loadMetadata, {favoritesOnly = f
         if (entry?.wide || name === 'Ascension' || name === 'Asread') mark.classList.add('ani-studio-mark-wide');
         if (logo) {
           mark.classList.add('ani-studio-mark-logo');
-          if (name === 'CloverWorks') mark.classList.add('ani-studio-mark-light-tile');
+          if (name === 'CloverWorks') mark.classList.add('ani-studio-logo-white');
           if (studioLogosNeedingLightContrast.has(name)) mark.classList.add('ani-studio-logo-light-contrast');
         }
         image.src = logo || entry.image;
@@ -425,7 +430,7 @@ function mountStudioCatalog(host, enhanceCards, loadMetadata, {favoritesOnly = f
       portrait.append(studioMark(name), favoriteButton(name));
       const [alias] = profiles.get(name) || [];
       identity.append(title);
-      if (alias && alias !== displayName) identity.append(el('small', '', '常稱：' + alias));
+      if (alias && alias !== displayName) identity.append(el('small', '', studioAliasLabel(alias)));
       const actions=el('div','ani-studio-actions');
       const watch = watchButton(() => {
         if (!cards.size) loadFeatured(name);
@@ -509,6 +514,7 @@ function mountStudioCatalog(host, enhanceCards, loadMetadata, {favoritesOnly = f
       toggle.type = 'button';
       const logo = el('span', 'ani-studio-feature-logo');
       if (studioLogosNeedingLightContrast.has(name)) logo.classList.add('ani-studio-logo-light-contrast');
+      if (name === 'CloverWorks') logo.classList.add('ani-studio-logo-white');
       if (logos[name]) {
         const image = el('img');
         image.src = logos[name];
@@ -534,7 +540,7 @@ function mountStudioCatalog(host, enhanceCards, loadMetadata, {favoritesOnly = f
       const nameWidth = [...displayName].reduce((width, character) =>
         width + (/\s/.test(character) ? 0.38 : /^[MWmw]$/.test(character) ? 1 : /^[A-Z]$/.test(character) ? 0.82 : /^[\x00-\x7f]$/.test(character) ? 0.68 : 1.08), 0);
       card.style.setProperty('--ani-studio-name-width', String(Math.max(1, nameWidth)));
-      if (alias && alias !== displayName) details.append(el('small', '', '常稱：' + alias));
+      if (alias && alias !== displayName) details.append(el('small', '', studioAliasLabel(alias)));
       const examples = studioRepresentativeTitles[name] ?? [];
       const titleLength = Math.max(0, ...examples.map(title =>
         [...title].reduce((length, character) => length + (/^[\x00-\x7f]$/.test(character) ? 0.55 : 1), 0)
@@ -566,7 +572,7 @@ function mountStudioCatalog(host, enhanceCards, loadMetadata, {favoritesOnly = f
     const search = el('input', 'ani-studio-search');
     search.type = 'search';
     search.value = studioQuery;
-    search.placeholder = '搜尋名稱或常稱';
+    search.placeholder = '搜尋名稱或別名';
     search.setAttribute('aria-label', '搜尋其他製作組');
     const searchField = el('div', 'ani-studio-search-field');
     searchField.append(search, icon('search'));

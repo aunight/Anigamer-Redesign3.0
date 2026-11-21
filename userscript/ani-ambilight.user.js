@@ -2,7 +2,7 @@
 // @name         動畫瘋沉浸重製版 3.0｜Anigamer-Redesign 3.0
 // @namespace    https://ani.gamer.com.tw/ani-ambientlight
 // @author       秋夜
-// @version      3.0.8
+// @version      3.0.9
 // @description  動畫瘋環境光與沉浸重製介面：毛玻璃播放器、開場液態波紋、首頁足跡熱力圖＆天氣實況（靈感改作自 Hinataragi/anigamer-ambilight、jiuyang5354/bilibili-margin 與 GreatUI）。非官方。
 // @homepageURL  https://github.com/aunight/Anigamer-Redesign3.0
 // @supportURL   https://github.com/aunight/Anigamer-Redesign3.0/issues
@@ -13,16 +13,16 @@
 // @run-at       document-start
 // @inject-into  content
 // @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
-// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/54cd8c557ffdb2bc11c59c350bc463bb8375599b/src/studio-catalog.json
-// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/54cd8c557ffdb2bc11c59c350bc463bb8375599b/src/studio-profiles.json
-// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/54cd8c557ffdb2bc11c59c350bc463bb8375599b/src/studio-directory-icons.json
-// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/54cd8c557ffdb2bc11c59c350bc463bb8375599b/src/studio-logos.json
-// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/54cd8c557ffdb2bc11c59c350bc463bb8375599b/src/content.css
-// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/54cd8c557ffdb2bc11c59c350bc463bb8375599b/src/effects.css
-// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/54cd8c557ffdb2bc11c59c350bc463bb8375599b/src/settings-ui.css
-// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/54cd8c557ffdb2bc11c59c350bc463bb8375599b/src/hero-banner.css
-// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/54cd8c557ffdb2bc11c59c350bc463bb8375599b/src/home-dashboard.css
-// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/54cd8c557ffdb2bc11c59c350bc463bb8375599b/src/ui-repairs.css
+// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/23e2eed6aecb7f73a53d06c1ecb781a2cf74f498/src/studio-catalog.json
+// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/23e2eed6aecb7f73a53d06c1ecb781a2cf74f498/src/studio-profiles.json
+// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/23e2eed6aecb7f73a53d06c1ecb781a2cf74f498/src/studio-directory-icons.json
+// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/23e2eed6aecb7f73a53d06c1ecb781a2cf74f498/src/studio-logos.json
+// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/23e2eed6aecb7f73a53d06c1ecb781a2cf74f498/src/content.css
+// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/23e2eed6aecb7f73a53d06c1ecb781a2cf74f498/src/effects.css
+// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/23e2eed6aecb7f73a53d06c1ecb781a2cf74f498/src/settings-ui.css
+// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/23e2eed6aecb7f73a53d06c1ecb781a2cf74f498/src/hero-banner.css
+// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/23e2eed6aecb7f73a53d06c1ecb781a2cf74f498/src/home-dashboard.css
+// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/23e2eed6aecb7f73a53d06c1ecb781a2cf74f498/src/ui-repairs.css
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -357,26 +357,163 @@ Additional section icons: film, newspaper, comments.
     const repairsLines = GM_getResourceText('ani_repairs_css').replaceAll('\r\n', '\n').split('\n');
     for (const [start, count, added] of [
       [
-        4727,
+        389,
         0,
         [
-          'body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .subtitle .ani-plus-danmu-count > div > div {',
-          '  width: auto !important;',
-          '  padding-inline: 0 !important;',
+          'body.ani-ambientlight-ui.ani-video-page[data-ani-background]::before { animation: none; }',
+        ],
+      ],
+      [
+        625,
+        1,
+        [
+          'body.ani-history-page.ani-ambientlight-page #BH_background .ani-history-card .progress-bar { display: block !important; max-width: none; width: 100%; height: 5px !important; margin: 0 !important; border-radius: 999px !important; overflow: hidden; background: #ffffff12 !important; opacity: 1; }',
+        ],
+      ],
+      [
+        631,
+        0,
+        [
+          "body.ani-history-page.ani-ambientlight-page #BH_background .ani-history-position .progress-bar[aria-valuenow]:not([aria-valuenow='0']) > .progress {",
+          '  min-width: 2px;',
+          '}',
+        ],
+      ],
+      [683, 2, []],
+      [700, 1, []],
+      [
+        1774,
+        0,
+        [
+          'body.ani-layout-watch.ani-layout-news.ani-ambientlight-ui #BH_background > .container-player:has(> section.player) > .animate-theme-list:has(.theme-extend-block) .extend-card .extend-title {',
+          '  font-size: clamp(16px, 1.15vw, 20px) !important;',
+          '}',
+          'body.ani-layout-watch.ani-layout-news.ani-ambientlight-ui #BH_background > .container-player:has(> section.player) > .animate-theme-list:has(.theme-extend-block) .extend-card .extend-content {',
+          '  font-size: 13px !important;',
+          '}',
+          '',
+          '@media (min-width: 1500px) {',
+          '  body.ani-ambientlight-page.ani-ambientlight-ui.ani-layout-watch #BH_background .theme-extend-block:has(> :nth-child(3 of .extend-card)):not(:has(> :nth-child(4 of .extend-card))) {',
+          '    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;',
+          '  }',
+          '  body.ani-layout-watch.ani-layout-news.ani-ambientlight-ui #BH_background > .container-player:has(> section.player) > .animate-theme-list:has(.theme-extend-block) .theme-extend-block:has(> :nth-child(2 of .extend-card)) > .extend-card:first-child {',
+          '    grid-column: auto !important;',
+          '    grid-template-columns: minmax(104px, min(30%, 220px)) minmax(0, 1fr) !important;',
+          '    min-height: 0 !important;',
+          '  }',
+          '  body.ani-ambientlight-page.ani-ambientlight-ui.ani-layout-watch #BH_background .theme-extend-block:not(:has(> :nth-child(2 of .extend-card))) > .extend-card {',
+          '    max-width: 1080px !important;',
+          '  }',
+          '  body.ani-layout-watch.ani-layout-news.ani-ambientlight-ui #BH_background > .container-player:has(> section.player) > .animate-theme-list .extend-card :is(.extend-title, .extend-content) {',
+          '    align-self: stretch;',
+          '    max-width: none !important;',
+          '    text-wrap: wrap;',
+          '  }',
+          '}',
+          '',
+        ],
+      ],
+      [
+        4011,
+        0,
+        [
+          'body.ani-ambientlight-page.ani-ambientlight-ui #BH_background > .container-player:has(> section.player):has(.plus_imagetool_box.ani-tools-collapsed) > .anime-title {',
+          '  padding-block-start: 6px !important;',
+          '}',
+          'body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .plus_imagetool_box.ani-tools-collapsed {',
+          '  margin-block-end: 4px !important;',
+          '}',
+        ],
+      ],
+      [4214, 0, ['  font-size: clamp(20px, 1.9vw, 27px) !important;']],
+      [
+        5212,
+        0,
+        [
+          '/* Leave room above the control bar for the rewind and fast-forward buttons. */',
+          'body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.videoframe, #ani_video):has(#ani_video:not(.vjs-ad-playing, .vjs-ad-loading) .ani-playback-seek-group, > .vjs-control-bar .ani-playback-seek-group) .ani-skip-intro-pill {',
+          '  bottom: 174px !important;',
+          '}',
+        ],
+      ],
+      [5509, 0, ['  width: 36px !important;']],
+      [
+        7446,
+        2,
+        [
+          'body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.ani-episode-shelf, .anime-title, ul.season, .season) :is(li.ani-last-watched, li.saw):not(.playing) > a:not(.ani-episode-cards a),',
+          'body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.ani-episode-shelf, .anime-title, ul.season, .season) li:not(.playing) > a.saw:not(.ani-episode-cards a) {',
+        ],
+      ],
+      [
+        9936,
+        0,
+        [
+          'body.ani-layout-comments > .pswp.pswp--open {',
+          '  position: fixed;',
+          '  z-index: 2147483647;',
+          '}',
+          '',
+          'body.ani-layout-comments > .pswp .pswp__img {',
+          '  border-radius: 16px;',
+          '}',
+          '',
+          'body.ani-layout-comments #w-post-box :is(img[data-evt-show-img], [data-evt-show-img] img) {',
+          '  cursor: zoom-in;',
+          '}',
+          '',
+          '@media (hover: hover) and (pointer: fine) {',
+          '  body.ani-layout-comments #BH_background #w-post-box .reply-content__cont img[data-ani-image-expanded] {',
+          '    width: var(--ani-expanded-comment-width);',
+          '    max-width: 100% !important;',
+          '    max-height: none !important;',
+          '  }',
+          '}',
+          '',
+        ],
+      ],
+      [10188, 1, []],
+      [
+        10777,
+        1,
+        ['  .ani-tools-toggle-btn:is(:hover, :focus-visible) > :is(svg, .ani-tools-toggle-label),'],
+      ],
+      [
+        10784,
+        0,
+        [
+          'body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .plus_imagetool_box',
+          '  .ani-tools-toggle-btn:is(:hover, :focus-visible) > svg path {',
+          '  stroke: var(--ani-accent, #3dafb6) !important;',
           '}',
         ],
       ],
       [
-        5459,
-        4,
+        11386,
+        0,
         [
-          'body.ani-ambientlight-ui #BH_background :is(#ani-info, #ani-tab-content-intro) a:is(.ani-yt-link, :has(.ani-yt-svg)) {',
-          '  background: transparent !important;',
-          '  border-color: transparent !important;',
-          '  box-shadow: none !important;',
+          '.ani-studio-feature-logo > .ani-studio-mark:has(> img):not(:has(> .ani-studio-mark-fallback)) {',
+          '  width: 78%;',
+          '  height: 78%;',
+          '  min-width: 0;',
+          '  min-height: 0;',
           '}',
-          'body.ani-ambientlight-ui #BH_background :is(#ani-info, #ani-tab-content-intro) a:is(.ani-yt-link, :has(.ani-yt-svg)):is(:hover, :focus-visible) .ani-yt-svg {',
-          '  color: #ff7777 !important;',
+        ],
+      ],
+      [11405, 1, ['  gap:6px;']],
+      [
+        11422,
+        1,
+        [
+          '.ani-studio-feature-works {display:grid;gap:4px;margin-block:4px;font-size:15px;line-height:1.4;}',
+        ],
+      ],
+      [
+        11487,
+        1,
+        [
+          '.ani-studio-logo-white > img {filter:brightness(0) invert(1);}',
+          'body.ani-light-mode .ani-studio-logo-white {background-color:#263749;border-radius:8px;}',
         ],
       ],
     ].reverse())
@@ -475,7 +612,7 @@ body.ani-history-page.ani-ambientlight-page #BH_background .ani-perm-card .ani-p
 body.ani-history-page.ani-ambientlight-page #BH_background .ani-perm-card .ani-perm-title[data-ani-marquee='true'] {
   text-overflow: clip !important;
 }
-:is(.ani-fs-title-main, .ani-fs-subtitle, .ani-perm-title)[data-ani-marquee='true'] {
+:is(.ani-fs-title-main, .ani-fs-subtitle, .ani-perm-title, .ani-episode-card-heading)[data-ani-marquee='true'] {
   mask-image: linear-gradient(to right, transparent 0%, #000 12px, #000 calc(100% - 18px), transparent 100%) !important;
   -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 12px, #000 calc(100% - 18px), transparent 100%) !important;
 }
@@ -638,6 +775,12 @@ body.ani-ambientlight-ui #BH_background .animate-theme-list:has(> [data-ani-regi
   flex-shrink: 0;
 }
 
+/* The watch-history toast uses the lower-right corner on playback pages. */
+body.ani-ambientlight-page:has(.ani-bgm-toast) .ani-enh-toast {
+  top: 76px;
+  bottom: auto;
+}
+
 /* ── Unified 2-Column Filter Rows & White Header Icons (matches .ani-browse-filters section.class_list) ── */
 body #BH_background .filter-section.ani-browse-filters :is(.ani-exclude-panel, .ani-origin-panel, .ani-custom-status-filter, .ani-perm-filter-row),
 .ani-perm-filter-card .ani-perm-filter-row {
@@ -713,6 +856,8 @@ body #BH_background :is(
   .ani-origin-pill,
   .ani-exclude-clear,
   .ani-perm-btn,
+  .ani-history-meta-tag,
+  .ani-history-studio-link,
   .ani-page-quick-btn,
   .ani-page-go-btn,
   .ani-ep-group-btn
@@ -737,6 +882,47 @@ body #BH_background :is(
   cursor: pointer !important;
   outline: none !important;
   transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1), background-color 160ms ease, border-color 160ms ease, color 160ms ease, box-shadow 160ms ease !important;
+}
+.ani-history-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.ani-history-meta-row + .ani-history-meta-row { margin-top: 7px; }
+.ani-history-meta-icon { display: inline-flex; flex: none; }
+body #BH_background .ani-history-meta.ani-history-studios {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  margin-top: 0;
+  padding-top: 0;
+}
+body #BH_background .ani-history-meta :is(.ani-history-meta-tag, .ani-history-studio-link) {
+  height: auto !important;
+  min-height: 23px;
+  padding: 3px 8px !important;
+  font-size: 13px !important;
+}
+body #BH_background .ani-history-meta .ani-history-meta-tag {
+  border-radius: 5px !important;
+  cursor: inherit !important;
+}
+body #BH_background .ani-history-meta .ani-history-studio-link {
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
+  border-radius: 999px !important;
+}
+body #BH_background .ani-history-meta .ani-history-studio-link:is(:hover, :focus-visible) {
+  border-color: var(--ani-accent, #9ce7e9) !important;
+  color: var(--ani-accent, #9ce7e9) !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+body #BH_background .ani-history-meta .ani-history-studio-link:focus-visible {
+  outline: 2px solid var(--ani-accent, #9ce7e9) !important;
+  outline-offset: 2px;
 }
 body #BH_background :is(
   .ani-custom-status-filter li button,
@@ -2471,7 +2657,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
 html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li:has(> a:is(:hover,:focus-visible:not(.season:has(.ani-episode-cards > li > a:hover) *))) {
   z-index: 2;
 }
-html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li > a {
+html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li > :is(a, .ani-upcoming-episode-card) {
   --ani-episode-glass: rgb(12 26 46 / 78%);
   --ani-episode-border: var(--ani-line);
   display: flex !important; flex-direction: column; align-items: stretch !important;
@@ -2571,11 +2757,98 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
   color: #b4c5d8; font-size: 12px; line-height: 1.65; font-weight: 400;
 }
 .ani-episode-card-description::before { display: none; }
-body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]::before {
+.ani-episode-card-description:is(:not([data-text]), [data-text=""]):not(:has(.ani-episode-card-date[data-label])) {
+  display: none;
+}
+.ani-episode-cards a:has(.ani-episode-card-heading[data-ani-marquee='true']) .ani-episode-card-description {
+  display: block;
+}
+.ani-episode-cards a:is(:hover, :focus-visible):has(.ani-episode-card-heading[data-ani-marquee='true']) .ani-episode-card-heading {
+  opacity: 0;
+}
+.ani-episode-cards a:is(:hover, :focus-visible):has(.ani-episode-card-heading[data-ani-marquee='true']) .ani-episode-card-synopsis-reveal {
+  top: calc(-1 * var(--ani-episode-title-lift, 25px));
+  padding-top: 0;
+  min-height: calc(100% + var(--ani-episode-title-lift, 25px) + 11px);
+}
+.ani-episode-cards a:has(.ani-episode-card-heading[data-ani-marquee='true']) .ani-episode-card-description[data-text=""] > .ani-episode-card-synopsis-reveal {
+  min-height: 0;
+  padding-bottom: 8px;
+}
+.ani-episode-cards a:has(.ani-episode-card-heading[data-ani-marquee='true']) .ani-episode-card-details[data-title]:not([data-title=""])::before {
+  content: attr(data-title);
+  color: #fff;
+  font-size: clamp(15px, 1.05vw, 18px);
+  line-height: 1.4;
+  font-weight: 700;
+  white-space: normal;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+.ani-episode-cards a:has(.ani-episode-card-heading[data-ani-marquee='true']) .ani-episode-card-synopsis[data-text]:not([data-text=""]) {
+  margin-top: 7px;
+}
+body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]:not([data-text=""])::before {
   content: attr(data-text); display: -webkit-box; overflow: hidden;
   block-size: 2lh;
   margin-top: 7px;
   -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+}
+.season ul > .ani-upcoming-episode {
+  display: none !important;
+}
+html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .ani-upcoming-episode {
+  display: flex !important;
+  align-self: stretch;
+  padding: 0 !important;
+  background: transparent !important;
+}
+.ani-upcoming-episode-card > .ani-episode-card-metadata {
+  justify-content: flex-start;
+}
+.ani-episode-cards .ani-episode-original-label {
+  display: none !important;
+}
+.ani-episode-frame[data-ani-episode-completed] .ani-episode-card-progress::before {
+  background: #f47296;
+}
+.ani-upcoming-episode-number {
+  position: absolute;
+  bottom: 8px;
+  left: 5px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: rgb(10 23 41 / 62%);
+  backdrop-filter: blur(10px) saturate(130%);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.ani-upcoming-episode .ani-episode-frame img[hidden] {
+  display: none;
+}
+.ani-upcoming-episode .ani-episode-frame img {
+  filter: brightness(.65);
+}
+.ani-blur-episode-thumbnails .ani-upcoming-episode .ani-episode-frame img {
+  filter: brightness(.65) blur(8px);
+}
+.ani-upcoming-episode time {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  inset-inline-end: 5px;
+  bottom: 8px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: rgb(10 23 41 / 72%);
+  backdrop-filter: blur(10px) saturate(130%);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: nowrap;
 }
 .ani-episode-cards a:is(:hover,:focus-visible:not(.season:has(.ani-episode-cards > li > a:hover) *)) .ani-episode-card-description::before {
   visibility: hidden;
@@ -2592,11 +2865,12 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
 .ani-episode-card-details {
   display: flex; flex: 1; flex-direction: column; min-height: 0; min-width: 0;
 }
-.ani-episode-cards a:is(:hover,:focus-visible:not(.season:has(.ani-episode-cards > li > a:hover) *)) .ani-episode-card-synopsis-reveal:has(.ani-episode-card-date[data-label], .ani-episode-card-synopsis[data-text]:not([data-text=""])) {
+.ani-episode-cards a:is(:hover,:focus-visible:not(.season:has(.ani-episode-cards > li > a:hover) *)) .ani-episode-card-synopsis-reveal:has(.ani-episode-card-date[data-label], .ani-episode-card-synopsis[data-text]:not([data-text=""])),
+.ani-episode-cards a:is(:hover, :focus-visible):has(.ani-episode-card-heading[data-ani-marquee='true']) .ani-episode-card-synopsis-reveal {
   visibility: visible; opacity: 1; pointer-events: auto;
 }
 .ani-hide-episode-description .ani-episode-card-synopsis { display: none; }
-.ani-hide-episode-description .ani-episode-card-synopsis-reveal:not(:has(.ani-episode-card-date[data-label])) { display: none; }
+.ani-hide-episode-description .ani-episode-cards a:not(:has(.ani-episode-card-heading[data-ani-marquee='true'])) .ani-episode-card-synopsis-reveal:not(:has(.ani-episode-card-date[data-label])) { display: none; }
 .ani-episode-card-synopsis[data-text=""] { display: none; }
 .ani-episode-card-synopsis[data-text]:not([data-text=""])::before {
   content: attr(data-text); display: -webkit-box;
@@ -3658,7 +3932,7 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
         const creditCard =
           '<div class="ani-credit-card">' +
           '<div class="ani-credit-head">' +
-          '<div><h4 class="ani-credit-title">動畫瘋沉浸重製版 3.0</h4><p class="ani-credit-sub">Anigamer-Redesign 3.0 · v3.0.8 · MIT</p></div>' +
+          '<div><h4 class="ani-credit-title">動畫瘋沉浸重製版 3.0</h4><p class="ani-credit-sub">Anigamer-Redesign 3.0 · v3.0.9 · MIT</p></div>' +
           '<div class="ani-credit-actions">' +
           '<button type="button" class="ani-pill-btn is-accent" data-action="check-update"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg><span>檢測更新</span></button>' +
           '<a class="ani-pill-btn" href="https://github.com/aunight/Anigamer-Redesign3.0" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true" fill="currentColor" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M6.766 11.328c-2.063-.25-3.516-1.734-3.516-3.656 0-.781.281-1.625.75-2.188-.203-.515-.172-1.609.063-2.062.625-.078 1.468.25 1.968.703.594-.187 1.219-.281 1.985-.281.765 0 1.39.094 1.953.265.484-.437 1.344-.765 1.969-.687.218.422.25 1.515.046 2.047.5.593.766 1.39.766 2.203 0 1.922-1.453 3.375-3.547 3.64.531.344.89 1.094.89 1.954v1.625c0 .468.391.734.86.547C13.781 14.359 16 11.53 16 8.03 16 3.61 12.406 0 7.984 0 3.563 0 0 3.61 0 8.031a7.88 7.88 0 0 0 5.172 7.422c.422.156.828-.125.828-.547v-1.25c-.219.094-.5.156-.75.156-1.031 0-1.64-.562-2.078-1.609-.172-.422-.36-.672-.719-.719-.187-.015-.25-.093-.25-.187 0-.188.313-.328.625-.328.453 0 .844.281 1.25.86.313.452.64.655 1.031.655s.641-.14 1-.5c.266-.265.47-.5.657-.656" /></svg><span>GitHub</span></a>' +
@@ -3988,7 +4262,7 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
           const msgEl = root.querySelector('[data-update-status]');
           if (!msgEl) return;
           msgEl.textContent = '正在檢測最新版本…';
-          const curVer = '3.0.6';
+          const curVer = '3.0.9';
           const parseVer = (v) =>
             String(v || '')
               .replace(/^v/i, '')
@@ -4775,6 +5049,12 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
     const studioCatalogData = JSON.parse(GM_getResourceText('ani_catalog'));
     const studioProfileData = JSON.parse(GM_getResourceText('ani_profiles'));
     const studioDirectoryIcons = JSON.parse(GM_getResourceText('ani_directory_icons'));
+
+    function studioAliasLabel(alias) {
+      return (
+        (/[\p{Script=Hiragana}\p{Script=Katakana}]/u.test(alias) ? '日文名：' : '常稱：') + alias
+      );
+    }
     const studioRepresentativeTitles = {
       ufotable: ['鬼滅之刃', 'Fate/stay night [Unlimited Blade Works]'],
       'A-1 Pictures': ['刀劍神域', '輝夜姬想讓人告白'],
@@ -4789,6 +5069,7 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
       bones: ['鋼之鍊金術師 BROTHERHOOD', '路人超能100'],
       'Doga Kobo': ['【我推的孩子】', '輕鬆百合'],
       'Studio Pierrot': ['火影忍者', 'BLEACH 死神'],
+      WolfsBane: ['彼得・格里爾的賢者時間', '快藏好！瑪琪娜同學!!'],
     };
     const studioLogosNeedingLightContrast = new Set([
       'A-1 Pictures',
@@ -5221,7 +5502,7 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
               mark.classList.add('ani-studio-mark-wide');
             if (logo) {
               mark.classList.add('ani-studio-mark-logo');
-              if (name === 'CloverWorks') mark.classList.add('ani-studio-mark-light-tile');
+              if (name === 'CloverWorks') mark.classList.add('ani-studio-logo-white');
               if (studioLogosNeedingLightContrast.has(name))
                 mark.classList.add('ani-studio-logo-light-contrast');
             }
@@ -5353,7 +5634,8 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
           portrait.append(studioMark(name), favoriteButton(name));
           const [alias] = profiles.get(name) || [];
           identity.append(title);
-          if (alias && alias !== displayName) identity.append(el('small', '', '常稱：' + alias));
+          if (alias && alias !== displayName)
+            identity.append(el('small', '', studioAliasLabel(alias)));
           const actions = el('div', 'ani-studio-actions');
           const watch = watchButton(() => {
             if (!cards.size) loadFeatured(name);
@@ -5463,6 +5745,7 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
           const logo = el('span', 'ani-studio-feature-logo');
           if (studioLogosNeedingLightContrast.has(name))
             logo.classList.add('ani-studio-logo-light-contrast');
+          if (name === 'CloverWorks') logo.classList.add('ani-studio-logo-white');
           if (logos[name]) {
             const image = el('img');
             image.src = logos[name];
@@ -5500,7 +5783,8 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
             0,
           );
           card.style.setProperty('--ani-studio-name-width', String(Math.max(1, nameWidth)));
-          if (alias && alias !== displayName) details.append(el('small', '', '常稱：' + alias));
+          if (alias && alias !== displayName)
+            details.append(el('small', '', studioAliasLabel(alias)));
           const examples = studioRepresentativeTitles[name] ?? [];
           const titleLength = Math.max(
             0,
@@ -5540,7 +5824,7 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
         const search = el('input', 'ani-studio-search');
         search.type = 'search';
         search.value = studioQuery;
-        search.placeholder = '搜尋名稱或常稱';
+        search.placeholder = '搜尋名稱或別名';
         search.setAttribute('aria-label', '搜尋其他製作組');
         const searchField = el('div', 'ani-studio-search-field');
         searchField.append(search, icon('search'));
@@ -5895,7 +6179,7 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
               const description =
                 traditionalEpisodeDescriptions.get(ep.id) ||
                 (typeof ep.desc === 'string' ? ep.desc.trim() : '');
-              if (!name && !description) continue;
+              if (!name && !jp && !description && !ep.airdate) continue;
               matchedEpisodes[String(epNum)] = {
                 name,
                 jp,
@@ -5906,7 +6190,7 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
             const total = Number(epJson?.total) || rows.length;
             if (offset + 100 >= total || rows.length < 100) break;
           }
-          if (Object.values(matchedEpisodes).some((ep) => ep.name)) return matchedEpisodes;
+          if (Object.values(matchedEpisodes).some((ep) => ep.name || ep.jp)) return matchedEpisodes;
           if (Object.keys(episodes).length === 0) episodes = matchedEpisodes;
         } catch {}
       }
@@ -8561,6 +8845,165 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
       'use strict';
       if (globalThis.__aniTopbarBridgeInstalled) return;
       globalThis.__aniTopbarBridgeInstalled = true;
+
+      function installCommentImageZoom() {
+        const hoverAnimations = new Map();
+        const motion = matchMedia('(prefers-reduced-motion: reduce)');
+        const hoverTiming = { duration: 220, easing: 'cubic-bezier(.25,.7,.35,1)' };
+
+        function animateHoverChange(element, from, to) {
+          const animation = element.animate([from, to], hoverTiming);
+          hoverAnimations.set(element, animation);
+          animation.finished.then(
+            () => {
+              if (hoverAnimations.get(element) === animation) hoverAnimations.delete(element);
+            },
+            () => {},
+          );
+        }
+
+        function resizeThumbnail(event, expanded) {
+          if (event.pointerType !== 'mouse') return;
+          const thumbnail = event.target.closest?.(
+            '#w-post-box .reply-content__cont img[data-evt-show-img]',
+          );
+          if (!thumbnail?.naturalWidth || !document.body.classList.contains('ani-layout-comments'))
+            return;
+          if (!expanded && !thumbnail.hasAttribute('data-ani-image-expanded')) return;
+
+          const before = new Map();
+          if (!motion.matches) {
+            const imageRect = thumbnail.getBoundingClientRect();
+            before.set(thumbnail, imageRect);
+            const comments = thumbnail.closest('#w-post-box');
+            const viewportLimit = innerHeight + (expanded ? 0 : imageRect.height);
+            // These siblings follow the image in the layout, from its caption to later comments.
+            for (let node = thumbnail; node !== comments; node = node.parentElement) {
+              for (
+                let sibling = node.nextElementSibling;
+                sibling;
+                sibling = sibling.nextElementSibling
+              ) {
+                const rect = sibling.getBoundingClientRect();
+                if (rect.top >= viewportLimit) break;
+                if (rect.width && rect.height && rect.bottom > 0) before.set(sibling, rect);
+              }
+            }
+            for (const element of hoverAnimations.keys()) {
+              if (element.isConnected && !element.contains(thumbnail) && !before.has(element)) {
+                before.set(element, element.getBoundingClientRect());
+              }
+            }
+          }
+          for (const animation of hoverAnimations.values()) animation.cancel();
+          hoverAnimations.clear();
+          thumbnail.removeAttribute('data-ani-image-expanded');
+          thumbnail.style.removeProperty('--ani-expanded-comment-width');
+          if (expanded) {
+            const originalWidth = thumbnail.getBoundingClientRect().width;
+            if (originalWidth) {
+              const scale = thumbnail.naturalHeight > thumbnail.naturalWidth ? 2.6 : 1.8;
+              thumbnail.style.setProperty(
+                '--ani-expanded-comment-width',
+                `${originalWidth * scale}px`,
+              );
+              thumbnail.setAttribute('data-ani-image-expanded', '');
+            }
+          }
+
+          // Measure the final layout before starting any compositor animations.
+          const after = [...before.keys()].map((element) => [
+            element,
+            element.getBoundingClientRect(),
+          ]);
+          for (const [element, rect] of after) {
+            const previous = before.get(element);
+            const x = previous.left - rect.left;
+            const y = previous.top - rect.top;
+            if (element.matches('img[data-evt-show-img]') && rect.width && rect.height) {
+              const scaleX = previous.width / rect.width;
+              const scaleY = previous.height / rect.height;
+              if (
+                Math.abs(scaleX - 1) + Math.abs(scaleY - 1) < 0.001 &&
+                Math.abs(x) + Math.abs(y) < 0.5
+              )
+                continue;
+              animateHoverChange(
+                element,
+                {
+                  transformOrigin: 'top left',
+                  transform: `translate(${x}px, ${y}px) scale(${scaleX}, ${scaleY})`,
+                },
+                { transformOrigin: 'top left', transform: 'none' },
+              );
+            } else if (Math.abs(y) >= 0.5) {
+              animateHoverChange(element, { translate: `0 ${y}px` }, { translate: '0 0' });
+            }
+          }
+        }
+
+        document.addEventListener('pointerover', (event) => resizeThumbnail(event, true));
+        document.addEventListener('pointerout', (event) => resizeThumbnail(event, false));
+
+        document.addEventListener(
+          'click',
+          (event) => {
+            if (!document.body.classList.contains('ani-layout-comments')) return;
+            const thumbnail = event.target.closest?.(
+              '#w-post-box img[data-evt-show-img], #w-post-box [data-evt-show-img] img',
+            );
+            const PhotoSwipe = window.PhotoSwipe;
+            const viewer = document.querySelector('.pswp');
+            if (!thumbnail || typeof PhotoSwipe !== 'function' || !viewer) return;
+
+            if (viewer.parentElement !== document.body) document.body.append(viewer);
+            const enhancedPhotoSwipe = new Proxy(PhotoSwipe, {
+              construct(target, args, newTarget) {
+                if (args[0] === viewer) {
+                  const options = args[3];
+                  const index = options.index ?? 0;
+                  const item = args[2][index];
+                  if (item && thumbnail.complete && thumbnail.naturalWidth) {
+                    item.msrc = thumbnail.currentSrc || thumbnail.src;
+                  }
+                  if (motion.matches) {
+                    options.showAnimationDuration = 0;
+                    options.hideAnimationDuration = 0;
+                  } else if (item && thumbnail.naturalWidth && thumbnail.naturalHeight) {
+                    if (!item.w || !item.h) {
+                      item.w = thumbnail.naturalWidth;
+                      item.h = thumbnail.naturalHeight;
+                    }
+                    options.getThumbBoundsFn = (activeIndex) => {
+                      if (activeIndex !== index || !thumbnail.isConnected) return;
+                      const rect = thumbnail.getBoundingClientRect();
+                      if (rect.width > 0)
+                        return { x: rect.left, y: rect.top + window.scrollY, w: rect.width };
+                    };
+                  }
+                }
+                return Reflect.construct(target, args, newTarget);
+              },
+            });
+            // The site's delegated click constructs PhotoSwipe synchronously.
+            window.PhotoSwipe = enhancedPhotoSwipe;
+            setTimeout(() => {
+              if (window.PhotoSwipe === enhancedPhotoSwipe) window.PhotoSwipe = PhotoSwipe;
+            }, 0);
+          },
+          true,
+        );
+      }
+
+      if (typeof GM_getValue === 'function' && typeof window.PhotoSwipe !== 'function') {
+        const script = document.createElement('script');
+        script.textContent = `(${installCommentImageZoom.toString()})();`;
+        (document.head || document.documentElement).append(script);
+        script.remove();
+      } else {
+        installCommentImageZoom();
+      }
+
       document.addEventListener('click', (event) => {
         if (!document.body.classList.contains('ani-layout-comments')) return;
         const report = event.target.closest?.('#w-post-box a.reply_menu');
@@ -9182,6 +9625,7 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
             'ani-home-page',
             location.pathname === '/' || location.pathname === '/index.php',
           );
+          document.body.classList.toggle('ani-video-page', location.pathname === '/animeVideo.php');
           document.body.classList.toggle(
             'ani-party-page',
             location.pathname === '/party_entrance.php',
@@ -9451,7 +9895,7 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
         label.innerHTML =
           '<span class="ani-section-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3.5" y="4" width="7" height="7" rx="1.6"/><rect x="13.5" y="4" width="7" height="7" rx="1.6"/><rect x="3.5" y="13" width="7" height="7" rx="1.6"/><rect x="13.5" y="13" width="7" height="7" rx="1.6"/></svg></span>集數';
         const count = document.createElement('span');
-        count.textContent = `${season.querySelectorAll('li').length} 集`;
+        count.textContent = `${season.querySelectorAll('li:not(.ani-upcoming-episode)').length} 集`;
         heading.append(label, count);
         shelf.append(heading, season);
         title.after(shelf);
@@ -10092,7 +10536,9 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
       function readCommentRecommendations(source) {
         const cards = new Map();
         for (const card of source.querySelectorAll('a.theme-list-main[href*="animeRef.php"]')) {
-          const url = new URL(card.getAttribute('href'), location.origin);
+          const href = card.getAttribute('href');
+          if (!URL.canParse(href, location.origin)) continue;
+          const url = new URL(href, location.origin);
           const title = card.querySelector('.theme-name')?.textContent.trim();
           const image = card.querySelector('img.theme-img');
           if (url.origin !== location.origin || !title || !image) continue;
@@ -10117,7 +10563,8 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
         return [...cards.entries()];
       }
 
-      const recommendationMetadataKey = 'ani-recommendation-metadata-v1';
+      const recommendationMetadataKey = 'ani-recommendation-metadata-v2';
+      const recommendationPoolKey = 'ani-comment-recommendation-pool-v1';
       const recommendationSeason = (date) => {
         const match = String(date || '').match(/(\d{4})[/-](\d{1,2})/);
         const month = Number(match?.[2]);
@@ -10128,19 +10575,21 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
 
       function readRecommendationIndex(data) {
         const cards = new Map();
-        const airing = [...(data?.newAnime?.date || []), ...(data?.newAnime?.popular || [])];
+        const airing = [data?.newAnime?.date, data?.newAnime?.popular].filter(Array.isArray).flat();
         for (const [entries, scheduled] of [
           [airing, true],
-          [data?.hotAnime || [], false],
-          [data?.newAdded || [], false],
+          [data?.hotAnime, false],
+          [data?.newAdded, false],
         ]) {
+          if (!Array.isArray(entries)) continue;
           for (const work of entries) {
-            if (!/^\d+$/.test(String(work.animeSn)) || !work.title) continue;
+            if (!/^\d+$/.test(String(work?.animeSn)) || !work.title) continue;
             const url = new URL(`/animeRef.php?sn=${work.animeSn}`, location.origin).href;
             const previous = cards.get(url);
             const wideCover = previous?.wideCover || (scheduled ? work.cover : '');
             const views = Number(work.popular);
-            const count = work.totalEpisode || work.info?.match(/共\s*(\d+)\s*集/)?.[1];
+            const count =
+              work.totalEpisode || String(work.info || '').match(/共\s*(\d+)\s*集/)?.[1];
             cards.set(url, {
               title: work.title,
               videoSn: Number(work.videoSn) > 0 ? String(work.videoSn) : previous?.videoSn,
@@ -10164,22 +10613,28 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
       }
 
       async function fetchRecommendationMetadata(href, videoSn) {
-        if (videoSn) {
-          const response = await aniFetch(
-            `https://api.gamer.com.tw/anime/v1/video.php?videoSn=${videoSn}`,
-            { timeoutMs: 6000 },
-          );
-          const anime = response.ok ? (await response.json())?.data?.anime : null;
-          if (anime) {
+        const fromEpisode = async (sn) => {
+          if (!/^\d+$/.test(sn || '') || Number(sn) === 0) return {};
+          try {
+            const response = await aniFetch(
+              `https://api.gamer.com.tw/anime/v1/video.php?videoSn=${sn}`,
+              { timeoutMs: 6000 },
+            );
+            const anime = response.ok ? (await response.json())?.data?.anime : null;
+            if (!anime) return {};
             return {
               score: Number(anime.score) > 0 ? String(anime.score) : '',
               season: recommendationSeason(anime.seasonStart),
               genres: Array.isArray(anime.tags) ? anime.tags.join(' · ') : '',
             };
+          } catch {
+            return {};
           }
-        }
+        };
+        let meta = await fromEpisode(videoSn);
+        if (meta.score && meta.season && meta.genres) return meta;
         const response = await aniFetch(href, { timeoutMs: 6000 });
-        if (!response.ok) return null;
+        if (!response.ok) return Object.values(meta).some(Boolean) ? meta : null;
         const html = await response.text();
         const doc = new DOMParser().parseFromString(html, 'text/html');
         const rows = [...doc.querySelectorAll('li.type')];
@@ -10189,11 +10644,23 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
         const genres = [...doc.querySelectorAll('li.type .tag-list .tag')]
           .map((node) => node.textContent.trim())
           .filter(Boolean);
-        return {
-          score: parseScoreFromVideoHtml(html),
-          season: recommendationSeason(premiere?.querySelector('.content')?.textContent),
-          genres: genres.join(' · '),
+        const episodeUrl = doc.querySelector('meta[property="og:url"]')?.content || '';
+        const resolvedSn = episodeUrl.match(/\/animeVideo\.php\?sn=(\d+)(?:[&#]|$)/)?.[1];
+        if (resolvedSn && resolvedSn !== videoSn) {
+          const resolved = await fromEpisode(resolvedSn);
+          meta = {
+            score: meta.score || resolved.score,
+            season: meta.season || resolved.season,
+            genres: meta.genres || resolved.genres,
+          };
+        }
+        const combined = {
+          score: meta.score || parseScoreFromVideoHtml(html),
+          season:
+            meta.season || recommendationSeason(premiere?.querySelector('.content')?.textContent),
+          genres: meta.genres || genres.join(' · '),
         };
+        return Object.values(combined).some(Boolean) ? combined : null;
       }
 
       async function renderCommentRecommendations(aside) {
@@ -10208,18 +10675,53 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
           } catch {
             // The playback page already includes related works when available.
           }
-          if (!pool.length) {
-            const related = document.querySelector(
+          if (pool.length) {
+            try {
+              localStorage.setItem(
+                recommendationPoolKey,
+                JSON.stringify({ savedAt: Date.now(), entries: pool }),
+              );
+            } catch {}
+          } else {
+            const relatedLists = document.querySelectorAll(
               '#BH_background .old_list:not(:has(.search_result))',
             );
-            if (related) pool = readCommentRecommendations(related);
+            pool = [...new Map([...relatedLists].flatMap(readCommentRecommendations))];
+            if (!pool.length) {
+              try {
+                const cached = JSON.parse(localStorage.getItem(recommendationPoolKey) || 'null');
+                if (Array.isArray(cached?.entries) && Date.now() - cached.savedAt < 86400000) {
+                  pool = cached.entries.filter(
+                    (entry) =>
+                      Array.isArray(entry) &&
+                      entry[1]?.title &&
+                      typeof entry[0] === 'string' &&
+                      entry[0].startsWith(`${location.origin}/animeRef.php?sn=`),
+                  );
+                }
+              } catch {}
+            }
           }
-          if (!pool.length || !aside.isConnected) return;
+          if (!aside.isConnected) return;
           const heading = document.createElement('h3');
           heading.className = 'ani-recommend-heading';
           heading.innerHTML =
             '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linejoin="round" d="m9 3 1.9 5.6L16.5 11l-5.6 2.4L9 19l-2-5.6L1.5 11 7 8.6Z M19 2l1 3 3 1-3 1-1 3-1-3-3-1 3-1Z"/></svg>推薦動畫';
-          aside.append(heading);
+          aside.replaceChildren(heading);
+          if (!pool.length) {
+            const retry = document.createElement('button');
+            retry.type = 'button';
+            retry.className = 'ani-pill-btn';
+            retry.textContent = '重新載入推薦動畫';
+            retry.addEventListener('click', async () => {
+              retry.disabled = true;
+              await renderCommentRecommendations(aside);
+              retry.disabled = false;
+            });
+            aside.append(retry);
+            aside.hidden = false;
+            return;
+          }
           const count = document.querySelector('#w-anime-comment-count');
           const syncCount = () => {
             const total = Number(count?.textContent.replace(/[^0-9]/g, '') || 0);
@@ -10246,30 +10748,33 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
             }
             link.querySelector('.ani-rec-genres').textContent = meta.genres || '';
           };
-          const metadata = new IntersectionObserver(
-            (entries) => {
-              for (const entry of entries) {
-                if (!entry.isIntersecting) continue;
-                const link = entry.target;
-                metadata.unobserve(link);
-                fetchRecommendationMetadata(link.href, link.dataset.videoSn)
-                  .then((meta) => {
-                    if (!meta) return;
-                    metaCache.set(link.href, { ...meta, updatedAt: Date.now() });
-                    if (metaCache.size > 160) metaCache.delete(metaCache.keys().next().value);
-                    try {
-                      localStorage.setItem(
-                        recommendationMetadataKey,
-                        JSON.stringify(Object.fromEntries(metaCache)),
-                      );
-                    } catch {}
-                    if (link.isConnected) renderMetadata(link, meta);
-                  })
-                  .catch(() => {});
-              }
-            },
-            { rootMargin: '1100px 0px' },
-          );
+          const metadata =
+            typeof IntersectionObserver === 'function'
+              ? new IntersectionObserver(
+                  (entries) => {
+                    for (const entry of entries) {
+                      if (!entry.isIntersecting) continue;
+                      const link = entry.target;
+                      metadata.unobserve(link);
+                      fetchRecommendationMetadata(link.href, link.dataset.videoSn)
+                        .then((meta) => {
+                          if (!meta) return;
+                          metaCache.set(link.href, { ...meta, updatedAt: Date.now() });
+                          if (metaCache.size > 160) metaCache.delete(metaCache.keys().next().value);
+                          try {
+                            localStorage.setItem(
+                              recommendationMetadataKey,
+                              JSON.stringify(Object.fromEntries(metaCache)),
+                            );
+                          } catch {}
+                          if (link.isConnected) renderMetadata(link, meta);
+                        })
+                        .catch(() => {});
+                    }
+                  },
+                  { rootMargin: '1100px 0px' },
+                )
+              : null;
           while (pool.length && aside.childElementCount <= 48) {
             const [[href, item]] = pool.splice(Math.floor(Math.random() * pool.length), 1);
             const link = document.createElement('a');
@@ -10277,7 +10782,11 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
             const image = document.createElement('img');
             image.loading = 'lazy';
             image.alt = '';
-            if (item.src) image.src = new URL(item.src, location.origin).href;
+            if (item.src) {
+              try {
+                image.src = new URL(item.src, location.origin).href;
+              } catch {}
+            }
             const copy = document.createElement('span');
             const facts = document.createElement('span');
             facts.className = 'ani-rec-facts';
@@ -10318,7 +10827,7 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
                 const cachedScore = readScoreCache()[item.videoSn]?.s;
                 if (cachedScore) score.textContent = '★ ' + cachedScore;
               }
-              metadata.observe(link);
+              metadata?.observe(link);
             }
             aside.append(link);
           }
@@ -11858,7 +12367,7 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
           bindPosterRail(rail, list, '.theme-list-main', '動畫');
         }
         for (const actions of document.querySelectorAll('.ani-section-actions')) {
-          if (actions.closest('.animate-wish')) continue;
+          if (location.pathname === '/viewList.php' || actions.closest('.animate-wish')) continue;
           let input = actions.querySelector('input.ani-owned-rating-toggle');
           const externalToggle = actions.querySelector(
             'input[type="checkbox"]:not(.ani-owned-rating-toggle)',
@@ -14369,9 +14878,18 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
             else rightGrp.prepend(epBtn);
 
             let epDrawer = playerEl.querySelector('.ani-player-episodes-drawer');
-            let hoverPreview = false;
+            const onEpisodeDrawerOutsideClick = (ev) => {
+              if (
+                epDrawer.isConnected &&
+                epBtn.isConnected &&
+                (epBtn.contains(ev.target) || epDrawer.contains(ev.target))
+              )
+                return;
+              setEpisodeDrawerOpen(false);
+            };
             const setEpisodeDrawerOpen = (open) => {
-              if (!open) hoverPreview = false;
+              if (open) document.addEventListener('click', onEpisodeDrawerOutsideClick, true);
+              else document.removeEventListener('click', onEpisodeDrawerOutsideClick, true);
               epDrawer.classList.toggle('is-open', open);
               epDrawer.inert = !open;
               epDrawer.setAttribute('aria-hidden', String(!open));
@@ -14567,9 +15085,12 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
                     if (!row.isConnected) return;
                     visibleDetails.set(row, details);
                     if (details?.date) setEpisodeDate(row.querySelector('time'), details.date);
-                    const views = details?.views;
-                    if (views != null && views !== '' && Number.isFinite(Number(views))) {
-                      const count = Number(views).toLocaleString('zh-TW');
+                    if (details) {
+                      const views = Number(details.views);
+                      const count =
+                        Number.isFinite(views) && views > 0
+                          ? views.toLocaleString('zh-TW')
+                          : '統計中';
                       const viewsElement = row.querySelector('.ani-ep-views');
                       viewsElement.textContent = count;
                       viewsElement.setAttribute('aria-label', `播放數 ${count}`);
@@ -14761,16 +15282,6 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
               }
             });
             epBtn.setAttribute('aria-expanded', 'false');
-            epBtn.addEventListener('pointerenter', (ev) => {
-              if (ev.pointerType !== 'mouse' || epDrawer.classList.contains('is-open')) return;
-              renderEpDrawer();
-              hoverPreview = true;
-              setEpisodeDrawerOpen(true);
-            });
-            playerEl.addEventListener('pointerleave', () => {
-              if (hoverPreview && !epDrawer.contains(document.activeElement))
-                setEpisodeDrawerOpen(false);
-            });
             epBtn.addEventListener('keydown', (ev) => {
               if (ev.key !== 'Escape' || !epDrawer.classList.contains('is-open')) return;
               ev.stopPropagation();
@@ -14778,11 +15289,6 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
             });
             epBtn.addEventListener('click', (ev) => {
               ev.stopPropagation();
-              if (hoverPreview) {
-                hoverPreview = false;
-                epDrawer.querySelector('[aria-selected="true"]')?.focus();
-                return;
-              }
               const opening = !epDrawer.classList.contains('is-open');
               if (opening) renderEpDrawer();
               setEpisodeDrawerOpen(opening);
@@ -16552,17 +17058,20 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
           const savedPlayback = localEpisodeProgress.get(videoSn);
           const data = { ...metadata, duration: savedPlayback?.durationSec || metadata?.duration };
           if (info) {
-            let meta = info.querySelector('.ani-history-meta');
+            let meta = info.querySelector('.ani-history-meta:not(.ani-history-studios)');
             if (!meta) {
               meta = document.createElement('div');
               meta.className = 'ani-history-meta';
               info.append(meta);
             }
-            const rows = [];
-            if (data?.tags?.length) rows.push(`動畫類型：${data.tags.join('、')}`);
-            if (data?.studio) rows.push(`製作組：${data.studio}`);
-            const text = rows.join('\n');
-            if (meta.textContent !== text) meta.textContent = text;
+            const markup = globalThis.AniEnhancements?.renderHistoryMetadata(
+              data.tags,
+              data.studio,
+            );
+            if (markup && meta.dataset.markup !== markup.genres) {
+              meta.innerHTML = markup.genres;
+              meta.dataset.markup = markup.genres;
+            }
             const nativeText = [...info.querySelectorAll('.history-lastwatch')]
               .map((n) => n.textContent)
               .join(' ');
@@ -16584,33 +17093,26 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
               ? 1
               : (resolved?.progress ??
                 (duration && elapsed ? clamp(elapsed / duration, 0, 1) : nativePosition.fraction));
-            const progress = info.querySelector('.progress-bar'),
-              fill = progress?.querySelector('.progress');
-            if (progress && Number.isFinite(fraction)) {
-              const max = duration || 100;
-              progress.setAttribute('role', 'progressbar');
-              progress.setAttribute('aria-label', '播放進度');
-              progress.setAttribute('aria-valuemin', '0');
-              progress.setAttribute('aria-valuemax', String(max));
-              progress.setAttribute('aria-valuenow', String(fraction * max));
-              const width = `${fraction * 100}%`;
-              if (fill && fill.style.width !== width) fill.style.width = width;
+            let progress = info.querySelector('.progress-bar');
+            if (!progress) {
+              progress = document.createElement('div');
+              progress.className = 'progress-bar';
             }
-            let progressText = info.querySelector('.ani-history-progress-text');
-            if (!progressText) {
-              progressText = document.createElement('p');
-              progressText.className = 'ani-history-progress-text';
+            let fill = progress.querySelector('.progress');
+            if (!fill) {
+              fill = document.createElement('div');
+              fill.className = 'progress';
+              progress.append(fill);
             }
-            const remaining =
-              duration && Number.isFinite(elapsed) ? Math.max(0, duration - elapsed) : undefined;
-            const progressLabel =
-              completed || remaining === 0
-                ? '已看完'
-                : Number.isFinite(remaining)
-                  ? `已看 ${Math.round(clamp((elapsed / duration) * 100, 0, 100))}% · 剩餘 ${Math.floor(remaining / 60)}分${String(Math.floor(remaining % 60)).padStart(2, '0')}秒`
-                  : '';
-            if (progressText.textContent !== progressLabel)
-              progressText.textContent = progressLabel;
+            const progressFraction = Number.isFinite(fraction) ? fraction : 0;
+            const max = duration || 100;
+            progress.setAttribute('role', 'progressbar');
+            progress.setAttribute('aria-label', '播放進度');
+            progress.setAttribute('aria-valuemin', '0');
+            progress.setAttribute('aria-valuemax', String(max));
+            progress.setAttribute('aria-valuenow', String(progressFraction * max));
+            const width = `${progressFraction * 100}%`;
+            if (fill.style.width !== width) fill.style.width = width;
             const episode =
               getHistoryEpisodes(card, id).find((entry) => entry.videoSn === videoSn)?.episode ||
               info.querySelector('.user-lastwatch')?.textContent.trim();
@@ -16644,7 +17146,20 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
               playback.prepend(position);
             }
             if (timing.parentElement !== position) position.prepend(timing);
-            if (progress && progress.parentElement !== position) position.append(progress);
+            if (progress.parentElement !== position) position.append(progress);
+            let studios = info.querySelector('.ani-history-studios');
+            if (markup?.studios) {
+              if (!studios) {
+                studios = document.createElement('div');
+                studios.className = 'ani-history-meta ani-history-studios';
+                studios.setAttribute('aria-label', '製作組');
+                playback.before(studios);
+              }
+              if (studios.dataset.markup !== markup.studios) {
+                studios.innerHTML = markup.studios;
+                studios.dataset.markup = markup.studios;
+              }
+            } else studios?.remove();
             let ep = playback.querySelector('.ani-history-episode');
             if (!ep) {
               ep = document.createElement('span');
@@ -16659,7 +17174,6 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
               secondary.className = 'ani-history-secondary';
               playback.after(secondary);
             }
-            if (progressText.parentElement !== info) playback.after(progressText);
             let updated = info.querySelector('.ani-history-update');
             if (!updated) {
               updated = document.createElement('p');
@@ -21399,9 +21913,14 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
           setTimeout(() => notice?.remove(), 6500);
         }
 
+        function needsSceneColor() {
+          return settings.uiEffectsEnabled && (settings.headerTint > 0 || settings.panelTint > 0);
+        }
+
         function shouldShow() {
           return (
             settings.enabled &&
+            (Number(settings.intensity) > 0 || settings.coverBars || needsSceneColor()) &&
             !failed &&
             !document.hidden &&
             video.duration > 60 &&
@@ -21603,7 +22122,11 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
             1 - trim.left - trim.right,
             1 - trim.top - trim.bottom,
           ];
-          if (renderer && !renderer.draw(video, bounds, sourceCrop, settings)) {
+          if (
+            Number(settings.intensity) > 0 &&
+            renderer &&
+            !renderer.draw(video, bounds, sourceCrop, settings)
+          ) {
             useCanvasFallback();
             applySettings();
             renderer?.draw(video, bounds, sourceCrop, settings);
@@ -21617,14 +22140,15 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
             !video.videoWidth
           )
             return;
-          const fps =
-            settings.fps === 0
-              ? Math.min(effectiveFps, fallbackWithoutFrameCount ? 30 : Infinity)
-              : Math.min(clamp(Number(settings.fps), 5, 60), effectiveFps);
+          const autoFpsLimit = settings.adaptiveQuality || fallbackWithoutFrameCount ? 30 : 60;
+          const fps = Math.min(
+            settings.fps === 0 ? autoFpsLimit : clamp(Number(settings.fps), 5, 60),
+            effectiveFps,
+          );
           // Allow timestamp jitter so 24/30fps videos are not accidentally halved.
           if (
             !geometryChanged &&
-            (settings.fps !== 0 || effectiveFps < 60 || fallbackWithoutFrameCount) &&
+            (settings.fps !== 0 || fps < 60) &&
             now - lastDraw < 1000 / fps - 2
           )
             return;
@@ -21633,19 +22157,20 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
           try {
             const started = performance.now();
             // Submit the current video texture before the occasional CPU readback.
-            paintPageFrame();
+            if (Number(settings.intensity) > 0 || settings.coverBars) paintPageFrame();
             glowVideoWasVisible = videoIsVisible();
             if (geometryChanged) return;
             const renderCost = performance.now() - started;
             // Native theme colors need no video readback when scene tints are off.
             // Black-bar detection runs less often than the frame renderer.
-            const needsSceneColor =
-              settings.uiEffectsEnabled && (settings.headerTint > 0 || settings.panelTint > 0);
+            const sampleSceneColor = needsSceneColor();
             if (
               !samplingFailed &&
-              (needsSceneColor || settings.cropBars || settings.coverBars) &&
+              (sampleSceneColor ||
+                settings.coverBars ||
+                (settings.cropBars && Number(settings.intensity) > 0)) &&
               sampleHandle === null &&
-              (now - lastColorSample >= (needsSceneColor ? 250 : 500) || !hasFrame)
+              (now - lastColorSample >= (sampleSceneColor ? 250 : 500) || !hasFrame)
             ) {
               lastColorSample = now;
               // A separate task keeps synchronous pixel readback out of the frame submission.
@@ -21656,7 +22181,7 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
                   sampleCtx.drawImage(video, 0, 0, SAMPLE_WIDTH, SAMPLE_HEIGHT);
                   const sampled = sampleCtx.getImageData(0, 0, SAMPLE_WIDTH, SAMPLE_HEIGHT);
                   updateCrop(performance.now(), sampled.data);
-                  if (needsSceneColor) {
+                  if (sampleSceneColor) {
                     previousColor = averageEdges(sampled.data);
                     document.body.style.setProperty('--ani-scene-rgb', previousColor.join(','));
                   }
@@ -21678,8 +22203,7 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
                 1,
                 settings.renderFloor / Math.min(innerWidth, settings.renderWidth),
               );
-              if (renderer?.kind === 'gpu') renderScale = Math.max(minScale, renderScale * 0.8);
-              else if (renderScale > minScale) renderScale = Math.max(minScale, renderScale * 0.8);
+              if (renderScale > minScale) renderScale = Math.max(minScale, renderScale * 0.8);
               else effectiveFps = Math.max(15, Math.floor(effectiveFps * 0.8));
               slowFrames = 0;
               lastRecovery = now;
@@ -21696,9 +22220,7 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
             if (now - lastMetrics > 1000) {
               lastMetrics = now;
               pageGlow.dataset.drawCost = meanCost.toFixed(1);
-              pageGlow.dataset.fpsLimit = String(
-                Math.min(settings.fps || effectiveFps, effectiveFps),
-              );
+              pageGlow.dataset.fpsLimit = String(fps);
               const label = settingsPanel?.querySelector('[data-render-status]');
               if (label) {
                 const acceleration =
@@ -21707,7 +22229,7 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
                     : renderer?.acceleration === 'hardware'
                       ? '硬體加速'
                       : '加速狀態未公開';
-                label.textContent = `${renderer?.kind === 'gpu' ? 'WebGL 2' : 'Canvas 相容模式'} · ${acceleration} · ${pageGlow.width} px · ${settings.fps === 0 && effectiveFps === 60 ? '跟隨影片影格' : `上限 ${Math.min(settings.fps || effectiveFps, effectiveFps)} fps`} · 提交 ${meanCost.toFixed(1)} ms${renderer?.kind === 'canvas' ? '。延展效果為相容近似。' : ''}`;
+                label.textContent = `${renderer?.kind === 'gpu' ? 'WebGL 2' : 'Canvas 相容模式'} · ${acceleration} · ${pageGlow.width} px · ${settings.fps === 0 && fps === 60 ? '跟隨影片影格' : `上限 ${fps} fps`} · 提交 ${meanCost.toFixed(1)} ms${renderer?.kind === 'canvas' ? '。延展效果為相容近似。' : ''}`;
               }
             }
           } catch (error) {
@@ -22490,7 +23012,7 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
       const WORK_META_CACHE_KEY = 'aniWorkMetaCacheV3';
       const LOCAL_MUTE_KEY = 'aniLocalMutedSendersV1';
       const EP_TITLES_CACHE_KEY = 'aniEpTitlesCacheV5';
-      const EP_METADATA_VERSION = 4;
+      const EP_METADATA_VERSION = 5;
       // 繁中分集資料依中華電信 MOD 的第一季分集介紹改寫。
       const slimeSeasonOneDescriptions = [
         '三上悟遭人持刀襲擊，醒來後發現自己成了史萊姆，還在洞窟裡遇見被封印的暴風龍。',
@@ -22806,6 +23328,39 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
               "'": '&#39;',
             })[ch],
         );
+
+      const renderHistoryMetadata = (tags, studio) => {
+        const labels = Array.isArray(tags) ? tags.filter(Boolean) : [];
+        const icon = (label, path) =>
+          `<span class="ani-history-meta-icon" role="img" aria-label="${label}" title="${label}">${enhIcon(path)}</span>`;
+        const genres = labels
+          .map((tag) => `<span class="ani-history-meta-tag">${escapeHtml(tag)}</span>`)
+          .join('');
+        const studioName = String(studio ?? '').trim();
+        const credits = !studioName
+          ? []
+          : typeof studioCreditLinks === 'function'
+            ? studioCreditLinks(studioName)
+            : [
+                {
+                  label: studioName,
+                  href: '/animeList.php?studio=' + encodeURIComponent(studioName),
+                },
+              ];
+        const studios = credits
+          .filter(({ href }) => href)
+          .map(
+            ({ label, href }) =>
+              `<a class="ani-history-studio-link" href="${escapeHtml(href)}">${enhIcon('<rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/>', 13)}${escapeHtml(label)}</a>`,
+          )
+          .join('');
+        return {
+          genres: genres
+            ? `<div class="ani-history-meta-row">${icon('動畫類型', '<path d="M3 3h8l10 10-8 8L3 11z"/><circle cx="7.5" cy="7.5" r="1"/>')}${genres}</div>`
+            : '',
+          studios,
+        };
+      };
 
       const safeImageUrl = (raw) => {
         if (!raw) return '';
@@ -24058,19 +24613,11 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
           }
 
           const renderPermCardHtml = (it) => {
-            const { duration, elapsed, progress, completed } = resolveEpisodeProgress({
-              local: it,
-            });
+            const { duration, elapsed, progress } = resolveEpisodeProgress({ local: it });
             const hasDur = duration > 0;
             const hasElapsed = elapsed > 0;
-            const pct = Math.round(progress * 100);
-            const remSec = hasDur && hasElapsed ? Math.max(0, duration - elapsed) : null;
-            const progressLabel =
-              completed || remSec === 0
-                ? '已看完'
-                : remSec !== null
-                  ? `已看 ${pct}% · 剩餘 ${Math.floor(remSec / 60)}分${String(Math.floor(remSec % 60)).padStart(2, '0')}秒`
-                  : '';
+            const pct = progress * 100;
+            const metadata = renderHistoryMetadata(it.tags, it.studio);
             const rawCover = safeImageUrl(it.cover);
             const cover = isLandscapeOgBanner(rawCover) ? '' : rawCover;
             const epKeys = Object.keys(it.episodes || {})
@@ -24089,11 +24636,6 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
             const resumeSn = encodeURIComponent(it.videoSn || it.sn);
             const watchedDate = formatDateTime(it.watchedAt);
             const updateTxt = it.latestEp ? `已更新至 EP.${it.latestEp}` : '';
-            const metaLines = [];
-            if (Array.isArray(it.tags) && it.tags.length)
-              metaLines.push(`動畫類型：${it.tags.join('、')}`);
-            if (it.studio) metaLines.push(`製作組：${it.studio}`);
-            const metaTxt = metaLines.join('\n');
 
             return `
           <div class="ani-perm-watch-slot">
@@ -24106,19 +24648,19 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
               </div>
               <div class="anime-info ani-perm-info">
                 <p class="history-anime-title ani-perm-title"><span class="ani-marquee-track">${escapeHtml(traditionalTitle(it.title))}</span></p>
+                ${metadata.studios ? `<div class="ani-history-meta ani-history-studios" aria-label="製作組">${metadata.studios}</div>` : ''}
                 <div class="ani-history-playback">
                   <div class="ani-history-position">
                     <p class="ani-history-timing"><span class="ani-history-elapsed">${hasElapsed ? formatMmSs(elapsed) : '—'}</span> / ${hasDur ? formatMmSs(duration) : '—'}</p>
-                    ${pct > 0 ? `<div class="progress-bar" role="progressbar" aria-label="觀看進度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><div class="progress ani-perm-bar-fill" style="width:${pct}%"></div></div>` : ''}
+                    <div class="progress-bar" role="progressbar" aria-label="觀看進度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><div class="progress ani-perm-bar-fill" style="width:${pct}%"></div></div>
                   </div>
                   ${it.episode ? `<span class="ani-history-episode ani-perm-ep-badge">EP.${escapeHtml(it.episode)}</span>` : ''}
                 </div>
-                ${progressLabel ? `<p class="ani-history-progress-text">${escapeHtml(progressLabel)}</p>` : ''}
                 <div class="ani-history-secondary">
                   ${updateTxt ? `<p class="ani-history-update">${escapeHtml(updateTxt)}</p>` : '<span></span>'}
                   ${watchedDate ? `<span class="ani-perm-watched-at">${escapeHtml(watchedDate)}</span>` : ''}
                 </div>
-                <div class="ani-history-meta">${escapeHtml(metaTxt)}</div>
+                <div class="ani-history-meta">${metadata.genres}</div>
               </div>
               <div class="btn-set ani-perm-actions">
                 <a class="play-btn round-btn ani-perm-resume" href="animeVideo.php?sn=${resumeSn}">
@@ -24787,12 +25329,23 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
           let originShown = 0;
           let unknownCount = 0;
           const now = Date.now();
+          const excludeRestricted = excludedTags.has('年齡限制');
 
           for (const card of listBlock.querySelectorAll('.theme-list-main')) {
             const sn = getSnFromHref(card.getAttribute('href'));
             const title = getCardCleanTitle(card);
             const text = kwTokens.length ? (card.textContent || '').toLocaleLowerCase() : '';
-            const isExcluded = excludedSns.has(sn) || kwTokens.some((word) => text.includes(word));
+            const restricted =
+              excludeRestricted &&
+              (card.matches('.ani-age-anime') ||
+                card.querySelector('.ani-age-restricted, [aria-label="年齡限制"]') ||
+                [...card.querySelectorAll('.label-edition')].some((label) =>
+                  /^(?:年齡限制|限制級|18禁|18\+)$/.test(label.textContent.trim()),
+                ));
+            const isExcluded =
+              Boolean(restricted) ||
+              excludedSns.has(sn) ||
+              kwTokens.some((word) => text.includes(word));
             card.classList.toggle('ani-catalog-excluded', isExcluded);
             if (isExcluded) excludedCount++;
 
@@ -24869,6 +25422,7 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
 
         const updateTagExclusions = async () => {
           const revision = ++exclusionRevision;
+          applyCatalogFilters();
           const sets = await Promise.all(
             [...excludedTags].map((tag) => fetchTagSnSet(tag, tagLinks.get(tag) || '')),
           );
@@ -25663,6 +26217,7 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
         const { completed, duration, elapsed, displayProgress, watched, watchedWithoutTiming } =
           resolveEpisodeProgress(watch);
         const done = completed || watchedWithoutTiming;
+        frame.toggleAttribute('data-ani-episode-completed', done);
         const displayElapsed = done ? duration : elapsed;
         frame.style.setProperty('--episode-progress', displayProgress * 100 + '%');
         frame.querySelector('.ani-episode-card-progress').hidden = !watched;
@@ -25686,14 +26241,17 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
         const data = await details;
         if (!frame.isConnected || !data) return;
         const date = frame.parentElement.querySelector('.ani-episode-card-date');
-        if (date && data.date) {
-          date.dateTime = data.date.replaceAll('/', '-');
-          date.dataset.label = data.date;
-          date.setAttribute('aria-label', `上架日期 ${data.date}`);
-        }
+        setEpisodeCardDate(date, data.date);
         const watch = episodeCardWatch.get(frame);
         watch.details = data;
         updateEpisodeCardWatch(frame, watch);
+      }
+      function setEpisodeCardDate(element, value) {
+        const date = value?.match(/^\d{4}[-/]\d{2}[-/]\d{2}/)?.[0];
+        if (!element || !date) return;
+        element.dateTime = date.replaceAll('/', '-');
+        element.dataset.label = date.replaceAll('-', '/');
+        element.setAttribute('aria-label', `上架日期 ${element.dataset.label}`);
       }
       async function renderEpisodeCardCover(frame, original, details) {
         const cover = safeImageUrl((await original)?.cover) || safeImageUrl((await details)?.cover);
@@ -25749,9 +26307,15 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
                 const description = card?.querySelector('.ani-episode-card-description');
                 const reveal = description?.querySelector('.ani-episode-card-synopsis-reveal');
                 if (!reveal) continue;
+                const heading = card.querySelector('.ani-episode-card-heading');
+                if (heading)
+                  card.style.setProperty(
+                    '--ani-episode-title-lift',
+                    `${description.offsetTop - heading.offsetTop}px`,
+                  );
                 card.style.setProperty(
                   '--ani-episode-surface-height',
-                  `${description.offsetTop + reveal.offsetHeight + 1}px`,
+                  `${description.offsetTop + reveal.offsetTop + reveal.offsetHeight + 1}px`,
                 );
               }
             })
@@ -25859,18 +26423,37 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
           currentSettings.themeEnabled &&
           lists.every(
             (ul) =>
-              ul.children.length <= 100 &&
+              ul.querySelectorAll(':scope > li:not(.ani-upcoming-episode)').length <= 100 &&
               ![...ul.querySelectorAll('li a')].some((a) => Number(a.textContent.trim()) > 100),
           );
         const cardMode = cardsAvailable && currentSettings.episodeThumbnailGrid;
         const applyGrouping = (ul) => {
-          const items = [...ul.children].filter((item) => item.tagName === 'LI');
+          const items = [...ul.children].filter((item) =>
+            item.matches('li:not(.ani-upcoming-episode)'),
+          );
+          const layoutChanged = ul.classList.contains('ani-episode-cards') !== cardMode;
+          const orderChanged = (ul.dataset.aniEpOrder || 'asc') !== episodeOrder;
           const existingBar = ul.previousElementSibling?.matches('.ani-ep-group-bar')
             ? ul.previousElementSibling
             : null;
           const next = ul.nextElementSibling;
           const existingExpand = next?.matches('.ani-ep-list-expand') ? next : null;
           ul.classList.toggle('ani-episode-cards', Boolean(cardMode));
+          if (
+            (layoutChanged || orderChanged) &&
+            !matchMedia('(prefers-reduced-motion: reduce)').matches
+          ) {
+            ul.animate?.(
+              [
+                { opacity: 0.65, translate: '0 4px' },
+                { opacity: 1, translate: 'none' },
+              ],
+              {
+                duration: 220,
+                easing: 'ease-out',
+              },
+            );
+          }
           if (cardMode) {
             existingBar?.remove();
             existingExpand?.remove();
@@ -25900,6 +26483,9 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
               ul.append(...items.reverse());
               ul.dataset.aniEpOrder = episodeOrder;
             }
+            const preview = ul.querySelector(':scope > .ani-upcoming-episode');
+            const latest = items[episodeOrder === 'asc' ? items.length - 1 : 0];
+            if (preview && latest && latest.nextElementSibling !== preview) latest.after(preview);
             const pendingCards = [];
             for (const li of items) {
               li.removeAttribute('data-ani-ep-hidden');
@@ -25909,6 +26495,13 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
               const frame = document.createElement('span');
               frame.className = 'ani-episode-frame';
               const number = link.textContent.trim();
+              for (const label of [...link.childNodes]) {
+                if (label.nodeType !== Node.TEXT_NODE || !label.textContent.trim()) continue;
+                const originalLabel = document.createElement('span');
+                originalLabel.className = 'ani-episode-original-label';
+                label.replaceWith(originalLabel);
+                originalLabel.append(label);
+              }
               if (!isMovie)
                 frame.dataset.label = /^\d+(?:\.\d+)?$/.test(number) ? 'EP.' + number : number;
               const playingBadge = document.createElement('span');
@@ -26001,6 +26594,8 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
               heading.parentElement.remove();
             }
             link.querySelector('.ani-episode-card-description')?.remove();
+            for (const label of link.querySelectorAll(':scope > .ani-episode-original-label'))
+              label.replaceWith(...label.childNodes);
             link.querySelector('.ani-episode-card-glow')?.remove();
             link.style.removeProperty('--ani-card-cover');
             link.style.removeProperty('--ani-episode-surface-height');
@@ -26465,6 +27060,143 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
         return tip;
       };
 
+      const readEpisodeSynopsis = (value) => {
+        const source = typeof value === 'string' ? value : '';
+        // Some episode records put staff credits in the description field.
+        const story = source.split(
+          /(?:^|\r?\n)[^\S\r\n]*(?:[＜<【\[]\s*)?(?:(?:STAFF|製作團隊|製作人員)(?:\s*[＞>】\]])?(?=\s|[:：]|$)|(?:[｜|]\s*)?(?:脚本|腳本|劇本|分鏡|分镜|絵コンテ|演出|原畫|原画|作畫監督|作画監督|原畫\s*[/／]\s*作監|作監)\s*[:：])/i,
+        )[0];
+        const chinese = story
+          .split(/\r?\n[^\S\r\n]*\r?\n/)
+          .map((paragraph) => paragraph.trim())
+          .filter(
+            (paragraph) =>
+              /\p{Script=Han}/u.test(paragraph) &&
+              !/[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u.test(paragraph),
+          );
+        return chinese.join(' ');
+      };
+
+      const renderUpcomingEpisode = (latest, workTitle, number, metadata) => {
+        let preview = latest.parentElement.querySelector(':scope > .ani-upcoming-episode');
+        let date = metadata?.airdate;
+        const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Taipei' });
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(date || '') || date < today) {
+          preview?.remove();
+          return;
+        }
+        if (!preview) {
+          preview = document.createElement('li');
+          preview.className = 'ani-upcoming-episode';
+          preview.innerHTML =
+            '<div class="ani-upcoming-episode-card"><span class="ani-episode-card-glow" aria-hidden="true"></span><div class="ani-episode-frame"><img alt="" hidden><span class="ani-upcoming-episode-status ani-episode-card-watch">即將更新</span><span class="ani-upcoming-episode-number" aria-hidden="true"></span><time><span></span></time></div><div class="ani-episode-card-metadata"><strong class="ani-episode-card-heading"></strong></div><div class="ani-episode-card-description"></div></div>';
+        }
+        if (latest.nextElementSibling !== preview) latest.after(preview);
+        const localizedTitle = typeof metadata.name === 'string' ? metadata.name.trim() : '';
+        const title = /[\p{Script=Hiragana}\p{Script=Katakana}]/u.test(localizedTitle)
+          ? ''
+          : localizedTitle;
+        preview.querySelector('.ani-upcoming-episode-number').textContent = `EP.${number}`;
+        preview.querySelector('strong').textContent = title ? traditionalTitle(title) : workTitle;
+        const synopsis = readEpisodeSynopsis(metadata.description);
+        const description = preview.querySelector('.ani-episode-card-description');
+        const previousSynopsis = latest.querySelector('.ani-episode-card-description')?.dataset
+          .text;
+        description.dataset.text = synopsis
+          ? traditionalTitle(synopsis).replace(/\s+/g, ' ')
+          : previousSynopsis
+            ? '本集簡介待公布'
+            : '';
+        const currentNumber = Number(
+          document.querySelector('.season li.playing a')?.textContent.trim() ||
+            document
+              .querySelector('.anime_name h1')
+              ?.textContent.match(/(?:\[(\d+)\]|\bEP\.(\d+))/i)
+              ?.slice(1)
+              .find(Boolean),
+        );
+        const uploadText =
+          (
+            document.querySelector('.anime-title .ani-info-upload-time') ||
+            document.querySelector('.anime-title .anime_info_detail')
+          )?.textContent || '';
+        const upload = uploadText.match(/(\d{4})[/-](\d{2})[/-](\d{2})\s+(\d{2}:\d{2})/);
+        const days = upload
+          ? (Date.parse(date) - Date.parse(`${upload[1]}-${upload[2]}-${upload[3]}`)) / 86400000
+          : 0;
+        const weeklyDays = (number - currentNumber) * 7;
+        const afterMidnight = upload && upload[4] < '03:00' && days === weeklyDays - 1;
+        const weeklyTime =
+          upload &&
+          currentNumber > 0 &&
+          number > currentNumber &&
+          (days === weeklyDays || afterMidnight)
+            ? upload[4]
+            : '';
+        if (!metadata.releaseTime && weeklyTime && afterMidnight) {
+          date = new Date(Date.parse(date) + 86400000).toISOString().slice(0, 10);
+        }
+        const releaseTime = metadata.releaseTime || weeklyTime;
+        const time = preview.querySelector('time');
+        if (!time.querySelector('svg')) {
+          time.insertAdjacentHTML(
+            'afterbegin',
+            enhIcon('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', 12),
+          );
+        }
+        time.dateTime = releaseTime ? `${date}T${releaseTime}:00+08:00` : date;
+        const [, month, day] = date.split('-');
+        time.querySelector('span').textContent =
+          `${month}/${day}${releaseTime ? ` ${releaseTime}` : ''}`;
+        time.setAttribute('aria-label', `預計更新 ${time.querySelector('span').textContent}`);
+        if (preview.dataset.coverWork === workTitle) return;
+        preview.dataset.coverWork = workTitle;
+        const image = preview.querySelector('img');
+        const setCover = (source) => {
+          if (!/^https:\/\//i.test(source || '')) return;
+          image.src = source;
+          image.hidden = false;
+          preview
+            .querySelector('.ani-upcoming-episode-card')
+            .style.setProperty('--ani-card-cover', `url("${image.src.replace(/["\\]/g, '\\$&')}")`);
+        };
+        const fallbackCover = [
+          document.querySelector(
+            '#BH_background section.data img.data-img, #BH_background section.data .data-img > img',
+          )?.src,
+          document.querySelector('meta[property="og:image"]')?.content,
+          document.querySelector('#ani_video video')?.poster,
+          latest.querySelector('.ani-episode-frame img')?.src,
+        ].find((source) => /^https:\/\//i.test(source || ''));
+        const request = globalThis.AniAmbientFetch || fetch;
+        request('/seasonal.php', { signal: AbortSignal.timeout(8000) })
+          .then((response) => (response.ok ? response.text() : ''))
+          .then((html) => {
+            if (!preview.isConnected || preview.dataset.coverWork !== workTitle) return;
+            if (!html) {
+              setCover(fallbackCover);
+              return;
+            }
+            const page = new DOMParser().parseFromString(html, 'text/html');
+            const normalizeTitle = (text) =>
+              traditionalTitle(text)
+                .normalize('NFKC')
+                .replace(/[\s\p{P}]/gu, '');
+            const work = [...page.querySelectorAll('.program-card')].find(
+              (card) =>
+                normalizeTitle(card.querySelector('.title-row .title')?.textContent || '') ===
+                normalizeTitle(workTitle),
+            );
+            const style = work?.querySelector('.theme-img-bg')?.style.backgroundImage || '';
+            const source = style.match(/^url\(["']?(https:\/\/[^"')]+)["']?\)$/i)?.[1];
+            setCover(source || fallbackCover);
+          })
+          .catch(() => {
+            if (preview.isConnected && preview.dataset.coverWork === workTitle)
+              setCover(fallbackCover);
+          });
+      };
+
       const initEpisodeTitleTooltips = async () => {
         if (location.pathname !== '/animeVideo.php') return;
         syncFullscreenSubtitleAndMarquee();
@@ -26595,6 +27327,30 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
         }
 
         const mainEpisodes = season.querySelector('ul');
+        const fireflySummaries = /^螢火蟲的出嫁$/.test(cleanTitle)
+          ? [
+              // https://hotaru-anime.com/episodes/
+              '伯爵千金紗都子遭人綁架。命懸一線之際，她向殺手進平提出結婚，以求保命。',
+              '紗都子與進平來到與外界隔絕的天女島。兩人為了躲避追兵，在島上見識到陌生的世界。',
+              '為了尋找逃離天女島的辦法，紗都子在遊女屋伊勢吉工作。來客新渡戶讓她看到希望，但他似乎藏著祕密。',
+              '紗都子在新渡戶事件後病倒。幾天後她醒來，向進平說起童年的夢，進平聽完便衝出了房間。',
+              '紗都子從葵口中得知進平和紫的過去。後來兩人被困在柴房，紗都子終於向進平坦承自己的使命。',
+              '紫得知紗都子曾和進平待在柴房，盛怒之下找人制住紗都子。另一邊，進平再度遇上與綁架案有關的三枝。',
+              '紗都子與進平試圖逃離天女島，卻在海上遭到襲擊。進平獨自登上敵船，紗都子也察覺自己不想失去他。',
+            ]
+          : null;
+        if (fireflySummaries) {
+          epMap = {
+            ...epMap,
+            7: { ...epMap?.[7], name: epMap?.[7]?.name || '鬼與心臟' },
+            8: {
+              ...epMap?.[8],
+              name: epMap?.[8]?.name || '保鑣',
+              airdate: epMap?.[8]?.airdate || '2026-11-27',
+            },
+          };
+          if (epMap[8].airdate === '2026-11-27') epMap[8].releaseTime = '00:00';
+        }
         const movieWork =
           /劇場版/.test(cleanTitle) ||
           /\[(?:(?:中文|國語|日文)?電影(?:版)?|劇場版)\]/.test(
@@ -26653,13 +27409,23 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
             isMovieEpisodeTrack(listLabel) ||
             (movieWork && list?.querySelectorAll('li a').length === 1 && isStoryList);
           const verifiedIndex = episodeNumber - (slimeSeason?.firstEpisode || 1);
+          const localizedTitle = epData?.name?.trim();
+          const translatedTitle =
+            localizedTitle && !/[\p{Script=Hiragana}\p{Script=Katakana}]/u.test(localizedTitle)
+              ? localizedTitle
+              : '';
+          const icebladeTitle =
+            episodeNumber === 1 &&
+            /^[冰氷]劍的魔術師將要統一世界\s*(?:2|Ⅱ|II|第二季)$/iu.test(cleanTitle)
+              ? '世界最強的魔術師少年參加大規模魔術戰'
+              : '';
           const episodeTitle = isMovie
             ? movieSubtitle
             : isStoryList
-              ? epData?.name || verifiedTitles?.[verifiedIndex]
+              ? translatedTitle || verifiedTitles?.[verifiedIndex] || icebladeTitle
               : slimeSeason || slimeSpinoff
                 ? null
-                : epData?.name;
+                : translatedTitle;
           if (episodeTitle) {
             a.dataset.aniEpTitle = traditionalTitle(episodeTitle);
             const heading = a.querySelector('.ani-episode-card-heading');
@@ -26667,31 +27433,24 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
               heading.dataset.title = a.dataset.aniEpTitle;
               heading.firstElementChild.dataset.title = a.dataset.aniEpTitle;
             }
-            if (epData?.airdate) a.dataset.aniEpAirdate = epData.airdate;
             a.removeAttribute('title');
           }
+          if (epData?.airdate) a.dataset.aniEpAirdate = epData.airdate;
+          const cardDate = a.querySelector('.ani-episode-card-date');
+          if (!cardDate?.dataset.label && (isStoryList || isMovie))
+            setEpisodeCardDate(cardDate, epData?.airdate);
           // Bangumi lists the main episodes separately from specials.
           const description = a.querySelector('.ani-episode-card-description');
+          const details = description?.querySelector('.ani-episode-card-details');
+          if (details) details.dataset.title = a.dataset.aniEpTitle || '';
           const synopsis = description?.querySelector('.ani-episode-card-synopsis');
           if (isStoryList || isMovie) {
-            const source = typeof epData?.description === 'string' ? epData.description : '';
-            // Some episode records put staff credits in the description field.
-            const story = source.split(
-              /(?:^|\r?\n)[^\S\r\n]*(?:[＜<【\[]\s*)?(?:(?:STAFF|製作團隊|製作人員)(?:\s*[＞>】\]])?(?=\s|[:：]|$)|(?:[｜|]\s*)?(?:脚本|腳本|劇本|分鏡|分镜|絵コンテ|演出|原畫|原画|作畫監督|作画監督|原畫\s*[/／]\s*作監|作監)\s*[:：])/i,
-            )[0];
-            const chinese = story
-              .split(/\r?\n[^\S\r\n]*\r?\n/)
-              .map((paragraph) => paragraph.trim())
-              .filter(
-                (paragraph) =>
-                  /\p{Script=Han}/u.test(paragraph) &&
-                  !/[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u.test(paragraph),
-              );
             const verifiedStory =
               slimeSeason || slimeSpinoff
                 ? (slimeSeason || slimeSpinoff).summaries[verifiedIndex]
-                : chinese.join(' ') ||
+                : readEpisodeSynopsis(epData?.description) ||
                   (isMovie ? workSynopsis() : '') ||
+                  fireflySummaries?.[episodeNumber - 1] ||
                   (isPolarOpposites ? polarOppositesSeasonTwoDescriptions[episodeNumber] : '');
             if (verifiedStory) {
               const text = traditionalTitle(verifiedStory).replace(/\s+/g, ' ').trim();
@@ -26711,6 +27470,19 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
           delete a.dataset.aniEpDescription;
           if (description) description.dataset.text = '';
           if (synopsis) synopsis.dataset.text = '';
+        }
+        if (mainEpisodes && !movieWork) {
+          const latest = [...mainEpisodes.querySelectorAll(':scope > li > a')]
+            .map((link) => ({ row: link.parentElement, number: Number(link.textContent.trim()) }))
+            .filter(({ number }) => Number.isInteger(number) && number > 0)
+            .reduce((last, item) => (!last || item.number > last.number ? item : last), null);
+          if (latest)
+            renderUpcomingEpisode(
+              latest.row,
+              traditionalTitle(cleanTitle),
+              latest.number + 1,
+              epMap?.[latest.number + 1],
+            );
         }
         season.dispatchEvent(new Event('ani-episode-titles-ready'));
         const hovered = season.querySelector('li a:hover, li a:focus');
@@ -26915,6 +27687,7 @@ body:not(.ani-hide-episode-description) .ani-episode-card-description[data-text]
         storageGet,
         storageSet,
         escapeHtml,
+        renderHistoryMetadata,
         traditionalTitle,
         showToast,
         getSnFromHref,

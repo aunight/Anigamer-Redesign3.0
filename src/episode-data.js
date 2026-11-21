@@ -86,7 +86,7 @@ async function fetchEpisodeTitles(rawTitle, request = fetch, acgUrl = '') {
           const name = String(ep.name_cn || '').trim();
           const jp = String(ep.name || '').trim();
           const description = traditionalEpisodeDescriptions.get(ep.id) || (typeof ep.desc === 'string' ? ep.desc.trim() : '');
-          if (!name && !description) continue;
+          if (!name && !jp && !description && !ep.airdate) continue;
           matchedEpisodes[String(epNum)] = {
             name,
             jp,
@@ -97,7 +97,7 @@ async function fetchEpisodeTitles(rawTitle, request = fetch, acgUrl = '') {
         const total = Number(epJson?.total) || rows.length;
         if (offset + 100 >= total || rows.length < 100) break;
       }
-      if (Object.values(matchedEpisodes).some(ep => ep.name)) return matchedEpisodes;
+      if (Object.values(matchedEpisodes).some(ep => ep.name || ep.jp)) return matchedEpisodes;
       if (Object.keys(episodes).length === 0) episodes = matchedEpisodes;
     } catch {}
   }
