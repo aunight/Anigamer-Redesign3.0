@@ -2,7 +2,7 @@
 // @name         動畫瘋沉浸重製版 3.0｜Anigamer-Redesign 3.0
 // @namespace    https://ani.gamer.com.tw/ani-ambientlight
 // @author       秋夜
-// @version      3.1.0
+// @version      3.1.1
 // @description  動畫瘋環境光與沉浸重製介面：毛玻璃播放器、開場液態波紋、首頁足跡熱力圖＆天氣實況（靈感改作自 Hinataragi/anigamer-ambilight、jiuyang5354/bilibili-margin 與 GreatUI）。非官方。
 // @homepageURL  https://github.com/aunight/Anigamer-Redesign3.0
 // @supportURL   https://github.com/aunight/Anigamer-Redesign3.0/issues
@@ -13,16 +13,16 @@
 // @run-at       document-start
 // @inject-into  content
 // @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
-// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/04801a2a4a4346c06e1b0eb883061de5ee341593/src/studio-catalog.json
-// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/04801a2a4a4346c06e1b0eb883061de5ee341593/src/studio-profiles.json
-// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/04801a2a4a4346c06e1b0eb883061de5ee341593/src/studio-directory-icons.json
-// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/04801a2a4a4346c06e1b0eb883061de5ee341593/src/studio-logos.json
-// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/04801a2a4a4346c06e1b0eb883061de5ee341593/src/content.css
-// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/04801a2a4a4346c06e1b0eb883061de5ee341593/src/effects.css
-// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/04801a2a4a4346c06e1b0eb883061de5ee341593/src/settings-ui.css
-// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/04801a2a4a4346c06e1b0eb883061de5ee341593/src/hero-banner.css
-// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/04801a2a4a4346c06e1b0eb883061de5ee341593/src/home-dashboard.css
-// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/04801a2a4a4346c06e1b0eb883061de5ee341593/src/ui-repairs.css
+// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/604ae3bfed361bc870ec91361734ac9b36b732ef/src/studio-catalog.json
+// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/604ae3bfed361bc870ec91361734ac9b36b732ef/src/studio-profiles.json
+// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/604ae3bfed361bc870ec91361734ac9b36b732ef/src/studio-directory-icons.json
+// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/604ae3bfed361bc870ec91361734ac9b36b732ef/src/studio-logos.json
+// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/604ae3bfed361bc870ec91361734ac9b36b732ef/src/content.css
+// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/604ae3bfed361bc870ec91361734ac9b36b732ef/src/effects.css
+// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/604ae3bfed361bc870ec91361734ac9b36b732ef/src/settings-ui.css
+// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/604ae3bfed361bc870ec91361734ac9b36b732ef/src/hero-banner.css
+// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/604ae3bfed361bc870ec91361734ac9b36b732ef/src/home-dashboard.css
+// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/604ae3bfed361bc870ec91361734ac9b36b732ef/src/ui-repairs.css
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -20912,9 +20912,26 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                 staffGrid.classList.add('ani-measure-staff');
                 const widths = items.map((item) => item.getBoundingClientRect().width);
                 staffGrid.classList.remove('ani-measure-staff');
-                items.forEach((item, index) =>
-                  item.classList.toggle('is-wide', widths[index] > (width - gap) / 2),
-                );
+                const pairWidth = Math.floor(width - gap);
+                for (let index = 0; index < items.length; ) {
+                  const first = Math.ceil(widths[index]);
+                  const second = Math.ceil(widths[index + 1]);
+                  if (first + second <= pairWidth) {
+                    const left = Math.min(
+                      pairWidth - second,
+                      Math.max(first, Math.floor(pairWidth / 2)),
+                    );
+                    items[index].style.setProperty('--ani-staff-width', `${left}px`);
+                    items[index + 1].style.setProperty(
+                      '--ani-staff-width',
+                      `${pairWidth - left}px`,
+                    );
+                    index += 2;
+                  } else {
+                    items[index].style.setProperty('--ani-staff-width', '100%');
+                    index++;
+                  }
+                }
               });
               staffGridObserver.observe(staffGrid);
             }
