@@ -8158,7 +8158,20 @@
             staffGrid.classList.add('ani-measure-staff');
             const widths = items.map(item => item.getBoundingClientRect().width);
             staffGrid.classList.remove('ani-measure-staff');
-            items.forEach((item, index) => item.classList.toggle('is-wide', widths[index] > (width - gap) / 2));
+            const pairWidth = Math.floor(width - gap);
+            for (let index = 0; index < items.length;) {
+              const first = Math.ceil(widths[index]);
+              const second = Math.ceil(widths[index + 1]);
+              if (first + second <= pairWidth) {
+                const left = Math.min(pairWidth - second, Math.max(first, Math.floor(pairWidth / 2)));
+                items[index].style.setProperty('--ani-staff-width', `${left}px`);
+                items[index + 1].style.setProperty('--ani-staff-width', `${pairWidth - left}px`);
+                index += 2;
+              } else {
+                items[index].style.setProperty('--ani-staff-width', '100%');
+                index++;
+              }
+            }
           });
           staffGridObserver.observe(staffGrid);
         }
