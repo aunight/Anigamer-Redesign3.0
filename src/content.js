@@ -199,7 +199,6 @@
   }
   const episodeFrameReady = 'ani-episode-frame-ready';
 
-  // Keep the pending age prompt in place when a page script requests home on idle.
   if (location.pathname === '/animeVideo.php') {
     const speedKey = 'ani-player-playback-speed';
     let preferredSpeed = 0;
@@ -226,14 +225,6 @@
       preferredSpeed = rate;
       try { localStorage.setItem(speedKey, String(rate)); } catch {}
     }, true);
-    window.navigation?.addEventListener('navigate', event => {
-      if (!settings.themeEnabled || !event.cancelable || event.userInitiated ||
-          event.navigationType === 'traverse' || navigator.userActivation?.isActive) return;
-      const to = new URL(event.destination.url);
-      if (to.origin !== location.origin || !['/', '/index.php'].includes(to.pathname)) return;
-      const consent = document.querySelector('#ani_video .choose-btn-agree, #ani_video .ani-consent-accept');
-      if (consent?.getClientRects().length) event.preventDefault();
-    });
   }
   const systemAppearance = matchMedia('(prefers-color-scheme:light)');
   systemAppearance.addEventListener('change', () => {

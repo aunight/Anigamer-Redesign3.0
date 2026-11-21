@@ -3,6 +3,19 @@
   if (globalThis.__aniTopbarBridgeInstalled) return;
   globalThis.__aniTopbarBridgeInstalled = true;
 
+  // Observe page-script navigation in the same world as the site's player.
+  if (location.pathname === '/animeVideo.php') {
+    window.navigation?.addEventListener('navigate', event => {
+      if (!document.body?.classList.contains('ani-ambientlight-page') ||
+          !event.cancelable || event.userInitiated || event.navigationType === 'traverse' ||
+          navigator.userActivation?.isActive) return;
+      const destination = new URL(event.destination.url);
+      if (destination.origin !== location.origin || !['/', '/index.php'].includes(destination.pathname)) return;
+      const consent = document.querySelector('#ani_video .choose-btn-agree, #ani_video .ani-consent-accept');
+      if (consent?.getClientRects().length) event.preventDefault();
+    });
+  }
+
   function installCommentImageZoom() {
     const hoverAnimations = new Map();
     const motion = matchMedia('(prefers-reduced-motion: reduce)');
