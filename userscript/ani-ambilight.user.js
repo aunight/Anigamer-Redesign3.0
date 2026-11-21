@@ -2,7 +2,7 @@
 // @name         動畫瘋沉浸重製版 3.0｜Anigamer-Redesign 3.0
 // @namespace    https://ani.gamer.com.tw/ani-ambientlight
 // @author       秋夜
-// @version      3.1.3
+// @version      3.1.4
 // @description  動畫瘋環境光與沉浸重製介面：毛玻璃播放器、開場液態波紋、首頁足跡熱力圖＆天氣實況（靈感改作自 Hinataragi/anigamer-ambilight、jiuyang5354/bilibili-margin 與 GreatUI）。非官方。
 // @homepageURL  https://github.com/aunight/Anigamer-Redesign3.0
 // @supportURL   https://github.com/aunight/Anigamer-Redesign3.0/issues
@@ -13,16 +13,16 @@
 // @run-at       document-start
 // @inject-into  content
 // @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
-// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8a9e9561d1783f390fef627115373d06613867e3/src/studio-catalog.json
-// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8a9e9561d1783f390fef627115373d06613867e3/src/studio-profiles.json
-// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8a9e9561d1783f390fef627115373d06613867e3/src/studio-directory-icons.json
-// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8a9e9561d1783f390fef627115373d06613867e3/src/studio-logos.json
-// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8a9e9561d1783f390fef627115373d06613867e3/src/content.css
-// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8a9e9561d1783f390fef627115373d06613867e3/src/effects.css
-// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8a9e9561d1783f390fef627115373d06613867e3/src/settings-ui.css
-// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8a9e9561d1783f390fef627115373d06613867e3/src/hero-banner.css
-// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8a9e9561d1783f390fef627115373d06613867e3/src/home-dashboard.css
-// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8a9e9561d1783f390fef627115373d06613867e3/src/ui-repairs.css
+// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/30a1c0a22f83ae756d4e77e9295e23c1f3657f60/src/studio-catalog.json
+// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/30a1c0a22f83ae756d4e77e9295e23c1f3657f60/src/studio-profiles.json
+// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/30a1c0a22f83ae756d4e77e9295e23c1f3657f60/src/studio-directory-icons.json
+// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/30a1c0a22f83ae756d4e77e9295e23c1f3657f60/src/studio-logos.json
+// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/30a1c0a22f83ae756d4e77e9295e23c1f3657f60/src/content.css
+// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/30a1c0a22f83ae756d4e77e9295e23c1f3657f60/src/effects.css
+// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/30a1c0a22f83ae756d4e77e9295e23c1f3657f60/src/settings-ui.css
+// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/30a1c0a22f83ae756d4e77e9295e23c1f3657f60/src/hero-banner.css
+// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/30a1c0a22f83ae756d4e77e9295e23c1f3657f60/src/home-dashboard.css
+// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/30a1c0a22f83ae756d4e77e9295e23c1f3657f60/src/ui-repairs.css
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -17722,9 +17722,18 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               title.title = track.textContent;
               title.replaceChildren(track);
               const measure = () => {
-                const distance = track.scrollWidth - title.clientWidth;
-                title.classList.toggle('ani-week-overflow', distance > 2);
-                title.style.setProperty('--ani-week-travel', `${-Math.max(0, distance)}px`);
+                const style = getComputedStyle(title);
+                const available =
+                  title.clientWidth -
+                  (parseFloat(style.paddingLeft) || 0) -
+                  (parseFloat(style.paddingRight) || 0);
+                const distance = Math.max(0, track.scrollWidth - available);
+                title.classList.toggle('ani-week-overflow', available > 0 && distance > 2);
+                title.style.setProperty('--ani-week-travel', `-${distance}px`);
+                title.style.setProperty(
+                  '--ani-week-duration',
+                  `${Math.max(2.5, distance / 30 + 1)}s`,
+                );
               };
               tile.addEventListener('pointerenter', measure);
               tile.addEventListener('focusin', measure);
