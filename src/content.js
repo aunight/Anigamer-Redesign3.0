@@ -6008,7 +6008,23 @@
       }
       for (const tile of weekly.querySelectorAll('.text-anime-info')) {
         const title=tile.querySelector('.text-anime-name');
-        if(title&&!title.querySelector('.ani-week-marquee')){const track=document.createElement('span');track.className='ani-week-marquee';track.textContent=title.textContent.trim();title.title=track.textContent;title.replaceChildren(track);const measure=()=>{const distance=track.scrollWidth-title.clientWidth;title.classList.toggle('ani-week-overflow',distance>2);title.style.setProperty('--ani-week-travel',`${-Math.max(0,distance)}px`);};tile.addEventListener('pointerenter',measure);tile.addEventListener('focusin',measure);}
+        if (title && !title.querySelector('.ani-week-marquee')) {
+          const track = document.createElement('span');
+          track.className = 'ani-week-marquee';
+          track.textContent = title.textContent.trim();
+          title.title = track.textContent;
+          title.replaceChildren(track);
+          const measure = () => {
+            const style = getComputedStyle(title);
+            const available = title.clientWidth - (parseFloat(style.paddingLeft) || 0) - (parseFloat(style.paddingRight) || 0);
+            const distance = Math.max(0, track.scrollWidth - available);
+            title.classList.toggle('ani-week-overflow', available > 0 && distance > 2);
+            title.style.setProperty('--ani-week-travel', `-${distance}px`);
+            title.style.setProperty('--ani-week-duration', `${Math.max(2.5, distance / 30 + 1)}s`);
+          };
+          tile.addEventListener('pointerenter', measure);
+          tile.addEventListener('focusin', measure);
+        }
 
         for(const node of tile.querySelector('.text-anime-number')?.childNodes||[]){if(node.nodeType===3){const text=node.textContent.replace(/第\s*(\d+(?:\.\d+)?)\s*集/g,'EP.$1');if(node.textContent!==text)node.textContent=text;}}
         for (const [selector,path] of [['.text-anime-time','M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm1 4v5l4 2-1 2-5-3V7Z'],['.text-anime-number','M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm4 4v10l8-5Z']]) {
