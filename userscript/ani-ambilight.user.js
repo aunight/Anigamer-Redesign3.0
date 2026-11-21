@@ -2,7 +2,7 @@
 // @name         動畫瘋沉浸重製版 3.0｜Anigamer-Redesign 3.0
 // @namespace    https://ani.gamer.com.tw/ani-ambientlight
 // @author       秋夜
-// @version      3.1.2
+// @version      3.1.3
 // @description  動畫瘋環境光與沉浸重製介面：毛玻璃播放器、開場液態波紋、首頁足跡熱力圖＆天氣實況（靈感改作自 Hinataragi/anigamer-ambilight、jiuyang5354/bilibili-margin 與 GreatUI）。非官方。
 // @homepageURL  https://github.com/aunight/Anigamer-Redesign3.0
 // @supportURL   https://github.com/aunight/Anigamer-Redesign3.0/issues
@@ -13,16 +13,16 @@
 // @run-at       document-start
 // @inject-into  content
 // @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
-// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/5a09ddca0a34530bb7ebb2863d91947ae3558991/src/studio-catalog.json
-// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/5a09ddca0a34530bb7ebb2863d91947ae3558991/src/studio-profiles.json
-// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/5a09ddca0a34530bb7ebb2863d91947ae3558991/src/studio-directory-icons.json
-// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/5a09ddca0a34530bb7ebb2863d91947ae3558991/src/studio-logos.json
-// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/5a09ddca0a34530bb7ebb2863d91947ae3558991/src/content.css
-// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/5a09ddca0a34530bb7ebb2863d91947ae3558991/src/effects.css
-// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/5a09ddca0a34530bb7ebb2863d91947ae3558991/src/settings-ui.css
-// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/5a09ddca0a34530bb7ebb2863d91947ae3558991/src/hero-banner.css
-// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/5a09ddca0a34530bb7ebb2863d91947ae3558991/src/home-dashboard.css
-// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/5a09ddca0a34530bb7ebb2863d91947ae3558991/src/ui-repairs.css
+// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8a9e9561d1783f390fef627115373d06613867e3/src/studio-catalog.json
+// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8a9e9561d1783f390fef627115373d06613867e3/src/studio-profiles.json
+// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8a9e9561d1783f390fef627115373d06613867e3/src/studio-directory-icons.json
+// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8a9e9561d1783f390fef627115373d06613867e3/src/studio-logos.json
+// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8a9e9561d1783f390fef627115373d06613867e3/src/content.css
+// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8a9e9561d1783f390fef627115373d06613867e3/src/effects.css
+// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8a9e9561d1783f390fef627115373d06613867e3/src/settings-ui.css
+// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8a9e9561d1783f390fef627115373d06613867e3/src/hero-banner.css
+// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8a9e9561d1783f390fef627115373d06613867e3/src/home-dashboard.css
+// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8a9e9561d1783f390fef627115373d06613867e3/src/ui-repairs.css
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -8684,8 +8684,24 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
 
       // Observe page-script navigation in the same world as the site's player.
       if (location.pathname === '/animeVideo.php') {
+        let declined = false;
+        document.addEventListener(
+          'click',
+          (event) => {
+            if (
+              event.isTrusted &&
+              event.target.closest?.(
+                '#ani_video .choose-btn-disagree, #ani_video .ani-consent-decline',
+              )
+            ) {
+              declined = true;
+            }
+          },
+          true,
+        );
         window.navigation?.addEventListener('navigate', (event) => {
           if (
+            declined ||
             !document.body?.classList.contains('ani-ambientlight-page') ||
             !event.cancelable ||
             event.userInitiated ||
@@ -8695,7 +8711,8 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             return;
           const destination = new URL(event.destination.url);
           if (
-            destination.origin !== location.origin ||
+            destination.host !== location.host ||
+            !['http:', 'https:'].includes(destination.protocol) ||
             !['/', '/index.php'].includes(destination.pathname)
           )
             return;
