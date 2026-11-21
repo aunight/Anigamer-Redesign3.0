@@ -5,12 +5,19 @@
 
   // Observe page-script navigation in the same world as the site's player.
   if (location.pathname === '/animeVideo.php') {
+    let declined = false;
+    document.addEventListener('click', event => {
+      if (event.isTrusted && event.target.closest?.('#ani_video .choose-btn-disagree, #ani_video .ani-consent-decline')) {
+        declined = true;
+      }
+    }, true);
     window.navigation?.addEventListener('navigate', event => {
-      if (!document.body?.classList.contains('ani-ambientlight-page') ||
+      if (declined || !document.body?.classList.contains('ani-ambientlight-page') ||
           !event.cancelable || event.userInitiated || event.navigationType === 'traverse' ||
           navigator.userActivation?.isActive) return;
       const destination = new URL(event.destination.url);
-      if (destination.origin !== location.origin || !['/', '/index.php'].includes(destination.pathname)) return;
+      if (destination.host !== location.host || !['http:', 'https:'].includes(destination.protocol) ||
+          !['/', '/index.php'].includes(destination.pathname)) return;
       const consent = document.querySelector('#ani_video .choose-btn-agree, #ani_video .ani-consent-accept');
       if (consent?.getClientRects().length) event.preventDefault();
     });
