@@ -1025,9 +1025,9 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #blockVideoInSeaso
 body.ani-ambientlight-ui #BH_background #blockVideoInSeason .text-anime-name { white-space:nowrap !important;overflow:hidden !important;text-overflow:clip !important; }
 .ani-week-marquee { display:block;width:max-content;min-width:100%;white-space:nowrap; }
 .ani-week-overflow { mask-image:linear-gradient(to right,transparent,#000 8px,#000 calc(100% - 8px),transparent); }
-.text-anime-info:is(:hover,:focus-within) .ani-week-overflow .ani-week-marquee { animation:aniWeekTitle var(--ani-week-duration, 4s) linear infinite alternate; }
+.text-anime-info .ani-week-overflow .ani-week-marquee { animation:aniWeekTitle var(--ani-week-duration, 4s) linear infinite alternate; }
 @keyframes aniWeekTitle { 0%,10% { transform:translateX(0); } 90%,100% { transform:translateX(var(--ani-week-travel)); } }
-@media(prefers-reduced-motion:reduce) { .text-anime-info:is(:hover,:focus-within) .ani-week-overflow .ani-week-marquee { animation:none; } }
+@media(prefers-reduced-motion:reduce) { .text-anime-info .ani-week-overflow .ani-week-marquee { animation:none; } }
 /* Payment capsules: isolated glass layer and a stateful chevron. */
 body.ani-account-page #BH_background .ani-membership-plans .paychose { isolation:isolate;overflow:hidden; }
 body.ani-account-page #BH_background .ani-membership-plans .paychose::before { content:'';position:absolute;inset:0;z-index:-1;border-radius:inherit;background:linear-gradient(125deg,#eafaff20,#bbd4ee08);backdrop-filter:blur(28px) saturate(150%);-webkit-backdrop-filter:blur(28px) saturate(150%);pointer-events:none; }

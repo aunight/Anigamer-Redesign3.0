@@ -6022,8 +6022,13 @@
             title.style.setProperty('--ani-week-travel', `-${distance}px`);
             title.style.setProperty('--ani-week-duration', `${Math.max(2.5, distance / 30 + 1)}s`);
           };
-          tile.addEventListener('pointerenter', measure);
-          tile.addEventListener('focusin', measure);
+          if (typeof ResizeObserver === 'function') {
+            const observer = new ResizeObserver(measure);
+            observer.observe(title);
+            observer.observe(track);
+          } else {
+            requestAnimationFrame(measure);
+          }
         }
 
         for(const node of tile.querySelector('.text-anime-number')?.childNodes||[]){if(node.nodeType===3){const text=node.textContent.replace(/第\s*(\d+(?:\.\d+)?)\s*集/g,'EP.$1');if(node.textContent!==text)node.textContent=text;}}
