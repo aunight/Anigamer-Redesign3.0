@@ -2,7 +2,7 @@
 // @name         動畫瘋沉浸重製版 3.0｜Anigamer-Redesign 3.0
 // @namespace    https://ani.gamer.com.tw/ani-ambientlight
 // @author       秋夜
-// @version      3.1.1
+// @version      3.1.2
 // @description  動畫瘋環境光與沉浸重製介面：毛玻璃播放器、開場液態波紋、首頁足跡熱力圖＆天氣實況（靈感改作自 Hinataragi/anigamer-ambilight、jiuyang5354/bilibili-margin 與 GreatUI）。非官方。
 // @homepageURL  https://github.com/aunight/Anigamer-Redesign3.0
 // @supportURL   https://github.com/aunight/Anigamer-Redesign3.0/issues
@@ -13,16 +13,16 @@
 // @run-at       document-start
 // @inject-into  content
 // @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
-// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/604ae3bfed361bc870ec91361734ac9b36b732ef/src/studio-catalog.json
-// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/604ae3bfed361bc870ec91361734ac9b36b732ef/src/studio-profiles.json
-// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/604ae3bfed361bc870ec91361734ac9b36b732ef/src/studio-directory-icons.json
-// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/604ae3bfed361bc870ec91361734ac9b36b732ef/src/studio-logos.json
-// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/604ae3bfed361bc870ec91361734ac9b36b732ef/src/content.css
-// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/604ae3bfed361bc870ec91361734ac9b36b732ef/src/effects.css
-// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/604ae3bfed361bc870ec91361734ac9b36b732ef/src/settings-ui.css
-// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/604ae3bfed361bc870ec91361734ac9b36b732ef/src/hero-banner.css
-// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/604ae3bfed361bc870ec91361734ac9b36b732ef/src/home-dashboard.css
-// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/604ae3bfed361bc870ec91361734ac9b36b732ef/src/ui-repairs.css
+// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/5a09ddca0a34530bb7ebb2863d91947ae3558991/src/studio-catalog.json
+// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/5a09ddca0a34530bb7ebb2863d91947ae3558991/src/studio-profiles.json
+// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/5a09ddca0a34530bb7ebb2863d91947ae3558991/src/studio-directory-icons.json
+// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/5a09ddca0a34530bb7ebb2863d91947ae3558991/src/studio-logos.json
+// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/5a09ddca0a34530bb7ebb2863d91947ae3558991/src/content.css
+// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/5a09ddca0a34530bb7ebb2863d91947ae3558991/src/effects.css
+// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/5a09ddca0a34530bb7ebb2863d91947ae3558991/src/settings-ui.css
+// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/5a09ddca0a34530bb7ebb2863d91947ae3558991/src/hero-banner.css
+// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/5a09ddca0a34530bb7ebb2863d91947ae3558991/src/home-dashboard.css
+// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/5a09ddca0a34530bb7ebb2863d91947ae3558991/src/ui-repairs.css
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -8682,6 +8682,30 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
       if (globalThis.__aniTopbarBridgeInstalled) return;
       globalThis.__aniTopbarBridgeInstalled = true;
 
+      // Observe page-script navigation in the same world as the site's player.
+      if (location.pathname === '/animeVideo.php') {
+        window.navigation?.addEventListener('navigate', (event) => {
+          if (
+            !document.body?.classList.contains('ani-ambientlight-page') ||
+            !event.cancelable ||
+            event.userInitiated ||
+            event.navigationType === 'traverse' ||
+            navigator.userActivation?.isActive
+          )
+            return;
+          const destination = new URL(event.destination.url);
+          if (
+            destination.origin !== location.origin ||
+            !['/', '/index.php'].includes(destination.pathname)
+          )
+            return;
+          const consent = document.querySelector(
+            '#ani_video .choose-btn-agree, #ani_video .ani-consent-accept',
+          );
+          if (consent?.getClientRects().length) event.preventDefault();
+        });
+      }
+
       function installCommentImageZoom() {
         const hoverAnimations = new Map();
         const motion = matchMedia('(prefers-reduced-motion: reduce)');
@@ -9182,7 +9206,6 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
       }
       const episodeFrameReady = 'ani-episode-frame-ready';
 
-      // Keep the pending age prompt in place when a page script requests home on idle.
       if (location.pathname === '/animeVideo.php') {
         const speedKey = 'ani-player-playback-speed';
         let preferredSpeed = 0;
@@ -9229,22 +9252,6 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           },
           true,
         );
-        window.navigation?.addEventListener('navigate', (event) => {
-          if (
-            !settings.themeEnabled ||
-            !event.cancelable ||
-            event.userInitiated ||
-            event.navigationType === 'traverse' ||
-            navigator.userActivation?.isActive
-          )
-            return;
-          const to = new URL(event.destination.url);
-          if (to.origin !== location.origin || !['/', '/index.php'].includes(to.pathname)) return;
-          const consent = document.querySelector(
-            '#ani_video .choose-btn-agree, #ani_video .ani-consent-accept',
-          );
-          if (consent?.getClientRects().length) event.preventDefault();
-        });
       }
       const systemAppearance = matchMedia('(prefers-color-scheme:light)');
       systemAppearance.addEventListener('change', () => {
