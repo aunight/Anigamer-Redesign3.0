@@ -5720,7 +5720,7 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .su
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle .ani-rating-scroll {
   display: flex;
   flex-direction: column;
-  padding-bottom: 4px !important;
+  padding-bottom: 14px !important;
   overflow: hidden !important;
 }
 .ani-rating-scroll > :not(.ani-rating-reviews) { flex: none; }
@@ -5747,11 +5747,11 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .su
   @keyframes aniRatingSlideIn { from { transform: translateY(3px); } to { transform: none; } }
 }
 .ani-rating-review-viewport > .ani-reviews-list {
-  --ani-rev-top-fade: calc(var(--ani-review-shadow-top, 0) * 10px);
-  --ani-rev-bot-fade: calc(var(--ani-review-shadow-bottom, 0) * 12px);
+  --ani-rev-top-fade: calc(var(--ani-review-shadow-top, 0) * 22px);
+  --ani-rev-bot-fade: calc(var(--ani-review-shadow-bottom, 0) * 18px);
   flex: 1 1 auto;
   min-height: 0;
-  padding: 4px 3px 14px;
+  padding: 2px 3px 8px;
   overflow-y: auto;
   scrollbar-width: none;
   overscroll-behavior-y: contain;
@@ -5759,19 +5759,19 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .su
   mask-image: linear-gradient(
     to bottom,
     transparent 0px,
-    rgba(0, 0, 0, 0.6) calc(var(--ani-rev-top-fade) * 0.4),
+    rgba(0, 0, 0, 0.35) calc(var(--ani-rev-top-fade) * 0.45),
     #000 var(--ani-rev-top-fade),
     #000 calc(100% - var(--ani-rev-bot-fade)),
-    rgba(0, 0, 0, 0.6) calc(100% - var(--ani-rev-bot-fade) * 0.4),
+    rgba(0, 0, 0, 0.35) calc(100% - var(--ani-rev-bot-fade) * 0.45),
     transparent 100%
   );
   -webkit-mask-image: linear-gradient(
     to bottom,
     transparent 0px,
-    rgba(0, 0, 0, 0.6) calc(var(--ani-rev-top-fade) * 0.4),
+    rgba(0, 0, 0, 0.35) calc(var(--ani-rev-top-fade) * 0.45),
     #000 var(--ani-rev-top-fade),
     #000 calc(100% - var(--ani-rev-bot-fade)),
-    rgba(0, 0, 0, 0.6) calc(100% - var(--ani-rev-bot-fade) * 0.4),
+    rgba(0, 0, 0, 0.35) calc(100% - var(--ani-rev-bot-fade) * 0.45),
     transparent 100%
   );
 }
@@ -6234,7 +6234,7 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .su
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle .ani-rating-more-btn {
   width: 100% !important;
-  margin-top: 14px !important;
+  margin-top: 8px !important;
   padding: 9px 14px !important;
   border-radius: 999px !important;
   background: rgba(61, 175, 182, 0.16) !important;
@@ -10937,17 +10937,38 @@ body.ani-layout-comments .ani-comment-columns .ani-comment-recommendations:not([
   row-gap: 16px;
   container-type: inline-size;
 }
-body.ani-layout-comments .ani-comment-columns .ani-comment-recommendations > a:not([hidden]) {
+body.ani-layout-comments .ani-comment-columns .ani-comment-recommendations > a:not([hidden]),
+.ani-rec-skeleton-row {
   display: grid;
   grid-template-columns: clamp(96px, 34cqi, 170px) minmax(0, 1fr);
   gap: 12px;
   align-items: center;
 }
-.ani-comment-recommendations > a > .ani-rec-poster {
+.ani-comment-recommendations > a > .ani-rec-poster,
+.ani-rec-skeleton-row > .ani-rec-poster {
   width: 100%;
   aspect-ratio: 16 / 9;
   overflow: hidden;
   border-radius: 7px;
+}
+.ani-rec-skeleton { display: grid; gap: 16px; }
+.ani-rec-skeleton-row > .ani-rec-poster,
+.ani-rec-skeleton-row > span:last-child::before,
+.ani-rec-skeleton-row > span:last-child::after {
+  background: color-mix(in srgb, var(--ani-muted, #9aadc2) 17%, transparent);
+}
+.ani-rec-skeleton-row > span:last-child::before,
+.ani-rec-skeleton-row > span:last-child::after {
+  content: '';
+  display: block;
+  width: 84%;
+  height: 12px;
+  border-radius: 5px;
+}
+.ani-rec-skeleton-row > span:last-child::after { width: 56%; height: 8px; margin-top: 8px; }
+@media (prefers-reduced-motion: no-preference) {
+  .ani-rec-fetching .ani-rec-skeleton { animation: ani-rec-skeleton-pulse 1.25s ease-in-out infinite alternate; }
+  @keyframes ani-rec-skeleton-pulse { from { opacity: .48; } to { opacity: 1; } }
 }
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
   .ani-comment-recommendations .ani-rec-poster img {
