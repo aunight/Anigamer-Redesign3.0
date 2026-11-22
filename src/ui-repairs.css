@@ -5747,31 +5747,29 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .su
   @keyframes aniRatingSlideIn { from { transform: translateY(3px); } to { transform: none; } }
 }
 .ani-rating-review-viewport > .ani-reviews-list {
-  --ani-rev-top-fade: calc(var(--ani-review-shadow-top, 0) * 22px);
-  --ani-rev-bot-fade: calc(var(--ani-review-shadow-bottom, 0) * 18px);
   flex: 1 1 auto;
   min-height: 0;
-  padding: 2px 3px 8px;
+  padding: 10px 3px 14px;
   overflow-y: auto;
   scrollbar-width: none;
   overscroll-behavior-y: contain;
-  scroll-padding-block: 10px;
+  scroll-padding-block: 12px;
   mask-image: linear-gradient(
     to bottom,
     transparent 0px,
-    rgba(0, 0, 0, 0.35) calc(var(--ani-rev-top-fade) * 0.45),
-    #000 var(--ani-rev-top-fade),
-    #000 calc(100% - var(--ani-rev-bot-fade)),
-    rgba(0, 0, 0, 0.35) calc(100% - var(--ani-rev-bot-fade) * 0.45),
+    rgba(0, 0, 0, 0.45) 7px,
+    #000 16px,
+    #000 calc(100% - 18px),
+    rgba(0, 0, 0, 0.45) calc(100% - 8px),
     transparent 100%
   );
   -webkit-mask-image: linear-gradient(
     to bottom,
     transparent 0px,
-    rgba(0, 0, 0, 0.35) calc(var(--ani-rev-top-fade) * 0.45),
-    #000 var(--ani-rev-top-fade),
-    #000 calc(100% - var(--ani-rev-bot-fade)),
-    rgba(0, 0, 0, 0.35) calc(100% - var(--ani-rev-bot-fade) * 0.45),
+    rgba(0, 0, 0, 0.45) 7px,
+    #000 16px,
+    #000 calc(100% - 18px),
+    rgba(0, 0, 0, 0.45) calc(100% - 8px),
     transparent 100%
   );
 }
