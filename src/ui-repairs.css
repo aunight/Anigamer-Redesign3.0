@@ -7588,28 +7588,28 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep-drawer-body {
   min-height: 0 !important;
-  padding: 10px calc(var(--ani-episode-panel-gutter) + 3px) clamp(16px, 2vw, 22px) !important;
+  padding: 14px calc(var(--ani-episode-panel-gutter) + 3px) clamp(16px, 2vw, 22px) !important;
   overflow-y: auto !important;
-  scroll-padding-block: 10px 18px;
+  scroll-padding-block: 18px 20px;
   scrollbar-width: thin !important;
   scrollbar-color: var(--ani-muted, #9bafc3) transparent;
   container-type: inline-size;
   mask-image: linear-gradient(
     to bottom,
     transparent 0px,
-    rgba(0, 0, 0, 0.5) 3px,
-    #000 8px,
-    #000 calc(100% - 16px),
-    rgba(0, 0, 0, 0.45) calc(100% - 7px),
+    rgba(0, 0, 0, 0.32) 8px,
+    #000 20px,
+    #000 calc(100% - 20px),
+    rgba(0, 0, 0, 0.38) calc(100% - 8px),
     transparent 100%
   );
   -webkit-mask-image: linear-gradient(
     to bottom,
     transparent 0px,
-    rgba(0, 0, 0, 0.5) 3px,
-    #000 8px,
-    #000 calc(100% - 16px),
-    rgba(0, 0, 0, 0.45) calc(100% - 7px),
+    rgba(0, 0, 0, 0.32) 8px,
+    #000 20px,
+    #000 calc(100% - 20px),
+    rgba(0, 0, 0, 0.38) calc(100% - 8px),
     transparent 100%
   );
 }
