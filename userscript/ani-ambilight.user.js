@@ -2,7 +2,7 @@
 // @name         動畫瘋沉浸重製版 3.0｜Anigamer-Redesign 3.0
 // @namespace    https://ani.gamer.com.tw/ani-ambientlight
 // @author       秋夜
-// @version      3.2.1
+// @version      3.2.2
 // @description  動畫瘋環境光與沉浸重製介面：毛玻璃播放器、開場液態波紋、首頁足跡熱力圖＆天氣實況（靈感改作自 Hinataragi/anigamer-ambilight、jiuyang5354/bilibili-margin 與 GreatUI）。非官方。
 // @homepageURL  https://github.com/aunight/Anigamer-Redesign3.0
 // @supportURL   https://github.com/aunight/Anigamer-Redesign3.0/issues
@@ -13,16 +13,16 @@
 // @run-at       document-start
 // @inject-into  content
 // @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
-// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/98eff22af48178e706a191d753ec45d3cb4adae9/src/studio-catalog.json
-// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/98eff22af48178e706a191d753ec45d3cb4adae9/src/studio-profiles.json
-// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/98eff22af48178e706a191d753ec45d3cb4adae9/src/studio-directory-icons.json
-// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/98eff22af48178e706a191d753ec45d3cb4adae9/src/studio-logos.json
-// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/98eff22af48178e706a191d753ec45d3cb4adae9/src/content.css
-// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/98eff22af48178e706a191d753ec45d3cb4adae9/src/effects.css
-// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/98eff22af48178e706a191d753ec45d3cb4adae9/src/settings-ui.css
-// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/98eff22af48178e706a191d753ec45d3cb4adae9/src/hero-banner.css
-// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/98eff22af48178e706a191d753ec45d3cb4adae9/src/home-dashboard.css
-// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/98eff22af48178e706a191d753ec45d3cb4adae9/src/ui-repairs.css
+// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/66b600404ac12fb317d0965aecc6b743fa6eed3e/src/studio-catalog.json
+// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/66b600404ac12fb317d0965aecc6b743fa6eed3e/src/studio-profiles.json
+// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/66b600404ac12fb317d0965aecc6b743fa6eed3e/src/studio-directory-icons.json
+// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/66b600404ac12fb317d0965aecc6b743fa6eed3e/src/studio-logos.json
+// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/66b600404ac12fb317d0965aecc6b743fa6eed3e/src/content.css
+// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/66b600404ac12fb317d0965aecc6b743fa6eed3e/src/effects.css
+// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/66b600404ac12fb317d0965aecc6b743fa6eed3e/src/settings-ui.css
+// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/66b600404ac12fb317d0965aecc6b743fa6eed3e/src/hero-banner.css
+// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/66b600404ac12fb317d0965aecc6b743fa6eed3e/src/home-dashboard.css
+// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/66b600404ac12fb317d0965aecc6b743fa6eed3e/src/ui-repairs.css
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -2668,6 +2668,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
 .ani-episode-card-heading[data-title=""] { display: none; }
 .ani-episode-card-heading > .ani-marquee-track { display: inline-block; }
 .ani-episode-card-heading > .ani-marquee-track::before { content: attr(data-title); }
+.ani-upcoming-episode-card .ani-episode-card-heading > .ani-marquee-track::before { content: none; }
 :is(.ani-hide-episode-description .ani-episode-cards a, .ani-episode-cards a:has(> .ani-episode-card-description[data-text=""]))
   > .ani-episode-card-metadata { justify-content: center; }
 @media (prefers-reduced-motion: no-preference) {
@@ -14585,7 +14586,11 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                 );
                 bgmLink.prepend(iconImg);
               }
-              if (!bgmtv.closest('.ani-title-actions')) actions.append(bgmtv);
+              if (!bgmtv.closest('.ani-title-actions')) {
+                const existingShare = actions.querySelector(':scope > .share-button');
+                if (existingShare) existingShare.before(bgmtv);
+                else actions.append(bgmtv);
+              }
             }
             const bgmNode = actions.contains(bgmtv) ? bgmtv : null;
             for (const [link, iconSvg, cls] of [
@@ -14610,12 +14615,14 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                 pill.append(
                   document.createTextNode(cls === 'ani-title-pill-info' ? '作品資料' : '哈啦板'),
                 );
-                if (bgmNode) bgmNode.before(pill);
+                const anchor = bgmNode || actions.querySelector(':scope > .share-button');
+                if (anchor) anchor.before(pill);
                 else actions.append(pill);
               }
             }
             if (shareBtn) {
-              if (!shareBtn.closest('.ani-title-actions')) actions.append(shareBtn);
+              if (!shareBtn.closest('.ani-title-actions') || shareBtn !== actions.lastElementChild)
+                actions.append(shareBtn);
               if (!shareBtn.querySelector('.ani-share-pill-label')) {
                 shareBtn.insertAdjacentHTML(
                   'beforeend',
@@ -25545,10 +25552,10 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         } else {
           const actions =
             heading.parentElement.querySelector('.ani-title-actions') || heading.parentElement;
-          actions.insertAdjacentHTML(
-            'beforeend',
-            `<a class="ani-title-pill-link ani-bgm-work-link" href="${href}" target="_blank" rel="noopener noreferrer">${bangumiIcon}點格子</a>`,
-          );
+          const shareBtn = actions.querySelector(':scope > .share-button');
+          const linkHtml = `<a class="ani-title-pill-link ani-bgm-work-link" href="${href}" target="_blank" rel="noopener noreferrer">${bangumiIcon}點格子</a>`;
+          if (shareBtn) shareBtn.insertAdjacentHTML('beforebegin', linkHtml);
+          else actions.insertAdjacentHTML('beforeend', linkHtml);
         }
       }
 
@@ -29567,7 +29574,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           preview = document.createElement('li');
           preview.className = 'ani-upcoming-episode';
           preview.innerHTML =
-            '<div class="ani-upcoming-episode-card"><span class="ani-episode-card-glow" aria-hidden="true"></span><div class="ani-episode-frame"><img alt="" hidden><span class="ani-upcoming-episode-status ani-episode-card-watch">即將更新</span><span class="ani-upcoming-episode-number" aria-hidden="true"></span><time><span></span></time></div><div class="ani-episode-card-metadata"><strong class="ani-episode-card-heading"></strong></div><div class="ani-episode-card-description"></div></div>';
+            '<div class="ani-upcoming-episode-card"><span class="ani-episode-card-glow" aria-hidden="true"></span><div class="ani-episode-frame"><img alt="" hidden><span class="ani-upcoming-episode-status ani-episode-card-watch">即將更新</span><span class="ani-upcoming-episode-number" aria-hidden="true"></span><time><span></span></time></div><div class="ani-episode-card-metadata"><strong class="ani-episode-card-heading"><span class="ani-marquee-track"></span></strong></div><div class="ani-episode-card-description"></div></div>';
         }
         if (latest.nextElementSibling !== preview) latest.after(preview);
         const localizedTitle = typeof metadata.name === 'string' ? metadata.name.trim() : '';
@@ -29575,7 +29582,16 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           ? ''
           : localizedTitle;
         preview.querySelector('.ani-upcoming-episode-number').textContent = `EP.${number}`;
-        preview.querySelector('strong').textContent = title ? traditionalTitle(title) : workTitle;
+        const headingText = title ? traditionalTitle(title) : workTitle;
+        const heading = preview.querySelector('.ani-episode-card-heading');
+        const titleTrack =
+          heading.firstElementChild || heading.appendChild(document.createElement('span'));
+        titleTrack.className = 'ani-marquee-track';
+        heading.dataset.title = headingText;
+        titleTrack.dataset.title = headingText;
+        titleTrack.textContent = headingText;
+        episodeTitleObserver?.observe(heading);
+        episodeTitleObserver?.observe(titleTrack);
         const synopsis = readEpisodeSynopsis(metadata.description);
         const description = preview.querySelector('.ani-episode-card-description');
         const previousSynopsis = latest.querySelector('.ani-episode-card-description')?.dataset
@@ -29971,10 +29987,14 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             (movieWork && list?.querySelectorAll('li a').length === 1 && isStoryList);
           const verifiedIndex = episodeNumber - (slimeSeason?.firstEpisode || 1);
           const localizedTitle = epData?.name?.trim();
-          const translatedTitle =
-            localizedTitle && !/[\p{Script=Hiragana}\p{Script=Katakana}]/u.test(localizedTitle)
+          const hasKanaTitle = Boolean(
+            localizedTitle && /[\p{Script=Hiragana}\p{Script=Katakana}]/u.test(localizedTitle),
+          );
+          const translatedTitle = localizedTitle
+            ? !hasKanaTitle
               ? localizedTitle
-              : '';
+              : cachedEpisodeSynopsis(localizedTitle) || ''
+            : '';
           const icebladeTitle =
             episodeNumber === 1 &&
             /^[冰氷]劍的魔術師將要統一世界\s*(?:2|Ⅱ|II|第二季)$/iu.test(cleanTitle)
@@ -29990,14 +30010,44 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                 lastBossEpisode?.[0] ||
                 (isBunnyGirl && episodeNumber === 1 ? '學姊是兔女郎' : '')
               : specialTitle;
-          if (episodeTitle) {
-            a.dataset.aniEpTitle = traditionalTitle(episodeTitle);
+          const applyEpisodeTitle = (value) => {
+            if (!value) return;
+            a.dataset.aniEpTitle = traditionalTitle(value);
             const heading = a.querySelector('.ani-episode-card-heading');
             if (heading) {
               heading.dataset.title = a.dataset.aniEpTitle;
-              heading.firstElementChild.dataset.title = a.dataset.aniEpTitle;
+              if (heading.firstElementChild)
+                heading.firstElementChild.dataset.title = a.dataset.aniEpTitle;
             }
+            const currentDetails = a.querySelector('.ani-episode-card-details');
+            if (currentDetails) currentDetails.dataset.title = a.dataset.aniEpTitle;
             a.removeAttribute('title');
+          };
+          if (episodeTitle) {
+            applyEpisodeTitle(episodeTitle);
+          } else if (isStoryList && (epData?.description || '').trim()) {
+            applyEpisodeTitle(cleanTitle);
+          }
+          if (
+            isStoryList &&
+            !episodeTitle &&
+            hasKanaTitle &&
+            a.dataset.aniEpTitleTranslating !== localizedTitle
+          ) {
+            a.dataset.aniEpTitleTranslating = localizedTitle;
+            void requestEpisodeTranslation(localizedTitle)
+              .then((translated) => {
+                if (
+                  !translated ||
+                  !a.isConnected ||
+                  a.dataset.aniEpTitleTranslating !== localizedTitle
+                )
+                  return;
+                applyEpisodeTitle(translated);
+                season.dispatchEvent(new Event('ani-episode-titles-ready'));
+                syncFullscreenSubtitleAndMarquee();
+              })
+              .catch(() => {});
           }
           if (epData?.airdate) a.dataset.aniEpAirdate = epData.airdate;
           const cardDate = a.querySelector('.ani-episode-card-date');
