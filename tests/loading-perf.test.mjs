@@ -174,3 +174,47 @@ test('enhancements reuses resolved settings without duplicate storage get', asyn
   await new Promise((resolve) => setTimeout(resolve, 10));
   assert.equal(storageGets, 0);
 });
+
+test('home page hides late legacy score pills inside hours block even when cached top-left score is already visible', async (t) => {
+  const dom = new JSDOM(
+    `<div id="BH_background">
+      <section id="blockVideoInSeason">
+        <div class="newanime-wrap sort-selected">
+          <div class="newanime-block">
+            <div class="newanime-date-area">
+              <a class="anime-card-block" href="animeRef.php?sn=101">
+                <div class="anime-pic-block">
+                  <div class="anime-blocker"><img src="https://p2.bahamut.com.tw/B/ACG/cover.JPG"></div>
+                  <div class="anime-hours-block"><div class="anime-hours">17:00</div></div>
+                </div>
+                <div class="anime-detail-block"><div class="anime-name">測試新番</div></div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>`,
+    { url: 'https://ani.gamer.com.tw/', runScripts: 'outside-only', pretendToBeVisual: true },
+  );
+  t.after(() => dom.window.close());
+  const w = dom.window;
+  const d = w.document;
+  w.matchMedia = () => ({ matches: false, addEventListener() {} });
+  w.IntersectionObserver = class { observe() {} unobserve() {} disconnect() {} };
+  w.localStorage.setItem('ani-ambilight-scores-v1', JSON.stringify({ 101: { s: '4.81', t: Date.now() } }));
+  for (const file of ['settings.js', 'content.js']) {
+    w.eval(fs.readFileSync(`src/${file}`, 'utf8'));
+  }
+
+  const badge = d.querySelector('.ani-score-badge-top-left');
+  assert(badge && !badge.hidden, 'cached top-left score badge should render immediately');
+
+  const hoursBlock = d.querySelector('.anime-hours-block');
+  const legacyPill = d.createElement('span');
+  legacyPill.textContent = '4.81';
+  hoursBlock.append(legacyPill);
+
+  await new Promise((resolve) => setTimeout(resolve, 250));
+  assert.equal(legacyPill.style.display, 'none', 'late legacy rating pill inside hours block must be hidden');
+  assert.notEqual(hoursBlock.style.display, 'none');
+});

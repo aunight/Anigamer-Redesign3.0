@@ -45,7 +45,8 @@ body.ani-catalog-page.ani-layout-related.ani-ambientlight-page #BH_background .a
   line-height: 20px !important;
   border: 1px solid #c5dbe540 !important;
 }
-body.ani-ambientlight-ui #BH_background .theme-img-block > .tm-acg-rating { display: none !important; }
+body.ani-ambientlight-ui #BH_background .theme-img-block > .tm-acg-rating,
+body.ani-ambientlight-ui #BH_background #blockVideoInSeason .newanime-date-area :is(.tm-acg-rating, .ani-custom-rating) { display: none !important; }
 /* One poster component for homepage rails and the catalog. The :is() includes
    native rail IDs to match the specificity of the legacy homepage rules. */
 /* Allow .ani-poster-card to apply cleanly both under ani-layout-related and watch page .old_list */

@@ -6897,15 +6897,15 @@
       const cache = readScoreCache();
       for (const area of weekly.querySelectorAll('.newanime-date-area')) {
         const picBlock = area.querySelector('.anime-pic-block');
-        if (!picBlock || picBlock.querySelector(':scope > .ani-score-badge-top-left:not([hidden])')) continue;
+        if (!picBlock) continue;
         const cardLink = area.querySelector('.anime-card-block');
         let capturedScore = '';
         for (const candidate of area.querySelectorAll(
-          '.label-edition, .tm-acg-rating, .ani-custom-rating, .anime-detail-info-block span, .anime-pic-block > span, .anime-pic-block > div',
+          ':scope > span, :scope > p, .anime-card-block :is(span, div, p, b, strong, em, small, i, a), .label-edition, .tm-acg-rating, .ani-custom-rating',
         )) {
           if (
             candidate.matches(
-              '.anime-detail-info-block, .anime-label-block, .anime-detail-block, .anime-pic-block, .anime-blocker, .anime-card-block, .anime-block, .anime-content-block, .anime-hours-block, .anime-hours, .anime-episode, .anime-watch-number, .anime-name-block, .anime-name, .date-block, .anime-date-info, a',
+              '.anime-detail-info-block, .anime-label-block, .anime-detail-block, .anime-pic-block, .anime-blocker, .anime-card-block, .anime-block, .anime-content-block, .anime-hours-block, .anime-hours, .anime-episode, .anime-watch-number, .anime-name-block, .anime-name, .date-block, .anime-date-info, a.anime-card-block',
             ) ||
             candidate.closest(
               '.ani-score-badge-top-left, .anime-episode, .anime-watch-number, .anime-name-block, .date-block, .anime-date-info',
@@ -6913,20 +6913,26 @@
           ) {
             continue;
           }
-          if (candidate.children.length > 0) continue;
+          if (
+            [...candidate.children].some((ch) => !ch.matches('svg, img, i')) &&
+            !candidate.matches('.tm-acg-rating, .ani-custom-rating')
+          ) {
+            continue;
+          }
           const rawTxt = (candidate.textContent || '').replace(/\s+/g, ' ').trim();
           const match = rawTxt.match(/^(?:★\s*)?([0-5]\.\d{1,2})$/);
           if (!match) continue;
-          capturedScore = match[1];
-          candidate.style.setProperty('display', 'none', 'important');
-          break;
+          if (!capturedScore) capturedScore = match[1];
+          if (candidate.style.display !== 'none') {
+            candidate.style.setProperty('display', 'none', 'important');
+          }
         }
         const snMatch = (cardLink?.getAttribute('href') || '').match(/[?&]sn=(\d+)/);
         const sn = snMatch ? snMatch[1] : '';
         if (capturedScore) {
-          if (sn) writeScoreCache(sn, capturedScore);
+          if (sn && cache[sn]?.s !== capturedScore) writeScoreCache(sn, capturedScore);
           renderTopLeftScoreBadge(picBlock, capturedScore);
-        } else if (sn) {
+        } else if (sn && !picBlock.querySelector(':scope > .ani-score-badge-top-left:not([hidden])')) {
           if (cache[sn]?.s) {
             renderTopLeftScoreBadge(picBlock, cache[sn].s);
           } else if (!area.dataset.aniScoreQueued) {
