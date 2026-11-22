@@ -1143,7 +1143,7 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #blockVideoInSeaso
 body.ani-ambientlight-page.ani-ambientlight-ui #blockContinueWatch .ani-continue-overflow .ani-marquee-track { animation-timing-function:linear !important; }
 #blockVideoInSeason,.ani-week-extra,.newanime-date-area { scroll-margin-top:90px; }
 /* Next episode text and chevrons share the same vertical center. */
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .btn-next { display:inline-flex !important;align-items:center !important;justify-content:center !important;gap:7px !important;line-height:1 !important;padding:8px 12px !important;box-sizing:border-box; }
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .btn-next { display:inline-flex !important;align-items:center !important;justify-content:center !important;gap:3px !important;line-height:1 !important;padding:4px 6px !important;width:auto !important;min-width:0 !important;box-sizing:border-box; }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #blockContinueWatch .btn-next :is(p,span) { margin:0 !important;padding:0 !important;line-height:1 !important;position:static !important;top:auto !important;vertical-align:middle; }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #blockContinueWatch .btn-next .ani-next-icon { display:inline-flex !important;align-items:center;justify-content:center;flex:none;width:18px;height:18px; }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #blockContinueWatch .btn-next .ani-next-icon svg { display:block;width:18px;height:18px; }

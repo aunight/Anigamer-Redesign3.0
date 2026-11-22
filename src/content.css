@@ -5571,19 +5571,6 @@ body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card
   height: auto !important;
   min-height: 56px !important;
 }
-body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card:is(:hover, :focus-within) .anime-name {
-  white-space: normal !important;
-  overflow: visible !important;
-  mask-image: none !important;
-  -webkit-mask-image: none !important;
-  overflow-wrap: anywhere;
-}
-body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card:is(:hover, :focus-within) .ani-marquee-track {
-  display: inline !important;
-  white-space: normal !important;
-  animation: none !important;
-  transform: none !important;
-}
 body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .btn-delete {
   top: 10px !important;
   right: 10px !important;
@@ -5642,7 +5629,7 @@ body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card
   padding-right: 6px !important;
 }
 body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card:has(.btn-next) .content {
-  padding-right: 88px !important;
+  padding-right: 68px !important;
 }
 body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .anime-name {
   font-size: 13px !important;
@@ -5731,8 +5718,7 @@ body.ani-ambientlight-ui #BH_background #blockContinueWatch .anime-name.ani-cont
   mask-image: linear-gradient(to right, transparent, #000 8px, #000 calc(100% - 14px), transparent) !important;
   -webkit-mask-image: linear-gradient(to right, transparent, #000 8px, #000 calc(100% - 14px), transparent) !important;
 }
-body.ani-ambientlight-page #BH_background #blockVideoInSeason .anime-card-block:is(:hover, :focus-within) .anime-name[data-ani-marquee='true'],
-body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card:is(:hover, :focus-within) .anime-name.ani-continue-overflow {
+body.ani-ambientlight-page #BH_background #blockVideoInSeason .anime-card-block:is(:hover, :focus-within) .anime-name[data-ani-marquee='true'] {
   mask-image: none !important;
   -webkit-mask-image: none !important;
 }
@@ -6392,10 +6378,6 @@ body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card
   mask-image: linear-gradient(to right, transparent, #000 8px, #000 calc(100% - 14px), transparent) !important;
   -webkit-mask-image: linear-gradient(to right, transparent, #000 8px, #000 calc(100% - 14px), transparent) !important;
 }
-body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card:is(:hover, :focus-within) .anime-name.ani-continue-overflow {
-  mask-image: none !important;
-  -webkit-mask-image: none !important;
-}
 
 /* Poster titles expand upward within a reserved footer, never changing row height. */
 body.ani-layout-related.ani-home-page #BH_background > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-main {
@@ -6473,6 +6455,9 @@ body.ani-ambientlight-ui #BH_background #blockContinueWatch .btn-next:hover .ani
   transform: translateX(2px);
 }
 @media (prefers-reduced-motion: reduce) {
+  body.ani-ambientlight-ui #blockContinueWatch .ani-continue-overflow .ani-marquee-track {
+    animation: none !important;
+  }
   body.ani-ambientlight-ui #BH_background #blockContinueWatch :is(.card-img, .img-bg-blur-bg, .btn-next, .ani-next-icon) {
     transition: none !important;
   }
