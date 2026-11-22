@@ -7578,22 +7578,7 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep
   border-color: rgba(76, 211, 220, 0.72) !important;
   color: #ffffff !important;
 }
-@property --ani-episode-fade-start {
-  syntax: "<length>";
-  inherits: true;
-  initial-value: 0px;
-}
-@property --ani-episode-fade-end {
-  syntax: "<length>";
-  inherits: true;
-  initial-value: 0px;
-}
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep-drawer-scroll {
-  --ani-episode-fade-top: 34px;
-  --ani-episode-fade-bottom: 52px;
-  --ani-episode-fade-start: 0px;
-  --ani-episode-fade-end: 0px;
-  transition: --ani-episode-fade-start 180ms ease-out, --ani-episode-fade-end 180ms ease-out;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -7603,61 +7588,34 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep-drawer-body {
   min-height: 0 !important;
-  padding: 14px calc(var(--ani-episode-panel-gutter) + 3px) clamp(14px, 2vw, 22px) !important;
+  padding: 10px calc(var(--ani-episode-panel-gutter) + 3px) clamp(16px, 2vw, 22px) !important;
   overflow-y: auto !important;
-  scroll-padding-block: var(--ani-episode-fade-top) var(--ani-episode-fade-bottom);
+  scroll-padding-block: 10px 18px;
   scrollbar-width: thin !important;
   scrollbar-color: var(--ani-muted, #9bafc3) transparent;
   container-type: inline-size;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0px,
+    rgba(0, 0, 0, 0.5) 3px,
+    #000 8px,
+    #000 calc(100% - 16px),
+    rgba(0, 0, 0, 0.45) calc(100% - 7px),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0px,
+    rgba(0, 0, 0, 0.5) 3px,
+    #000 8px,
+    #000 calc(100% - 16px),
+    rgba(0, 0, 0, 0.45) calc(100% - 7px),
+    transparent 100%
+  );
 }
 #ani_video .ani-ep-drawer-scroll::before,
 #ani_video .ani-ep-drawer-scroll::after {
-  content: '';
-  position: absolute;
-  inset-inline: 0;
-  z-index: 2;
-  pointer-events: none;
-  opacity: 0;
-  backdrop-filter: blur(10px);
-  transition: opacity 180ms ease-out;
-}
-#ani_video .ani-ep-drawer-scroll::before {
-  top: 0;
-  height: var(--ani-episode-fade-top);
-  background: linear-gradient(to bottom, rgb(0 0 0 / 36%), transparent);
-  mask-image: linear-gradient(to bottom, #000, transparent);
-}
-#ani_video .ani-ep-drawer-scroll::after {
-  bottom: 0;
-  height: var(--ani-episode-fade-bottom);
-  background: linear-gradient(to top, rgb(0 0 0 / 28%), transparent);
-  mask-image: linear-gradient(to top, #000, transparent);
-}
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep-drawer-scroll.can-scroll-up {
-  --ani-episode-fade-start: var(--ani-episode-fade-top);
-}
-body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep-drawer-scroll.can-scroll-down {
-  --ani-episode-fade-end: var(--ani-episode-fade-bottom);
-}
-#ani_video .ani-ep-drawer-scroll > .ani-ep-drawer-body {
-  mask-image: linear-gradient(
-    to bottom,
-    transparent,
-    #000 var(--ani-episode-fade-start),
-    #000 calc(100% - var(--ani-episode-fade-end)),
-    transparent
-  );
-}
-#ani_video .ani-ep-drawer-scroll.can-scroll-up::before,
-#ani_video .ani-ep-drawer-scroll.can-scroll-down::after {
-  opacity: 1;
-}
-@media (prefers-reduced-motion: reduce) {
-  #ani_video .ani-ep-drawer-scroll,
-  #ani_video .ani-ep-drawer-scroll::before,
-  #ani_video .ani-ep-drawer-scroll::after {
-    transition: none !important;
-  }
+  display: none !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep-drawer-grid {
   display: grid !important;
@@ -10931,6 +10889,7 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background {
   body.ani-layout-comments #BH_background .commend-title .ani-comment-sort button {transition:none}
 }
 body.ani-layout-comments .ani-comment-columns .ani-comment-recommendations:not([hidden]) {
+  position: relative;
   grid-template-columns: minmax(0, 1fr);
   row-gap: 16px;
   container-type: inline-size;
