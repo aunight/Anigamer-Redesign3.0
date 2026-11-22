@@ -164,6 +164,11 @@
         請先確認瀏覽器已安裝 <strong>Tampermonkey</strong> 或 <strong>Violentmonkey</strong>，並允許此頁面開啟多個分頁彈窗。勾選欲安裝的相容腳本後點擊「一鍵依序開啟安裝頁」，即可自動逐一彈出 <code>.user.js</code> 安裝確認畫面。
       </p>
 
+      <div class="note" style="margin-top:0;margin-bottom:16px;background:rgba(245,158,11,0.14);border-color:rgba(251,191,36,0.45);color:#fef3c7;">
+        ⚠️ <strong>重要提醒：請務必先允許此頁面「彈出式視窗」</strong><br>
+        因為瀏覽器預設會擋住一次開啟多個分頁，第一次點擊下方按鈕可能只會開出第 1 個頁面。請點網址列右側的「已封鎖彈出式視窗」圖示 → 選擇「一律允許」，再重新按一次即可一次開啟全部！
+      </div>
+
       <div class="toolbar">
         <button type="button" class="primary" id="install-selected">一鍵依序開啟安裝頁</button>
         <button type="button" id="select-all">全選</button>
@@ -174,8 +179,8 @@
       <div class="status" id="status" role="status"></div>
 
       <div class="note">
-        <p><strong>動畫瘋·Plus Chrome 擴充版</strong>提供截圖、錄影與影像融合工具。Plus 的 Chrome 擴充版與上方可批次安裝的 Greasy Fork 腳本版請擇一啟用。<a href="https://xu3u04u48.github.io/Anime_Crazy_Dot_Plus/" target="_blank" rel="noopener noreferrer">擴充版官方安裝頁</a></p>
-        若瀏覽器攔截了彈出視窗，請在網址列右側選擇「一律允許彈出式視窗」後再試一次，或直接點擊各列右側的「單獨安裝」連結。
+        <p><strong>動畫瘋·Plus</strong> 已改為預設開啟 <strong>Chrome 線上應用程式商店</strong>擴充版（支援截圖、錄影、影像融合與完整設定抽屜）；若你偏好油猴腳本版，可點「介紹頁」前往 Greasy Fork 安裝，兩者擇一啟用即可。</p>
+        若瀏覽器攔截了彈出視窗，請在網址列右側選擇「一律允許彈出式視窗」後再試一次，或直接點擊各列右側的單獨安裝連結。
       </div>
     </div>
   </div>
@@ -184,11 +189,12 @@
     const PLUGINS = [
       {
         id: '369990',
-        name: '動畫瘋·Plus（Greasy Fork 腳本版）',
-        cat: '功能增強',
-        desc: '自動接續下一集、空降座標等播放輔助，設定整合進播放器抽屜。',
+        name: '動畫瘋·Plus（Chrome 商店擴充版）',
+        cat: '功能增強 · 推薦商店版',
+        desc: '自動接續下一集、跳過 OP、彈幕熱度圖、截圖錄影與完整設定抽屜（已深度整合進播放器工具列）。',
         page: 'https://greasyfork.org/zh-TW/scripts/369990-%E5%8B%95%E7%95%AB%E7%98%8B-plus',
-        install: 'https://update.greasyfork.org/scripts/369990/%E5%8B%95%E7%95%AB%E7%98%8B%C2%B7Plus.user.js',
+        install: 'https://chromewebstore.google.com/detail/%E5%8B%95%E7%95%AB%E7%98%8B%C2%B7plus/jkpkmeimgkhodlppajjgikfcodlilmpd',
+        installLabel: '前往商店',
         checked: true,
       },
       {
