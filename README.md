@@ -1,5 +1,14 @@
 # 動畫瘋重製版 3.0
 
+[下載安裝包 (Releases)](https://github.com/aunight/Anigamer-Redesign3.0/releases/latest) · [Userscript 直接安裝](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/userscript/ani-ambilight.user.js) · [附加腳本批次安裝](https://htmlpreview.github.io/?https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/plugins.html) · [問題回報 (Issues)](https://github.com/aunight/Anigamer-Redesign3.0/issues)
+
+[![Release](https://img.shields.io/github/v/release/aunight/Anigamer-Redesign3.0?style=flat-square&label=Release&color=3b82f6)](https://github.com/aunight/Anigamer-Redesign3.0/releases/latest)
+![Version](https://img.shields.io/badge/Version-3.2.0-1e293b?style=flat-square)
+![Platform](https://img.shields.io/badge/Platform-Chrome%20%7C%20Firefox%20%7C%20Userscript-1e293b?style=flat-square)
+[![CI](https://img.shields.io/github/actions/workflow/status/aunight/Anigamer-Redesign3.0/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/aunight/Anigamer-Redesign3.0/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/License-MIT-2563eb?style=flat-square)](LICENSE)
+[![Attribution](https://img.shields.io/badge/Attribution-MIT%20Credits-7c3aed?style=flat-square)](#授權聲明license)
+
 ![動畫瘋重製版 3.0 首頁預覽](docs/preview-home-20261120.jpg)
 
 由 [秋夜](https://www.aunight.pw) 主導的 **動畫瘋重製版 3.0** —— 以現代化磨砂玻璃（Frosted Glass）、高對比電影級排版與全頁視覺一致性為核心，重製動畫瘋首頁（含開場液態波紋、主視覺橫幅、動畫瘋足跡熱力圖＆點陣天氣實況）、播放頁、播放器控制列、片庫目錄與第三方輔助腳本整合體驗。
@@ -108,3 +117,12 @@ scripts/build.mjs      統一打包 Chromium / Firefox / Userscript
 本專案延續上游專案採用 **[MIT License](LICENSE)** 釋出：
 - 保留原著作權人 **Wessel Kroos**、**iceorange-dev**、**Hinataragi**、**jiuyang5354**（`bilibili-margin`）與 **Saurabh Sharma**（`GreatUI`）之版權與授權聲明；
 - 本專案為非官方開源重構工具，與巴哈姆特動畫瘋無關，亦不讀取或儲存使用者帳號密碼。
+
+---
+
+## 免責條款（Disclaimer）
+
+- **非官方性質**：本專案為獨立開發之非官方瀏覽器擴充功能／使用者腳本，與「巴哈姆特電玩資訊站」及「巴哈姆特動畫瘋」無任何隸屬、合作或授權關係；站內所有商標、圖片、動畫影像及文字資料之版權均歸原權利人所有。
+- **隱私與本機處理**：本工具僅於使用者瀏覽器本機端調整網頁版面與介面互動，不會收集、上傳或儲存您的帳號密碼與登入憑證；設定與觀看足跡均儲存於本機瀏覽器空間（或使用者瀏覽器同步空間），其餘公開作品資訊與天氣實況僅透過公開 API 即時查詢。
+- **使用風險自負**：本專案依 MIT License「按現狀（AS IS）」提供，不對任何明示或默示之適用性或穩定性提供保證；因官方網站改版、第三方腳本衝突、網路或瀏覽器環境差異所造成之顯示異常或資料損失，請由使用者自行評估與承擔。
+- **權利通知**：若有任何權利人或相關單位認為本專案內容有不妥之處，歡迎透過 [Issues](https://github.com/aunight/Anigamer-Redesign3.0/issues) 告知，我們將儘速配合調整或移除。
