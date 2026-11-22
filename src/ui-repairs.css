@@ -5691,31 +5691,31 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .su
   overflow: visible !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle .ani-sidebar-intro > .ani-sidebar-scroll {
-  /* Let the synopsis pass behind the capsule before it reaches the clip edge. */
-  inset-block-start: -54px !important;
-  padding-block: 68px 20px !important;
-  mask-image: linear-gradient(to bottom, transparent 8px, rgb(0 0 0 / .22) 38px, rgb(0 0 0 / .72) 58px, #000 78px, #000 calc(100% - 28px), transparent);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 8px, rgb(0 0 0 / .22) 38px, rgb(0 0 0 / .72) 58px, #000 78px, #000 calc(100% - 28px), transparent);
+  /* Extend to the very top of .subtitle and keep content opaque behind the capsule so backdrop-filter visibly blurs it. */
+  inset-block-start: -64px !important;
+  padding-block: 76px 24px !important;
+  mask-image: linear-gradient(to bottom, transparent 0px, rgb(0 0 0 / .85) 18px, #000 32px, #000 calc(100% - 34px), transparent);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0px, rgb(0 0 0 / .85) 18px, #000 32px, #000 calc(100% - 34px), transparent);
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle .ani-sidebar-intro::after {
   content: '';
   position: absolute;
-  inset: -54px 0 auto;
-  height: 80px;
+  inset: -64px 0 auto;
+  height: 96px;
   z-index: 1;
   pointer-events: none;
-  background: linear-gradient(to bottom, rgba(12, 22, 34, 0.68) 0%, rgba(12, 22, 34, 0.36) 56%, transparent 100%);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  mask-image: linear-gradient(to bottom, #000 48px, transparent);
-  -webkit-mask-image: linear-gradient(to bottom, #000 48px, transparent);
+  background: linear-gradient(to bottom, rgba(12, 22, 34, 0.78) 0%, rgba(12, 22, 34, 0.56) 58%, rgba(12, 22, 34, 0.22) 82%, transparent 100%);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  mask-image: none;
+  -webkit-mask-image: none;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle:has(.ani-sidebar-intro[data-ani-tab-active='true']) .ani-segmented-tabs {
   position: relative !important;
   z-index: 30 !important;
-  background: rgba(12, 22, 34, 0.56) !important;
-  backdrop-filter: blur(22px) saturate(145%) !important;
-  -webkit-backdrop-filter: blur(22px) saturate(145%) !important;
+  background: rgba(14, 24, 38, 0.44) !important;
+  backdrop-filter: blur(18px) saturate(165%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(165%) !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle .ani-rating-scroll {
   display: flex;
@@ -5993,19 +5993,20 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .su
   width: 118px !important;
   height: 118px !important;
   overflow: visible !important;
-  background: radial-gradient(circle closest-side, transparent 58%, color-mix(in srgb, var(--ani-accent, #3dafb6) 12%, transparent) 70%, transparent 86%);
+  background: radial-gradient(circle closest-side, transparent 51%, color-mix(in srgb, var(--ani-accent, #3dafb6) 24%, transparent) 70%, transparent 96%);
 }
 .ani-rating-ring-graphic {
+  --ani-ring-stroke: 9px;
   position: absolute;
   inset: 11.36%;
   isolation: isolate;
 }
 .ani-rating-ring-graphic::before,
-.ani-ring-rotator::before {
+.ani-ring-half .ani-ring-rotator::before {
   content: '';
   position: absolute;
   inset: 0;
-  border: 9px solid rgba(255, 255, 255, 0.12);
+  border: var(--ani-ring-stroke) solid rgba(255, 255, 255, 0.12);
   border-radius: 50%;
   box-sizing: border-box;
 }
@@ -6020,11 +6021,23 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .su
   inset: 0 0 0 -100%;
 }
 .ani-ring-half + .ani-ring-half .ani-ring-rotator { inset: 0 -100% 0 0; }
-.ani-ring-rotator::before {
+.ani-ring-half .ani-ring-rotator::before {
   border-color: var(--ani-accent, #3dafb6);
   clip-path: inset(0 50% 0 0);
 }
 .ani-ring-half + .ani-ring-half .ani-ring-rotator::before { clip-path: inset(0 0 0 50%); }
+.ani-ring-cap-orbit { inset: 0; }
+.ani-rating-ring-graphic:not([data-angle='0'])::after,
+.ani-rating-ring-graphic:not([data-angle='0']) .ani-ring-cap-orbit::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto auto 50%;
+  width: var(--ani-ring-stroke);
+  height: var(--ani-ring-stroke);
+  border-radius: 50%;
+  background: var(--ani-accent, #3dafb6);
+  transform: translateX(-50%);
+}
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle .ani-ring-center {
   position: absolute !important;
   inset: 0 !important;
