@@ -5749,27 +5749,27 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .su
 .ani-rating-review-viewport > .ani-reviews-list {
   flex: 1 1 auto;
   min-height: 0;
-  padding: 10px 3px 14px;
+  padding: 8px 3px 14px;
   overflow-y: auto;
   scrollbar-width: none;
   overscroll-behavior-y: contain;
-  scroll-padding-block: 12px;
+  scroll-padding-block: 10px;
   mask-image: linear-gradient(
     to bottom,
     transparent 0px,
-    rgba(0, 0, 0, 0.45) 7px,
-    #000 16px,
-    #000 calc(100% - 18px),
-    rgba(0, 0, 0, 0.45) calc(100% - 8px),
+    rgba(0, 0, 0, 0.5) 3px,
+    #000 8px,
+    #000 calc(100% - 16px),
+    rgba(0, 0, 0, 0.45) calc(100% - 7px),
     transparent 100%
   );
   -webkit-mask-image: linear-gradient(
     to bottom,
     transparent 0px,
-    rgba(0, 0, 0, 0.45) 7px,
-    #000 16px,
-    #000 calc(100% - 18px),
-    rgba(0, 0, 0, 0.45) calc(100% - 8px),
+    rgba(0, 0, 0, 0.5) 3px,
+    #000 8px,
+    #000 calc(100% - 16px),
+    rgba(0, 0, 0, 0.45) calc(100% - 7px),
     transparent 100%
   );
 }
@@ -8370,7 +8370,7 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .su
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  margin-bottom: 10px !important;
+  margin-bottom: 6px !important;
   font: 600 13.5px/1.3 var(--ani-font, system-ui, sans-serif) !important;
   color: #edf4fb !important;
 }
@@ -10950,20 +10950,44 @@ body.ani-layout-comments .ani-comment-columns .ani-comment-recommendations > a:n
   border-radius: 7px;
 }
 .ani-rec-skeleton { display: grid; gap: 16px; }
-.ani-rec-skeleton-row > .ani-rec-poster,
-.ani-rec-skeleton-row > span:last-child::before,
-.ani-rec-skeleton-row > span:last-child::after {
+body.ani-layout-comments .ani-comment-recommendations > a,
+.ani-rec-skeleton-row { min-height: 96px; }
+.ani-comment-recommendations .ani-rec-copy {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+  grid-template-rows: 2.8em 23px 17px;
+  align-items: center;
+  font-size: 18px;
+  line-height: 1.4;
+}
+.ani-comment-recommendations .ani-rec-copy > strong {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.ani-comment-recommendations .ani-rec-copy > .ani-rec-facts {
+  flex-wrap: nowrap;
+  overflow: hidden;
+  min-height: 21px;
+  margin-block: 0;
+}
+.ani-comment-recommendations .ani-rec-copy > .ani-rec-genres {
+  display: block;
+  font-size: 12px;
+  line-height: 17px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ani-rec-skeleton-row :is(.ani-rec-poster, strong, .ani-rec-facts > span, .ani-rec-genres) {
   background: color-mix(in srgb, var(--ani-muted, #9aadc2) 17%, transparent);
 }
-.ani-rec-skeleton-row > span:last-child::before,
-.ani-rec-skeleton-row > span:last-child::after {
-  content: '';
-  display: block;
-  width: 84%;
-  height: 12px;
-  border-radius: 5px;
-}
-.ani-rec-skeleton-row > span:last-child::after { width: 56%; height: 8px; margin-top: 8px; }
+.ani-rec-skeleton-row strong { width: 72%; height: 18px; border-radius: 5px; }
+.ani-rec-skeleton-row .ani-rec-facts > span { width: 54px; }
+.ani-rec-skeleton-row .ani-rec-facts > span + span { width: 74px; }
+.ani-rec-skeleton-row .ani-rec-copy > .ani-rec-genres { width: 52%; height: 12px; border-radius: 5px; }
 @media (prefers-reduced-motion: no-preference) {
   .ani-rec-fetching .ani-rec-skeleton { animation: ani-rec-skeleton-pulse 1.25s ease-in-out infinite alternate; }
   @keyframes ani-rec-skeleton-pulse { from { opacity: .48; } to { opacity: 1; } }
