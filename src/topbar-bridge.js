@@ -3,23 +3,75 @@
   if (globalThis.__aniTopbarBridgeInstalled) return;
   globalThis.__aniTopbarBridgeInstalled = true;
 
-  // Observe page-script navigation in the same world as the site's player.
-  if (location.pathname === '/animeVideo.php') {
-    let declined = false;
-    document.addEventListener('click', event => {
-      if (event.isTrusted && event.target.closest?.('#ani_video .choose-btn-disagree, #ani_video .ani-consent-decline')) {
-        declined = true;
+  // Slick normally measures on window resize, but the homepage theme also
+  // changes the rail width without resizing the window.
+  if (location.pathname === '/' || location.pathname === '/index.php') {
+    const rail = document.getElementById('continueWatch');
+    if (rail && typeof ResizeObserver === 'function') {
+      let measuredWidth = 0;
+      const measure = () => {
+        if (!rail.isConnected) {
+          sizes.disconnect();
+          return;
+        }
+        const width = rail.clientWidth;
+        if (!width || width === measuredWidth || !rail.classList.contains('slick-initialized')) return;
+        measuredWidth = width;
+        const carousel = rail.slick;
+        if (typeof carousel?.setPosition === 'function') carousel.setPosition();
+        else window.dispatchEvent(new Event('orientationchange'));
+        rail.dataset.aniContinueSized = 'true';
+      };
+      const sizes = new ResizeObserver(measure);
+      sizes.observe(rail);
+      if (!rail.classList.contains('slick-initialized')) {
+        const initialization = new MutationObserver(() => {
+          if (!rail.classList.contains('slick-initialized')) return;
+          initialization.disconnect();
+          measure();
+        });
+        initialization.observe(rail, { attributes: true, attributeFilter: ['class'] });
       }
+      measure();
+    }
+  }
+
+  // The player can remove its prompt before requesting a homepage redirect.
+  if (location.pathname === '/animeVideo.php' && window.navigation) {
+    const agree = '.choose-btn-agree, .ani-consent-accept';
+    const choice = agree + ', .choose-btn-disagree, .ani-consent-decline';
+    let awaitingChoice = false;
+    let handledPrompt;
+    const rememberPrompt = (player) => {
+      const prompt = player.querySelector(agree);
+      if (prompt && prompt !== handledPrompt) awaitingChoice = true;
+    };
+    const player = document.getElementById('ani_video');
+    if (player) {
+      rememberPrompt(player);
+      new MutationObserver(() => rememberPrompt(player)).observe(player, { childList: true, subtree: true });
+    }
+    document.addEventListener('click', event => {
+      const currentPlayer = document.getElementById('ani_video');
+      if (!event.isTrusted || !currentPlayer?.contains(event.target) || !event.target.closest?.(choice)) return;
+      handledPrompt = currentPlayer.querySelector(agree);
+      awaitingChoice = false;
     }, true);
-    window.navigation?.addEventListener('navigate', event => {
-      if (declined || !document.body?.classList.contains('ani-ambientlight-page') ||
+    document.addEventListener('playing', event => {
+      const currentPlayer = document.getElementById('ani_video');
+      if (currentPlayer?.contains(event.target) && !currentPlayer.querySelector(agree)) awaitingChoice = false;
+    }, true);
+    window.navigation.addEventListener('navigate', event => {
+      if (!document.body?.classList.contains('ani-ambientlight-page') ||
           !event.cancelable || event.userInitiated || event.navigationType === 'traverse' ||
           navigator.userActivation?.isActive) return;
       const destination = new URL(event.destination.url);
       if (destination.host !== location.host || !['http:', 'https:'].includes(destination.protocol) ||
           !['/', '/index.php'].includes(destination.pathname)) return;
-      const consent = document.querySelector('#ani_video .choose-btn-agree, #ani_video .ani-consent-accept');
-      if (consent?.getClientRects().length) event.preventDefault();
+      const currentPlayer = document.getElementById('ani_video');
+      if (!currentPlayer) return;
+      rememberPrompt(currentPlayer);
+      if (awaitingChoice) event.preventDefault();
     });
   }
 
@@ -147,6 +199,39 @@
     script.remove();
   } else {
     installCommentImageZoom();
+  }
+
+  function installReviewEvents() {
+    if (window.aniReviewEventsInstalled) return;
+    document.addEventListener('ani-review-request-profile', () => {
+      const account = window.User?.Login;
+      const userId = account?.getUserid?.();
+      if (!userId) return;
+      const name = window.Cookies?.get?.('BAHANICK') || userId;
+      const rawAvatar = account.getAvatarUrl?.() || '';
+      const avatar = rawAvatar.startsWith('//') ? 'https:' + rawAvatar : rawAvatar;
+      document.dispatchEvent(new CustomEvent('ani-review-profile', {
+        detail: JSON.stringify({ name, avatar }),
+      }));
+    });
+    const jquery = window.jQuery;
+    if (typeof jquery !== 'function') return;
+    window.aniReviewEventsInstalled = true;
+    jquery(window).on('AcgScorePostNew.aniRedesign AcgScorePostEdit.aniRedesign', (_event, review) => {
+      if (typeof review?.content === 'string') {
+        document.dispatchEvent(new CustomEvent('ani-review-saved', { detail: review.content }));
+      }
+    });
+  }
+  if (location.pathname === '/animeVideo.php') {
+    if (typeof GM_getValue === 'function' && typeof window.jQuery !== 'function') {
+      const script = document.createElement('script');
+      script.textContent = `(${installReviewEvents.toString()})();`;
+      (document.head || document.documentElement).append(script);
+      script.remove();
+    } else {
+      installReviewEvents();
+    }
   }
 
   document.addEventListener('click', (event) => {

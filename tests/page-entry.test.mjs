@@ -55,8 +55,8 @@ test('the project favicon replaces native tab icons after the head is parsed', a
   assert(w.document.head.querySelector('link[rel="apple-touch-icon"]'));
 });
 
-test('the opening waits for both UI phases and its minimum duration but does not wait for web fonts', t => {
-  const { w, timers, paint, fire } = createPage(t);
+test('the homepage reveals after core UI paints without a fixed delay', t => {
+  const { w, timers, paint } = createPage(t);
   w.document.body.remove();
   w.localStorage.setItem('aniFontUrlHint', 'https://fonts.googleapis.com/css2?family=Iansui&display=block');
   w.eval(entry);
@@ -67,10 +67,6 @@ test('the opening waits for both UI phases and its minimum duration but does not
   assert.equal(font.media, 'print');
   assert.equal(new URL(font.href).searchParams.get('display'), 'swap');
   markReady(w);
-  markReady(w, true);
-  paint();
-  assert(!curtain.classList.contains('ani-intro-reveal'));
-  fire(750);
   paint();
   assert(!curtain.classList.contains('ani-intro-reveal'));
   paint();
@@ -121,7 +117,9 @@ test('internal navigation keeps its cover after parsing until both UI phases are
   assert(cover.classList.contains('ani-route-visible'));
   assert.equal(timers.size, 1);
   const [cleanup] = timers.values();
-  assert(cleanup.delay <= 150);
+  const css = fs.readFileSync('src/page-entry.css', 'utf8');
+  const fadeMs = Number(css.match(/\.ani-route-cover\s*\{[^}]*transition:\s*opacity\s+(\d+)ms/)?.[1]);
+  assert(fadeMs > 0 && cleanup.delay >= fadeMs && cleanup.delay <= fadeMs + 60);
   cleanup.callback();
   assert(!cover.isConnected);
 });
@@ -160,8 +158,7 @@ test('reload shows the full opening until the themed UI is ready even on an inte
 test('a missing readiness event cannot keep the opening overlay indefinitely', t => {
   const { w, fire } = createPage(t);
   w.eval(entry);
-  fire(750);
-  fire(5000);
+  fire(900);
   assert(!w.document.documentElement.dataset.aniBooting);
   assert(w.document.querySelector('.ani-intro-reveal'));
 });
@@ -193,4 +190,29 @@ test('playback reload can reveal an already themed page when enhancements are de
   assert(w.document.querySelector('.ani-intro-reveal'));
   assert(!w.document.documentElement.dataset.aniBooting);
   assert(!w.document.documentElement.dataset.aniEpisodePreview);
+});
+
+test('navigation to the homepage plays the opening again after a cached return', t => {
+  const { w, fire, paint } = createPage(t, {
+    path: '/index.php',
+    referrer: 'https://ani.gamer.com.tw/animeVideo.php?sn=123',
+  });
+  w.eval(entry);
+  const intro = () => w.document.querySelector('.ani-home-intro');
+  assert(intro());
+  markReady(w);
+  markReady(w, true);
+  paint();
+  paint();
+  fire(220);
+  assert.equal(intro(), null);
+
+  w.dispatchEvent(new w.PageTransitionEvent('pageshow', { persisted: true }));
+  paint();
+  assert(intro());
+  paint();
+  paint();
+  assert(intro().classList.contains('ani-intro-reveal'));
+  fire(220);
+  assert.equal(intro(), null);
 });

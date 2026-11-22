@@ -10,7 +10,93 @@
   const WORK_META_CACHE_KEY = 'aniWorkMetaCacheV3';
   const LOCAL_MUTE_KEY = 'aniLocalMutedSendersV1';
   const EP_TITLES_CACHE_KEY = 'aniEpTitlesCacheV5';
-  const EP_METADATA_VERSION = 5;
+  const EP_METADATA_VERSION = 7;
+  const segmentGroups = [
+    '.ani-catalog-sort', '.ani-rating-options', '.ani-collection-sort-segment',
+    '.ani-sort-options', '.ani-perm-tabs', '.ani-segmented-tabs', '.ani-info-tabs',
+    '.ani-rating-tabs', '.ani-ep-drawer-tabs', '.ani-danmu-sort-row', '.commend-segment-wrapper', '.ani-credit-switch',
+  ].join(',');
+  const selectedSegment = '[aria-pressed="true"], [aria-selected="true"], [aria-current="true"], .is-active, .active, .now > :is(button, a)';
+  const segmentMotion = new WeakMap();
+  const pendingSegmentMotion = new WeakMap();
+  document.addEventListener('click', event => {
+    const option = event.target.closest?.('button, a, [role="tab"]');
+    const group = option?.closest(segmentGroups);
+    if (!group || !document.body.classList.contains('ani-ambientlight-ui') ||
+        typeof group.animate !== 'function' || matchMedia('(prefers-reduced-motion: reduce)').matches ||
+        event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    const findSelected = () => [...group.querySelectorAll('button, a, [role="tab"]')]
+      .find(item => item.closest(segmentGroups) === group && item.matches(selectedSegment));
+    pendingSegmentMotion.get(group)?.();
+    const previous = findSelected();
+    if (!previous || option === previous) return;
+
+    const running = segmentMotion.get(group);
+    const from = (running?.indicator || previous).getBoundingClientRect();
+    const style = getComputedStyle(running?.indicator || previous);
+    const appearance = {
+      background: style.background, border: style.border, borderRadius: style.borderRadius,
+      boxShadow: style.boxShadow,
+    };
+    running?.stop();
+    const observer = new MutationObserver(() => {
+      const next = findSelected();
+      if (!next || next === previous) return;
+      disconnect();
+      play(next);
+      const results = group.matches('.ani-collection-sort-segment, .ani-rating-options, .ani-catalog-sort') &&
+        !group.closest('.ani-studio-row, .ani-studio-shell, .season') &&
+        document.querySelector('#BH_background .theme-list-block');
+      if (results) animateFilterSwitch(null, results, '.theme-list-main');
+    });
+    const disconnect = () => {
+      observer.disconnect();
+      clearTimeout(expiry);
+      pendingSegmentMotion.delete(group);
+    };
+    const expiry = setTimeout(disconnect, 8000);
+    pendingSegmentMotion.set(group, disconnect);
+    observer.observe(group, {
+      subtree: true, attributes: true, childList: true,
+      attributeFilter: ['aria-pressed', 'aria-selected', 'aria-current', 'class'],
+    });
+    const play = next => {
+      const to = next.getBoundingClientRect();
+      const bounds = group.getBoundingClientRect();
+      if (!from.width || !to.width || !bounds.width || !group.offsetWidth ||
+          (from.left === to.left && from.top === to.top)) return;
+      const zoom = bounds.width / group.offsetWidth;
+      const indicator = document.createElement('span');
+      indicator.className = 'ani-segment-indicator';
+      indicator.setAttribute('aria-hidden', 'true');
+      Object.assign(indicator.style, appearance, {
+        left: `${(to.left - bounds.left) / zoom - group.clientLeft + group.scrollLeft}px`,
+        top: `${(to.top - bounds.top) / zoom - group.clientTop + group.scrollTop}px`,
+        width: `${to.width / zoom}px`, height: `${to.height / zoom}px`,
+      });
+      group.classList.add('ani-segment-sliding');
+      if (getComputedStyle(group).position === 'static') group.classList.add('ani-segment-positioned');
+      const properties = ['background', 'border-color', 'box-shadow'];
+      const original = properties.map(key => [key, next.style.getPropertyValue(key), next.style.getPropertyPriority(key)]);
+      next.style.setProperty('background', 'transparent', 'important');
+      next.style.setProperty('border-color', 'transparent', 'important');
+      next.style.setProperty('box-shadow', 'none', 'important');
+      group.append(indicator);
+      const motion = indicator.animate([
+        { transform: `translate(${(from.left - to.left) / zoom}px, ${(from.top - to.top) / zoom}px) scale(${from.width / to.width}, ${from.height / to.height})` },
+        { transform: 'none' },
+      ], { duration: 230, easing: 'cubic-bezier(.22, .75, .25, 1)' });
+      const stop = () => {
+        motion.cancel();
+        indicator.remove();
+        for (const [key, value, priority] of original) next.style.setProperty(key, value, priority);
+        group.classList.remove('ani-segment-sliding', 'ani-segment-positioned');
+        segmentMotion.delete(group);
+      };
+      segmentMotion.set(group, { indicator, stop });
+      motion.onfinish = stop;
+    };
+  }, true);
   // 繁中分集資料依中華電信 MOD 的第一季分集介紹改寫。
   const slimeSeasonOneDescriptions = [
     '三上悟遭人持刀襲擊，醒來後發現自己成了史萊姆，還在洞窟裡遇見被封印的暴風龍。',
@@ -171,6 +257,18 @@
     24: '大家各自迎來入學考，接著便是畢業典禮。東準備離開時，平想到畢業後或許難再見面，下意識拉住了她。',
     25: '谷回想鈴木是怎麼一步步走進自己的生活。春天來臨，兩人即將展開遠距離交往，在車站迎來分別。',
   };
+  // LINE TV episode titles and short summaries adapted from https://www.lastboss-anime.com/story/13.html onward.
+  const wildLastBossEpisodes = {
+    13: ['機動王都布魯托剛格出現了！', '得知世界的真相後，露法絲決心反擊女神。她帶著新夥伴前往機動王都，試圖阻止斯科皮烏斯。'],
+    14: ['失控的斯科皮烏斯出現了！', '魔物大軍逼近王都。露法絲與昔日部下重逢，兩人聯手迎戰性情大變的斯科皮烏斯。'],
+    15: ['飛天的帥哥出現了！', '露法絲發現女神操控了斯科皮烏斯，激戰也讓她更難壓抑原本的意識。另一邊，月之露娜現身。'],
+    16: ['鍛造王米薩爾出現了！', '平息王都的騷亂後，露法絲與鍛造王米薩爾重逢。米薩爾說起兩百年前決戰的真相，以及女神與魔神族的關係。'],
+    17: ['狩獵祭的參賽者出現了！', '一行人在前往下一站的路上來到獸人國。露法絲讓同伴參加狩獵祭，自己觀戰時意外認出勇者南十字瀨衣。'],
+    18: ['十二星天薩吉塔利烏斯出現了！', '瀨衣和同伴受託尋找傳說中的靈藥，卻遇上七曜的墨丘利烏斯。另一邊，莉布拉開始尋找十二星天的射手。'],
+    19: ['七曜之墨丘利烏斯出現了！', '瀨衣一行為了靈藥與墨丘利烏斯交戰。對方接受女神的力量反擊，眾人陷入危機時，一名男子突然現身。'],
+    20: ['「魔物」出現了！', '瀨衣一行取得靈藥後，前往森林為守護龍治療。他們發現守護龍身受重傷，還遇上自稱是雷昂部下的魔物。'],
+    21: ['吸血姬貝涅特奈修出現了！', '露法絲派勇者一行尋找射手的故鄉，自己則前往阻止雷昂。途中，昔日戰友貝涅特奈修向她提出決鬥。'],
+  };
   const OFFSHELF_CACHE_KEY = 'aniOffshelfCacheV1';
   const TAG_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
   const WORK_META_TTL_MS = 14 * 24 * 60 * 60 * 1000;
@@ -187,16 +285,25 @@
     `<svg class="ani-enh-svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
 
   let toTraditional;
+  let openccMissed = false;
   const traditionalTitle = (title) => {
     toTraditional ||= globalThis.OpenCC?.Converter({ from: 'cn', to: 'tw' });
+    if (!toTraditional && title) openccMissed = true;
     return toTraditional?.(title) ?? title;
   };
+  document.addEventListener('ani-opencc-ready', () => {
+    if (!openccMissed || !globalThis.OpenCC) return;
+    openccMissed = false;
+    if (location.pathname === '/animeVideo.php') {
+      void initEpisodeTitleTooltips().catch(() => {});
+    }
+  }, { once: true });
 
   const COL_STATUS_ICONS = {
     all: '<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/>',
     plan: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
     watching: '<polygon points="6 4 20 12 6 20" fill="currentColor" stroke="none"/>',
-    completed: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/>',
+    completed: '<circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 4.5-5"/>',
     paused: '<g fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></g>',
     unset: '<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1"/>',
     auto: '<path d="M20 7v5h-5M4 17v-5h5"/><path d="M6 7a7 7 0 0 1 12-1l2 6M4 12l2 6a7 7 0 0 0 12-1"/>',
@@ -296,6 +403,99 @@
       "'": '&#39;',
     }[ch]));
 
+  function bangumiSubjectUrl(source) {
+    if (!source) return '';
+    try {
+      const url = new URL(source, location.origin);
+      if (/^https?:$/.test(url.protocol) && ['bgm.tv', 'bangumi.tv', 'chii.in'].includes(url.hostname)
+          && /^\/subject\/\d+\/?$/.test(url.pathname)) {
+        return `https://bgm.tv${url.pathname.replace(/\/$/, '')}`;
+      }
+    } catch {}
+    return '';
+  }
+
+  const bangumiIcon = '<img class="ani-bgm-icon" src="https://bgm.tv/img/favicon.ico" width="17" height="17" alt="" aria-hidden="true">';
+  const bangumiMappingsUrl = 'https://raw.githubusercontent.com/david082321/animad-bgm-toolkit/refs/heads/main/animeData.json';
+  let bangumiMappings = {};
+  let bangumiMappingsReady = false;
+
+  async function loadBangumiMappings() {
+    const cache = await storageGet('aniBangumiMappingsV1', null);
+    if (cache?.data) bangumiMappings = cache.data;
+    if (!(cache?.expires > Date.now())) {
+      try {
+        const response = await fetch(bangumiMappingsUrl, { signal: AbortSignal.timeout(7000) });
+        if (response.ok) {
+          bangumiMappings = await response.json();
+          await storageSet('aniBangumiMappingsV1', { data: bangumiMappings, expires: Date.now() + 86400000 });
+        }
+      } catch {}
+    }
+  }
+
+  function mappedBangumiSubject(title, episode) {
+    const name = String(title || '').normalize('NFKC').trim();
+    const number = Number(String(episode ?? '').match(/\d+(?:\.\d+)?/)?.[0]);
+    const cleanTitle = name.replace(/\s*(?:EP\.?\s*\d+(?:\.\d+)?|\[\d+(?:\.\d+)?\])\s*$/i, '');
+    if (/^野生的?大魔王出現了[!\s]*$/.test(cleanTitle) && number > 0) {
+      return `https://bgm.tv/subject/${number >= 13 ? 616808 : 509355}`;
+    }
+    const special = /特別篇/.test(String(episode)) || /\[特別篇\]/.test(cleanTitle);
+    const lookupTitle = cleanTitle.replace(/\s*\[特別篇\]\s*$/, '');
+    const entry = bangumiMappings[title] || bangumiMappings[lookupTitle]
+      || bangumiMappings[lookupTitle.replace(/!/g, '！')];
+    const parts = special ? (Array.isArray(entry?.special) ? entry.special : entry?.special ? [entry.special] : [])
+      : entry?.parts;
+    const range = parts?.filter(part => {
+      const start = part.startEp ?? part.ep ?? 1;
+      const end = part.endEp ?? part.ep ?? (special ? start : Infinity);
+      return number >= start && number <= end;
+    });
+    const singleSpecial = special && parts.length === 1 && ['startEp', 'endEp', 'ep'].every(key => parts[0][key] === undefined);
+    const id = singleSpecial ? parts[0].bgmId : parts ? (range.length === 1 ? range[0].bgmId : undefined) : entry?.bgmId;
+    return /^\d+$/.test(String(id)) ? `https://bgm.tv/subject/${id}` : '';
+  }
+
+  function historyBangumiLink(title, episode, ...sources) {
+    const href = mappedBangumiSubject(title, episode) || sources.map(bangumiSubjectUrl).find(Boolean);
+    if (!href) return '';
+    const label = '開啟 Bangumi 作品頁';
+    return `<a class="round-btn ani-history-bangumi" href="${href}" target="_blank" rel="noopener noreferrer" aria-label="${label}" title="${label}">${bangumiIcon}</a>`;
+  }
+
+  function bangumiWorkLink(root) {
+    const links = root.querySelectorAll('#bgmtv a[href], a#bgmtv[href], .ani-title-actions a[href]');
+    for (const link of links) {
+      if (link.matches('.ani-history-bangumi')) continue;
+      const href = bangumiSubjectUrl(link.getAttribute('href'));
+      if (href) return href;
+    }
+    return '';
+  }
+
+  function syncPlaybackBangumi() {
+    const heading = document.querySelector('.anime_name h1');
+    if (!heading) return;
+    const title = heading.textContent;
+    const episode = document.querySelector('.season li.playing a')?.textContent
+      || title.match(/(?:\[|EP\.?\s*)(\d+(?:\.\d+)?)\]?\s*$/i)?.[1]
+      || (/\[電影\]/.test(title) ? '1' : '');
+    const href = mappedBangumiSubject(title, episode);
+    if (!href) return;
+    const ownLink = heading.parentElement.querySelector('.ani-bgm-work-link');
+    const plugin = document.querySelector('a#bgmtv, #bgmtv a');
+    if (plugin) {
+      ownLink?.remove();
+      if (plugin.href !== href) plugin.href = href;
+    } else if (ownLink) {
+      if (ownLink.href !== href) ownLink.href = href;
+    } else {
+      const actions = heading.parentElement.querySelector('.ani-title-actions') || heading.parentElement;
+      actions.insertAdjacentHTML('beforeend', `<a class="ani-title-pill-link ani-bgm-work-link" href="${href}" target="_blank" rel="noopener noreferrer">${bangumiIcon}點格子</a>`);
+    }
+  }
+
   const renderHistoryMetadata = (tags, studio) => {
     const labels = Array.isArray(tags) ? tags.filter(Boolean) : [];
     const icon = (label, path) => `<span class="ani-history-meta-icon" role="img" aria-label="${label}" title="${label}">${enhIcon(path)}</span>`;
@@ -380,12 +580,30 @@
 
   const notifySettings = (next) => {
     currentSettings = normalizeSettings(next);
+    if (Object.hasOwn(globalThis, '__aniResolvedSettings')) {
+      globalThis.__aniResolvedSettings = currentSettings;
+    }
     for (const fn of settingsListeners) {
       try { fn(currentSettings); } catch {}
     }
   };
 
-  const readSettings = async () => {
+  const readSettings = async (force = false) => {
+    if (!force) {
+      if (globalThis.__aniResolvedSettings && typeof globalThis.__aniResolvedSettings === 'object') {
+        currentSettings = normalizeSettings(globalThis.__aniResolvedSettings);
+        return currentSettings;
+      }
+      if (globalThis.__aniSettingsPromise) {
+        try {
+          const shared = await globalThis.__aniSettingsPromise;
+          if (shared && typeof shared === 'object') {
+            currentSettings = normalizeSettings(shared);
+            return currentSettings;
+          }
+        } catch {}
+      }
+    }
     const mod = globalThis.AniAmbientSettings;
     const defaults = mod?.defaults || {};
     if (globalThis.AniAmbientStorage?.get) {
@@ -477,7 +695,7 @@
       toast.setAttribute('aria-live', 'polite');
       document.body.append(toast);
     }
-    toast.innerHTML = `${enhIcon('<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/>', 18)}<span>${escapeHtml(message || '')}</span>`;
+    toast.innerHTML = `${enhIcon('<circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 4.5-5"/>', 18)}<span>${escapeHtml(message || '')}</span>`;
     toast.hidden = false;
     toast.classList.add('is-visible');
     clearTimeout(toastTimer);
@@ -888,7 +1106,7 @@
     if (!durationSec && video && Number.isFinite(video.duration) && video.duration > 0 && elapsedSec > 0) {
       durationSec = Math.floor(video.duration);
     }
-    return { sn, videoSn, title, episode, latestEp, cover, score, elapsedSec, durationSec, completed: Boolean(isEpisodeMedia && video.ended) };
+    return { sn, videoSn, title, episode, latestEp, cover, score, bangumi: mappedBangumiSubject(title, episode) || bangumiWorkLink(document), elapsedSec, durationSec, completed: Boolean(isEpisodeMedia && video.ended) };
   };
 
   const episodeIsComplete = position => Boolean(position?.completed ||
@@ -951,6 +1169,7 @@
         title: info.title || prev.title || '',
         cover: info.cover || prevCover || '',
         score: info.score || prev.score || '',
+        bangumi: info.bangumi || bangumiSubjectUrl(prev.bangumi),
         latestEp: info.latestEp || prev.latestEp || '',
         episode: info.episode || prev.episode || '',
         elapsedSec: position.elapsedSec,
@@ -987,6 +1206,26 @@
     if (!document.documentElement.dataset.aniPermPagehide) {
       document.documentElement.dataset.aniPermPagehide = '1';
       window.addEventListener('pagehide', () => { recordVideoProgress(); });
+    }
+    const page = document.querySelector('#BH_background') || document.body;
+    if (page && !page.dataset.aniBangumiObserved) {
+      page.dataset.aniBangumiObserved = '1';
+      // The companion userscript can inject the link after the player is ready.
+      let savedLink = bangumiWorkLink(page);
+      const observer = new MutationObserver((mutations) => {
+        const selector = '#bgmtv, #bgmtv a';
+        const pluginChanged = mutations.some((mutation) => mutation.type === 'attributes'
+          ? mutation.target.matches(selector)
+          : [...mutation.addedNodes].some((node) => node.nodeType === 1 && (node.matches(selector) || node.querySelector(selector))));
+        if (!pluginChanged) return;
+        syncPlaybackBangumi();
+        const link = bangumiWorkLink(page);
+        if (link && link !== savedLink) {
+          savedLink = link;
+          recordVideoProgress();
+        }
+      });
+      observer.observe(page, { childList: true, subtree: true, attributes: true, attributeFilter: ['href'] });
     }
     const player = document.querySelector('#ani_video');
     if (player && !player.dataset.aniPermObs) {
@@ -1085,6 +1324,7 @@
           title: title || prev?.title || '',
           cover: cover || (!isLandscapeOgBanner(prev?.cover) ? prev?.cover : '') || '',
           score: scoreTxt || prev?.score || '',
+          bangumi: bangumiWorkLink(card) || bangumiSubjectUrl(prev?.bangumi),
           latestEp: latestMatch || prev?.latestEp || '',
           tags: cachedTags,
           studio: cachedStudio,
@@ -1245,7 +1485,8 @@
       if (!it?.sn || enrichInflight.has(it.sn) || typeof fetch !== 'function') return;
       const needsCover = !it.cover || isLandscapeOgBanner(it.cover);
       const needsMeta = !Array.isArray(it.tags) || !it.tags.length || !it.studio;
-      if (!needsCover && !needsMeta) return;
+      const savedBangumi = bangumiSubjectUrl(it.bangumi);
+      if (!needsCover && !needsMeta && savedBangumi) return;
       enrichInflight.add(it.sn);
       try {
         let fetchedCover = '';
@@ -1268,10 +1509,12 @@
         let fetchedScore = it.score || '';
         let fetchedLatest = it.latestEp || '';
         let fetchedDuration = it.durationSec || 0;
+        let fetchedBangumi = savedBangumi;
 
         try {
           const rawMeta = localStorage.getItem(`ani-history-meta:${it.sn}:${it.videoSn || it.sn}`);
           const parsedMeta = rawMeta ? JSON.parse(rawMeta)?.value : null;
+          fetchedBangumi ||= bangumiSubjectUrl(parsedMeta?.bangumi);
           if (parsedMeta?.tags?.length) fetchedTags = parsedMeta.tags;
           if (parsedMeta?.studio) fetchedStudio = parsedMeta.studio;
           if (!fetchedDuration && parsedMeta?.duration > 0) fetchedDuration = parsedMeta.duration;
@@ -1282,6 +1525,7 @@
           const resp = await fetch(targetUrl.href, { credentials: 'include' });
           if (resp.ok) {
             const doc = new DOMParser().parseFromString(await resp.text(), 'text/html');
+            fetchedBangumi ||= bangumiWorkLink(doc);
             const imgEl = doc.querySelector('.data-img, .data-file img, .anime_info_detail img');
             const rawSrc = safeImageUrl(imgEl?.dataset?.src || imgEl?.getAttribute('src') || '');
             if (rawSrc && !isLandscapeOgBanner(rawSrc)) fetchedCover = rawSrc;
@@ -1323,7 +1567,7 @@
           }
         }
 
-        if (fetchedCover || fetchedTags.length || fetchedStudio || fetchedScore || fetchedLatest || fetchedDuration) {
+        if (fetchedCover || fetchedTags.length || fetchedStudio || fetchedScore || fetchedLatest || fetchedDuration || fetchedBangumi) {
           await mutatePermanentHistory((data) => {
             const cur = data[it.sn];
             if (!cur) return false;
@@ -1332,6 +1576,7 @@
             if (fetchedStudio) cur.studio = fetchedStudio;
             if (fetchedScore) cur.score = fetchedScore;
             if (fetchedLatest) cur.latestEp = fetchedLatest;
+            if (fetchedBangumi) cur.bangumi = fetchedBangumi;
             if (!cur.durationSec && fetchedDuration > 0) cur.durationSec = fetchedDuration;
             return true;
           });
@@ -1339,6 +1584,53 @@
         }
       } catch {}
     };
+
+    const renderedHistoryCards = new WeakMap();
+    function updateHistorySlot(slot, template) {
+      const card = slot.firstElementChild;
+      const next = template.firstElementChild;
+      const last = renderedHistoryCards.get(slot)?.firstElementChild;
+      for (const selector of ['.click-area', '.delete-btn', '.anime-info', '.btn-set']) {
+        const replacement = next.querySelector(selector);
+        if (last?.querySelector(selector)?.isEqualNode(replacement)) continue;
+        const current = card.querySelector(selector);
+        if (selector === '.anime-info') {
+          const heading = current.querySelector('.ani-perm-title');
+          const newHeading = replacement.querySelector('.ani-perm-title');
+          if (heading?.textContent === newHeading?.textContent) {
+            for (const child of [...current.children]) if (child !== heading) child.remove();
+            current.append(...[...replacement.children].filter(child => child !== newHeading).map(child => child.cloneNode(true)));
+            continue;
+          }
+        }
+        current.replaceWith(replacement.cloneNode(true));
+      }
+      const poster = card.querySelector('.postimg');
+      const nextPoster = next.querySelector('.postimg');
+      const cover = poster.querySelector('img');
+      const nextCover = nextPoster.querySelector('img');
+      if (nextCover && !cover) poster.prepend(nextCover.cloneNode(true));
+      else if (nextCover && cover) {
+        if (cover.getAttribute('src') !== nextCover.getAttribute('src')) cover.src = nextCover.src;
+        if (cover.alt !== nextCover.alt) cover.alt = nextCover.alt;
+      } else if (cover) cover.remove();
+      const score = poster.querySelector('.ani-history-score');
+      const nextScore = nextPoster.querySelector('.ani-history-score');
+      if (score && nextScore) {
+        if (score.textContent !== nextScore.textContent) score.textContent = nextScore.textContent;
+      } else if (nextScore) poster.append(nextScore.cloneNode(true));
+      else score?.remove();
+      const drawer = slot.querySelector('.ani-perm-ep-drawer');
+      const nextDrawer = template.querySelector('.ani-perm-ep-drawer');
+      if (drawer && nextDrawer) {
+        if (!drawer.firstElementChild.isEqualNode(nextDrawer.firstElementChild)) {
+          drawer.firstElementChild.replaceWith(nextDrawer.firstElementChild.cloneNode(true));
+        }
+      } else if (nextDrawer) slot.append(nextDrawer.cloneNode(true));
+      else drawer?.remove();
+      card.classList.toggle('is-open', next.classList.contains('is-open'));
+      renderedHistoryCards.set(slot, template);
+    }
 
     const renderGrid = async () => {
       const records = await storageGet(PERM_HIST_KEY, {});
@@ -1412,6 +1704,7 @@
                 <div class="ani-history-meta">${metadata.genres}</div>
               </div>
               <div class="btn-set ani-perm-actions">
+                ${historyBangumiLink(it.title, it.episode, it.bangumi)}
                 <a class="play-btn round-btn ani-perm-resume" href="animeVideo.php?sn=${resumeSn}">
                   <svg class="ani-history-play-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8Z"/></svg>
                   <span class="ani-history-play-label">繼續觀看</span>
@@ -1435,15 +1728,35 @@
       const openDrawerId = openDrawerSn === null ? '' : `perm-sub-list-${openDrawerSn}`;
       const readEpisodeScroller = () => document.getElementById(openDrawerId)?.querySelector('.user-watch-textlist');
       const episodeScrollTop = openDrawerId ? readEpisodeScroller()?.scrollTop : undefined;
-      panel.innerHTML = [...monthGroups.entries()]
-        .map(
-          ([monthLabel, groupItems]) => `
-          <div class="history-year-month-block ani-perm-month-block">
-            <div class="date-title">${escapeHtml(monthLabel)}</div>
-            <div class="ani-perm-grid">${groupItems.map(renderPermCardHtml).join('')}</div>
-          </div>`,
-        )
-        .join('');
+      const existingMonths = new Map([...panel.children].map(block => [block.firstElementChild?.textContent, block]));
+      const existingSlots = new Map([...panel.querySelectorAll('.ani-perm-watch-slot')].map(slot =>
+        [slot.firstElementChild.dataset.permSn, slot]));
+      const template = document.createElement('template');
+      let monthIndex = 0;
+      for (const [monthLabel, groupItems] of monthGroups) {
+        let block = existingMonths.get(monthLabel);
+        if (!block) {
+          template.innerHTML = `<div class="history-year-month-block ani-perm-month-block"><div class="date-title">${escapeHtml(monthLabel)}</div><div class="ani-perm-grid"></div></div>`;
+          block = template.content.firstElementChild;
+        }
+        existingMonths.delete(monthLabel);
+        if (panel.children[monthIndex] !== block) panel.insertBefore(block, panel.children[monthIndex] || null);
+        monthIndex++;
+        const grid = block.lastElementChild;
+        groupItems.forEach((item, index) => {
+          const key = String(item.sn);
+          template.innerHTML = renderPermCardHtml(item);
+          const fresh = template.content.firstElementChild;
+          const existing = existingSlots.get(key);
+          const slot = existing || fresh.cloneNode(true);
+          if (existing) updateHistorySlot(slot, fresh);
+          else renderedHistoryCards.set(slot, fresh);
+          existingSlots.delete(key);
+          if (grid.children[index] !== slot) grid.insertBefore(slot, grid.children[index] || null);
+        });
+      }
+      for (const slot of existingSlots.values()) slot.remove();
+      for (const block of existingMonths.values()) block.remove();
       if (episodeScrollTop !== undefined) {
         const scroller = readEpisodeScroller();
         if (scroller) scroller.scrollTop = episodeScrollTop;
@@ -1456,6 +1769,9 @@
       }
     };
 
+    document.addEventListener('ani-bangumi-mappings-ready', () => {
+      if (permActiveTab === 'perm') renderGrid();
+    }, { once: true });
     tabNative.addEventListener('click', () => {
       permActiveTab = 'native';
       renderGrid();
@@ -1548,6 +1864,7 @@
               videoSn: String(item.videoSn || prev?.videoSn || sn),
               title: String(item.title || prev?.title || `動畫 #${sn}`).slice(0, 120),
               cover: safeImageUrl(item.cover || prev?.cover),
+              bangumi: bangumiSubjectUrl(item.bangumi) || bangumiSubjectUrl(prev?.bangumi),
               episode: String(item.episode || prev?.episode || '').slice(0, 16),
               elapsedSec: Math.max(0, Number(item.elapsedSec || 0)),
               durationSec: Math.max(0, Number(item.durationSec || 0)),
@@ -2441,44 +2758,7 @@
       if (tabContent && scrollWrap) {
         tabContent.classList.add('ani-has-dm-tools');
         scrollWrap.before(bar);
-        // Blur the scrolled content directly so the toolbar does not depend on backdrop sampling.
-        const filterHost = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        filterHost.setAttribute('class', 'ani-dm-filter-defs');
-        filterHost.setAttribute('aria-hidden', 'true');
-        filterHost.innerHTML = `
-          <filter id="ani-dm-toolbar-blur" x="0%" y="0%" width="100%" height="100%" color-interpolation-filters="sRGB">
-            <feFlood x="0" y="0" width="100%" result="toolbarStrip" />
-            <feImage preserveAspectRatio="none" result="toolbarRegion" />
-            <feComposite in="SourceGraphic" in2="toolbarStrip" operator="out" result="sharp" />
-            <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="soft" />
-            <feComposite in="soft" in2="toolbarRegion" operator="in" result="softInside" />
-            <feMerge><feMergeNode in="sharp" /><feMergeNode in="softInside" /></feMerge>
-          </filter>
-        `;
-        scrollWrap.before(filterHost);
-        const toolbarRegion = filterHost.querySelector('feImage');
-        const toolbarStrip = filterHost.querySelector('feFlood');
-        const updateToolbarBounds = () => {
-          scrollWrap.style.setProperty('--ani-danmu-toolbar-height', `${bar.offsetHeight}px`);
-          const width = bar.offsetWidth;
-          const height = bar.offsetHeight;
-          if (!width || !height) return;
-          const radius = parseFloat(getComputedStyle(bar).borderTopLeftRadius);
-          const shape = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"><rect width="${width}" height="${height}" rx="${radius}"/></svg>`;
-          toolbarRegion.setAttribute('href', `data:image/svg+xml,${encodeURIComponent(shape)}`);
-          toolbarRegion.setAttribute('x', bar.offsetLeft - scrollWrap.offsetLeft);
-          const top = bar.offsetTop - scrollWrap.offsetTop;
-          toolbarRegion.setAttribute('y', top);
-          toolbarStrip.setAttribute('height', Math.max(0, top + height));
-          toolbarRegion.setAttribute('width', width);
-          toolbarRegion.setAttribute('height', height);
-        };
-        updateToolbarBounds();
-        if (typeof ResizeObserver === 'function') {
-          const toolbarObserver = new ResizeObserver(updateToolbarBounds);
-          toolbarObserver.observe(bar);
-          toolbarObserver.observe(scrollWrap);
-        }
+        globalThis.aniBindSidebarToolbarBlur?.(bar, scrollWrap, 'ani-dm-toolbar-blur');
       } else {
         subList.before(bar);
       }
@@ -2756,14 +3036,33 @@
     const sn = frame.dataset.videoSn;
     const details = /^\d+$/.test(sn) ? globalThis.aniGetEpisodeDetails?.(sn) : null;
     const original = originalSn && originalSn !== sn ? globalThis.aniGetEpisodeDetails?.(originalSn) : null;
-    void renderEpisodeCardCover(frame, original, details);
-    const data = await details;
-    if (!frame.isConnected || !data) return;
-    const date = frame.parentElement.querySelector('.ani-episode-card-date');
-    setEpisodeCardDate(date, data.date);
     const watch = episodeCardWatch.get(frame);
+    const [data, artwork] = await Promise.all([
+      details,
+      findEpisodeCardCover(frame, original, details, originalSn || sn, sn),
+      watch.historyReady,
+    ]);
+    if (!frame.isConnected) return;
+    const card = frame.parentElement;
+    setEpisodeCardDate(card.querySelector('.ani-episode-card-date'), data?.date);
     watch.details = data;
     updateEpisodeCardWatch(frame, watch);
+    if (artwork) {
+      frame.append(artwork.image);
+      if (artwork.glow) card.querySelector('.ani-episode-card-glow').replaceChildren(artwork.glow);
+    }
+    card.dataset.aniEpisodeMediaReady = 'true';
+  }
+  async function decodeEpisodeGlow(image) {
+    const glow = new Image();
+    glow.alt = '';
+    glow.src = image.currentSrc || image.src;
+    try {
+      await glow.decode();
+    } catch {
+      return null;
+    }
+    return glow;
   }
   function setEpisodeCardDate(element, value) {
     const date = value?.match(/^\d{4}[-/]\d{2}[-/]\d{2}/)?.[0];
@@ -2772,21 +3071,28 @@
     element.dataset.label = date.replaceAll('-', '/');
     element.setAttribute('aria-label', `上架日期 ${element.dataset.label}`);
   }
-  async function renderEpisodeCardCover(frame, original, details) {
-    const cover = safeImageUrl((await original)?.cover) || safeImageUrl((await details)?.cover);
-    if (!frame.isConnected) return;
-    if (cover.startsWith('https://')) {
-      frame.parentElement.style.setProperty('--ani-card-cover', `url(${JSON.stringify(cover)})`);
+  async function findEpisodeCardCover(frame, original, details, originalSn, sn) {
+    const tried = new Set();
+    for (const getCover of [
+      () => globalThis.aniGetVerifiedEpisodeStill?.(originalSn),
+      async () => (await original)?.cover, async () => (await details)?.cover,
+      () => globalThis.aniGetEpisodePagePoster?.(originalSn),
+      () => originalSn !== sn && globalThis.aniGetEpisodePagePoster?.(sn)]) {
+      if (!frame.isConnected) return;
+      const cover = safeImageUrl(await getCover());
+      if (!frame.isConnected || !cover.startsWith('https://') || tried.has(cover)) continue;
+      tried.add(cover);
       const image = document.createElement('img');
       image.alt = '';
       image.decoding = 'async';
       image.src = cover;
       try {
         await image.decode();
-        if (frame.isConnected) frame.append(image);
       } catch {
-        // The card can still show its episode number and history.
+        continue;
       }
+      if (image.naturalWidth * 9 < image.naturalHeight * 16) image.classList.add('ani-episode-image-contain');
+      return {image, glow: await decodeEpisodeGlow(image)};
     }
   }
   const episodeCardObserver = typeof IntersectionObserver === 'function' ? new IntersectionObserver(entries => {
@@ -2794,7 +3100,7 @@
       episodeCardObserver.unobserve(entry.target);
       void loadEpisodeCard(entry.target, episodeCardWatch.get(entry.target)?.originalSn);
     }
-  }) : null;
+  }, { rootMargin: '320px 0px' }) : null;
 
   const episodeTitleObserver = typeof ResizeObserver === 'function' ? new ResizeObserver(entries => {
     const headings = new Set();
@@ -3003,18 +3309,24 @@
           episodeTitleObserver?.observe(titleTrack);
           episodeSurfaceObserver?.observe(link);
           episodeSurfaceObserver?.observe(synopsisReveal);
-          if (episodeCardObserver) episodeCardObserver.observe(frame);
-          else void loadEpisodeCard(frame, originalSn);
         }
         if (pendingCards.length) {
-          globalThis.aniGetEpisodeWatchHistory?.(pendingCards.map(frame => frame.dataset.videoSn)).then(history => {
+          const currentSn = new URLSearchParams(location.search).get('sn');
+          const work = /^\d+$/.test(currentSn) ? globalThis.aniGetEpisodeDetails?.(currentSn) : null;
+          const historyReady = globalThis.aniGetEpisodeWatchHistory?.(pendingCards.map(frame => frame.dataset.videoSn), work).then(history => {
             for (const frame of pendingCards) {
               if (!frame.isConnected) continue;
               const watch = episodeCardWatch.get(frame);
               Object.assign(watch, history.get(frame.dataset.videoSn));
               updateEpisodeCardWatch(frame, watch);
             }
-          });
+          }).catch(() => {});
+          for (const frame of pendingCards) {
+            const watch = episodeCardWatch.get(frame);
+            watch.historyReady = historyReady;
+            if (episodeCardObserver) episodeCardObserver.observe(frame);
+            else void loadEpisodeCard(frame, watch.originalSn);
+          }
         }
         return;
       }
@@ -3033,7 +3345,7 @@
         link.querySelector('.ani-episode-card-description')?.remove();
         for (const label of link.querySelectorAll(':scope > .ani-episode-original-label')) label.replaceWith(...label.childNodes);
         link.querySelector('.ani-episode-card-glow')?.remove();
-        link.style.removeProperty('--ani-card-cover');
+        delete link.dataset.aniEpisodeMediaReady;
         link.style.removeProperty('--ani-episode-surface-height');
         frame.remove();
       }
@@ -3442,15 +3754,71 @@
     return tip;
   };
 
-  const readEpisodeSynopsis = (value) => {
+  const episodeStoryText = (value) => {
     const source = typeof value === 'string' ? value : '';
     // Some episode records put staff credits in the description field.
-    const story = source.split(/(?:^|\r?\n)[^\S\r\n]*(?:[＜<【\[]\s*)?(?:(?:STAFF|製作團隊|製作人員)(?:\s*[＞>】\]])?(?=\s|[:：]|$)|(?:[｜|]\s*)?(?:脚本|腳本|劇本|分鏡|分镜|絵コンテ|演出|原畫|原画|作畫監督|作画監督|原畫\s*[/／]\s*作監|作監)\s*[:：])/i)[0];
-    const chinese = story.split(/\r?\n[^\S\r\n]*\r?\n/)
+    return source.split(/(?:^|\r?\n)[^\S\r\n]*(?:[＜<【\[]\s*)?(?:(?:STAFF|製作團隊|製作人員)(?:\s*[＞>】\]])?(?=\s|[:：]|$)|(?:[｜|]\s*)?(?:脚本|腳本|劇本|分鏡|分镜|絵コンテ|演出|原畫|原画|作畫監督|作画監督|原畫\s*[/／]\s*作監|作監)\s*[:：])/i)[0].trim();
+  };
+  const readEpisodeSynopsis = (value) => {
+    const chinese = episodeStoryText(value).split(/\r?\n[^\S\r\n]*\r?\n/)
       .map(paragraph => paragraph.trim())
       .filter(paragraph => /\p{Script=Han}/u.test(paragraph) &&
         !/[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u.test(paragraph));
     return chinese.join(' ');
+  };
+  const synopsisJobs = new WeakMap();
+  const synopsisTranslations = new Map();
+  const episodeMetadataRefreshes = new WeakSet();
+  const episodeSynopsisCacheKey = 'aniEpisodeSynopsisTranslationsV1';
+  let episodeSynopsisCache;
+  const cachedEpisodeSynopsis = text => (episodeSynopsisCache ||= readJsonLocal(episodeSynopsisCacheKey))[text];
+  const saveEpisodeMetadata = (title, entry) => {
+    const cache = readJsonLocal(EP_TITLES_CACHE_KEY);
+    cache[title] = entry;
+    const keys = Object.keys(cache);
+    if (keys.length > 120) {
+      keys.sort((a, b) => (cache[b]?.ts || 0) - (cache[a]?.ts || 0)).slice(120).forEach(key => delete cache[key]);
+    }
+    writeJsonLocal(EP_TITLES_CACHE_KEY, cache);
+  };
+  const synopsisObserver = typeof IntersectionObserver === 'function' ? new IntersectionObserver(entries => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      synopsisObserver.unobserve(entry.target);
+      synopsisJobs.get(entry.target)?.run();
+    }
+  }, { rootMargin: '240px 0px' }) : null;
+
+  const requestEpisodeTranslation = text => {
+    if (!synopsisTranslations.has(text)) {
+      // The cards display an excerpt. Keep the request within one translation segment.
+      const maxLength = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u.test(text) ? 145 : 450;
+      const excerpt = Array.from(text).slice(0, maxLength).join('').trim();
+      const content = text === excerpt ? text : excerpt.match(/^[\s\S]*[。！？.!?]/u)?.[0] || excerpt;
+      const request = typeof GM_xmlhttpRequest === 'function' && typeof translateWorkSynopsis === 'function'
+        ? translateWorkSynopsis(content, (url, options) => new Promise((resolve, reject) => GM_xmlhttpRequest({
+          url, method: options.method || 'GET', anonymous: true, timeout: 8000,
+          onerror: reject, ontimeout: reject,
+          onload: response => resolve({ ok: response.status === 200, json: () => JSON.parse(response.responseText) }),
+        })))
+        : sendWorkerMessage({ type: 'ani-translate-episode-synopsis', text: content }).then(result => result?.summary || '');
+      synopsisTranslations.set(text, request.then(summary => {
+        if (!summary) {
+          synopsisTranslations.delete(text);
+          return '';
+        }
+        const cache = readJsonLocal(episodeSynopsisCacheKey);
+        const recent = Object.fromEntries(Object.entries(cache).filter(([key]) => key !== text).slice(-159));
+        recent[text] = summary;
+        episodeSynopsisCache = recent;
+        writeJsonLocal(episodeSynopsisCacheKey, recent);
+        return summary;
+      }, () => {
+        synopsisTranslations.delete(text);
+        return '';
+      }));
+    }
+    return synopsisTranslations.get(text);
   };
 
   const renderUpcomingEpisode = (latest, workTitle, number, metadata) => {
@@ -3502,11 +3870,29 @@
     if (preview.dataset.coverWork === workTitle) return;
     preview.dataset.coverWork = workTitle;
     const image = preview.querySelector('img');
+    const card = image.closest('.ani-upcoming-episode-card');
     const setCover = source => {
-      if (!/^https:\/\//i.test(source || '')) return;
+      delete card.dataset.aniEpisodeMediaReady;
+      card.querySelector('.ani-episode-card-glow').replaceChildren();
+      image.hidden = true;
+      const finish = async loaded => {
+        if (!preview.isConnected || preview.dataset.coverWork !== workTitle) return;
+        image.onload = image.onerror = null;
+        const glow = loaded ? await decodeEpisodeGlow(image) : null;
+        if (!preview.isConnected || preview.dataset.coverWork !== workTitle) return;
+        if (loaded) {
+          if (glow) card.querySelector('.ani-episode-card-glow').replaceChildren(glow);
+          image.hidden = false;
+        }
+        card.dataset.aniEpisodeMediaReady = 'true';
+      };
+      if (!/^https:\/\//i.test(source || '')) {
+        finish(false);
+        return;
+      }
+      image.onload = () => finish(true);
+      image.onerror = () => finish(false);
       image.src = source;
-      image.hidden = false;
-      preview.querySelector('.ani-upcoming-episode-card').style.setProperty('--ani-card-cover', `url("${image.src.replace(/["\\]/g, '\\$&')}")`);
     };
     const fallbackCover = [document.querySelector('#BH_background section.data img.data-img, #BH_background section.data .data-img > img')?.src,
       document.querySelector('meta[property="og:image"]')?.content,
@@ -3540,11 +3926,13 @@
     if (!season) return;
     const cleanTitle = getCleanAnimeTitle();
     if (!cleanTitle) return;
+    const isBunnyGirl = cleanTitle === '青春豬頭少年不會夢到兔女郎學姊';
 
     const tip = getEpTooltipNode();
     if (!season.dataset.aniEpTipWired) {
       season.dataset.aniEpTipWired = '1';
       const showTip = (link) => {
+        synopsisJobs.get(link)?.run();
         link.removeAttribute('title');
         if (link.closest('.ani-episode-cards')) {
           tip.hidden = true;
@@ -3595,30 +3983,46 @@
 
     const cache = readJsonLocal(EP_TITLES_CACHE_KEY, {});
     const cachedEntry = cache[cleanTitle];
-    let epMap =
-      cachedEntry && Date.now() - Number(cachedEntry.ts || 0) < WORK_META_TTL_MS && cachedEntry.episodes
-        ? cachedEntry.episodes
-        : null;
+    let epMap = cachedEntry?.episodes || null;
 
-    if (!epMap || cachedEntry.metadataVersion !== EP_METADATA_VERSION) {
+    const lastEpisode = Math.max(0, ...[...(season.querySelector('ul')?.querySelectorAll('li a') || [])]
+      .map(link => Number(link.textContent.trim())).filter(Number.isFinite));
+    const needsMetadata = !cachedEntry?.episodes || Date.now() - Number(cachedEntry.ts || 0) >= WORK_META_TTL_MS ||
+      cachedEntry.metadataVersion !== EP_METADATA_VERSION || lastEpisode > (cachedEntry.lastEpisode || 0);
+    if (needsMetadata && !episodeMetadataRefreshes.has(season)) {
+      episodeMetadataRefreshes.add(season);
+      void refreshMetadata().catch(() => {}).finally(() => episodeMetadataRefreshes.delete(season));
+    }
+    async function refreshMetadata() {
+      const request = typeof GM_xmlhttpRequest === 'function' ? (url, options) => new Promise((resolve, reject) => GM_xmlhttpRequest({
+        url, method: options.method || 'GET', headers: options.headers, data: options.body,
+        timeout: 8000, onerror: reject, ontimeout: reject,
+        onload: res => resolve({ ok: res.status === 200, text: () => res.responseText, json: () => JSON.parse(res.responseText) }),
+      })) : null;
+      if (isBunnyGirl && !epMap) {
+        const preview = request && typeof fetchOfficialBunnyGirlStories === 'function'
+          ? fetchOfficialBunnyGirlStories(request)
+          : sendWorkerMessage({ type: 'ani-fetch-bunny-girl-stories' }).then(result => result?.stories);
+        void preview.then(stories => {
+          if (!stories || !season.isConnected || cleanTitle !== getCleanAnimeTitle() ||
+              readJsonLocal(EP_TITLES_CACHE_KEY)[cleanTitle]?.episodes) return;
+          const entries = Object.entries(stories);
+          if (!entries.length) return;
+          saveEpisodeMetadata(cleanTitle, {
+            ts: Date.now(), metadataVersion: 0, lastEpisode,
+            episodes: Object.fromEntries(entries.map(([number, description]) => [number, { description }])),
+          });
+          return initEpisodeTitleTooltips();
+        }).catch(() => {});
+      }
       const acgUrl = document.querySelector('a[href*="acg.gamer.com.tw/acgDetail.php?s="]')?.href || '';
-      let resp = await sendWorkerMessage({ type: 'ani-fetch-episode-titles', title: cleanTitle, acgUrl });
-      if (!resp?.ok && typeof fetchEpisodeTitles === 'function' && typeof GM_xmlhttpRequest === 'function') {
-        const request = (url, options) => new Promise((resolve, reject) => GM_xmlhttpRequest({
-          url, method: options.method || 'GET', headers: options.headers, data: options.body,
-          timeout: 8000, onerror: reject, ontimeout: reject,
-          onload: res => resolve({ ok: res.status === 200, text: () => res.responseText, json: () => JSON.parse(res.responseText) }),
-        }));
-        resp = { ok: true, episodes: await fetchEpisodeTitles(cleanTitle, request, acgUrl) };
+      let resp = await sendWorkerMessage({ type: 'ani-fetch-episode-titles', title: cleanTitle, acgUrl, lastEpisode });
+      if (!resp?.ok && request && typeof fetchEpisodeTitles === 'function') {
+        resp = { ok: true, episodes: await fetchEpisodeTitles(cleanTitle, request, acgUrl, lastEpisode) };
       }
       if (resp?.ok && resp.episodes && Object.keys(resp.episodes).length > 0) {
-        epMap = resp.episodes;
-        cache[cleanTitle] = { ts: Date.now(), metadataVersion: EP_METADATA_VERSION, episodes: epMap };
-        const keys = Object.keys(cache);
-        if (keys.length > 120) {
-          keys.sort((a, b) => (cache[b]?.ts || 0) - (cache[a]?.ts || 0)).slice(120).forEach((k) => delete cache[k]);
-        }
-        writeJsonLocal(EP_TITLES_CACHE_KEY, cache);
+        saveEpisodeMetadata(cleanTitle, { ts: Date.now(), metadataVersion: EP_METADATA_VERSION, lastEpisode, episodes: resp.episodes });
+        if (season.isConnected && cleanTitle === getCleanAnimeTitle()) await initEpisodeTitleTooltips();
       }
     }
 
@@ -3652,6 +4056,7 @@
       [...document.querySelectorAll('#BH_background section.data .data-intro > p')]
         .map(paragraph => paragraph.textContent.trim()).join(' ');
     const isPolarOpposites = /^相反的你和我(?:\s*第[二2][季期])?$/.test(cleanTitle);
+    const isWildLastBoss = /^野生的大魔王出現了[！!]$/.test(cleanTitle);
     const slimeSeasonLabel = cleanTitle.match(/^關於我轉生變成史萊姆這檔事(?:\s*第([一二三四1-4])[季期])?$/);
     const slimeSeasonNumber = slimeSeasonLabel &&
       (Number(slimeSeasonLabel[1]) || '一二三四'.indexOf(slimeSeasonLabel[1] || '一') + 1);
@@ -3660,16 +4065,23 @@
       ? slimeSpinoffEpisodes.diary
       : /^關於我轉生變成史萊姆這檔事\s*柯里烏斯之夢$/.test(cleanTitle) ? slimeSpinoffEpisodes.coleus : null;
     const verifiedTitles = (slimeSeasonTitles[slimeSeasonNumber] || slimeSpinoff?.titles)?.split('｜');
+    // https://www.ofiii.com/vod/44765/2/E13?is_force_episode=true
+    const mushokuSecondSeasonTitles = /^無職轉生.*(?:第二季|第2季|season\s*2)$/i.test(cleanTitle)
+      ? ['我夢想中的家', '婚宴', '遙遠', '諾倫與愛夏', '大哥的心情', '轉折點3', '沙漠之旅', '進入迷宮', '第六層的魔法陣', '雙親', '回去吧', '繼承']
+      : null;
     for (const a of season.querySelectorAll('li a')) {
       const rawEp = (a.textContent || '').trim();
       const numMatch = rawEp.match(/(\d+(?:\.\d+)?)/)?.[1];
-      const epData = epMap?.[rawEp] || (numMatch ? epMap?.[numMatch] || epMap?.[String(Number(numMatch))] : null);
       const list = a.closest('ul');
       const previous = list?.previousElementSibling;
       const listLabel = (previous?.matches('.ani-ep-group-bar') ? previous.previousElementSibling : previous)?.textContent.trim() || '';
-      const isStoryList = (list === mainEpisodes && (!slimeSeason || !/特別篇|OAD|OVA/i.test(listLabel))) ||
+      const isStoryList = (list === mainEpisodes && !/特別篇|OAD|OVA/i.test(listLabel)) ||
         /^(?:中文配音|中配|國語配音|國語)(?:版)?$/.test(listLabel);
+      const epData = isStoryList ? epMap?.[rawEp] ?? epMap?.[numMatch] ?? epMap?.[String(Number(numMatch))] : null;
       const episodeNumber = Number(numMatch);
+      const videoSn = a.dataset.aniVideoSn || new URL(a.href, location.href).searchParams.get('sn');
+      const specialTitle = !isStoryList && mushokuSecondSeasonTitles && videoSn === '34047' ? '守護術師菲茲' : '';
+      const lastBossEpisode = isWildLastBoss && isStoryList ? wildLastBossEpisodes[episodeNumber] : null;
       const isMovie = isMovieEpisodeTrack(listLabel) ||
         (movieWork && list?.querySelectorAll('li a').length === 1 && isStoryList);
       const verifiedIndex = episodeNumber - (slimeSeason?.firstEpisode || 1);
@@ -3677,8 +4089,8 @@
       const translatedTitle = localizedTitle && !/[\p{Script=Hiragana}\p{Script=Katakana}]/u.test(localizedTitle) ? localizedTitle : '';
       const icebladeTitle = episodeNumber === 1 && /^[冰氷]劍的魔術師將要統一世界\s*(?:2|Ⅱ|II|第二季)$/iu.test(cleanTitle)
         ? '世界最強的魔術師少年參加大規模魔術戰' : '';
-      const episodeTitle = isMovie ? movieSubtitle : isStoryList ? translatedTitle || verifiedTitles?.[verifiedIndex] || icebladeTitle
-        : slimeSeason || slimeSpinoff ? null : translatedTitle;
+      const episodeTitle = isMovie ? movieSubtitle : isStoryList ? mushokuSecondSeasonTitles?.[episodeNumber - 13] || translatedTitle || verifiedTitles?.[verifiedIndex] || icebladeTitle || lastBossEpisode?.[0] || (isBunnyGirl && episodeNumber === 1 ? '學姊是兔女郎' : '')
+        : specialTitle;
       if (episodeTitle) {
         a.dataset.aniEpTitle = traditionalTitle(episodeTitle);
         const heading = a.querySelector('.ani-episode-card-heading');
@@ -3697,11 +4109,15 @@
       if (details) details.dataset.title = a.dataset.aniEpTitle || '';
       const synopsis = description?.querySelector('.ani-episode-card-synopsis');
       if (isStoryList || isMovie) {
+        const foreignStory = episodeStoryText(epData?.description);
         const verifiedStory = slimeSeason || slimeSpinoff ? (slimeSeason || slimeSpinoff).summaries[verifiedIndex]
-          : readEpisodeSynopsis(epData?.description) || (isMovie ? workSynopsis() : '') || fireflySummaries?.[episodeNumber - 1] ||
-            (isPolarOpposites ? polarOppositesSeasonTwoDescriptions[episodeNumber] : '');
-        if (verifiedStory) {
-          const text = traditionalTitle(verifiedStory).replace(/\s+/g, ' ').trim();
+          : readEpisodeSynopsis(epData?.description) || lastBossEpisode?.[1] ||
+            (isBunnyGirl && episodeNumber === 1 ? '咲太在圖書館遇見扮成兔女郎的學姊櫻島麻衣，卻發現旁人看不見她。隔天在車站再次碰面，他開始追問這樁怪事。' : '') ||
+            (isMovie ? workSynopsis() : '') || fireflySummaries?.[episodeNumber - 1] ||
+            (isPolarOpposites ? polarOppositesSeasonTwoDescriptions[episodeNumber] : '') ||
+            (foreignStory && cachedEpisodeSynopsis(foreignStory));
+        const paintSynopsis = value => {
+          const text = traditionalTitle(value).replace(/\s+/g, ' ').trim();
           const maxLength = 82;
           const characters = Array.from(text);
           const excerpt = characters.slice(0, maxLength).join('');
@@ -3709,13 +4125,48 @@
           a.dataset.aniEpDescription = characters.length <= maxLength
             ? text
             : completeSentences || excerpt.trimEnd() + '…';
-          if (description) description.dataset.text = a.dataset.aniEpDescription;
-          if (synopsis) synopsis.dataset.text = a.dataset.aniEpDescription;
+          const currentDescription = a.querySelector('.ani-episode-card-description');
+          if (currentDescription) {
+            if (!currentDescription.dataset.text && a.dataset.aniEpDescription) {
+              currentDescription.classList.add('ani-episode-description-reveal');
+            }
+            currentDescription.dataset.text = a.dataset.aniEpDescription;
+          }
+          const currentSynopsis = currentDescription?.querySelector('.ani-episode-card-synopsis');
+          if (currentSynopsis) currentSynopsis.dataset.text = a.dataset.aniEpDescription;
+        };
+        if (verifiedStory) {
+          synopsisJobs.delete(a);
+          synopsisObserver?.unobserve(a);
+          paintSynopsis(verifiedStory);
+          continue;
+        }
+        if (foreignStory) {
+          const existing = synopsisJobs.get(a);
+          if (existing?.text !== foreignStory) {
+            let started = false;
+            const run = async () => {
+              if (started || !a.isConnected) return;
+              started = true;
+              synopsisObserver?.unobserve(a);
+              const translation = await requestEpisodeTranslation(foreignStory);
+              if (!translation || synopsisJobs.get(a)?.text !== foreignStory || !a.isConnected) return;
+              paintSynopsis(translation);
+              season.dispatchEvent(new Event('ani-episode-titles-ready'));
+              if (a.matches(':hover, :focus')) a.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+            };
+            synopsisJobs.set(a, { text: foreignStory, run });
+            if (a.closest('li.playing') || !synopsisObserver) void run();
+            else synopsisObserver.observe(a);
+          }
           continue;
         }
       }
       delete a.dataset.aniEpDescription;
-      if (description) description.dataset.text = '';
+      if (description) {
+        description.dataset.text = '';
+        description.classList.remove('ani-episode-description-reveal');
+      }
       if (synopsis) synopsis.dataset.text = '';
     }
     if (mainEpisodes && !movieWork) {
@@ -3738,7 +4189,8 @@
     const dated = text.match(
       /(?:預計|將於|本作品將於)?\s*((?:20\d{2}[\/\-年])?\d{1,2}[\/\-月]\d{1,2}日?(?:\s*\d{1,2}:\d{2})?)\s*(?:起)?(?:下架|到期|停止授權)/,
     );
-    const labeled = text.match(/(?:下架時間|授權到期)[：:]\s*([^\n，,。]{3,28})/);
+    const labeled = text.match(/(?:預定下架日期\s*[：:]?|^下架)\s*(20\d{2}\/\d{1,2}\/\d{1,2}(?:\s+\d{1,2}:\d{2})?)/)
+      || text.match(/(?:下架時間|授權到期)[：:]\s*([^\n，,。]{3,28})/);
     const generic = !dated && !labeled ? text.match(/(即將下架|即將到期|下架預告)/) : null;
     if (!dated && !labeled && !generic) return null;
 
@@ -3763,6 +4215,8 @@
     return { notice, dateText, daysLeft };
   };
 
+  const hasOffshelfDetails = /^\/(?:animeVideo|animeRef)\.php$/.test(location.pathname);
+
   let offshelfSubscribed = false;
 
   const initOffshelfAlerts = () => {
@@ -3785,25 +4239,37 @@
         }
       }
 
-      if (location.pathname === '/animeVideo.php' || location.pathname === '/animeRef.php') {
-        const scanText = [...document.querySelectorAll('.anime_info_detail, .data_intro, .notice, .season, .anime_name')]
-          .map((el) => el.textContent || '')
-          .join(' ');
-        const parsed = parseOffshelfNotice(scanText);
+      if (hasOffshelfDetails) {
+        const details = [...document.querySelectorAll('.anime_info_detail')];
+        const rows = details.flatMap(detail => detail.children.length ? [...detail.children] : [detail]);
+        const notices = [...document.querySelectorAll('.data_intro, .notice')];
+        const parsed = [...rows, ...notices].map(node => parseOffshelfNotice(node.textContent))
+          .find(Boolean);
         const refLink = document.querySelector('a[href*="animeRef.php?sn="]');
         const sn = getSnFromHref(refLink?.getAttribute('href')) || getSnFromHref(location.href);
         const title = getCleanAnimeTitle();
+        let banner = document.querySelector('.ani-offshelf-banner');
         if (parsed) {
-          if (sn) {
+          const cached = offshelfCache[sn];
+          if (sn && (cached?.notice !== parsed.notice || cached?.title !== title ||
+            cached?.daysLeft !== parsed.daysLeft || now - cached.detectedAt >= 86400000)) {
             offshelfCache[sn] = { sn, title, ...parsed, detectedAt: now };
             cacheUpdated = true;
           }
+        }
+
+        const titlePill = location.pathname === '/animeVideo.php'
+          ? document.querySelector('.anime-title .anime_info_detail > .ani-info-offshelf')
+          : null;
+        const pillDate = titlePill && parseOffshelfNotice(titlePill.textContent)?.dateText;
+        if (!parsed || (pillDate && pillDate === parsed.dateText)) {
+          banner?.remove();
+        } else {
           const hostAnchor =
             document.querySelector('.container-player > .anime-title') ||
             document.querySelector('.anime_name') ||
             document.querySelector('#BH_background');
           if (hostAnchor) {
-            let banner = document.querySelector('.ani-offshelf-banner');
             if (!banner) {
               banner = document.createElement('div');
               banner.className = 'ani-offshelf-banner';
@@ -3817,7 +4283,10 @@
                   ? '（今天到期）'
                   : `（剩餘 ${parsed.daysLeft} 天）`
                 : '';
-            banner.innerHTML = `<span class="ani-offshelf-dot" aria-hidden="true">!</span><strong>即將下架提醒</strong><span>${escapeHtml(parsed.notice)}${escapeHtml(dayNote)}</span>`;
+            const label = `${parsed.dateText ? `${parsed.dateText} 下架` : parsed.notice}${dayNote}`;
+            if (banner.lastElementChild?.textContent !== label) {
+              banner.innerHTML = `<span class="ani-offshelf-dot" aria-hidden="true">!</span><strong>即將下架提醒</strong><span>${escapeHtml(label)}</span>`;
+            }
           }
         }
       } else {
@@ -3878,7 +4347,20 @@
 
     if (!offshelfSubscribed) {
       offshelfSubscribed = true;
-      settingsListeners.add(() => { run(); });
+      settingsListeners.add(run);
+      const host = hasOffshelfDetails && document.querySelector('#BH_background');
+      if (host) {
+        const sourceSelector = '.anime_info_detail, .data_intro, .notice';
+        new MutationObserver(records => {
+          const sourceChanged = records.some(({ target, addedNodes, removedNodes }) => {
+            const element = target.nodeType === 1 ? target : target.parentElement;
+            return element?.closest(sourceSelector) || [...addedNodes].some(node =>
+              node.nodeType === 1 && (node.matches(sourceSelector) || node.querySelector(sourceSelector)))
+              || [...removedNodes].some(node => node.nodeType === 1 && node.matches('.ani-offshelf-banner'));
+          });
+          if (sourceChanged) run();
+        }).observe(host, { childList: true, subtree: true, characterData: true });
+      }
     }
     run();
   };
@@ -3894,6 +4376,9 @@
     storageGet,
     storageSet,
     escapeHtml,
+    historyBangumiLink,
+    bangumiWorkLink,
+    bangumiMappingsReady: () => bangumiMappingsReady,
     renderHistoryMetadata,
     traditionalTitle,
     showToast,
@@ -3906,7 +4391,8 @@
     normalizeBilingualEpisodeTracks,
     initBrowseFilters: initCatalogEnhancements,
     reinit: async () => {
-      await readSettings();
+      await readSettings(true);
+      if (hasOffshelfDetails) initOffshelfAlerts();
       initLongEpisodeGrouping();
       await initCollectionStatusTagger();
       await initWatchCollectionStatusButton();
@@ -3915,7 +4401,7 @@
       await initDanmuListTools();
       initCommentSendButton();
       await initEpisodeTitleTooltips();
-      initOffshelfAlerts();
+      if (!hasOffshelfDetails) initOffshelfAlerts();
       initVideoHistoryTracker();
       await initPermanentHistoryPage();
     },
@@ -3926,19 +4412,29 @@
 
   const boot = async () => {
     await readSettings();
+    if (hasOffshelfDetails) initOffshelfAlerts();
     initLongEpisodeGrouping();
     await initCollectionStatusTagger();
     initCatalogEnhancements();
     if (location.pathname === '/animeVideo.php') document.documentElement.dataset.aniEpisodePreview = 'true';
     document.documentElement.dataset.aniEnhancementsUiReady = 'true';
     window.dispatchEvent(new Event('ani-enhancements-ui-ready'));
+    // Track playback before optional metadata or plugin integrations finish.
+    initVideoHistoryTracker();
+    void initEpisodeTitleTooltips().catch(() => {});
+    if (/^\/(?:animeVideo|viewList)\.php$/.test(location.pathname)) {
+      if (location.pathname === '/animeVideo.php') syncPlaybackBangumi();
+      loadBangumiMappings().then(() => {
+        bangumiMappingsReady = true;
+        if (location.pathname === '/animeVideo.php') syncPlaybackBangumi();
+        document.dispatchEvent(new Event('ani-bangumi-mappings-ready'));
+      });
+    }
     await initWatchCollectionStatusButton();
     await initSpoilerBlur();
     await initDanmuListTools();
     initCommentSendButton();
-    await initEpisodeTitleTooltips();
-    initOffshelfAlerts();
-    initVideoHistoryTracker();
+    if (!hasOffshelfDetails) initOffshelfAlerts();
     await initPermanentHistoryPage();
   };
 

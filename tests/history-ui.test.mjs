@@ -34,10 +34,16 @@ test('history keeps native controls and keeps each episode list inside its ownin
   assert(!details.closest('.ani-bgm-toast'), 'short episode history must never be styled as a player toast');
   assert(!details.querySelector('.ani-bgm-toast-icon'));
   assert.equal(d.querySelector('.ani-history-play-label').textContent,'繼續觀看');
+  assert.equal(d.querySelector('.ani-history-bangumi'), null);
+  const recordedLinks = JSON.stringify({101: {videoSn: '7', bangumi: 'https://bgm.tv/subject/400602'}});
+  w.dispatchEvent(new w.StorageEvent('storage', {key: 'aniPermanentHistoryV1', newValue: recordedLinks}));
   assert.equal(more.hasAttribute('title'),false,'no browser tooltip duplicates the native action');
   assert.equal(d.querySelector('.ani-history-score').textContent,'★ 4.8');
   assert.equal(more.getAttribute('aria-expanded'),'false');
   more.click();await new Promise(r=>setTimeout(r,40));
+  const bangumi = d.querySelector('.ani-history-bangumi');
+  assert.equal(bangumi.href, 'https://bgm.tv/subject/400602');
+  assert.equal(bangumi.target, '_blank');
   assert.equal(more.getAttribute('aria-expanded'),'true');
   const metadata = d.querySelector('.ani-history-meta:not(.ani-history-studios)');
   assert.deepEqual([...metadata.querySelectorAll('.ani-history-meta-tag')].map(tag => tag.textContent), ['奇幻', '冒險']);

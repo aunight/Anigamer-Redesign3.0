@@ -1,5 +1,18 @@
 html[data-ani-booting='true'] { background:#111c2b !important;overflow:hidden !important; }
 html[data-ani-booting='true'] > body { opacity: 0 !important; }
+@media (prefers-reduced-motion: no-preference) {
+  html:not([data-ani-booting]) > body.ani-home-page.ani-ambientlight-page #BH_background
+    :is(.big_banner.ani-hero-enabled > .ani-hero, .ani-fp-card, .ani-wx-card, #continueWatch[data-ani-continue-sized], #blockVideoInSeason .newanime-wrap, #blockAnimePublisherChannel, .animate-theme-list) {
+    animation: aniHomeModuleIn 220ms ease-out;
+  }
+  body.ani-home-page.ani-ambientlight-page .ani-wx-card[data-ani-wx-ready] > :is(.ani-wx-sky, .ani-wx-side) {
+    animation: aniHomeModuleIn 220ms ease-out;
+  }
+  @keyframes aniHomeModuleIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+}
 html[data-ani-episode-preview='true'] #BH_background .season ul:not([data-ani-ep-rendered]) > li:nth-of-type(n + 7),
 html[data-ani-episode-preview='true'] #BH_background .ani-season-more-btn {
   display: none !important;
@@ -60,7 +73,7 @@ html[data-ani-episode-preview='true'] #BH_background .ani-season-more-btn {
   .ani-home-intro { transition: none; }
   .ani-logo-layer, .ani-home-intro::before, .ani-home-intro::after { animation: none; }
 }
-.ani-route-cover { position: fixed; inset: 0; z-index: 2147483000; pointer-events: none; background: #111c2b; transition: opacity 120ms ease-out; }
+.ani-route-cover { position: fixed; inset: 0; z-index: 2147483000; pointer-events: none; background: #111c2b; transition: opacity 240ms cubic-bezier(.2,.65,.3,1); }
 .ani-route-visible { opacity: 0; }
 @media (prefers-reduced-motion: reduce) { .ani-route-cover { transition: none; } }
 

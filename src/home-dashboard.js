@@ -33,6 +33,35 @@
   const dayKey = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
   const hhmm = (d) => `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
   const deg = (n) => `${Math.round(n)}°`;
+  const temperaturePixels = {
+    0: ['111', '101', '101', '101', '111'],
+    1: ['010', '110', '010', '010', '111'],
+    2: ['111', '001', '111', '100', '111'],
+    3: ['111', '001', '111', '001', '111'],
+    4: ['101', '101', '111', '001', '001'],
+    5: ['111', '100', '111', '001', '111'],
+    6: ['111', '100', '111', '101', '111'],
+    7: ['111', '001', '010', '010', '010'],
+    8: ['111', '101', '111', '101', '111'],
+    9: ['111', '101', '111', '001', '111'],
+    '-': ['000', '000', '111', '000', '000'],
+    '°': ['111', '101', '111'],
+  };
+  const pixelTemperature = (value) => {
+    if (!Number.isFinite(value)) return '—';
+    const label = deg(value);
+    const path = [];
+    let width = 0;
+    for (const char of label) {
+      const rows = temperaturePixels[char];
+      if (!rows) return label;
+      rows.forEach((row, y) => [...row].forEach((pixel, x) => {
+        if (pixel === '1') path.push(`M${x + width} ${y}h1v1h-1z`);
+      }));
+      width += rows[0].length + 1;
+    }
+    return `<svg class="ani-wx-pixel-temp" width="${(width - 1) * .16}em" height=".8em" viewBox="0 0 ${width - 1} 5" fill="currentColor" shape-rendering="crispEdges" role="img" aria-label="${label}"><path d="${path.join('')}"/></svg>`;
+  };
   const WEEK_ZH = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
   const WEEK_1 = ['日', '一', '二', '三', '四', '五', '六'];
   const MONTH_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -430,7 +459,7 @@
       ]);
       if (ip?.success && Number.isFinite(ip.latitude) && Number.isFinite(ip.longitude)) {
         const next = { name: localizeCity(ip.city), region: '', lat: ip.latitude, lon: ip.longitude, manual: false, at: Date.now() };
-        await storageSet(WX_LOC_KEY, next);
+        void storageSet(WX_LOC_KEY, next);
         return next;
       }
     } catch {}
@@ -770,15 +799,17 @@
     const renderWeather = () => {
       if (!wx) return;
       const w = wx;
+      const currentTemperature = h('span', { class: 'ani-wx-temp' });
+      currentTemperature.innerHTML = pixelTemperature(w.temp);
       const skyBox = h('div', { class: 'ani-wx-sky', role: 'img', 'aria-label': `${w.loc.name} ${w.condition} ${deg(w.temp)}` },
         svg,
-        h('div', { class: 'ani-wx-now' }, h('span', { class: 'ani-wx-temp' }, deg(w.temp)), h('span', { class: 'ani-wx-cond' }, w.condition))
+        h('div', { class: 'ani-wx-now' }, currentTemperature, h('span', { class: 'ani-wx-cond' }, w.condition))
       );
       const cityBtn = h('button', { type: 'button', class: 'ani-wx-city', title: '點擊切換城市', onclick: () => openPicker(cityBtn) }, w.loc.name);
       const subTxt = [w.wind !== null ? `${Math.round(w.wind)} km/h` : '', w.feels !== null ? `體感 ${deg(w.feels)}` : '', w.rainPct !== null ? `降雨 ${w.rainPct}%` : ''].filter(Boolean).join(' · ');
 
       const hours = h('ol', { class: 'ani-wx-hours' });
-      hours.innerHTML = (w.hours || []).map((x) => `<li><span class="ani-wx-hl">${x.label}</span>${glyphSvg(x.kind, x.hour)}<b>${deg(x.temp)}</b></li>`).join('');
+      hours.innerHTML = (w.hours || []).map((x) => `<li><span class="ani-wx-hl">${x.label}</span>${glyphSvg(x.kind, x.hour)}<b>${pixelTemperature(x.temp)}</b></li>`).join('');
 
       const days = (w.days || []).slice(0, 3);
       const lo = Math.floor(Math.min(...days.map((d) => d.low), w.temp));
@@ -795,13 +826,13 @@
         return `<svg class="ani-wx-bar" viewBox="0 0 ${(span + 1) * 8} 6" preserveAspectRatio="none" shape-rendering="crispEdges" aria-hidden="true"><path class="b-off" d="${off}"/><path class="b-lit" d="${lit}"/><path class="b-now" d="${now}"/></svg>`;
       };
       const week = h('ul', { class: 'ani-wx-week' });
-      week.innerHTML = days.map((d, i) => `<li data-kind="${d.kind}"><span class="ani-wx-dn">${d.name}</span>${glyphSvg(d.kind)}<span class="ani-wx-lo">${deg(d.low)}</span>${mkBar(d.low, d.high, i === 0 ? w.temp : undefined)}<span class="ani-wx-hi">${deg(d.high)}</span></li>`).join('');
+      week.innerHTML = days.map((d, i) => `<li data-kind="${d.kind}"><span class="ani-wx-dn">${d.name}</span>${glyphSvg(d.kind)}<span class="ani-wx-lo">${pixelTemperature(d.low)}</span>${mkBar(d.low, d.high, i === 0 ? w.temp : undefined)}<span class="ani-wx-hi">${pixelTemperature(d.high)}</span></li>`).join('');
 
       clockEl.replaceChildren(...clockParts());
       const side = h('div', { class: 'ani-wx-side' },
         h('header', { class: 'ani-wx-head' },
           h('div', { class: 'ani-wx-place' }, cityBtn, h('small', {}, subTxt)),
-          h('div', { class: 'ani-wx-live' }, h('i', { class: 'ani-wx-led' }), h('span', {}, 'Open-Meteo'), clockEl)),
+          h('div', { class: 'ani-wx-live' }, h('i', { class: 'ani-wx-led' }), h('span', {}, Date.now() - w.at >= WX_TTL ? '本機快取' : 'Open-Meteo'), clockEl)),
         hours, week
       );
       el.replaceChildren(skyBox, side);
@@ -812,15 +843,19 @@
     const loadWeather = async (customLoc = null, force = false) => {
       try {
         const loc = customLoc || (await resolveWeatherLoc());
-        wx = await fetchWeather(loc, force);
+        const next = await fetchWeather(loc, force);
         if (el.isConnected) {
           delete el.dataset.aniWxErr;
+          if (wx?.at === next.at && wx.loc.lat === next.loc.lat && wx.loc.lon === next.loc.lon) return;
+          wx = next;
+          el.dataset.aniWxReady = 'true';
           renderWeather();
         }
       } catch (err) {
         el.dataset.aniWxErr = String(err?.message || err || 'unknown');
         console.warn('[Anigamer-Redesign] weather failed:', err);
         if (!el.isConnected) return;
+        if (wx && !customLoc) return;
         const choose = h('button', { type: 'button', class: 'ani-wx-retry', onclick: () => openPicker(choose) }, '選擇城市');
         const retry = h('button', { type: 'button', class: 'ani-wx-retry', onclick: () => loadWeather(customLoc, true) }, '重試');
         el.replaceChildren(h('div', { class: 'ani-wx-empty' }, h('p', {}, '天氣資料暫時無法取得'), h('div', { class: 'ani-wx-recovery' }, choose, retry)));
@@ -833,6 +868,15 @@
     if (io) io.observe(el);
     else visible = true;
     el._aniDispose = () => { stopTimers(); io?.disconnect(); };
+    // A recent forecast can paint without waiting on extension storage or IP lookup.
+    try {
+      const cached = JSON.parse(localStorage.getItem(WX_CACHE_KEY) || 'null');
+      if (cached?.loc && Number.isFinite(cached.temp) && Date.now() - cached.at < 24 * 3600 * 1000) {
+        wx = cached;
+        el.dataset.aniWxReady = 'true';
+        renderWeather();
+      }
+    } catch {}
     void loadWeather();
     return el;
   }
@@ -868,14 +912,6 @@
       dash = document.createElement('div');
       dash.className = 'ani-home-dash';
     }
-    if (hero && hero.parentElement) {
-      if (dash.previousElementSibling !== hero) hero.after(dash);
-    } else if (!dash.isConnected) {
-      const anchor = containerHost.querySelector('#blockContinueWatch, #blockVideoInSeason');
-      if (anchor) anchor.before(dash);
-      else containerHost.prepend(dash);
-    }
-
     const curFp = dash.querySelector('.ani-fp-card');
     const curWx = dash.querySelector('.ani-wx-card');
     if (showFp && !curFp) {
@@ -889,6 +925,13 @@
     } else if (!showWx && curWx) {
       curWx._aniDispose?.();
       curWx.remove();
+    }
+    if (hero?.parentElement) {
+      if (dash.previousElementSibling !== hero) hero.after(dash);
+    } else if (!dash.isConnected) {
+      const anchor = containerHost.querySelector('#blockContinueWatch, #blockVideoInSeason');
+      if (anchor) anchor.before(dash);
+      else containerHost.prepend(dash);
     }
   }
 

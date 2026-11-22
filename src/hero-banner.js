@@ -29,7 +29,19 @@
 
   const KEY = 'aniHeroBannerV1', MAX = 10, TTL = 6 * 3600e3;
   const IMAGE_HOSTS = new Set(['truth.bahamut.com.tw', 'p2.bahamut.com.tw', 'i2.bahamut.com.tw']);
-  let instance, syncState;
+  let instance, syncState, enabledPreview = false;
+  let homeIndexRequest;
+  function getHomeIndex() {
+    return homeIndexRequest ||= fetch('https://api.gamer.com.tw/anime/v1/index.php', {
+      credentials: 'include', signal: AbortSignal.timeout(8000),
+    }).then(response => {
+      if (!response.ok) throw new Error('Homepage data unavailable');
+      return response.json();
+    }).catch(() => {
+      homeIndexRequest = null;
+      return null;
+    });
+  }
   function validImage(value) {
     try { const u = new URL(value); return u.protocol === 'https:' && IMAGE_HOSTS.has(u.hostname); } catch { return false; }
   }
@@ -101,13 +113,16 @@
     if (!/^\/(?:index\.php)?$/.test(location.pathname)) return;
     const host = document.querySelector('.big_banner');
     if (!host) return;
-    host.classList.toggle('ani-hero-enabled', Boolean(enabled));
+    enabledPreview = Boolean(enabled);
+    host.classList.toggle('ani-hero-enabled', enabledPreview && Boolean(instance?.querySelector('.ani-hero-images img')));
+    if (!enabledPreview) host.classList.remove('ani-hero-pending');
     syncState?.();
     if (!enabled || instance) return;
     let saved = {};
     try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch {}
     const native = candidates(document);
-    const entries = [...(Array.isArray(saved.entries) ? saved.entries : []), ...native]
+    const cachedEntries = Array.isArray(saved.entries) ? saved.entries : [];
+    const entries = [...cachedEntries, ...native]
       .filter(x => validImage(x.image) && /^https:\/\/ani\.gamer\.com\.tw\/anime(?:Video|Ref)\.php\?/.test(x.href))
       .filter((x, i, all) => all.findIndex(y => y.image === x.image) === i).slice(-MAX);
     if (!entries.length) { host.classList.remove('ani-hero-enabled'); return; }
@@ -124,14 +139,14 @@
       button.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${dir < 0 ? 'm14 6-6 6 6 6' : 'm10 6 6 6-6 6'}"/></svg>`;
       button.addEventListener('click', () => show(index + dir)); root.append(button); buttons.push(button);
     }
+    host.classList.add('ani-hero-pending');
     host.append(root); instance = root;
     const images = root.querySelector('.ani-hero-images'), dots = root.querySelector('.ani-hero-dots');
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
     let index = -1, timer, paused = reduced, hover = false, focused = false, renderVersion = 0;
     const objectUrls = new Map(), loadingMetadata = new Map();
     let indexInfo;
-    const getIndexInfo = () => indexInfo ||= aniFetch('https://api.gamer.com.tw/anime/v1/index.php', { credentials: 'include', signal: AbortSignal.timeout(10000) })
-      .then(r => r.ok ? r.json() : null).then(result => {
+    const getIndexInfo = () => indexInfo ||= getHomeIndex().then(result => {
         const rows = [], visit = value => {
           if (Array.isArray(value)) value.forEach(visit);
           else if (value && typeof value === 'object') {
@@ -206,22 +221,47 @@
       index = (next + entries.length) % entries.length; const entry = entries[index], version = ++renderVersion;
       renderDots(); renderInfo(entry); [...dots.children].forEach((b, i) => b.setAttribute('aria-current', String(i === index)));
       if (!reduced) root.querySelector('.ani-hero-panel')?.animate?.([{ opacity: 0.45, transform: 'translateY(8px)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 320, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'both' });
+      const firstPaint = !images.children.length;
+      const img = new Image();
+      img.alt = '';
+      if (firstPaint) img.fetchPriority = 'high';
       let src = objectUrls.get(entry.image);
-      if (!src) { try { src = await cachedImage(entry.image); objectUrls.set(entry.image, src); } catch { src = entry.image; } }
-      if (version !== renderVersion) return;
-      const img = new Image(); img.alt = ''; img.src = src;
-      try { await img.decode(); } catch {
-        if (!images.children.length) host.classList.remove('ani-hero-enabled');
-        schedule(); return;
+      try {
+        if (!src && !firstPaint) {
+          try { src = await cachedImage(entry.image); objectUrls.set(entry.image, src); } catch {}
+        }
+        if (version !== renderVersion) return;
+        img.src = src || entry.image;
+        const alreadyDecoded = firstPaint && !src && img.complete && img.naturalWidth > 0;
+        if (!alreadyDecoded) {
+          try { await img.decode(); } catch (error) {
+            if (!firstPaint || src || version !== renderVersion) throw error;
+            src = await cachedImage(entry.image);
+            if (version !== renderVersion) { URL.revokeObjectURL(src); return; }
+            objectUrls.set(entry.image, src);
+            img.src = src;
+            await img.decode();
+          }
+        }
+      } catch {
+        if (version === renderVersion) {
+          host.classList.remove('ani-hero-pending');
+          schedule();
+        }
+        return;
       }
       if (version !== renderVersion) return;
-      host.style.setProperty('--ani-hero-cover', 'url(' + JSON.stringify(src) + ')');
+      host.style.setProperty('--ani-hero-cover', 'url(' + JSON.stringify(img.src) + ')');
       const previous = [...images.children];
       const ambient = img.cloneNode(); ambient.className = 'ani-hero-ambient';
       images.append(ambient, img);
+      host.classList.remove('ani-hero-pending');
+      host.classList.toggle('ani-hero-enabled', enabledPreview);
       if (!reduced) previous.forEach(n => n.animate?.([{ opacity: 1 }, { opacity: 0 }], { duration: 450, fill: 'both' }));
-      ambient.animate?.([{ opacity: 0 }, { opacity: 1 }], { duration: reduced ? 0 : 450, fill: 'both' });
-      img.animate?.([{ opacity: 0 }, { opacity: 1 }], { duration: reduced ? 0 : 450, fill: 'both' });
+      if (!firstPaint && !reduced) {
+        ambient.animate?.([{ opacity: 0 }, { opacity: 1 }], { duration: 450, fill: 'both' });
+        img.animate?.([{ opacity: 0 }, { opacity: 1 }], { duration: 450, fill: 'both' });
+      }
       setTimeout(() => previous.forEach(n => n.remove()), 500);
       loadMeta(entry); schedule();
     }
@@ -230,11 +270,15 @@
     root.addEventListener('keydown', e => { if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); show(index + (e.key === 'ArrowLeft' ? -1 : 1)); } });
     document.addEventListener('visibilitychange', schedule);
     window.addEventListener('pagehide', () => { clearTimeout(timer); for (const u of objectUrls.values()) URL.revokeObjectURL(u); }, { once: true });
-    show(0); persist();
+    // Start with today's native banner, keeping its cached metadata if present.
+    const firstNativeIndex = entries.findIndex(entry => entry.image === native[0]?.image);
+    const firstRender = show(Math.max(0, firstNativeIndex));
+    persist();
     // A small bounded sample, at most once per six hours, never a polling loop.
     if (!(saved.sampled > Date.now() - TTL) || (entries.length < 6 && saved.sampleVersion !== 2)) {
-      saved.sampled = Date.now(); persist();
-      (async () => {
+      const sample = async () => {
+        if (!enabledPreview || document.hidden) return;
+        saved.sampled = Date.now(); persist();
         for (let attempt = 0; attempt < 1 && entries.length < 6; attempt++) {
           try {
             const r = await aniFetch('/', { credentials: 'same-origin', cache: 'no-store', signal: AbortSignal.timeout(10000) });
@@ -242,13 +286,17 @@
             for (const entry of candidates(new DOMParser().parseFromString(await r.text(), 'text/html'))) {
               if (entries.some(x => x.image === entry.image)) continue;
               entries.push(entry); persist(); renderDots(); schedule();
-              try { const url = await cachedImage(entry.image); objectUrls.set(entry.image, url); } catch {}
-              await loadMeta(entry);
             }
           } catch { break; }
         }
-      })();
+      };
+      firstRender.then(() => {
+        setTimeout(() => {
+          if (typeof requestIdleCallback === 'function') requestIdleCallback(() => { void sample(); }, { timeout: 3000 });
+          else void sample();
+        }, 2000);
+      });
     }
   }
-  globalThis.AniHeroBanner = { mount, candidates, metadata };
+  globalThis.AniHeroBanner = { mount, candidates, metadata, getHomeIndex };
 })();

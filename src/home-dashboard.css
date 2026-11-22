@@ -111,13 +111,13 @@ body.ani-ambientlight-ui #BH_background .ani-fp-seg-b[aria-pressed='true'] {
 }
 body.ani-ambientlight-ui #BH_background .ani-fp-head {
   margin: 0;
-  font-size: 20px;
+  font-size: 23px;
   font-weight: 600;
   line-height: 1.3;
   color: #ffffff;
 }
 body.ani-ambientlight-ui #BH_background .ani-fp-head-unit {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
   color: rgba(214, 228, 242, 0.78);
 }
@@ -129,7 +129,7 @@ body.ani-ambientlight-ui #BH_background .ani-fp-stats {
 }
 body.ani-ambientlight-ui #BH_background .ani-fp-stat b {
   display: block;
-  font-size: 16.5px;
+  font-size: 19px;
   font-weight: 600;
   line-height: 1.25;
   color: #ffffff;
@@ -137,7 +137,7 @@ body.ani-ambientlight-ui #BH_background .ani-fp-stat b {
   white-space: nowrap;
 }
 body.ani-ambientlight-ui #BH_background :is(.ani-fp-unit, .ani-ampm-unit) {
-  font-size: 11px !important;
+  font-size: 12px !important;
   font-weight: 500 !important;
   color: rgba(206, 222, 238, 0.72) !important;
   margin-left: 2px;
@@ -149,7 +149,7 @@ body.ani-ambientlight-ui #BH_background .ani-ampm-unit {
 body.ani-ambientlight-ui #BH_background .ani-fp-stat small {
   display: block;
   margin-top: 2px;
-  font-size: 11px;
+  font-size: 12px;
   color: rgba(206, 222, 238, 0.66);
   white-space: nowrap;
 }
@@ -247,6 +247,24 @@ body.ani-ambientlight-ui #BH_background .ani-fp-legend {
 body.ani-ambientlight-ui #BH_background .ani-fp-legend .ani-fp-cell {
   width: 10px;
   height: 10px;
+}
+@media (min-width: 1121px) {
+  body.ani-ambientlight-ui #BH_background .ani-home-dash:has(> .ani-wx-card) > .ani-fp-card {
+    padding-block-end: 14px !important;
+  }
+  body.ani-ambientlight-ui #BH_background .ani-home-dash:has(> .ani-wx-card) .ani-fp-main {
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+    gap: 6px;
+  }
+  body.ani-ambientlight-ui #BH_background .ani-home-dash:has(> .ani-wx-card) .ani-fp-foot {
+    align-items: flex-end;
+    margin-block-start: auto;
+  }
+  body.ani-ambientlight-ui #BH_background .ani-home-dash :is(.ani-fp-legend, .ani-wx-dn) {
+    line-height: 16px;
+  }
 }
 body.ani-ambientlight-ui #BH_background .ani-fp-tip {
   position: absolute;
@@ -354,7 +372,7 @@ body.ani-ambientlight-ui #BH_background .ani-wx-sky {
   border: 1px solid rgba(255, 255, 255, 0.09);
   min-height: 170px;
 }
-body.ani-ambientlight-ui #BH_background .ani-wx-sky svg {
+body.ani-ambientlight-ui #BH_background .ani-wx-sky > svg {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -394,6 +412,10 @@ body.ani-ambientlight-ui #BH_background .ani-wx-temp {
   line-height: 1;
   color: #ffffff;
   font-variant-numeric: tabular-nums;
+}
+.ani-wx-pixel-temp {
+  display: inline-block;
+  vertical-align: baseline;
 }
 body.ani-ambientlight-ui #BH_background .ani-wx-cond {
   font-size: 12.5px;

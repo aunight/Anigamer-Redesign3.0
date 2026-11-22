@@ -50,10 +50,10 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
         const t = Number(message.mediaType || 4) || 4;
         const r = await fetch(`https://api.gamer.com.tw/acg/v1/reviews_list.php?sn=${encodeURIComponent(sn)}&t=${t}&sort=1&page=1`, {
           credentials: 'include',
+          cache: 'no-store',
           signal: AbortSignal.timeout(9000),
         });
-        if (!r.ok) { reply({ myReview: null, reviews: [] }); return; }
-        const json = await r.json();
+        const json = r.ok ? await r.json() : null;
         const mapReviewItem = (item) => ({
           id: String(item.id || ''),
           author: String(item.publisher?.name || '巴哈勇者'),
@@ -72,7 +72,20 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
         const myAnyRaw = rawReviewed.find(Boolean);
         const myRating = Number(myAnyRaw?.reviews?.rating ?? myAnyRaw?.rating ?? myAnyRaw?.star ?? myAnyRaw?.score ?? 0) || 0;
         const myRaw = rawReviewed.find((it) => it && (it.content || '').trim().length > 0);
-        const myReview = myRaw ? mapReviewItem(myRaw) : null;
+        let myReview = myRaw ? mapReviewItem(myRaw) : null;
+        const messageId = String(message.reviewMessageId || '');
+        if (!myReview && /^[1-9]\d*$/.test(messageId)) {
+          try {
+            const response = await fetch(`https://wall.gamer.com.tw/app/v1/message_detail.php?messageId=${messageId}`, {
+              credentials: 'include', cache: 'no-store', signal: AbortSignal.timeout(8000),
+            });
+            const detail = response.ok ? await response.json() : null;
+            const post = detail?.data || detail;
+            if (post?.reviews && typeof post.content === 'string' && post.content.trim()) {
+              myReview = mapReviewItem({ ...post, id: messageId });
+            }
+          } catch {}
+        }
         const rawList = Array.isArray(json?.data?.list) ? json.data.list.flat(2) : [];
         const reviews = rawList
           .filter((item) => item && (item?.content || '').trim().length > 0 && (!myReview || String(item.id || '') !== myReview.id))
@@ -95,8 +108,27 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
             !/^\d+$/.test(url.searchParams.get('s') || '')) throw new Error('Invalid ACG page');
         const response = await fetch(url, { credentials: 'omit', signal: AbortSignal.timeout(8000) });
         const html = response.ok ? await response.text() : '';
-        reply({ credits: html.match(/<b>[＜<]\s*(?:製作團隊|製作人員|STAFF)[＞>]<\/b>[\s\S]{1,32000}?(?=<script|$)/i)?.[0] || '' });
+        const list = html.match(/<b>[＜<]\s*(?:製作團隊|製作人員|STAFF)[＞>]<\/b>[\s\S]{1,32000}?(?=<script|$)/i);
+        const table = html.match(/<table\b[^>]*>\s*(?:<tbody\b[^>]*>\s*)?<tr\b[^>]*>\s*<t[dh]\b[^>]*>(?:\s*<[^/][^>]*>)*\s*[─—–-]+\s*STAFF\s*[─—–-]+[\s\S]{1,32000}?<\/table>/i);
+        const firstCredit = Math.min(list?.index ?? Infinity, table?.index ?? Infinity);
+        const wiki = html.match(/<div\b[^>]*\bclass=["']wikiContent["'][^>]*>/i);
+        const synopsisHtml = wiki && firstCredit > wiki.index && firstCredit - wiki.index < 32000
+          ? html.slice(wiki.index, firstCredit) + '</div>' : '';
+        reply({ credits: (list?.[0] || '') + (table?.[0] || ''), synopsisHtml, identity: workSynopsisIdentity(html) });
       } catch { reply({}); }
+    })();
+    return true;
+  }
+  if (message?.type === 'ani-translate-episode-synopsis') {
+    if (!sender.tab?.url?.startsWith('https://ani.gamer.com.tw/animeVideo.php')) return;
+    translateWorkSynopsis(message.text, (url, options) => fetch(url, { ...options, credentials: 'omit' }))
+      .then(summary => reply({ summary }), () => reply({}));
+    return true;
+  }
+  if (message?.type === 'ani-fetch-work-synopsis') {
+    (async () => {
+      if (!sender.tab?.url?.startsWith('https://ani.gamer.com.tw/')) return reply({});
+      reply(await fetchWorkSynopsis(message, (url, options) => fetch(url, { ...options, credentials: 'omit' })));
     })();
     return true;
   }
@@ -136,6 +168,11 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
     })();
     return true;
   }
+  if (message?.type === 'ani-fetch-bunny-girl-stories') {
+    if (!sender.tab?.url?.startsWith('https://ani.gamer.com.tw/animeVideo.php')) return;
+    fetchOfficialBunnyGirlStories().then(stories => reply({ stories }));
+    return true;
+  }
   if (message?.type === 'ani-fetch-episode-titles') {
     (async () => {
       try {
@@ -148,12 +185,20 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
           reply({ ok: true, episodes: {} });
           return;
         }
-        const episodes = await fetchEpisodeTitles(title, fetch, message.acgUrl);
+        const episodes = await fetchEpisodeTitles(title, fetch, message.acgUrl, Number(message.lastEpisode) || 0);
         reply({ ok: true, episodes });
       } catch {
         reply({ ok: false, episodes: {} });
       }
     })();
+    return true;
+  }
+  if (message?.type === 'ani-resolve-cast-wiki') {
+    if (!sender.tab?.url?.startsWith('https://ani.gamer.com.tw/')) return;
+    const names = Array.isArray(message.names)
+      ? message.names.filter(name => typeof name === 'string' && name.length > 0 && name.length <= 80 && !name.includes('|')).slice(0, 50)
+      : [];
+    resolveWikiCast(names.map(cv => ({ cv }))).then(reply, () => reply([]));
     return true;
   }
   if (message?.type === 'ani-fetch-infoplus') {
@@ -254,37 +299,51 @@ async function syoboiJson(params) {
 async function resolveWikiCast(cast) {
   if (!cast || !cast.length) return [];
   const cloned = cast.map(c => ({ ...c }));
-  try {
-    const names = [...new Set(cloned.map(c => c.cv).filter(Boolean))].slice(0, 50);
-    if (!names.length) return cloned;
-    const wikiUrl = new URL('https://ja.wikipedia.org/w/api.php');
+  const names = [...new Set(cloned.map(c => c.cv).filter(Boolean))].slice(0, 50);
+  if (!names.length) return cloned;
+  const getPages = async language => {
+    const wikiUrl = new URL(`https://${language}.wikipedia.org/w/api.php`);
     wikiUrl.searchParams.set('action', 'query');
     wikiUrl.searchParams.set('format', 'json');
-    wikiUrl.searchParams.set('prop', 'langlinks|pageprops');
+    wikiUrl.searchParams.set('prop', language === 'ja' ? 'langlinks|pageprops' : 'pageprops');
     wikiUrl.searchParams.set('titles', names.join('|'));
     wikiUrl.searchParams.set('redirects', '1');
-    wikiUrl.searchParams.set('lllang', 'zh');
-    wikiUrl.searchParams.set('lllimit', '100');
-    wikiUrl.searchParams.set('ppprop', 'disambiguation');
+    if (language === 'ja') {
+      wikiUrl.searchParams.set('lllang', 'zh');
+      wikiUrl.searchParams.set('lllimit', '100');
+    }
     const res = await fetch(wikiUrl.toString(), { credentials: 'omit', signal: AbortSignal.timeout(8000) });
+    if (!res.ok) return new Map();
     const data = await res.json();
     const pages = Object.values(data?.query?.pages || {});
     const redirects = data?.query?.redirects || [];
     const normalized = data?.query?.normalized || [];
-    for (const item of cloned) {
-      let targetTitle = item.cv;
+    const matches = new Map();
+    for (const name of names) {
+      let targetTitle = name;
       for (const n of normalized) if (n.from === targetTitle) targetTitle = n.to;
       for (const r of redirects) if (r.from === targetTitle) targetTitle = r.to;
-      const page = pages.find(p => p.title === targetTitle || p.title === item.cv);
-      if (page && page.missing === undefined) {
-        const zhName = page.langlinks?.[0]?.['*'];
-        item.wikiUrl = zhName
-          ? `https://zh.wikipedia.org/zh-tw/${encodeURIComponent(zhName)}`
-          : `https://ja.wikipedia.org/wiki/${encodeURIComponent(targetTitle)}`;
-        item.wikiText = zhName ? 'Wiki' : 'WikiJP';
+      const page = pages.find(p => p.title === targetTitle);
+      if (page && page.missing === undefined && page.pageprops?.disambiguation === undefined) {
+        matches.set(name, page);
       }
     }
-  } catch {}
+    return matches;
+  };
+  const [japanese, chinese] = await Promise.all(['ja', 'zh'].map(lang => getPages(lang).catch(() => new Map())));
+  for (const item of cloned) {
+    const ja = japanese.get(item.cv);
+    const zh = chinese.get(item.cv);
+    const sharedItem = ja?.pageprops?.wikibase_item && ja.pageprops.wikibase_item === zh?.pageprops?.wikibase_item;
+    const zhName = ja?.langlinks?.[0]?.['*'] || ((!ja || sharedItem) ? zh?.title : '');
+    if (zhName) {
+      item.wikiUrl = `https://zh.wikipedia.org/zh-tw/${encodeURIComponent(zhName)}`;
+      item.wikiText = 'Wiki';
+    } else if (ja) {
+      item.wikiUrl = `https://ja.wikipedia.org/wiki/${encodeURIComponent(ja.title)}`;
+      item.wikiText = 'WikiJP';
+    }
+  }
   return cloned;
 }
 

@@ -1,4 +1,9 @@
 .ani-hero { display: none; }
+body.ani-ambientlight-page #BH_background .big_banner.ani-hero-pending {
+  box-sizing: border-box;
+  height: calc(clamp(300px, 22vw, 460px) + 24px) !important;
+  overflow: hidden !important;
+}
 body.ani-ambientlight-page #BH_background .big_banner.ani-hero-enabled {
   display: block !important;
   height: auto !important;
@@ -9,7 +14,7 @@ body.ani-ambientlight-page #BH_background .big_banner.ani-hero-enabled {
   overflow: visible !important;
 }
 body.ani-ambientlight-page .big_banner.ani-hero-enabled > :not(.ani-hero) { display: none !important; }
-body.ani-ambientlight-page .ani-hero {
+body.ani-ambientlight-page .big_banner.ani-hero-enabled > .ani-hero {
   position: relative;
   display: block;
   width: calc(100% - 48px);

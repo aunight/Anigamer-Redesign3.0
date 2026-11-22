@@ -27,7 +27,7 @@
   }
 })();
 
-(function mountIntro() {
+(function mountIntro(restored = false) {
   if(window.self!==window.top)return;
   const root = document.documentElement;
   if (!root) {
@@ -44,9 +44,15 @@
   const navigation = performance.getEntriesByType?.('navigation')[0];
   const reload = navigation ? navigation.type === 'reload' : performance.navigation?.type === 1;
   const watchPage = location.pathname === '/animeVideo.php';
+  const homePage = location.pathname === '/' || location.pathname === '/index.php';
   if (reload) root.dataset.aniReloading = 'true';
   if (watchPage) root.dataset.aniEpisodePreview = 'true';
   const nextFrame = window.requestAnimationFrame?.bind(window) || (fn => setTimeout(fn, 16));
+  if (homePage && !restored && !reduced) {
+    window.addEventListener('pageshow', event => {
+      if (event.persisted) nextFrame(() => mountIntro(true));
+    });
+  }
   const whenSettingsDisabled = (dismiss) => {
     const check = (saved) => { if (saved?.themeEnabled === false) dismiss(); };
     if (globalThis.chrome?.storage?.sync) chrome.storage.sync.get({ themeEnabled: true }, check);
@@ -57,11 +63,11 @@
     root.append(cover);
     let finished = false;
     let scheduled = false;
-    let minimumElapsed = reduced || !fullOpening || watchPage;
+    let minimumElapsed = reduced || !fullOpening || watchPage || homePage;
     let enhancementGrace = null;
     const ready = () => {
       if (finished || scheduled || !minimumElapsed || !root.dataset.aniUiReady) return;
-      if (root.dataset.aniEnhancementsUiReady) scheduleReveal();
+      if (homePage || root.dataset.aniEnhancementsUiReady) scheduleReveal();
       else if (watchPage && enhancementGrace === null) {
         enhancementGrace = setTimeout(scheduleReveal, 250);
       }
@@ -77,7 +83,7 @@
       minimumElapsed = true;
       ready();
     }, 750);
-    const deadline = setTimeout(() => reveal(), 5000);
+    const deadline = setTimeout(() => reveal(), homePage ? 900 : 5000);
     function reveal(immediate = false) {
       if (finished) return;
       finished = true;
@@ -98,7 +104,7 @@
       cover.addEventListener('transitionend', event => {
         if (event.target === cover && event.propertyName === 'opacity') cover.remove();
       });
-      setTimeout(() => cover.remove(), fullOpening ? 220 : 140);
+      setTimeout(() => cover.remove(), fullOpening ? 220 : 280);
     }
     window.addEventListener('ani-ui-ready', ready);
     window.addEventListener('ani-enhancements-ui-ready', ready);
@@ -123,7 +129,7 @@
   } catch {}
   try {
     const internal = document.referrer && new URL(document.referrer).origin === location.origin;
-    if (internal && !reload) {
+    if (internal && !reload && !homePage) {
       const cover = document.createElement('div');
       cover.className = 'ani-route-cover';
       cover.setAttribute('aria-hidden', 'true');

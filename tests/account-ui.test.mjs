@@ -8,6 +8,7 @@ test('membership styling retains native actions and redeem opens a dismissible d
   const w=dom.window,d=w.document;
   w.matchMedia=()=>({matches:false,addEventListener(){}});
   w.AbortSignal.timeout=()=>undefined;
+  w.sessionStorage.setItem('aniRequestCooldown', String(Date.now() + 60000));
   w.fetch=async()=>({ok:true,text:async()=>'<div class="paycard-container"><div class="paycard"><p class="programtitle">無廣告 30 天</p><div class="programoney"><span class="money-main">99</span></div><div class="paychose">請選擇付款方式</div></div><div class="userpaychose" style="display:none"><a href="https://ani.gamer.com.tw/animePay2.php?itemSn=84">信用卡</a></div></div>'});
   w.HTMLDialogElement.prototype.showModal=function(){this.open=true;};
   w.HTMLDialogElement.prototype.close=function(){this.open=false;this.dispatchEvent(new w.Event('close'));};
@@ -55,8 +56,11 @@ test('membership styling retains native actions and redeem opens a dismissible d
   w.close();
 });
 
-test('client-rendered plans load through the native page instead of staying silently loading',async()=>{
- const dom=new JSDOM('<div id="BH_background"><div class="container"><div class="pay-state"></div></div></div>',{url:'https://ani.gamer.com.tw/animePayed.php',runScripts:'outside-only',pretendToBeVisual:true});const w=dom.window,d=w.document;w.matchMedia=()=>({matches:false,addEventListener(){}});w.AbortSignal.timeout=()=>undefined;w.fetch=async()=>({ok:true,text:async()=>'<div id="app"></div>'});
+for (const [scenario, fetchPlans] of [
+  ['client-rendered', async () => ({ok:true,text:async()=>'<div id="app"></div>'})],
+  ['failed request', async () => { throw new TypeError('Network request failed'); }],
+]) test(`membership loads the native plan page after a ${scenario} response`,async()=>{
+ const dom=new JSDOM('<div id="BH_background"><div class="container"><div class="pay-state"></div></div></div>',{url:'https://ani.gamer.com.tw/animePayed.php',runScripts:'outside-only',pretendToBeVisual:true});const w=dom.window,d=w.document;w.matchMedia=()=>({matches:false,addEventListener(){}});w.AbortSignal.timeout=()=>undefined;w.fetch=fetchPlans;
  for(const f of ['settings.js','content.js'])w.eval(fs.readFileSync('src/'+f,'utf8'));await new Promise(r=>setTimeout(r,30));
  assert(d.querySelector('.ani-membership-plans'),'section is visible before the native plans finish rendering');const frame=d.querySelector('iframe[src="animePay.php"]');assert(frame);
  const doc=frame.contentDocument;doc.open();doc.write('<div class="paycard-container"><div class="paycard"><div class="money-main">99</div><div class="paychose">付款方式</div></div><div class="userpaychose"><a href="https://ani.gamer.com.tw/animePay2.php?itemSn=84">信用卡</a></div></div>');doc.close();frame.dispatchEvent(new w.Event('load'));

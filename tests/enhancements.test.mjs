@@ -4,7 +4,7 @@ import test from 'node:test';
 import { JSDOM } from 'jsdom';
 import { Converter } from 'opencc-js';
 
-function bootEnhancements(html, path, { sharedStorage = {}, fetchImpl, chromeMock } = {}) {
+function bootEnhancements(html, path, { sharedStorage = {}, fetchImpl, chromeMock, onObserve } = {}) {
   const dom = new JSDOM(html, {
     url: 'https://ani.gamer.com.tw' + path,
     runScripts: 'outside-only',
@@ -12,7 +12,12 @@ function bootEnhancements(html, path, { sharedStorage = {}, fetchImpl, chromeMoc
   });
   const w = dom.window;
   w.matchMedia = () => ({ matches: false, addEventListener() {} });
-  w.IntersectionObserver = class { observe() {} unobserve() {} disconnect() {} };
+  w.IntersectionObserver = class {
+    constructor(callback) { this.callback = callback; }
+    observe(target) { onObserve?.(target, this.callback); }
+    unobserve() {}
+    disconnect() {}
+  };
   w.AbortSignal.timeout = () => undefined;
   w.fetch = fetchImpl || (async () => ({ ok: true, text: async () => '' }));
   w.OpenCC = { Converter };
@@ -25,6 +30,61 @@ function bootEnhancements(html, path, { sharedStorage = {}, fetchImpl, chromeMoc
   }
   return dom;
 }
+
+test('episode cover fallback reads the native poster from the current and other episode pages', async t => {
+  const first = 'https://p2.bahamut.com.tw/ep1.png';
+  const second = 'https://p2.bahamut.com.tw/ep2.png';
+  let episodePageRequests = 0;
+  const dom = bootEnhancements('<div data-video-poster="' + first + '"></div>', '/animeVideo.php?sn=4414', {
+    fetchImpl: async url => {
+      if (String(url).includes('animeVideo.php?sn=4425')) {
+        episodePageRequests++;
+        return { ok: true, text: async () => '<meta property="og:image" content="' + second + '">' };
+      }
+      return { ok: false };
+    },
+  });
+  t.after(() => dom.window.close());
+  const getPoster = dom.window.aniGetEpisodePagePoster;
+  assert.equal(await getPoster('4414'), first);
+  assert.deepEqual(await Promise.all([getPoster('4425'), getPoster('4425')]), [second, second]);
+  assert.equal(episodePageRequests, 1);
+});
+
+test('cached episode translations render before a metadata refresh finishes', async t => {
+  const title = '測試動畫';
+  const foreign = '学校で新しい友達に出会った。';
+  const translation = '在學校認識了新朋友。';
+  let refresh;
+  let translationRequests = 0;
+  const dom = bootEnhancements(`<div id="BH_background">
+    <div class="anime_name"><h1>${title} [1]</h1></div>
+    <section class="season"><ul><li class="playing"><a href="?sn=123">1</a></li></ul></section>
+  </div>`, '/animeVideo.php?sn=123', {
+    sharedStorage: {
+      aniEpTitlesCacheV5: { [title]: { ts: Date.now(), metadataVersion: 6, lastEpisode: 1, episodes: { 1: { description: foreign } } } },
+      aniEpisodeSynopsisTranslationsV1: { [foreign]: translation },
+    },
+    chromeMock: { runtime: {
+      sendMessage(message, done) {
+        if (message.type === 'ani-fetch-episode-titles') refresh = done;
+        else {
+          if (message.type === 'ani-translate-episode-synopsis') translationRequests++;
+          done({});
+        }
+      },
+    } },
+  });
+  t.after(() => dom.window.close());
+  const episode = () => dom.window.document.querySelector('.season li.playing a');
+  await new Promise(resolve => dom.window.setTimeout(resolve, 0));
+  assert.equal(typeof refresh, 'function');
+  assert.equal(episode().dataset.aniEpDescription, translation);
+  assert.equal(translationRequests, 0);
+  refresh({ ok: true, episodes: { 1: { description: '巴哈版本測試簡介。' } } });
+  await new Promise(resolve => dom.window.setTimeout(resolve, 0));
+  assert.equal(episode().dataset.aniEpDescription, '巴哈版本測試簡介。');
+});
 
 test('episode progress prefers newer playback and displays watched records without timestamps as full bars', t => {
   const dom = bootEnhancements('<div id="BH_background"></div>', '/');
@@ -48,18 +108,68 @@ test('episode progress prefers newer playback and displays watched records witho
   assert.equal(resolve({details: {duration: 1420}}).displayProgress, 0);
 });
 
+test('episode media becomes ready with both decoded artwork and viewing history', async t => {
+  let reveal;
+  let finishHistory;
+  let finishDecode;
+  const episodes = Array.from({length: 7}, (_, i) => `<li><a href="?sn=${1001 + i}">${i + 1}</a></li>`).join('');
+  const dom = bootEnhancements(`<div id="BH_background"><section class="season"><ul>${episodes}</ul></section></div>`, '/animeVideo.php?sn=1001', {
+    onObserve(target, callback) {
+      if (target.matches('.ani-episode-frame[data-video-sn="1001"]')) {
+        reveal = () => callback([{target, isIntersecting: true}]);
+      }
+    },
+  });
+  t.after(() => dom.window.close());
+  const w = dom.window;
+  const tick = () => new Promise(resolve => w.setTimeout(resolve, 0));
+  w.aniGetEpisodeWatchHistory = () => new Promise(resolve => { finishHistory = resolve; });
+  w.aniGetEpisodeDetails = async () => ({duration: 1380, cover: 'https://example.com/episode.jpg'});
+  w.HTMLImageElement.prototype.decode = function () {
+    if (this.decoding !== 'async') return Promise.resolve();
+    return new Promise(resolve => { finishDecode = resolve; });
+  };
+  await tick();
+  reveal();
+  await tick();
+  finishDecode();
+  await tick();
+  const frame = w.document.querySelector('.ani-episode-frame[data-video-sn="1001"]');
+  const card = frame.parentElement;
+  assert.equal(card.dataset.aniEpisodeMediaReady, undefined);
+  assert.equal(frame.querySelector('img'), null);
+  finishHistory(new Map([['1001', {local: {elapsedSec: 82, durationSec: 1380}}]]));
+  await tick();
+  assert.equal(card.dataset.aniEpisodeMediaReady, 'true');
+  assert.equal(card.querySelector('.ani-episode-card-glow img').src, 'https://example.com/episode.jpg');
+  assert.equal(frame.querySelector('img').src, 'https://example.com/episode.jpg');
+  assert.equal(frame.dataset.playbackTime, '1:22 / 23:00');
+  assert.equal(frame.querySelector('.ani-episode-card-progress').hidden, false);
+});
+
 test('episode thumbnails fill bars for native history entries with no saved seconds', async t => {
   const episodes = Array.from({length: 7}, (_, i) => `<li><a href="?sn=${1001 + i}">${i + 1}</a></li>`).join('');
   const html = `<nav><a href="/viewList.php?u=fixture">觀看紀錄</a></nav><div id="BH_background"><section class="season"><ul>${episodes}</ul></section></div>`;
+  const historyPages = [];
   const dom = bootEnhancements(html, '/animeVideo.php?sn=1001', {
-    fetchImpl: async url => String(url).includes('/anime/v3/history.php')
-      ? {ok: true, json: async () => ({data: {totalPage: 1, history: [{
+    fetchImpl: async url => {
+      const request = new URL(url, 'https://ani.gamer.com.tw');
+      if (request.pathname === '/anime/v1/video.php') {
+        return {ok: true, json: async () => ({data: {
+          video: {videoSn: 1001},
+          anime: {animeSn: 10, episodes: {0: Array.from({length: 7}, (_, i) => ({videoSn: 1001 + i}))}},
+        }})};
+      }
+      if (request.pathname !== '/anime/v3/history.php') return {ok: false};
+      const page = request.searchParams.get('page');
+      historyPages.push(page);
+      return {ok: true, json: async () => ({data: {totalPage: 12, history: page === '1' ? [{
         animeSn: 10, videoSn: 1001, duration: 47, episode: 1, breakPoint: {breakPoint: 542},
         history: Array.from({length: 5}, (_, i) => ({
           videoSn: 1002 + i, title: `作品 [${2 + i}]`, duration: i === 4 ? undefined : 1420 / 60,
         })),
-      }]}})}
-      : {ok: false},
+      }] : []}})};
+    },
   });
   t.after(() => dom.window.close());
   await new Promise(resolve => setTimeout(resolve, 40));
@@ -75,6 +185,7 @@ test('episode thumbnails fill bars for native history entries with no saved seco
   assert.equal(frames[1].dataset.playbackTime, '23:40 / 23:40');
   assert.equal(frames[5].dataset.playbackTime, undefined);
   assert.equal(frames[6].querySelector('.ani-episode-card-progress').hidden, true);
+  assert.deepEqual(historyPages, ['1']);
 });
 
 test('Collection status follows progress, accepts persistent overrides, and preserves link clicks', async (t) => {
@@ -201,11 +312,16 @@ test('Phase 1B: permanent local history records video visits, snapshots native h
   Object.defineProperty(v, 'currentTime', { value: 420, configurable: true });
   Object.defineProperty(v, 'duration', { value: 1440, configurable: true });
   await domV.window.AniEnhancements.recordVideoProgress();
+  await new Promise(resolve => setTimeout(resolve, 30));
+  domV.window.document.querySelector('.anime_name').insertAdjacentHTML('beforeend', '<a id="bgmtv" href="https://bangumi.tv/subject/400602?from=plugin">點格子</a>');
+  await new Promise(resolve => setTimeout(resolve, 30));
   const storedAfterWatch = JSON.parse(domV.window.localStorage.getItem('aniPermanentHistoryV1'));
   assert.equal(storedAfterWatch['555'].title, '葬送的芙莉蓮');
   assert.equal(storedAfterWatch['555'].episode, '12');
   assert.equal(storedAfterWatch['555'].elapsedSec, 420);
   assert.equal(storedAfterWatch['555'].episodes['12'].videoSn, '99012');
+  assert.equal(storedAfterWatch['555'].bangumi, 'https://bgm.tv/subject/400602');
+  storedAfterWatch['555'].cover = 'https://p2.bahamut.com.tw/B/ACG/c/55/mock.jpg';
   storedAfterWatch['555'].episodes.special = { videoSn: '99013' };
   domV.window.close();
 
@@ -244,12 +360,18 @@ test('Phase 1B: permanent local history records video visits, snapshots native h
   assert.equal(d.querySelector('.history').getAttribute('data-ani-perm-hidden'), '1');
   assert.equal(d.querySelectorAll('.ani-perm-card.anime-card.ani-history-card').length, 2);
   assert.equal(filterCard.hidden, false);
+  const frieren = d.querySelector('.ani-perm-card[data-perm-sn="555"]');
+  const originalCover = frieren.querySelector('.postimg img');
+  assert(originalCover);
+  assert.equal(frieren.querySelector('.ani-history-bangumi').href, 'https://bgm.tv/subject/400602');
+  assert.equal(d.querySelector('.ani-perm-card[data-perm-sn="777"] .ani-history-bangumi'), null);
   const more = () => d.querySelector('[data-perm-more="555"]');
   const drawer = () => d.getElementById(more().getAttribute('aria-controls'));
   let drawerMotion;
   const recordDrawerMotion = () => {
+    drawer().getBoundingClientRect = () => ({ height: 140 });
     drawer().animate = (frames, options) => {
-      drawerMotion = { frames: Array.from(frames, frame => frame.transform), ...options };
+      drawerMotion = { heights: Array.from(frames, frame => frame.maxHeight), ...options, cancel() {} };
       return drawerMotion;
     };
   };
@@ -258,7 +380,8 @@ test('Phase 1B: permanent local history records video visits, snapshots native h
   assert.equal(more().getAttribute('aria-expanded'), 'true');
   assert.equal(drawer().style.display, 'block');
   assert.deepEqual([...drawer().querySelectorAll('.history-list-anime-title')].map(label => label.textContent), ['EP.12']);
-  assert.deepEqual(drawerMotion, { frames: ['translateY(-8px)', 'translateY(0)'], duration: 220, easing: 'ease-out' });
+  assert.deepEqual(drawerMotion.heights, ['0px', '140px']);
+  assert.equal(drawerMotion.duration, 220);
 
   const otherMore = d.querySelector('[data-perm-more="777"]');
   const otherDrawer = d.getElementById(otherMore.getAttribute('aria-controls'));
@@ -281,13 +404,13 @@ test('Phase 1B: permanent local history records video visits, snapshots native h
   search.dispatchEvent(new domH.window.Event('input'));
   await new Promise((r) => setTimeout(r, 20));
   assert.equal(d.querySelectorAll('.ani-perm-card').length, 1);
+  assert.equal(d.querySelector('.ani-perm-card .postimg img'), originalCover, 'refresh keeps the existing cover node');
   assert.equal(drawer().style.display, 'block', 'an open drawer survives a list refresh');
   recordDrawerMotion();
   more().click();
   assert.equal(more().getAttribute('aria-expanded'), 'false');
-  assert.deepEqual(drawerMotion.frames, ['translateY(0)', 'translateY(-6px)']);
+  assert.deepEqual(drawerMotion.heights, ['140px', '0px']);
   assert.equal(drawerMotion.duration, 190);
-  assert.equal(drawerMotion.easing, 'ease-in');
   assert.equal(drawer().style.display, 'block');
   drawerMotion.onfinish();
   assert.equal(drawer().style.display, 'none');
@@ -315,6 +438,23 @@ test('Phase 1B: permanent local history records video visits, snapshots native h
   await new Promise((r) => setTimeout(r, 40));
   assert.equal(d.querySelectorAll('.ani-perm-card').length, 2);
   domH.window.close();
+});
+
+test('Bangumi uses the current episode when both seasons share one work', async t => {
+  const title = '野生的大魔王出現了！';
+  const seasonOne = 'https://bgm.tv/subject/509355';
+  const seasonTwo = 'https://bgm.tv/subject/616808';
+  const playback = bootEnhancements(`<div id="BH_background"><div class="anime_name"><h1>${title} [13]</h1>
+    <a id="bgmtv" href="${seasonOne}">點格子</a></div></div>`, '/animeVideo.php?sn=45013');
+  t.after(() => playback.window.close());
+  await new Promise(resolve => setTimeout(resolve, 40));
+  const link = playback.window.document.querySelector('#bgmtv');
+  assert.equal(link.href, seasonTwo);
+  const markup = playback.window.AniEnhancements.historyBangumiLink;
+  assert.match(markup(title, '12', seasonTwo), /\/subject\/509355/);
+  assert.match(markup(title, '13', seasonOne), /\/subject\/616808/);
+  assert.match(markup(title, '13', seasonOne), /img\/favicon\.ico/);
+  assert.equal(markup('別的作品', '13', 'https://bgm.tv/subject_search/test'), '');
 });
 
 test('Phase 2: catalog negative tags, keyword exclude, origin classification, page elevator, and DOM invariants', async (t) => {
@@ -542,6 +682,42 @@ test('Phase 4: danmu list search, multi-sort (time/length/sender freq), local pe
   await new Promise((r) => setTimeout(r, 250));
   obs.disconnect();
   assert.equal(idleMut, 0);
+});
+
+test('playback displays one off-shelf reminder and restores the banner if the title pill is removed', async t => {
+  const dom = bootEnhancements(`<div id="BH_background"><div class="container-player">
+    <div id="ani_video"></div>
+    <div class="anime-title"><div class="anime_name"><h1>測試作品</h1></div>
+    <div class="anime_info_detail"><p>上架時間：2021/12/01 14:00</p><p id="offshelf">預定下架日期：2099/11/30</p></div></div>
+  </div></div>`, '/animeVideo.php?sn=123');
+  const { window } = dom;
+  t.after(() => window.close());
+  const { document } = window;
+  await new Promise(resolve => window.addEventListener('ani-enhancements-ui-ready', resolve, { once: true }));
+  const pill = document.querySelector('#offshelf');
+  assert.equal(pill.textContent, '下架 2099/11/30');
+  assert.equal(document.querySelector('.ani-offshelf-banner'), null);
+  assert.equal(JSON.parse(window.localStorage.getItem('aniOffshelfCacheV1'))['123'].dateText, '2099/11/30');
+
+  document.querySelector('#ani_video').remove();
+  pill.parentElement.innerHTML = '<p class="uploadtime">上架時間：2021/12/01 14:00</p><p class="is-deathline">預定下架日期：2099/11/30</p>';
+  await Promise.resolve();
+  assert.equal(document.querySelector('.uploadtime').textContent, '2021/12/01 14:00');
+  const restoredPill = document.querySelector('.is-deathline');
+  assert.equal(restoredPill.textContent, '下架 2099/11/30');
+  assert.equal(document.querySelector('.ani-offshelf-banner'), null);
+
+  const fallback = document.createElement('p');
+  fallback.textContent = '本作品將於 2099/12/01 下架';
+  restoredPill.replaceWith(fallback);
+  await Promise.resolve();
+  const banner = document.querySelector('.ani-offshelf-banner');
+  assert.match(banner.textContent, /2099\/12\/01 下架/);
+  assert.doesNotMatch(banner.textContent, /2021\/12\/01/);
+
+  fallback.replaceWith(pill);
+  await Promise.resolve();
+  assert.equal(document.querySelector('.ani-offshelf-banner'), null);
 });
 
 test('Phase 5: long-series episode grouping, Bangumi/AniList episode title tooltips, and off-shelf alerts', async (t) => {
@@ -828,6 +1004,125 @@ test('episode thumbnail selection uses six-column cards up to 100 episodes and r
   assert.ok(dom.window.document.querySelector('.ani-ep-order'));
 });
 
+test('the sidebar restores two-column credits from a flattened playback synopsis and the full work table', async t => {
+  let resolveCredits;
+  const dom = bootEnhancements(`<div id="BH_background">
+    <div class="anime_name"><h1>測試作品 [1]</h1></div>
+    <div class="subtitle"><div class="ani-tabs"></div><div class="ani-tab-content"></div></div>
+    <section class="data"><div class="data-intro"><p>劇情第一段。<br><br>劇情第二段。
+    <br>──STAFF──<br>──CAST──<br>原作插畫：測試畫家<br>梓川 咲太：石川界人
+    <br>監督：測試監督<br>古賀</p><a href="https://acg.gamer.com.tw/acgDetail.php?s=94844">作品資料</a></div></section>
+  </div>`, '/animeVideo.php?sn=10837', { chromeMock: { runtime: {
+    sendMessage(message, reply) {
+      if (message.type === 'ani-fetch-acg-credits') resolveCredits = reply;
+    },
+  } } });
+  t.after(() => dom.window.close());
+  const { document } = dom.window;
+  const staff = () => document.querySelector('[data-credit-panel="製作團隊"]').textContent;
+  const cast = () => document.querySelector('[data-credit-panel="聲優"]').textContent;
+  assert.equal(document.querySelector('.ani-side-synopsis').textContent, '劇情第一段。\n\n劇情第二段。');
+  assert.match(staff(), /測試畫家/);
+  assert.doesNotMatch(staff(), /石川界人/);
+  assert.match(cast(), /石川界人/);
+
+  resolveCredits({ credits: `<table>
+    <tr><td><b>──STAFF──</b></td><td><b>──CAST──</b></td></tr>
+    <tr><td>原作插畫：測試畫家</td><td>梓川 咲太：石川界人</td></tr>
+    <tr><td>角色設計：測試設計師</td><td>古賀 朋絵：東山奈央</td></tr>
+  </table>` });
+  assert.match(staff(), /測試設計師/);
+  assert.match(cast(), /古賀 朋絵.*東山奈央/);
+  assert.equal(document.querySelectorAll('.ani-side-cast li').length, 2);
+});
+
+test('the sidebar fills missing work synopsis from Bahamut, then only from the linked Bangumi subject', async t => {
+  for (const synopsisHtml of ['<div class="wikiContent"><p>作品資料的正文。</p></div>', '']) {
+    let bangumiRequests = 0;
+    const dom = bootEnhancements(`<div id="BH_background">
+      <div class="anime_name"><h1>青春豬頭少年不會夢到兔女郎學姊 [1]</h1><a id="bgmtv" href="https://bgm.tv/subject/123">點格子</a></div>
+      <div class="subtitle"><div class="ani-tabs"></div><div class="ani-tab-content"></div></div>
+      <section class="data"><div class="data-intro"></div><a href="https://acg.gamer.com.tw/acgDetail.php?s=94844">作品資料</a></section>
+    </div>`, '/animeVideo.php?sn=10837', { chromeMock: { runtime: {
+      sendMessage(message, reply) {
+        if (message.type === 'ani-fetch-acg-credits') {
+          queueMicrotask(() => reply({ credits: '<b>＜製作團隊＞</b><li>｜原作：測試作者</li>', synopsisHtml }));
+        }
+        if (message.type === 'ani-fetch-work-synopsis') {
+          assert.equal(message.id, '123');
+          bangumiRequests++;
+          queueMicrotask(() => reply({ summary: 'Bangumi 的正文。' }));
+        }
+      },
+    } } });
+    t.after(() => dom.window.close());
+    const { document } = dom.window;
+    document.querySelector('.ani-tabs-link[href="#ani-tab-content-intro"]').click();
+    await new Promise(resolve => dom.window.setTimeout(resolve, 0));
+    const items = [...document.querySelectorAll('.ani-side-meta-grid > .ani-side-meta-item')];
+    assert.deepEqual(items.map(item => [...item.children].map(child => child.textContent)), [
+      ['原作性質', '輕小說改編'], ['原作', '測試作者'],
+    ]);
+    assert(items[0].classList.contains('is-wide'));
+    assert.equal(document.querySelector('.ani-side-synopsis').textContent, synopsisHtml ? '作品資料的正文。' : 'Bangumi 的正文。');
+    assert.equal(bangumiRequests, synopsisHtml ? 0 : 1);
+  }
+});
+
+test('the shared cast panel upgrades Japanese links and adds missing Wiki buttons', async t => {
+  const dom = bootEnhancements(`<div id="BH_background">
+    <div class="anime_name"><h1>測試作品 [1]</h1></div>
+    <div class="subtitle"><div class="ani-tabs"></div><div class="ani-tab-content"></div></div>
+    <section class="data"></section>
+    <div id="ani-info"><div class="grid cast">
+      <span>甲</span><span>測試聲優甲</span><a href="https://ja.wikipedia.org/wiki/Actor_A">Wiki</a>
+      <span>乙</span><span>測試聲優乙</span><span></span>
+    </div></div>
+  </div>`, '/animeVideo.php?sn=123', { chromeMock: { runtime: {
+    sendMessage(message, reply) {
+      if (message.type !== 'ani-resolve-cast-wiki') return;
+      assert(message.names.includes('Actor A'));
+      reply([
+        { cv: 'Actor A', wikiUrl: 'https://zh.wikipedia.org/zh-tw/A' },
+        { cv: '測試聲優乙', wikiUrl: 'https://ja.wikipedia.org/wiki/B' },
+      ]);
+    },
+  } } });
+  t.after(() => dom.window.close());
+  await new Promise(resolve => dom.window.setTimeout(resolve, 0));
+  const links = [...dom.window.document.querySelectorAll('.ani-side-cast a')].map(link => link.href);
+  assert.deepEqual(links, ['https://zh.wikipedia.org/zh-tw/A', 'https://ja.wikipedia.org/wiki/B']);
+});
+
+test('Sakurasou uses Traditional Chinese cast credits and keeps both roles played by one actor', t => {
+  const dom = bootEnhancements(`<div id="BH_background">
+    <div class="anime_name"><h1>櫻花莊的寵物女孩 [1]</h1></div>
+    <div class="subtitle"><div class="ani-tabs"></div><div class="ani-tab-content"></div></div>
+    <section class="data"></section>
+    <div id="ani-info"><div class="grid cast">
+      <span>千石千尋</span><span>豊口めぐみ</span><span></span>
+      <span>メイドちゃん</span><span>堀江由衣</span><span></span>
+      <span>リタ・エインズワース</span><span>川澄綾子</span><span></span>
+      <span>川澄綾子測試角色</span><span>川澄綾子</span><span></span>
+    </div></div>
+  </div>`, '/animeVideo.php?sn=4414');
+  t.after(() => dom.window.close());
+  const rows = [...dom.window.document.querySelectorAll('.ani-side-cast li')].map(row =>
+    [...row.querySelectorAll(':scope > span')].map(text => text.textContent));
+  assert.deepEqual(rows.filter(([, actor]) => actor === '堀江由衣'), [
+    ['赤坂龍之介', '堀江由衣'], ['小女僕', '堀江由衣'],
+  ]);
+  assert.deepEqual(rows.filter(([role]) => role === '千石千尋'), [['千石千尋', '豐口惠']]);
+  assert.deepEqual(rows.filter(([, actor]) => actor === '川澄綾子').map(([role]) => role),
+    ['麗塔·愛因茲渥司', '川澄綾子測試角色']);
+  assert(rows.some(([role, actor]) => role === '館林總一郎' && actor === '日野聰'));
+  const haruka = [...dom.window.document.querySelectorAll('.ani-side-cast li')]
+    .find(row => row.firstElementChild.textContent === '長谷栞奈');
+  assert.equal(decodeURI(haruka.querySelector('a').href), 'https://zh.wikipedia.org/zh-tw/山崎遙');
+  assert(rows.some(([role, actor]) => role === '椎名真白' && actor === '茅野愛衣'));
+  assert(rows.some(([role, actor]) => role === '川澄綾子測試角色' && actor === '川澄綾子'));
+});
+
 test('Polar Opposites season two fills missing Traditional Chinese episode descriptions', async t => {
   const episodes = Array.from({ length: 15 }, (_, index) => {
     const number = 12 + index;
@@ -876,6 +1171,37 @@ test('next episode uses a future schedule and the work widescreen cover', async 
   assert.equal(preview.querySelector('.ani-episode-frame time').dateTime, '2099-11-27T23:30:00+08:00');
   assert.equal(preview.querySelector('.ani-episode-card-description').dataset.text, '兩人再次踏上旅程。');
   assert.equal(preview.querySelector('.ani-upcoming-hover-date'), null);
+});
+
+test('Wild Last Boss episode cards fill both fields when a valid cache ends at episode 12', async t => {
+  const work = '野生的大魔王出現了！';
+  const numbers = Array.from({ length: 21 }, (_, index) => index + 1);
+  const episodes = numbers.map(number => `<li><a href="?sn=${45000 + number}">${number}</a></li>`).join('');
+  const dom = bootEnhancements(`<div id="BH_background">
+    <div class="anime_name"><h1>${work} EP.21</h1></div>
+    <section class="season"><ul>${episodes}</ul><div>特別篇</div><ul><li><a href="?sn=45113">13</a></li></ul></section>
+  </div>`, '/animeVideo.php?sn=45021', {
+    sharedStorage: {
+      aniEpTitlesCacheV5: {
+        [work]: {
+          ts: Date.now(), metadataVersion: 6, lastEpisode: 21,
+          episodes: { 12: { name: '在故鄉有個不得了的存在！', description: '既有分集簡介。' } },
+        },
+      },
+    },
+  });
+  t.after(() => dom.window.close());
+  await new Promise(resolve => setTimeout(resolve, 50));
+  const d = dom.window.document;
+  const cards = numbers.slice(12).map(number => d.querySelector(`.season a[href="?sn=${45000 + number}"]`));
+  for (const card of cards) {
+    assert.ok(card.querySelector('.ani-episode-card-heading').dataset.title, `missing title for ${card.href}`);
+    assert.ok(card.querySelector('.ani-episode-card-synopsis').dataset.text, `missing synopsis for ${card.href}`);
+  }
+  assert.equal(cards[0].dataset.aniEpTitle, '機動王都布魯托剛格出現了！');
+  assert.equal(cards.at(-1).dataset.aniEpTitle, '吸血姬貝涅特奈修出現了！');
+  assert.equal(d.querySelector('.season a[href="?sn=45012"]').dataset.aniEpDescription, '既有分集簡介。');
+  assert.equal(d.querySelector('.season a[href="?sn=45113"]').dataset.aniEpDescription, undefined);
 });
 
 test('Slime first season uses verified Traditional Chinese summaries only for episodes 1 to 24', async t => {
@@ -937,4 +1263,36 @@ test('Slime dub and Coleus playlists get verified titles and summaries without B
     assert.ok(cards[0].dataset.aniEpDescription);
     assert.equal(cards[1].dataset.aniEpDescription, cards[0].dataset.aniEpDescription);
   }
+});
+
+test('hovering the player episode button shows progress from all history pages', async t => {
+  const dom = bootEnhancements(`<nav><a href="/viewList.php?u=fixture">觀看紀錄</a></nav>
+    <div id="BH_background"><div class="container-player">
+      <section class="player"><div id="ani_video"><div class="vjs-control-bar"><div class="control-bar-rightbtn"></div></div></div></section>
+      <div class="anime-title"><div class="season"><ul>
+        <li class="playing"><a href="?sn=8101">1</a></li>
+        <li><a href="?sn=8102">2</a></li>
+        <li class="saw"><a href="?sn=8103">3</a></li>
+        <li><a href="?sn=8104">4</a></li>
+      </ul></div></div>
+    </div></div>`, '/animeVideo.php?sn=8101', {
+    fetchImpl: async url => {
+      const request = new URL(url, 'https://ani.gamer.com.tw/');
+      if (!request.pathname.endsWith('/history.php')) return {ok: false};
+      const page = Number(request.searchParams.get('page'));
+      return {ok: true, json: async () => ({
+        data: {totalPage: 2, history: [{videoSn: 8100 + page, duration: 20, breakPoint: 300 * page}]},
+      })};
+    },
+  });
+  t.after(() => dom.window.close());
+  const w = dom.window;
+  await new Promise(resolve => setTimeout(resolve, 40));
+  const hover = new w.Event('pointerenter');
+  Object.defineProperty(hover, 'pointerType', {value: 'mouse'});
+  w.document.querySelector('.ani-episodes-control').dispatchEvent(hover);
+  assert.equal(w.document.querySelector('.ani-player-episodes-drawer').getAttribute('aria-hidden'), 'false');
+  await new Promise(resolve => setTimeout(resolve, 40));
+  const bars = [...w.document.querySelectorAll('.ani-ep-row progress')];
+  assert.deepEqual(bars.map(bar => bar.position), [0.25, 0.5, 1, 0]);
 });

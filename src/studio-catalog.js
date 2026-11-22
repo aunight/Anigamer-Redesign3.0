@@ -1,7 +1,12 @@
 const favoriteStudioPrefix = 'ani-favorite-studio:';
-const studioCatalogData = STUDIO_CATALOG_DATA;
-const studioProfileData = STUDIO_PROFILE_DATA;
-const studioDirectoryIcons = STUDIO_DIRECTORY_ICON_DATA;
+let studioCatalogDataCache;
+const getStudioCatalogData = () => (studioCatalogDataCache ??= STUDIO_CATALOG_DATA);
+let studioProfileDataCache;
+const getStudioProfileData = () => (studioProfileDataCache ??= STUDIO_PROFILE_DATA);
+let studioDirectoryIconsCache;
+const getStudioDirectoryIcons = () => (studioDirectoryIconsCache ??= STUDIO_DIRECTORY_ICON_DATA);
+let studioLogoDataCache;
+const getStudioLogoData = () => (studioLogoDataCache ??= STUDIO_LOGO_DATA);
 
 function studioAliasLabel(alias) {
   return (/[\p{Script=Hiragana}\p{Script=Katakana}]/u.test(alias) ? '日文名：' : '常稱：') + alias;
@@ -33,18 +38,20 @@ const studioDisplayName = name => studioDisplayNames.get(name) || name;
 let studioNamesByAlias;
 
 function catalogStudiosForEpisode(sn, title) {
-  const work = studioCatalogData.find(([id, videoSn]) => id === sn || videoSn === sn)
-    || studioCatalogData.find(([, , workTitle]) => title && workTitle === title);
+  const catalog = getStudioCatalogData();
+  const work = catalog.find(([id, videoSn]) => id === sn || videoSn === sn)
+    || catalog.find(([, , workTitle]) => title && workTitle === title);
   return work?.at(-1).join(' / ') || '';
 }
 
 function studioCreditLinks(value) {
   if (!studioNamesByAlias) {
     studioNamesByAlias = new Map();
-    for (const name of new Set(studioCatalogData.flatMap(work => work.at(-1)))) {
+    const profileMap = getStudioProfileData();
+    for (const name of new Set(getStudioCatalogData().flatMap(work => work.at(-1)))) {
       studioNamesByAlias.set(normalizeStudioName(name), name);
       studioNamesByAlias.set(normalizeStudioName(studioDisplayName(name)), name);
-      for (const alias of (studioProfileData[name]?.[0] || '').split('、')) {
+      for (const alias of (profileMap[name]?.[0] || '').split('、')) {
         if (alias.trim()) studioNamesByAlias.set(normalizeStudioName(alias), name);
       }
     }
@@ -200,9 +207,9 @@ function mountStudioCatalog(host, enhanceCards, loadMetadata, {favoritesOnly = f
   const requestedStudio = favoritesOnly || savedView ? null : new URLSearchParams(location.search).get('studio');
   if (requestedStudio || savedView?.active) shell.querySelector('button:last-child').click();
   function build(favorites, initialStudio) {
-    const logos=STUDIO_LOGO_DATA;
+    const logos = getStudioLogoData();
     const groups=new Map();
-    for (const [id,sn,title,date,views,episodes,cover,tags,names] of studioCatalogData) {
+    for (const [id,sn,title,date,views,episodes,cover,tags,names] of getStudioCatalogData()) {
       const work={id,sn,title,date,views,episodes,cover,tags,popularity:parseFloat(views.replaceAll(',',''))*(views.includes('億')?1e8:views.includes('萬')?1e4:1)};
       for (const name of names) {
         if (!groups.has(name)) groups.set(name,[]);
@@ -300,7 +307,8 @@ function mountStudioCatalog(host, enhanceCards, loadMetadata, {favoritesOnly = f
       for (const tag of w.tags) card.querySelector('.anime-label-block').append(el('span','label-edition',tag));
       return card;
     }
-    const profiles = new Map(Object.entries(studioProfileData));
+    const profiles = new Map(Object.entries(getStudioProfileData()));
+    const directoryIcons = getStudioDirectoryIcons();
     function studioMark(name) {
       const mark = el('span', 'ani-studio-mark');
       mark.setAttribute('aria-hidden', 'true');
@@ -311,7 +319,7 @@ function mountStudioCatalog(host, enhanceCards, loadMetadata, {favoritesOnly = f
       const fallback = el('span', 'ani-studio-mark-fallback', initials.toUpperCase());
       mark.append(fallback);
       const logo = logos[name];
-      const entry = studioDirectoryIcons[name];
+      const entry = directoryIcons[name];
       if (logo || entry) {
         const image = el('img', 'ani-studio-favicon');
         image.alt = '';
@@ -399,10 +407,46 @@ function mountStudioCatalog(host, enhanceCards, loadMetadata, {favoritesOnly = f
       const list=el('div','theme-list-block');
       const works=groups.get(name);
       const cards=new Map();
+      const reorderMotions = new Map();
       let current='人氣';
-      function order() {
+      function order(withMotion = false) {
         const sorted=[...works].sort((a,b)=>current==='最新'?b.date.localeCompare(a.date):current==='評分'?(b.score||0)-(a.score||0)||b.popularity-a.popularity:b.popularity-a.popularity);
-        list.append(...sorted.map(w=>cards.get(w)));
+        const next = sorted.map(work => cards.get(work));
+        const previous = [...list.children];
+        if (next.length === previous.length && next.every((card, index) => card === previous[index])) return;
+        const animate = withMotion && !reducedMotion.matches && typeof list.animate === 'function' && list.clientWidth > 0;
+        const before = new Map();
+        let visible = [];
+        if (animate && previous.length) {
+          // The rail uses a fixed card width. Sample only the cards near the scroll viewport.
+          const gap = parseFloat(getComputedStyle(list).columnGap) || 0;
+          const stride = previous[0].offsetWidth + gap;
+          const start = Math.max(0, Math.floor(list.scrollLeft / stride) - 1);
+          const end = Math.ceil((list.scrollLeft + list.clientWidth) / stride) + 1;
+          visible = next.slice(start, end);
+          const nearby = new Set(previous.slice(start, end));
+          for (const card of visible) {
+            if (nearby.has(card) || reorderMotions.has(card)) before.set(card, card.getBoundingClientRect());
+          }
+        }
+        for (const animation of reorderMotions.values()) animation.cancel();
+        reorderMotions.clear();
+        list.append(...next);
+        const offsets = visible.map(card => {
+          const old = before.get(card);
+          const target = card.getBoundingClientRect();
+          const zoom = target.width / card.offsetWidth || 1;
+          return [card, old ? (old.left - target.left) / zoom : 28, old ? (old.top - target.top) / zoom : 0, !old];
+        });
+        for (const [card, x, y, incoming] of offsets) {
+          if (Math.abs(x) + Math.abs(y) < 1) continue;
+          const motion = card.animate([
+            { translate: `${x}px ${y}px`, ...(incoming ? { opacity: .55 } : {}) },
+            { translate: '0 0', ...(incoming ? { opacity: 1 } : {}) },
+          ], { duration: 330, easing: 'cubic-bezier(.2, .7, .25, 1)' });
+          reorderMotions.set(card, motion);
+          motion.onfinish = () => reorderMotions.delete(card);
+        }
       }
       let loading=false;
       async function rate() {
@@ -418,7 +462,7 @@ function mountStudioCatalog(host, enhanceCards, loadMetadata, {favoritesOnly = f
             w.score=knownScores.get(w.sn);
             if (w.score) cards.get(w).dataset.aniRelatedScore=String(w.score);
           }
-          if (current==='評分') {order(); enhanceCards([section]);}
+          if (current==='評分') {order(true); enhanceCards([section]);}
         } finally {loading=false;}
       }
       const summary=el('div','ani-studio-summary');
@@ -446,7 +490,7 @@ function mountStudioCatalog(host, enhanceCards, loadMetadata, {favoritesOnly = f
       summary.append(portrait,identity,actions);
       bar.append(summary,segmented([['人氣','views'],['評分','score'],['最新','date']],'人氣',label=>{
         if (!cards.size) loadFeatured(name);
-        current=label;order();if(label==='評分')void rate();
+        current=label;order(true);if(label==='評分')void rate();
       }));
       section.append(bar,gallery);
       container.append(section);
@@ -538,7 +582,7 @@ function mountStudioCatalog(host, enhanceCards, loadMetadata, {favoritesOnly = f
       featuredName.title = displayName;
       details.append(featuredName);
       const nameWidth = [...displayName].reduce((width, character) =>
-        width + (/\s/.test(character) ? 0.38 : /^[MWmw]$/.test(character) ? 1 : /^[A-Z]$/.test(character) ? 0.82 : /^[\x00-\x7f]$/.test(character) ? 0.68 : 1.08), 0);
+        width + (/\s/.test(character) ? 0.30 : /^[MWmw]$/.test(character) ? 0.94 : /^[A-Z]$/.test(character) ? 0.74 : /^[\x00-\x7f]$/.test(character) ? 0.55 : 1.08), 0);
       card.style.setProperty('--ani-studio-name-width', String(Math.max(1, nameWidth)));
       if (alias && alias !== displayName) details.append(el('small', '', studioAliasLabel(alias)));
       const examples = studioRepresentativeTitles[name] ?? [];

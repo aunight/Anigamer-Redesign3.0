@@ -197,7 +197,7 @@ body.ani-layout-watch :is(:fullscreen, :-webkit-full-screen, .vjs-fullscreen, .v
     background: var(--ani-card-bg, #172332) !important;
     border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
     gap: 8px !important;
-    padding: 40px 0 12px !important;
+    padding: 20px 0 12px !important;
     overflow-y: auto !important;
     scrollbar-width: none !important;
     contain: layout style;
@@ -219,7 +219,7 @@ body.ani-layout-watch :is(:fullscreen, :-webkit-full-screen, .vjs-fullscreen, .v
   body.ani-layout-nav .mainmenu > .container-player > ul > li[hidden] {
     display: none !important;
   }
-  body.ani-layout-nav .top_sky .mainmenu li a.ani-nav-icon-link,
+  body.ani-layout-nav .top_sky .mainmenu li .ani-nav-icon-link,
   body.ani-layout-nav .top_sky .mainmenu .ani-nav-more > button {
     position: relative !important;
     display: flex !important;
@@ -235,68 +235,69 @@ body.ani-layout-watch :is(:fullscreen, :-webkit-full-screen, .vjs-fullscreen, .v
     padding: 0 !important;
     border-radius: 12px !important;
     overflow: hidden !important;
-    transition: background-color 0.16s ease, color 0.16s ease, height 0.2s cubic-bezier(0.22, 1, 0.36, 1) !important;
+    isolation: isolate;
+    background: transparent !important;
+    transition: none !important;
   }
-  body.ani-layout-nav .top_sky .mainmenu li a.ani-nav-icon-link .ani-nav-icon,
+  body.ani-layout-nav .top_sky .mainmenu :is(li .ani-nav-icon-link, .ani-nav-more > button)::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--ani-nav-highlight, rgb(11 162 154 / 0.3));
+    box-shadow: var(--ani-nav-highlight-shadow, none);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease-out;
+  }
+  body.ani-layout-nav .top_sky .mainmenu li .ani-nav-icon-link.ani-nav-payment-link {
+    --ani-nav-highlight: rgb(235 157 61 / 0.24);
+    --ani-nav-highlight-shadow: none;
+  }
+  body.ani-layout-nav .top_sky .mainmenu li .ani-nav-icon-link .ani-nav-icon,
   body.ani-layout-nav .top_sky .mainmenu .ani-nav-more > button .ani-nav-icon {
-    transform: translateY(0);
-    transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1) !important;
+    transform: translateY(-10px);
+    transition: transform 0.15s ease-out !important;
   }
-  body.ani-layout-nav .top_sky .mainmenu li a.ani-nav-icon-link .ani-nav-short,
+  body.ani-layout-nav .top_sky .mainmenu li .ani-nav-icon-link .ani-nav-short,
   body.ani-layout-nav .top_sky .mainmenu .ani-nav-more > button .ani-nav-short {
     position: absolute !important;
     left: 2px !important;
     right: 2px !important;
-    bottom: 10px !important;
+    bottom: 6px !important;
     display: block !important;
+    visibility: hidden;
+    transition: none !important;
     height: 16px !important;
     line-height: 16px !important;
     margin: 0 !important;
     text-align: center !important;
-    opacity: 0 !important;
-    transform: translateY(6px);
     overflow: hidden !important;
     white-space: nowrap !important;
     font-size: 12px;
     font-weight: 600;
     pointer-events: none;
-    transition:
-      opacity 0.16s ease,
-      transform 0.2s cubic-bezier(0.22, 1, 0.36, 1) !important;
   }
-  body.ani-layout-nav .top_sky .mainmenu li.is-active a.ani-nav-icon-link,
-  body.ani-layout-nav .top_sky .mainmenu li a.ani-nav-icon-link:hover,
-  body.ani-layout-nav .top_sky .mainmenu .ani-nav-more > button:hover,
-  body.ani-layout-nav .top_sky .mainmenu .ani-nav-more:hover > button {
-    background: rgba(11, 162, 154, 0.3) !important;
+  body.ani-layout-nav .top_sky .mainmenu :is(li.is-active .ani-nav-icon-link, li .ani-nav-icon-link:is(:hover, :focus-visible), .ani-nav-more:is(:hover, :focus-within) > button) {
     color: #0fe0d4 !important;
   }
-  body.ani-layout-nav .top_sky .mainmenu li.is-active a.ani-nav-icon-link,
-  body.ani-layout-nav .top_sky .mainmenu li a.ani-nav-icon-link:hover,
-  body.ani-layout-nav .top_sky .mainmenu .ani-nav-more:hover > button {
-    height: 80px !important;
+  body.ani-layout-nav .top_sky .mainmenu :is(li.is-active .ani-nav-icon-link, li .ani-nav-icon-link:is(:hover, :focus-visible), .ani-nav-more:is(:hover, :focus-within) > button)::before {
+    opacity: 1;
   }
-  body.ani-layout-nav .top_sky .mainmenu li.is-active a.ani-nav-icon-link .ani-nav-icon,
-  body.ani-layout-nav .top_sky .mainmenu li a.ani-nav-icon-link:hover .ani-nav-icon,
-  body.ani-layout-nav .top_sky .mainmenu .ani-nav-more > button:hover .ani-nav-icon,
-  body.ani-layout-nav .top_sky .mainmenu .ani-nav-more:hover > button .ani-nav-icon {
-    transform: translateY(-10px);
+  body.ani-layout-nav .top_sky .mainmenu :is(li.is-active .ani-nav-icon-link, li .ani-nav-icon-link:is(:hover, :focus-visible), .ani-nav-more:is(:hover, :focus-within) > button) .ani-nav-icon {
+    transform: translateY(-12px);
   }
-  body.ani-layout-nav .top_sky .mainmenu li.is-active a.ani-nav-icon-link .ani-nav-short,
-  body.ani-layout-nav .top_sky .mainmenu li a.ani-nav-icon-link:hover .ani-nav-short,
-  body.ani-layout-nav .top_sky .mainmenu .ani-nav-more > button:hover .ani-nav-short,
-  body.ani-layout-nav .top_sky .mainmenu .ani-nav-more:hover > button .ani-nav-short {
-    opacity: 1 !important;
-    transform: translateY(0);
+  body.ani-layout-nav .top_sky .mainmenu :is(li.is-active .ani-nav-icon-link, li .ani-nav-icon-link:hover, .ani-nav-more:hover > button) .ani-nav-short {
+    visibility: visible;
     color: #0fe0d4 !important;
   }
   body.ani-layout-nav .top_sky .mainmenu li.is-active a.ani-nav-icon-link.ani-nav-payment-link,
-  body.ani-layout-nav .top_sky .mainmenu li a.ani-nav-icon-link.ani-nav-payment-link:hover {
-    background: rgba(235, 157, 61, 0.24) !important;
+  body.ani-layout-nav .top_sky .mainmenu li a.ani-nav-icon-link.ani-nav-payment-link:is(:hover, :focus-visible) {
     color: #EB9D3D !important;
   }
   body.ani-layout-nav .top_sky .mainmenu li.is-active a.ani-nav-icon-link.ani-nav-payment-link .ani-nav-short,
-  body.ani-layout-nav .top_sky .mainmenu li a.ani-nav-icon-link.ani-nav-payment-link:hover .ani-nav-short {
+  body.ani-layout-nav .top_sky .mainmenu li a.ani-nav-icon-link.ani-nav-payment-link:is(:hover, :focus-visible) .ani-nav-short {
     color: #EB9D3D !important;
   }
   body.ani-layout-nav .top_sky .mainmenu > .container-player > ul > li.ani-nav-bottom-start {
@@ -312,8 +313,8 @@ body.ani-layout-watch :is(:fullscreen, :-webkit-full-screen, .vjs-fullscreen, .v
   }
 }
 @media (min-width: 901px) and (prefers-reduced-motion: reduce) {
-  body.ani-layout-nav .top_sky .mainmenu :is(li a.ani-nav-icon-link, .ani-nav-more > button),
-  body.ani-layout-nav .top_sky .mainmenu :is(li a.ani-nav-icon-link, .ani-nav-more > button) :is(.ani-nav-icon, .ani-nav-short) {
+  body.ani-layout-nav .top_sky .mainmenu :is(li .ani-nav-icon-link, .ani-nav-more > button)::before,
+  body.ani-layout-nav .top_sky .mainmenu :is(li .ani-nav-icon-link, .ani-nav-more > button) .ani-nav-icon {
     transition: none !important;
   }
 }
@@ -4185,6 +4186,9 @@ body.ani-ambientlight-page .theme-title-block {
   margin: 0 !important;
   padding: 32px 16px 8px !important;
 }
+body.ani-ambientlight-page:is(.ani-history-page, .ani-collection-page) #BH_background .theme-title-block {
+  padding-block-start: 24px !important;
+}
 body.ani-ambientlight-ui .theme-title {
   color: var(--ani-text) !important;
   font-size: clamp(24px, 2.4vw, 32px) !important;
@@ -4889,10 +4893,9 @@ body.ani-ambientlight-ui #BH_background .continue-watch-area .continue-watch-car
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
   border-radius: 10px !important;
   overflow: hidden !important;
-  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.2s ease, box-shadow 0.2s ease !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
 }
 body.ani-ambientlight-ui #BH_background .continue-watch-area .continue-watch-card:hover {
-  transform: translateY(-3px);
   border-color: var(--ani-accent, #3dafb6) !important;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.42) !important;
 }
@@ -5497,8 +5500,12 @@ body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card
   height: auto !important;
   aspect-ratio: 16 / 9;
   padding: 0 !important;
+  animation: none !important;
   flex: 0 0 auto;
   border-radius: 13px 13px 0 0 !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .img-bg-blur-bg {
+  transform: none !important;
 }
 body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .content-block {
   position: relative !important;
@@ -5984,7 +5991,7 @@ body.ani-layout-related.ani-home-page #BH_background > .container > .animate-the
   padding: 10px 3px 4px !important;
   box-sizing: border-box;
 }
-body.ani-layout-related.ani-home-page #BH_background > .container > .animate-theme-list:not(:has(.filter-section)) .theme-list-block {
+body.ani-layout-related.ani-home-page #BH_background > .container > .animate-theme-list:not(:has(.filter-section), :where(.animate-wish)) .theme-list-block {
   align-items: start !important;
   grid-template-columns: none !important;
   grid-auto-rows: auto !important;
@@ -6189,8 +6196,34 @@ body.ani-ambientlight-ui #BH_background #blockContinueWatch .ani-score-badge-top
 }
 body.ani-ambientlight-page #blockContinueWatch #continueWatch {
   padding: 0 !important;
-  margin-right: 0 !important;
+  width: 100% !important;
+  margin-inline: 0 !important;
   max-width: 100%;
+}
+/* Reserve the native carousel's card geometry before it wraps the slides. */
+body.ani-home-page.ani-ambientlight-ui #continueWatch {
+  --ani-continue-visible: 6;
+}
+@media (width < 1440px) {
+  body.ani-home-page.ani-ambientlight-ui #continueWatch { --ani-continue-visible: 5.3; }
+}
+@media (width < 1200px) {
+  body.ani-home-page.ani-ambientlight-ui #continueWatch { --ani-continue-visible: 4.3; }
+}
+@media (width < 768px) {
+  body.ani-home-page.ani-ambientlight-ui #continueWatch { --ani-continue-visible: 3.3; }
+}
+@media (width < 576px) {
+  body.ani-home-page.ani-ambientlight-ui #continueWatch { --ani-continue-visible: 2.3; }
+}
+body.ani-home-page.ani-ambientlight-ui #BH_background #blockContinueWatch #continueWatch:not(.slick-initialized) {
+  display: flex !important;
+  overflow: auto hidden !important;
+  scrollbar-width: none;
+}
+body.ani-home-page.ani-ambientlight-ui #continueWatch:not(.slick-initialized) > .continue-watch-container {
+  flex: 0 0 calc(100% / var(--ani-continue-visible) - 16px);
+  min-width: 0;
 }
 /* Explicit height animation is driven by the toggle's Web Animations call. */
 body.ani-ambientlight-page #blockContinueWatch .ani-continue-body {
@@ -6896,13 +6929,17 @@ body.ani-layout-nav.ani-ambientlight-ui .top_sky .anime_search-icon:is(:hover,:f
 body.ani-ambientlight-ui .ani-collection-search-capsule .anime_search-icon:is(:hover,:focus-visible) .ani-search-glyph {
   color: #72beff !important;
 }
-/* Continue titles expand downwards like season cards, anchored below the cover. */
+/* Continue watching keeps the same card height while its title scrolls. */
 body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card {
   overflow: visible !important;
 }
 body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .content-block,
 body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card:is(:hover, :focus-within) .content-block {
   inset: calc(100% - 38px) 0 auto !important;
+}
+body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card:is(:hover, :focus-within) :is(.content-block, .content) {
+  height: 38px !important;
+  min-height: 38px !important;
 }
 body.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .content-block {
   background: var(--ani-base, #0f1621) !important;

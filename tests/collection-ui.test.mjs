@@ -9,10 +9,11 @@ test('related movies show a check only when completed while specials retain epis
   const tagged = card(2, 2026, 0).replace(' / 12 集', ' / 1 集')
     .replace('<div class="anime-detail-block">', '<div class="anime-detail-block"><span class="label-edition">電影</span>');
   const special = card(3, 2026, 0).replace(' / 12 集', ' / 1 集');
-  const dom = boot(`<div id="BH_background"><section class="old_list"><div class="theme-list-block">${movie}${tagged}${special}</div></section></div>`, '/animeVideo.php?sn=101');
+  const untaggedMovies = ['113603', '113435', '101403'].map(id => card(id, 2023, 0).replace(' / 12 集', ' / 1 集')).join('');
+  const dom = boot(`<div id="BH_background"><section class="old_list"><div class="theme-list-block">${movie}${tagged}${special}${untaggedMovies}</div></section></div>`, '/animeVideo.php?sn=101');
   t.after(() => dom.window.close());
   const labels = [...dom.window.document.querySelectorAll('.old_list .theme-number')].map(node => node.textContent);
-  assert.deepEqual(labels, ['電影', '電影', '0 / 1 集']);
+  assert.deepEqual(labels, ['電影', '電影', '0 / 1 集', '電影', '電影', '電影']);
   const w = dom.window;
   const [watched, unfinished] = w.document.querySelectorAll('.old_list .theme-number');
   w.localStorage.setItem('aniPermanentHistoryV1', JSON.stringify({
