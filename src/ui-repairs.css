@@ -5720,6 +5720,7 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .su
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle .ani-rating-scroll {
   display: flex;
   flex-direction: column;
+  padding-bottom: 4px !important;
   overflow: hidden !important;
 }
 .ani-rating-scroll > :not(.ani-rating-reviews) { flex: none; }
@@ -5737,23 +5738,7 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .su
 }
 .ani-rating-review-viewport::before,
 .ani-rating-review-viewport::after {
-  content: '';
-  position: absolute;
-  z-index: 1;
-  inset-inline: 0;
-  height: 12px;
-  pointer-events: none;
-  background: linear-gradient(var(--ani-review-shadow-direction), rgb(0 0 0 / 18%), transparent);
-}
-.ani-rating-review-viewport::before {
-  inset-block-start: 0;
-  --ani-review-shadow-direction: to bottom;
-  opacity: var(--ani-review-shadow-top, 0);
-}
-.ani-rating-review-viewport::after {
-  inset-block-end: 0;
-  --ani-review-shadow-direction: to top;
-  opacity: var(--ani-review-shadow-bottom, 0);
+  display: none !important;
 }
 @media (prefers-reduced-motion: no-preference) {
   body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle .ani-sidebar-rating.is-tab-entering {
@@ -5762,13 +5747,33 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .su
   @keyframes aniRatingSlideIn { from { transform: translateY(3px); } to { transform: none; } }
 }
 .ani-rating-review-viewport > .ani-reviews-list {
+  --ani-rev-top-fade: calc(var(--ani-review-shadow-top, 0) * 10px);
+  --ani-rev-bot-fade: calc(var(--ani-review-shadow-bottom, 0) * 12px);
   flex: 1 1 auto;
   min-height: 0;
-  padding: 4px 3px 10px;
+  padding: 4px 3px 14px;
   overflow-y: auto;
   scrollbar-width: none;
   overscroll-behavior-y: contain;
-  scroll-padding-block: 12px;
+  scroll-padding-block: 10px;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0px,
+    rgba(0, 0, 0, 0.6) calc(var(--ani-rev-top-fade) * 0.4),
+    #000 var(--ani-rev-top-fade),
+    #000 calc(100% - var(--ani-rev-bot-fade)),
+    rgba(0, 0, 0, 0.6) calc(100% - var(--ani-rev-bot-fade) * 0.4),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0px,
+    rgba(0, 0, 0, 0.6) calc(var(--ani-rev-top-fade) * 0.4),
+    #000 var(--ani-rev-top-fade),
+    #000 calc(100% - var(--ani-rev-bot-fade)),
+    rgba(0, 0, 0, 0.6) calc(100% - var(--ani-rev-bot-fade) * 0.4),
+    transparent 100%
+  );
 }
 .ani-rating-review-viewport > .ani-reviews-list > .ani-review-card { flex: none; }
 body.ani-ambientlight-ui .dialogify__content:has(.textarea-score) {
@@ -5993,10 +5998,10 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .su
   width: 118px !important;
   height: 118px !important;
   overflow: visible !important;
-  background: radial-gradient(circle closest-side, transparent 51%, color-mix(in srgb, var(--ani-accent, #3dafb6) 24%, transparent) 70%, transparent 96%);
 }
 .ani-rating-ring-graphic {
   --ani-ring-stroke: 9px;
+  --ani-ring-halo: color-mix(in srgb, var(--ani-accent, #3dafb6) 28%, transparent);
   position: absolute;
   inset: 11.36%;
   isolation: isolate;
@@ -6013,9 +6018,12 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .su
 .ani-ring-half {
   position: absolute;
   inset: 0 0 0 50%;
-  overflow: hidden;
+  clip-path: inset(-10px -10px -10px 0);
 }
-.ani-ring-half + .ani-ring-half { inset: 0 50% 0 0; }
+.ani-ring-half + .ani-ring-half {
+  inset: 0 50% 0 0;
+  clip-path: inset(-10px 0 -10px -10px);
+}
 .ani-ring-rotator {
   position: absolute;
   inset: 0 0 0 -100%;
@@ -6023,9 +6031,21 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .su
 .ani-ring-half + .ani-ring-half .ani-ring-rotator { inset: 0 -100% 0 0; }
 .ani-ring-half .ani-ring-rotator::before {
   border-color: var(--ani-accent, #3dafb6);
+  z-index: 1;
+}
+/* Keep the halo in the same rotating layer as the arc. */
+.ani-ring-half .ani-ring-rotator::after {
+  content: '';
+  position: absolute;
+  inset: -10px;
+  background: radial-gradient(circle closest-side, transparent 55%, var(--ani-ring-halo) 74%, transparent 96%);
+}
+.ani-ring-half .ani-ring-rotator::before,
+.ani-ring-half .ani-ring-rotator::after {
   clip-path: inset(0 50% 0 0);
 }
-.ani-ring-half + .ani-ring-half .ani-ring-rotator::before { clip-path: inset(0 0 0 50%); }
+.ani-ring-half + .ani-ring-half .ani-ring-rotator::before,
+.ani-ring-half + .ani-ring-half .ani-ring-rotator::after { clip-path: inset(0 0 0 50%); }
 .ani-ring-cap-orbit { inset: 0; }
 .ani-rating-ring-graphic:not([data-angle='0'])::after,
 .ani-rating-ring-graphic:not([data-angle='0']) .ani-ring-cap-orbit::before {
@@ -6036,6 +6056,7 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .su
   height: var(--ani-ring-stroke);
   border-radius: 50%;
   background: var(--ani-accent, #3dafb6);
+  box-shadow: 0 0 6px 2px var(--ani-ring-halo);
   transform: translateX(-50%);
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle .ani-ring-center {
@@ -10709,13 +10730,12 @@ body.ani-ambientlight-ui #BH_background .ani-danmu-keywords [data-ani-row-key="k
 .ani-theme-song-search svg { width: 17px; height: 17px; flex: none; }
 .ani-theme-song-youtube svg.ani-theme-song-external,
 .ani-theme-song-search svg.ani-theme-song-external { width: 14px; height: 14px; }
-.ani-theme-song-youtube:is(:hover, :focus-visible) {
-  background: var(--ani-panel);
-}
-.ani-theme-song-youtube:is(:hover, :focus-visible),
-.ani-theme-song-search:hover,
-.ani-theme-song:focus-visible .ani-theme-song-search {
-  color: #ff4545;
+body.ani-ambientlight-ui #BH_background .ani-sidebar-intro [data-credit-panel] .ani-theme-song-youtube:is(:hover, :focus-visible),
+body.ani-ambientlight-ui #BH_background .ani-sidebar-intro [data-credit-panel] .ani-theme-song-search:hover,
+body.ani-ambientlight-ui #BH_background .ani-sidebar-intro [data-credit-panel] .ani-theme-song:focus-visible .ani-theme-song-search {
+  background: rgb(255 69 69 / 16%) !important;
+  border-radius: 8px;
+  & > svg { color: #ff4545 !important; }
 }
 .ani-sidebar-intro .ani-theme-player[hidden] { display: none !important; }
 .ani-theme-player {
