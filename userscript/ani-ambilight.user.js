@@ -2,7 +2,7 @@
 // @name         動畫瘋沉浸重製版 3.0｜Anigamer-Redesign 3.0
 // @namespace    https://ani.gamer.com.tw/ani-ambientlight
 // @author       秋夜
-// @version      3.1.5
+// @version      3.2.0
 // @description  動畫瘋環境光與沉浸重製介面：毛玻璃播放器、開場液態波紋、首頁足跡熱力圖＆天氣實況（靈感改作自 Hinataragi/anigamer-ambilight、jiuyang5354/bilibili-margin 與 GreatUI）。非官方。
 // @homepageURL  https://github.com/aunight/Anigamer-Redesign3.0
 // @supportURL   https://github.com/aunight/Anigamer-Redesign3.0/issues
@@ -13,16 +13,16 @@
 // @run-at       document-start
 // @inject-into  content
 // @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
-// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/3d2007a6eae43f632d79f4f407ef6b45f36a5d1c/src/studio-catalog.json
-// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/3d2007a6eae43f632d79f4f407ef6b45f36a5d1c/src/studio-profiles.json
-// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/3d2007a6eae43f632d79f4f407ef6b45f36a5d1c/src/studio-directory-icons.json
-// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/3d2007a6eae43f632d79f4f407ef6b45f36a5d1c/src/studio-logos.json
-// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/3d2007a6eae43f632d79f4f407ef6b45f36a5d1c/src/content.css
-// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/3d2007a6eae43f632d79f4f407ef6b45f36a5d1c/src/effects.css
-// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/3d2007a6eae43f632d79f4f407ef6b45f36a5d1c/src/settings-ui.css
-// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/3d2007a6eae43f632d79f4f407ef6b45f36a5d1c/src/hero-banner.css
-// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/3d2007a6eae43f632d79f4f407ef6b45f36a5d1c/src/home-dashboard.css
-// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/3d2007a6eae43f632d79f4f407ef6b45f36a5d1c/src/ui-repairs.css
+// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2ea5a0a775e3e4e88c7db6750ba5c99df40999b2/src/studio-catalog.json
+// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2ea5a0a775e3e4e88c7db6750ba5c99df40999b2/src/studio-profiles.json
+// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2ea5a0a775e3e4e88c7db6750ba5c99df40999b2/src/studio-directory-icons.json
+// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2ea5a0a775e3e4e88c7db6750ba5c99df40999b2/src/studio-logos.json
+// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2ea5a0a775e3e4e88c7db6750ba5c99df40999b2/src/content.css
+// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2ea5a0a775e3e4e88c7db6750ba5c99df40999b2/src/effects.css
+// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2ea5a0a775e3e4e88c7db6750ba5c99df40999b2/src/settings-ui.css
+// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2ea5a0a775e3e4e88c7db6750ba5c99df40999b2/src/hero-banner.css
+// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2ea5a0a775e3e4e88c7db6750ba5c99df40999b2/src/home-dashboard.css
+// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2ea5a0a775e3e4e88c7db6750ba5c99df40999b2/src/ui-repairs.css
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
