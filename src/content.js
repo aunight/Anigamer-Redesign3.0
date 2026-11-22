@@ -3757,7 +3757,10 @@
             },{once:true});
             bgmLink.prepend(iconImg);
           }
-          if(!bgmtv.closest('.ani-title-actions'))actions.append(bgmtv);
+          if(!bgmtv.closest('.ani-title-actions')){
+            const existingShare=actions.querySelector(':scope > .share-button');
+            if(existingShare)existingShare.before(bgmtv);else actions.append(bgmtv);
+          }
         }
         const bgmNode=actions.contains(bgmtv) ? bgmtv : null;
         for(const [link,iconSvg,cls] of [
@@ -3772,11 +3775,12 @@
             if(link.rel)pill.rel=link.rel;
             pill.insertAdjacentHTML('beforeend',iconSvg);
             pill.append(document.createTextNode(cls==='ani-title-pill-info'?'作品資料':'哈啦板'));
-            if(bgmNode)bgmNode.before(pill);else actions.append(pill);
+            const anchor=bgmNode||actions.querySelector(':scope > .share-button');
+            if(anchor)anchor.before(pill);else actions.append(pill);
           }
         }
         if(shareBtn){
-          if(!shareBtn.closest('.ani-title-actions'))actions.append(shareBtn);
+          if(!shareBtn.closest('.ani-title-actions')||shareBtn!==actions.lastElementChild)actions.append(shareBtn);
           if(!shareBtn.querySelector('.ani-share-pill-label')){
             shareBtn.insertAdjacentHTML('beforeend','<span class="ani-share-pill-label">分享</span>');
           }

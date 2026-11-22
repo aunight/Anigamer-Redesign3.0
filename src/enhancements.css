@@ -2283,6 +2283,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
 .ani-episode-card-heading[data-title=""] { display: none; }
 .ani-episode-card-heading > .ani-marquee-track { display: inline-block; }
 .ani-episode-card-heading > .ani-marquee-track::before { content: attr(data-title); }
+.ani-upcoming-episode-card .ani-episode-card-heading > .ani-marquee-track::before { content: none; }
 :is(.ani-hide-episode-description .ani-episode-cards a, .ani-episode-cards a:has(> .ani-episode-card-description[data-text=""]))
   > .ani-episode-card-metadata { justify-content: center; }
 @media (prefers-reduced-motion: no-preference) {

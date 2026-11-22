@@ -492,7 +492,10 @@
       if (ownLink.href !== href) ownLink.href = href;
     } else {
       const actions = heading.parentElement.querySelector('.ani-title-actions') || heading.parentElement;
-      actions.insertAdjacentHTML('beforeend', `<a class="ani-title-pill-link ani-bgm-work-link" href="${href}" target="_blank" rel="noopener noreferrer">${bangumiIcon}點格子</a>`);
+      const shareBtn = actions.querySelector(':scope > .share-button');
+      const linkHtml = `<a class="ani-title-pill-link ani-bgm-work-link" href="${href}" target="_blank" rel="noopener noreferrer">${bangumiIcon}點格子</a>`;
+      if (shareBtn) shareBtn.insertAdjacentHTML('beforebegin', linkHtml);
+      else actions.insertAdjacentHTML('beforeend', linkHtml);
     }
   }
 
@@ -3832,13 +3835,21 @@
     if (!preview) {
       preview = document.createElement('li');
       preview.className = 'ani-upcoming-episode';
-      preview.innerHTML = '<div class="ani-upcoming-episode-card"><span class="ani-episode-card-glow" aria-hidden="true"></span><div class="ani-episode-frame"><img alt="" hidden><span class="ani-upcoming-episode-status ani-episode-card-watch">即將更新</span><span class="ani-upcoming-episode-number" aria-hidden="true"></span><time><span></span></time></div><div class="ani-episode-card-metadata"><strong class="ani-episode-card-heading"></strong></div><div class="ani-episode-card-description"></div></div>';
+      preview.innerHTML = '<div class="ani-upcoming-episode-card"><span class="ani-episode-card-glow" aria-hidden="true"></span><div class="ani-episode-frame"><img alt="" hidden><span class="ani-upcoming-episode-status ani-episode-card-watch">即將更新</span><span class="ani-upcoming-episode-number" aria-hidden="true"></span><time><span></span></time></div><div class="ani-episode-card-metadata"><strong class="ani-episode-card-heading"><span class="ani-marquee-track"></span></strong></div><div class="ani-episode-card-description"></div></div>';
     }
     if (latest.nextElementSibling !== preview) latest.after(preview);
     const localizedTitle = typeof metadata.name === 'string' ? metadata.name.trim() : '';
     const title = /[\p{Script=Hiragana}\p{Script=Katakana}]/u.test(localizedTitle) ? '' : localizedTitle;
     preview.querySelector('.ani-upcoming-episode-number').textContent = `EP.${number}`;
-    preview.querySelector('strong').textContent = title ? traditionalTitle(title) : workTitle;
+    const headingText = title ? traditionalTitle(title) : workTitle;
+    const heading = preview.querySelector('.ani-episode-card-heading');
+    const titleTrack = heading.firstElementChild || heading.appendChild(document.createElement('span'));
+    titleTrack.className = 'ani-marquee-track';
+    heading.dataset.title = headingText;
+    titleTrack.dataset.title = headingText;
+    titleTrack.textContent = headingText;
+    episodeTitleObserver?.observe(heading);
+    episodeTitleObserver?.observe(titleTrack);
     const synopsis = readEpisodeSynopsis(metadata.description);
     const description = preview.querySelector('.ani-episode-card-description');
     const previousSynopsis = latest.querySelector('.ani-episode-card-description')?.dataset.text;
@@ -4086,19 +4097,39 @@
         (movieWork && list?.querySelectorAll('li a').length === 1 && isStoryList);
       const verifiedIndex = episodeNumber - (slimeSeason?.firstEpisode || 1);
       const localizedTitle = epData?.name?.trim();
-      const translatedTitle = localizedTitle && !/[\p{Script=Hiragana}\p{Script=Katakana}]/u.test(localizedTitle) ? localizedTitle : '';
+      const hasKanaTitle = Boolean(localizedTitle && /[\p{Script=Hiragana}\p{Script=Katakana}]/u.test(localizedTitle));
+      const translatedTitle = localizedTitle
+        ? (!hasKanaTitle ? localizedTitle : cachedEpisodeSynopsis(localizedTitle) || '')
+        : '';
       const icebladeTitle = episodeNumber === 1 && /^[冰氷]劍的魔術師將要統一世界\s*(?:2|Ⅱ|II|第二季)$/iu.test(cleanTitle)
         ? '世界最強的魔術師少年參加大規模魔術戰' : '';
       const episodeTitle = isMovie ? movieSubtitle : isStoryList ? mushokuSecondSeasonTitles?.[episodeNumber - 13] || translatedTitle || verifiedTitles?.[verifiedIndex] || icebladeTitle || lastBossEpisode?.[0] || (isBunnyGirl && episodeNumber === 1 ? '學姊是兔女郎' : '')
         : specialTitle;
-      if (episodeTitle) {
-        a.dataset.aniEpTitle = traditionalTitle(episodeTitle);
+      const applyEpisodeTitle = (value) => {
+        if (!value) return;
+        a.dataset.aniEpTitle = traditionalTitle(value);
         const heading = a.querySelector('.ani-episode-card-heading');
         if (heading) {
           heading.dataset.title = a.dataset.aniEpTitle;
-          heading.firstElementChild.dataset.title = a.dataset.aniEpTitle;
+          if (heading.firstElementChild) heading.firstElementChild.dataset.title = a.dataset.aniEpTitle;
         }
+        const currentDetails = a.querySelector('.ani-episode-card-details');
+        if (currentDetails) currentDetails.dataset.title = a.dataset.aniEpTitle;
         a.removeAttribute('title');
+      };
+      if (episodeTitle) {
+        applyEpisodeTitle(episodeTitle);
+      } else if (isStoryList && (epData?.description || '').trim()) {
+        applyEpisodeTitle(cleanTitle);
+      }
+      if (isStoryList && !episodeTitle && hasKanaTitle && a.dataset.aniEpTitleTranslating !== localizedTitle) {
+        a.dataset.aniEpTitleTranslating = localizedTitle;
+        void requestEpisodeTranslation(localizedTitle).then((translated) => {
+          if (!translated || !a.isConnected || a.dataset.aniEpTitleTranslating !== localizedTitle) return;
+          applyEpisodeTitle(translated);
+          season.dispatchEvent(new Event('ani-episode-titles-ready'));
+          syncFullscreenSubtitleAndMarquee();
+        }).catch(() => {});
       }
       if (epData?.airdate) a.dataset.aniEpAirdate = epData.airdate;
       const cardDate = a.querySelector('.ani-episode-card-date');

@@ -1803,7 +1803,8 @@ body.ani-layout-watch.ani-layout-news.ani-ambientlight-ui #BH_background > .cont
     min-height: 0 !important;
   }
   body.ani-ambientlight-page.ani-ambientlight-ui.ani-layout-watch #BH_background .theme-extend-block:not(:has(> :nth-child(2 of .extend-card))) > .extend-card {
-    max-width: 1080px !important;
+    grid-column: 1 / -1 !important;
+    max-width: none !important;
   }
   body.ani-layout-watch.ani-layout-news.ani-ambientlight-ui #BH_background > .container-player:has(> section.player) > .animate-theme-list .extend-card :is(.extend-title, .extend-content) {
     align-self: stretch;
