@@ -13,16 +13,16 @@
 // @run-at       document-start
 // @inject-into  content
 // @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
-// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/34762bb19656f50deeef794db33c6c8e91160f2e/src/studio-catalog.json
-// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/34762bb19656f50deeef794db33c6c8e91160f2e/src/studio-profiles.json
-// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/34762bb19656f50deeef794db33c6c8e91160f2e/src/studio-directory-icons.json
-// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/34762bb19656f50deeef794db33c6c8e91160f2e/src/studio-logos.json
-// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/34762bb19656f50deeef794db33c6c8e91160f2e/src/content.css
-// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/34762bb19656f50deeef794db33c6c8e91160f2e/src/effects.css
-// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/34762bb19656f50deeef794db33c6c8e91160f2e/src/settings-ui.css
-// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/34762bb19656f50deeef794db33c6c8e91160f2e/src/hero-banner.css
-// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/34762bb19656f50deeef794db33c6c8e91160f2e/src/home-dashboard.css
-// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/34762bb19656f50deeef794db33c6c8e91160f2e/src/ui-repairs.css
+// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/3d2007a6eae43f632d79f4f407ef6b45f36a5d1c/src/studio-catalog.json
+// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/3d2007a6eae43f632d79f4f407ef6b45f36a5d1c/src/studio-profiles.json
+// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/3d2007a6eae43f632d79f4f407ef6b45f36a5d1c/src/studio-directory-icons.json
+// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/3d2007a6eae43f632d79f4f407ef6b45f36a5d1c/src/studio-logos.json
+// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/3d2007a6eae43f632d79f4f407ef6b45f36a5d1c/src/content.css
+// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/3d2007a6eae43f632d79f4f407ef6b45f36a5d1c/src/effects.css
+// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/3d2007a6eae43f632d79f4f407ef6b45f36a5d1c/src/settings-ui.css
+// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/3d2007a6eae43f632d79f4f407ef6b45f36a5d1c/src/hero-banner.css
+// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/3d2007a6eae43f632d79f4f407ef6b45f36a5d1c/src/home-dashboard.css
+// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/3d2007a6eae43f632d79f4f407ef6b45f36a5d1c/src/ui-repairs.css
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -38,6 +38,8 @@
 // @connect      ja.wikipedia.org
 // @connect      api.bgm.tv
 // @connect      graphql.anilist.co
+// @connect      api.mymemory.translated.net
+// @connect      www.aniplex.co.jp
 // @connect      myanimelist.net
 // @connect      api.gamer.com.tw
 // @connect      wall.gamer.com.tw
@@ -124,7 +126,7 @@ Additional section icons: film, newspaper, comments.
     observer.observe(document, { childList: true, subtree: true });
   }
   GM_addStyle(
-    '/*! Animate.css 4.1.1 | https://animate.style/\nThe MIT License (MIT)\n\nCopyright (c) 2020 Daniel Eden\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the "Software"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n*/\n:root {\n  --animate-duration: 1s;\n  --animate-delay: 1s;\n  --animate-repeat: 1;\n}\n\n.animate__animated {\n  animation-duration: var(--animate-duration);\n  animation-fill-mode: both;\n}\n\n.animate__animated.animate__infinite {\n  animation-iteration-count: infinite;\n}\n\n.animate__animated.animate__repeat-1 {\n  animation-iteration-count: var(--animate-repeat);\n}\n\n.animate__animated.animate__repeat-2 {\n  animation-iteration-count: calc(var(--animate-repeat) * 2);\n}\n\n.animate__animated.animate__repeat-3 {\n  animation-iteration-count: calc(var(--animate-repeat) * 3);\n}\n\n.animate__animated.animate__delay-1s {\n  animation-delay: var(--animate-delay);\n}\n\n.animate__animated.animate__delay-2s {\n  animation-delay: calc(var(--animate-delay) * 2);\n}\n\n.animate__animated.animate__delay-3s {\n  animation-delay: calc(var(--animate-delay) * 3);\n}\n\n.animate__animated.animate__delay-4s {\n  animation-delay: calc(var(--animate-delay) * 4);\n}\n\n.animate__animated.animate__delay-5s {\n  animation-delay: calc(var(--animate-delay) * 5);\n}\n\n.animate__animated.animate__faster {\n  animation-duration: calc(var(--animate-duration) / 2);\n}\n\n.animate__animated.animate__fast {\n  animation-duration: calc(var(--animate-duration) * 0.8);\n}\n\n.animate__animated.animate__slow {\n  animation-duration: calc(var(--animate-duration) * 2);\n}\n\n.animate__animated.animate__slower {\n  animation-duration: calc(var(--animate-duration) * 3);\n}\n\n@media print, (prefers-reduced-motion: reduce) {\n  .animate__animated {\n    animation-duration: 1ms !important;\n    transition-duration: 1ms !important;\n    animation-iteration-count: 1 !important;\n  }\n\n  .animate__animated[class*=\'Out\'] {\n    opacity: 0;\n  }\n}\n\n@keyframes fadeIn {\n  from {\n    opacity: 0;\n  }\n\n  to {\n    opacity: 1;\n  }\n}\n\n.animate__fadeIn {\n  animation-name: fadeIn;\n}\n\n@keyframes fadeOut {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n  }\n}\n\n.animate__fadeOut {\n  animation-name: fadeOut;\n}\n\nhtml[data-ani-booting=\'true\'] { background:#111c2b !important;overflow:hidden !important; }\r\nhtml[data-ani-booting=\'true\'] > body { opacity: 0 !important; }\r\nhtml[data-ani-episode-preview=\'true\'] #BH_background .season ul:not([data-ani-ep-rendered]) > li:nth-of-type(n + 7),\r\nhtml[data-ani-episode-preview=\'true\'] #BH_background .ani-season-more-btn {\r\n  display: none !important;\r\n}\r\n/* The opaque intro covers the live page until the crossfade begins. */\r\n#ani_video .vjs-poster { filter:blur(6px); }\r\n.ani-home-intro {\r\n  position: fixed;\r\n  inset: 0;\r\n  z-index: 2147483000;\r\n  display: grid;\r\n  place-items: center;\r\n  overflow: hidden;\r\n  isolation: isolate;\r\n  pointer-events: none;\r\n  background: radial-gradient(ellipse at center, #244351, #111c2b 72%);\r\n  transition: opacity 180ms ease-out;\r\n}\r\n.ani-home-intro.ani-intro-reveal { opacity: 0; }\r\n.ani-home-intro::before, .ani-home-intro::after {\r\n  content: \'\';\r\n  position: absolute;\r\n  width: min(95vw, 125vh);\r\n  aspect-ratio: 1;\r\n  border-radius: 50%;\r\n  background: radial-gradient(closest-side, transparent 32%, #4db9c323 48%, #52d2d854 58%, transparent 80%);\r\n  animation: aniIntroRipple 2.6s ease-out infinite;\r\n  will-change: transform, opacity;\r\n}\r\n.ani-home-intro::after { animation-delay: -1.3s; }\r\n@keyframes aniIntroRipple {\r\n  from { transform: scale(.55); opacity: .95; }\r\n  to { transform: scale(1.7); opacity: 0; }\r\n}\r\n.ani-intro-plate {\r\n  position: relative;\r\n  z-index: 1;\r\n  display: grid;\r\n  justify-items: center;\r\n  gap: 16px;\r\n  max-width: calc(100vw - 40px);\r\n  text-align: center;\r\n}\r\n.ani-intro-logo { position: relative; width: min(220px, 65vw); aspect-ratio: 516 / 200; }\r\n.ani-logo-layer { position: absolute; inset: 0; animation: aniIntroHop 1.4s ease-in-out infinite; will-change: transform; }\r\n.ani-logo-layer-2 { animation-delay: -1.3s; }\r\n.ani-logo-layer-3 { animation-delay: -1.2s; }\r\n.ani-logo-layer svg { width: 100%; height: 100%; overflow: visible; }\r\n@keyframes aniIntroHop {\r\n  0%, 40%, 72%, 100% { transform: translateY(0); }\r\n  20% { transform: translateY(-9px); }\r\n  55% { transform: translateY(-5px); }\r\n  84% { transform: translateY(-2px); }\r\n}\r\n.ani-intro-caption { color: #e8f4fa; font: 600 clamp(28px,4vw,44px)/1.2 var(--ani-font,system-ui,sans-serif); }\r\n.ani-intro-credit { color: #aac4d0; font: 400 13px/1.6 var(--ani-font,system-ui,sans-serif); }\r\n@media (prefers-reduced-motion: reduce) {\r\n  .ani-home-intro { transition: none; }\r\n  .ani-logo-layer, .ani-home-intro::before, .ani-home-intro::after { animation: none; }\r\n}\r\n.ani-route-cover { position: fixed; inset: 0; z-index: 2147483000; pointer-events: none; background: #111c2b; transition: opacity 120ms ease-out; }\r\n.ani-route-visible { opacity: 0; }\r\n@media (prefers-reduced-motion: reduce) { .ani-route-cover { transition: none; } }\r\n\r\n/* Native review stars have a viewBox, but no intrinsic width or height. */\r\n#acg_review .user-star-block svg.user-star {\r\n  width: 24px;\r\n  height: 24px;\r\n  max-width: 32px;\r\n  max-height: 32px;\r\n  flex-shrink: 0;\r\n}\r\n\r\n/* Keep StarMap\'s launcher available to the settings category. */\r\nhtml[data-ani-rating-integrated]:has(#ani-view-settings-panel) .top_btn_rating_setting {\r\n  display: none !important;\r\n}\r\n\r\n/* The rating helper adds its controls before the themed sorter initializes. */\r\n#BH_background .theme-title-block label[style*="padding-left"]:has(> input[type="checkbox"][style*="1.5em"]),\r\n#BH_background .theme-title-block span[style*="padding-left"]:has(+ label[style*="padding-left"] > input[type="checkbox"][style*="1.5em"]),\r\n.ani-legacy-rating-progress {\r\n  display: none !important;\r\n}\r\n',
+    '/*! Animate.css 4.1.1 | https://animate.style/\nThe MIT License (MIT)\n\nCopyright (c) 2020 Daniel Eden\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the "Software"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n*/\n:root {\n  --animate-duration: 1s;\n  --animate-delay: 1s;\n  --animate-repeat: 1;\n}\n\n.animate__animated {\n  animation-duration: var(--animate-duration);\n  animation-fill-mode: both;\n}\n\n.animate__animated.animate__infinite {\n  animation-iteration-count: infinite;\n}\n\n.animate__animated.animate__repeat-1 {\n  animation-iteration-count: var(--animate-repeat);\n}\n\n.animate__animated.animate__repeat-2 {\n  animation-iteration-count: calc(var(--animate-repeat) * 2);\n}\n\n.animate__animated.animate__repeat-3 {\n  animation-iteration-count: calc(var(--animate-repeat) * 3);\n}\n\n.animate__animated.animate__delay-1s {\n  animation-delay: var(--animate-delay);\n}\n\n.animate__animated.animate__delay-2s {\n  animation-delay: calc(var(--animate-delay) * 2);\n}\n\n.animate__animated.animate__delay-3s {\n  animation-delay: calc(var(--animate-delay) * 3);\n}\n\n.animate__animated.animate__delay-4s {\n  animation-delay: calc(var(--animate-delay) * 4);\n}\n\n.animate__animated.animate__delay-5s {\n  animation-delay: calc(var(--animate-delay) * 5);\n}\n\n.animate__animated.animate__faster {\n  animation-duration: calc(var(--animate-duration) / 2);\n}\n\n.animate__animated.animate__fast {\n  animation-duration: calc(var(--animate-duration) * 0.8);\n}\n\n.animate__animated.animate__slow {\n  animation-duration: calc(var(--animate-duration) * 2);\n}\n\n.animate__animated.animate__slower {\n  animation-duration: calc(var(--animate-duration) * 3);\n}\n\n@media print, (prefers-reduced-motion: reduce) {\n  .animate__animated {\n    animation-duration: 1ms !important;\n    transition-duration: 1ms !important;\n    animation-iteration-count: 1 !important;\n  }\n\n  .animate__animated[class*=\'Out\'] {\n    opacity: 0;\n  }\n}\n\n@keyframes fadeIn {\n  from {\n    opacity: 0;\n  }\n\n  to {\n    opacity: 1;\n  }\n}\n\n.animate__fadeIn {\n  animation-name: fadeIn;\n}\n\n@keyframes fadeOut {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n  }\n}\n\n.animate__fadeOut {\n  animation-name: fadeOut;\n}\n\nhtml[data-ani-booting=\'true\'] { background:#111c2b !important;overflow:hidden !important; }\r\nhtml[data-ani-booting=\'true\'] > body { opacity: 0 !important; }\r\n@media (prefers-reduced-motion: no-preference) {\r\n  html:not([data-ani-booting]) > body.ani-home-page.ani-ambientlight-page #BH_background\r\n    :is(.big_banner.ani-hero-enabled > .ani-hero, .ani-fp-card, .ani-wx-card, #continueWatch[data-ani-continue-sized], #blockVideoInSeason .newanime-wrap, #blockAnimePublisherChannel, .animate-theme-list) {\r\n    animation: aniHomeModuleIn 220ms ease-out;\r\n  }\r\n  body.ani-home-page.ani-ambientlight-page .ani-wx-card[data-ani-wx-ready] > :is(.ani-wx-sky, .ani-wx-side) {\r\n    animation: aniHomeModuleIn 220ms ease-out;\r\n  }\r\n  @keyframes aniHomeModuleIn {\r\n    from { opacity: 0; }\r\n    to { opacity: 1; }\r\n  }\r\n}\r\nhtml[data-ani-episode-preview=\'true\'] #BH_background .season ul:not([data-ani-ep-rendered]) > li:nth-of-type(n + 7),\r\nhtml[data-ani-episode-preview=\'true\'] #BH_background .ani-season-more-btn {\r\n  display: none !important;\r\n}\r\n/* The opaque intro covers the live page until the crossfade begins. */\r\n#ani_video .vjs-poster { filter:blur(6px); }\r\n.ani-home-intro {\r\n  position: fixed;\r\n  inset: 0;\r\n  z-index: 2147483000;\r\n  display: grid;\r\n  place-items: center;\r\n  overflow: hidden;\r\n  isolation: isolate;\r\n  pointer-events: none;\r\n  background: radial-gradient(ellipse at center, #244351, #111c2b 72%);\r\n  transition: opacity 180ms ease-out;\r\n}\r\n.ani-home-intro.ani-intro-reveal { opacity: 0; }\r\n.ani-home-intro::before, .ani-home-intro::after {\r\n  content: \'\';\r\n  position: absolute;\r\n  width: min(95vw, 125vh);\r\n  aspect-ratio: 1;\r\n  border-radius: 50%;\r\n  background: radial-gradient(closest-side, transparent 32%, #4db9c323 48%, #52d2d854 58%, transparent 80%);\r\n  animation: aniIntroRipple 2.6s ease-out infinite;\r\n  will-change: transform, opacity;\r\n}\r\n.ani-home-intro::after { animation-delay: -1.3s; }\r\n@keyframes aniIntroRipple {\r\n  from { transform: scale(.55); opacity: .95; }\r\n  to { transform: scale(1.7); opacity: 0; }\r\n}\r\n.ani-intro-plate {\r\n  position: relative;\r\n  z-index: 1;\r\n  display: grid;\r\n  justify-items: center;\r\n  gap: 16px;\r\n  max-width: calc(100vw - 40px);\r\n  text-align: center;\r\n}\r\n.ani-intro-logo { position: relative; width: min(220px, 65vw); aspect-ratio: 516 / 200; }\r\n.ani-logo-layer { position: absolute; inset: 0; animation: aniIntroHop 1.4s ease-in-out infinite; will-change: transform; }\r\n.ani-logo-layer-2 { animation-delay: -1.3s; }\r\n.ani-logo-layer-3 { animation-delay: -1.2s; }\r\n.ani-logo-layer svg { width: 100%; height: 100%; overflow: visible; }\r\n@keyframes aniIntroHop {\r\n  0%, 40%, 72%, 100% { transform: translateY(0); }\r\n  20% { transform: translateY(-9px); }\r\n  55% { transform: translateY(-5px); }\r\n  84% { transform: translateY(-2px); }\r\n}\r\n.ani-intro-caption { color: #e8f4fa; font: 600 clamp(28px,4vw,44px)/1.2 var(--ani-font,system-ui,sans-serif); }\r\n.ani-intro-credit { color: #aac4d0; font: 400 13px/1.6 var(--ani-font,system-ui,sans-serif); }\r\n@media (prefers-reduced-motion: reduce) {\r\n  .ani-home-intro { transition: none; }\r\n  .ani-logo-layer, .ani-home-intro::before, .ani-home-intro::after { animation: none; }\r\n}\r\n.ani-route-cover { position: fixed; inset: 0; z-index: 2147483000; pointer-events: none; background: #111c2b; transition: opacity 240ms cubic-bezier(.2,.65,.3,1); }\r\n.ani-route-visible { opacity: 0; }\r\n@media (prefers-reduced-motion: reduce) { .ani-route-cover { transition: none; } }\r\n\r\n/* Native review stars have a viewBox, but no intrinsic width or height. */\r\n#acg_review .user-star-block svg.user-star {\r\n  width: 24px;\r\n  height: 24px;\r\n  max-width: 32px;\r\n  max-height: 32px;\r\n  flex-shrink: 0;\r\n}\r\n\r\n/* Keep StarMap\'s launcher available to the settings category. */\r\nhtml[data-ani-rating-integrated]:has(#ani-view-settings-panel) .top_btn_rating_setting {\r\n  display: none !important;\r\n}\r\n\r\n/* The rating helper adds its controls before the themed sorter initializes. */\r\n#BH_background .theme-title-block label[style*="padding-left"]:has(> input[type="checkbox"][style*="1.5em"]),\r\n#BH_background .theme-title-block span[style*="padding-left"]:has(+ label[style*="padding-left"] > input[type="checkbox"][style*="1.5em"]),\r\n.ani-legacy-rating-progress {\r\n  display: none !important;\r\n}\r\n',
   );
   (function setFavicon() {
     if (window.self !== window.top) return;
@@ -156,7 +158,7 @@ Additional section icons: film, newspaper, comments.
     }
   })();
 
-  (function mountIntro() {
+  (function mountIntro(restored = false) {
     if (window.self !== window.top) return;
     const root = document.documentElement;
     if (!root) {
@@ -173,9 +175,15 @@ Additional section icons: film, newspaper, comments.
     const navigation = performance.getEntriesByType?.('navigation')[0];
     const reload = navigation ? navigation.type === 'reload' : performance.navigation?.type === 1;
     const watchPage = location.pathname === '/animeVideo.php';
+    const homePage = location.pathname === '/' || location.pathname === '/index.php';
     if (reload) root.dataset.aniReloading = 'true';
     if (watchPage) root.dataset.aniEpisodePreview = 'true';
     const nextFrame = window.requestAnimationFrame?.bind(window) || ((fn) => setTimeout(fn, 16));
+    if (homePage && !restored && !reduced) {
+      window.addEventListener('pageshow', (event) => {
+        if (event.persisted) nextFrame(() => mountIntro(true));
+      });
+    }
     const whenSettingsDisabled = (dismiss) => {
       const check = (saved) => {
         if (saved?.themeEnabled === false) dismiss();
@@ -191,11 +199,11 @@ Additional section icons: film, newspaper, comments.
       root.append(cover);
       let finished = false;
       let scheduled = false;
-      let minimumElapsed = reduced || !fullOpening || watchPage;
+      let minimumElapsed = reduced || !fullOpening || watchPage || homePage;
       let enhancementGrace = null;
       const ready = () => {
         if (finished || scheduled || !minimumElapsed || !root.dataset.aniUiReady) return;
-        if (root.dataset.aniEnhancementsUiReady) scheduleReveal();
+        if (homePage || root.dataset.aniEnhancementsUiReady) scheduleReveal();
         else if (watchPage && enhancementGrace === null) {
           enhancementGrace = setTimeout(scheduleReveal, 250);
         }
@@ -215,7 +223,7 @@ Additional section icons: film, newspaper, comments.
             minimumElapsed = true;
             ready();
           }, 750);
-      const deadline = setTimeout(() => reveal(), 5000);
+      const deadline = setTimeout(() => reveal(), homePage ? 900 : 5000);
       function reveal(immediate = false) {
         if (finished) return;
         finished = true;
@@ -236,7 +244,7 @@ Additional section icons: film, newspaper, comments.
         cover.addEventListener('transitionend', (event) => {
           if (event.target === cover && event.propertyName === 'opacity') cover.remove();
         });
-        setTimeout(() => cover.remove(), fullOpening ? 220 : 140);
+        setTimeout(() => cover.remove(), fullOpening ? 220 : 280);
       }
       window.addEventListener('ani-ui-ready', ready);
       window.addEventListener('ani-enhancements-ui-ready', ready);
@@ -272,7 +280,7 @@ Additional section icons: film, newspaper, comments.
     } catch {}
     try {
       const internal = document.referrer && new URL(document.referrer).origin === location.origin;
-      if (internal && !reload) {
+      if (internal && !reload && !homePage) {
         const cover = document.createElement('div');
         cover.className = 'ani-route-cover';
         cover.setAttribute('aria-hidden', 'true');
@@ -354,8 +362,15 @@ Additional section icons: film, newspaper, comments.
       });
 
     // 三、主題與設定介面樣式
-    const repairsLines = GM_getResourceText('ani_repairs_css').replaceAll('\r\n', '\n').split('\n');
-    for (const [start, count, added] of [].reverse()) repairsLines.splice(start, count, ...added);
+    const resourceChanges = {};
+    const readResource = (name) => {
+      const text = GM_getResourceText(name);
+      const changes = resourceChanges[name];
+      if (!changes) return text;
+      const lines = text.replaceAll('\r\n', '\n').split('\n');
+      for (const [start, count, added] of changes) lines.splice(start, count, ...added);
+      return lines.join('\n');
+    };
     GM_addStyle(
       [
         'ani_content_css',
@@ -363,11 +378,10 @@ Additional section icons: film, newspaper, comments.
         'ani_settings_css',
         'ani_hero_css',
         'ani_dashboard_css',
+        'ani_repairs_css',
       ]
-        .map((name) => GM_getResourceText(name))
+        .map(readResource)
         .join('\n') +
-        '\n' +
-        repairsLines.join('\n') +
         '\n' +
         `/* Anigamer Redesign 3.0 Enhancements — Unified Rounded-Rectangle Filter Design, White SVG Icons, Official-Parity History Cards & Fullscreen Subtitle Marquee */
 
@@ -585,38 +599,47 @@ body.ani-ambientlight-ui #BH_background .animate-theme-list:has(> [data-ani-regi
   display: none !important;
 }
 
-/* ── Toast notification fallback (enlarged capsule with checkmark icon) ── */
-.ani-enh-toast {
-  position: fixed;
-  right: 28px;
-  bottom: 28px;
-  z-index: 2147483000;
+/* Keep playback and collection notifications in the same bottom-right stack. */
+:is(.ani-enh-toast, .ani-bgm-toast) {
+  --ani-toast-edge: 28px;
+  --ani-toast-height: 40px;
+  position: fixed !important;
+  inset: auto var(--ani-toast-edge) var(--ani-toast-edge) auto !important;
+  z-index: 2147483000 !important;
   display: inline-flex !important;
   align-items: center !important;
-  gap: 10px !important;
-  padding: 13px 22px !important;
+  gap: 8px !important;
+  box-sizing: border-box;
+  min-width: min(180px, calc(100vw - 56px)) !important;
+  min-height: var(--ani-toast-height) !important;
+  padding: 8px 14px !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
   border-radius: 999px !important;
-  background: rgba(16, 28, 42, 0.94) !important;
-  border: 1px solid rgba(185, 223, 245, 0.42) !important;
+  background: rgba(18, 30, 44, 0.66) !important;
+  backdrop-filter: blur(22px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(22px) saturate(150%) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 8px 24px rgba(0, 0, 0, 0.36) !important;
   color: #f0f6fc !important;
-  font-size: 15px !important;
-  font-weight: 650 !important;
+  font: 600 13px/1.3 var(--ani-font, system-ui, sans-serif) !important;
   white-space: nowrap;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5) !important;
-}
-.ani-enh-toast svg {
-  width: 19px !important;
-  height: 19px !important;
-  color: #5ee2ea !important;
-  flex-shrink: 0;
 }
 
-/* The watch-history toast uses the lower-right corner on playback pages. */
-body.ani-ambientlight-page:has(.ani-bgm-toast) .ani-enh-toast {
-  top: 76px;
-  bottom: auto;
+.ani-enh-toast > svg,
+.ani-bgm-toast > .ani-bgm-toast-icon {
+  width: 17px !important;
+  height: 17px !important;
+  color: #5ee2ea !important;
+  flex: none;
+}
+
+:is(.ani-enh-toast, .ani-bgm-toast)[hidden],
+.ani-bgm-toast[style*="display: none"],
+.ani-bgm-toast .ani-bgm-toast-close {
+  display: none !important;
+}
+
+body:has(.ani-bgm-toast:not([hidden], [style*="display: none"])) .ani-enh-toast {
+  bottom: calc(var(--ani-toast-edge) + var(--ani-toast-height) + 8px) !important;
 }
 
 /* ── Unified 2-Column Filter Rows & White Header Icons (matches .ani-browse-filters section.class_list) ── */
@@ -1209,6 +1232,20 @@ body.ani-history-page.ani-ambientlight-page #BH_background .ani-history-card .hi
   max-width: none !important;
   padding-right: 26px !important;
   box-sizing: border-box !important;
+  position: relative;
+  z-index: 2;
+  cursor: text;
+  pointer-events: auto;
+  user-select: text !important;
+}
+.ani-history-card .history-anime-title:hover > .ani-marquee-track {
+  animation-play-state: paused;
+}
+.ani-history-bangumi .ani-bgm-icon {
+  display: block;
+  width: 17px;
+  height: 17px;
+  object-fit: contain;
 }
 body.ani-history-page.ani-ambientlight-page #BH_background .ani-history-card .postimg {
   position: relative !important;
@@ -1504,6 +1541,41 @@ body #BH_background .ani-page-go-btn {
 }
 
 /* Top-right placement & unified capsule sizing of .ani-catalog-sort, .ani-rating-options, .ani-collection-sort-segment, and .ani-blur-quick-toggle */
+body.ani-ambientlight-ui {
+  --ani-segment-transition: 160ms cubic-bezier(.2, .7, .3, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  body.ani-ambientlight-ui {
+    --ani-segment-transition: 0s;
+  }
+}
+html body.ani-ambientlight-ui #BH_background :is(
+  .ani-catalog-sort > button,
+  .ani-studio-chip,
+  .ani-rating-options > button,
+  .ani-collection-sort-segment .ani-collection-sort-item,
+  .ani-sort-options > button,
+  .ani-perm-tab,
+  .ani-segmented-tabs .ani-tabs-link,
+  .ani-info-tabs > button,
+  .ani-rating-tabs > button,
+  .ani-ep-drawer-tabs > button,
+  .ani-danmu-sort-row > button,
+  .commend-segment-wrapper :is(button, a)
+) {
+  transition:
+    color var(--ani-segment-transition),
+    -webkit-text-fill-color var(--ani-segment-transition) !important;
+}
+.ani-segment-sliding { isolation: isolate; }
+.ani-segment-positioned { position: relative; }
+.ani-segment-indicator {
+  position: absolute;
+  box-sizing: border-box;
+  z-index: -1;
+  pointer-events: none;
+  transform-origin: top left;
+}
 body.ani-ambientlight-ui #BH_background :is(.filter-title-block, .theme-title-block) {
   display: flex !important;
   align-items: center !important;
@@ -1691,13 +1763,13 @@ html body.ani-theater-layout #BH_background section.player .subtitle #ani-tab-co
   padding-block-end: 12px !important;
   box-sizing: border-box !important;
 }
-#ani-tab-content-1.ani-has-dm-tools > .ani-dm-filter-defs {
+.ani-sidebar-filter-defs {
   position: absolute;
   width: 0;
   height: 0;
   pointer-events: none;
 }
-#ani-tab-content-1.ani-has-dm-tools:has(> .ani-dm-filter-defs) > .danmu-scroll {
+#ani-tab-content-1.ani-has-dm-tools:has(> .ani-sidebar-filter-defs) > .danmu-scroll {
   filter: url(#ani-dm-toolbar-blur);
 }
 html body #BH_background section.player .subtitle #ani-tab-content-1.ani-has-dm-tools .danmu-scroll > #sub_list {
@@ -2317,9 +2389,9 @@ body #BH_background .ani-ep-range-trigger:is(:hover, [aria-expanded='true']) {
   margin: 10px 0 14px;
   padding: 10px 14px;
   border-radius: 12px;
-  background: rgba(245, 158, 11, 0.14);
-  border: 1px solid rgba(251, 191, 36, 0.45);
-  color: #fef3c7;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #dce8f2;
   font-size: 13px;
 }
 .ani-offshelf-dot {
@@ -2328,8 +2400,8 @@ body #BH_background .ani-ep-range-trigger:is(:hover, [aria-expanded='true']) {
   width: 20px;
   height: 20px;
   border-radius: 6px;
-  background: #f59e0b;
-  color: #1a1203;
+  background: rgba(255, 255, 255, 0.08);
+  color: inherit;
   font-weight: 800;
   font-size: 12px;
   flex: none;
@@ -2453,9 +2525,12 @@ body.ani-light-mode.ani-ambientlight-ui .ani-col-status-menu button {
   color: #142232;
 }
 body.ani-light-mode.ani-ambientlight-ui .ani-offshelf-banner {
-  background: rgba(245, 158, 11, 0.16);
-  border-color: rgba(217, 119, 6, 0.48);
-  color: #78350f;
+  background: rgba(18, 38, 60, 0.07);
+  border-color: rgba(18, 38, 60, 0.14);
+  color: #24384e;
+}
+body.ani-light-mode.ani-ambientlight-ui .ani-offshelf-dot {
+  background: rgba(18, 38, 60, 0.07);
 }
 
 /* Playback-page episode cards share the drawer's episode labels and progress color. */
@@ -2518,9 +2593,10 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
   height: max(calc(100% + 2px), var(--ani-episode-surface-height, 0px));
   backdrop-filter: blur(14px);
 }
-.ani-episode-card-glow::before {
-  content: ""; position: absolute; inset: -12px;
-  background: var(--ani-card-cover, none) center 75% / cover no-repeat;
+.ani-episode-card-glow > img {
+  position: absolute; inset: -12px;
+  width: calc(100% + 24px); height: calc(100% + 24px);
+  object-fit: cover; object-position: center 75%;
   filter: blur(18px) saturate(135%);
   mask-image: radial-gradient(ellipse 82% 86% at 50% 64%, #000 36%, transparent 96%);
   opacity: var(--ani-card-glow-opacity, .3);
@@ -2532,21 +2608,25 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
 .ani-episode-frame {
   order: -2; position: relative; display: block; overflow: hidden; width: 100%;
   aspect-ratio: 16 / 9; border-radius: 7px; background: var(--ani-card-bg);
+  background-image: linear-gradient(145deg, rgb(127 151 177 / 12%), transparent 72%);
 }
 .ani-episode-frame img {
   display: block; width: 100%; height: 100%; object-fit: cover;
 }
 @media (prefers-reduced-motion: no-preference) {
   .ani-episode-frame img {
-    animation: ani-ep-content-in .24s ease-out both;
     scale: 1;
     transition: scale 140ms ease-out;
   }
-  .ani-episode-cards a:is(:hover,:focus-visible:not(.season:has(.ani-episode-cards > li > a:hover) *)) .ani-episode-frame img {
+  .ani-episode-cards a:is(:hover,:focus-visible:not(.season:has(.ani-episode-cards > li > a:hover) *)) .ani-episode-frame img:not(.ani-episode-image-contain) {
     scale: 1.06;
   }
 }
+.ani-episode-cards .ani-episode-frame img.ani-episode-image-contain {
+  object-fit: contain;
+}
 .ani-episode-card-progress {
+  display: block;
   position: absolute; z-index: 2; inset: auto 0 0; height: 4px;
   background: rgb(4 12 25 / 75%); pointer-events: none;
 }
@@ -2557,14 +2637,21 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
 .ani-episode-frame .ani-ep-playing-label { display: none; z-index: 1; }
 .ani-episode-frame .ani-ep-playing-label::after { content: '播放中'; font: 600 12px/1.4 system-ui; }
 .ani-blur-episode-thumbnails .ani-episode-frame img { filter: blur(8px); }
-.ani-episode-frame[data-label]::before, .ani-episode-frame[data-playback-time]::after, .ani-episode-card-watch {
+.ani-episode-frame[data-label]::before, .ani-episode-frame::after, .ani-episode-card-watch {
   position: absolute; z-index: 1; padding: 3px 7px; border-radius: 99px;
   background: rgb(10 23 41 / 62%); color: white; font-weight: 600;
   backdrop-filter: blur(10px) saturate(130%);
   font-family: inherit; font-size: 11px; line-height: 1.3;
 }
 .ani-episode-frame[data-label]::before { content: attr(data-label); bottom: 8px; left: 5px; }
-.ani-episode-frame[data-playback-time]::after { content: attr(data-playback-time); bottom: 8px; right: 5px; white-space: nowrap; }
+.ani-episode-frame::after { content: attr(data-playback-time); bottom: 8px; right: 5px; white-space: nowrap; }
+.ani-episode-card-progress[hidden],
+.ani-episode-frame:not([data-playback-time])::after,
+:not([data-ani-episode-media-ready]) > .ani-episode-frame .ani-episode-card-progress,
+:not([data-ani-episode-media-ready]) > .ani-episode-frame::after,
+.ani-upcoming-episode-card:not([data-ani-episode-media-ready]) > .ani-episode-frame time {
+  visibility: hidden;
+}
 .ani-episode-card-watch { top: 5px; right: 5px; }
 .ani-episode-card-watch::before { content: attr(data-label); }
 .ani-episode-card-metadata {
@@ -2593,6 +2680,29 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
   color: #b4c5d8; font-size: 12px; line-height: 1.65; font-weight: 400;
 }
 .ani-episode-card-description::before { display: none; }
+@media (prefers-reduced-motion: no-preference) {
+  [data-ani-episode-media-ready] {
+    --ani-episode-media-fade: 240ms ease-out both;
+  }
+  [data-ani-episode-media-ready] > .ani-episode-frame > img:not([hidden]) {
+    animation: ani-episode-thumbnail-reveal var(--ani-episode-media-fade);
+  }
+  [data-ani-episode-media-ready] > .ani-episode-card-glow > img,
+  [data-ani-episode-media-ready] > .ani-episode-frame :is(.ani-episode-card-progress, time[datetime]),
+  [data-ani-episode-media-ready] > .ani-episode-frame::after {
+    animation: ani-episode-content-reveal var(--ani-episode-media-fade);
+  }
+  .ani-episode-description-reveal::before,
+  .ani-episode-description-reveal .ani-episode-card-synopsis::before {
+    animation: ani-episode-content-reveal 240ms ease-out both;
+  }
+}
+@keyframes ani-episode-thumbnail-reveal {
+  from { opacity: 0; transform: scale(1.035); }
+}
+@keyframes ani-episode-content-reveal {
+  from { opacity: 0; }
+}
 .ani-episode-card-description:is(:not([data-text]), [data-text=""]):not(:has(.ani-episode-card-date[data-label])) {
   display: none;
 }
@@ -2602,13 +2712,11 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
 .ani-episode-cards a:is(:hover, :focus-visible):has(.ani-episode-card-heading[data-ani-marquee='true']) .ani-episode-card-heading {
   opacity: 0;
 }
-.ani-episode-cards a:is(:hover, :focus-visible):has(.ani-episode-card-heading[data-ani-marquee='true']) .ani-episode-card-synopsis-reveal {
+.ani-episode-cards a:has(.ani-episode-card-heading[data-ani-marquee='true']) .ani-episode-card-synopsis-reveal {
   top: calc(-1 * var(--ani-episode-title-lift, 25px));
   padding-top: 0;
-  min-height: calc(100% + var(--ani-episode-title-lift, 25px) + 11px);
 }
 .ani-episode-cards a:has(.ani-episode-card-heading[data-ani-marquee='true']) .ani-episode-card-description[data-text=""] > .ani-episode-card-synopsis-reveal {
-  min-height: 0;
   padding-bottom: 8px;
 }
 .ani-episode-cards a:has(.ani-episode-card-heading[data-ani-marquee='true']) .ani-episode-card-details[data-title]:not([data-title=""])::before {
@@ -2618,7 +2726,8 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
   line-height: 1.4;
   font-weight: 700;
   white-space: normal;
-  text-wrap: balance;
+  text-wrap: wrap;
+  line-break: strict;
   overflow-wrap: anywhere;
 }
 .ani-episode-cards a:has(.ani-episode-card-heading[data-ani-marquee='true']) .ani-episode-card-synopsis[data-text]:not([data-text=""]) {
@@ -2691,7 +2800,6 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
 }
 .ani-episode-card-synopsis-reveal {
   position: absolute; z-index: 3; inset: 0 -11px auto;
-  min-height: calc(100% + 11px);
   display: flex; box-sizing: border-box; padding: 7px 10px 10px;
   padding-inline: 11px;
   opacity: 0;
@@ -2710,7 +2818,6 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
 .ani-episode-card-synopsis[data-text=""] { display: none; }
 .ani-episode-card-synopsis[data-text]:not([data-text=""])::before {
   content: attr(data-text); display: -webkit-box;
-  min-block-size: 2lh;
   -webkit-box-orient: vertical; -webkit-line-clamp: 4;
   overflow: hidden; overflow-wrap: anywhere;
 }
@@ -3772,7 +3879,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           '<div class="ani-credit-actions">' +
           '<button type="button" class="ani-pill-btn is-accent" data-action="check-update"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg><span>檢測更新</span></button>' +
           '<a class="ani-pill-btn" href="https://github.com/aunight/Anigamer-Redesign3.0" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true" fill="currentColor" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M6.766 11.328c-2.063-.25-3.516-1.734-3.516-3.656 0-.781.281-1.625.75-2.188-.203-.515-.172-1.609.063-2.062.625-.078 1.468.25 1.968.703.594-.187 1.219-.281 1.985-.281.765 0 1.39.094 1.953.265.484-.437 1.344-.765 1.969-.687.218.422.25 1.515.046 2.047.5.593.766 1.39.766 2.203 0 1.922-1.453 3.375-3.547 3.64.531.344.89 1.094.89 1.954v1.625c0 .468.391.734.86.547C13.781 14.359 16 11.53 16 8.03 16 3.61 12.406 0 7.984 0 3.563 0 0 3.61 0 8.031a7.88 7.88 0 0 0 5.172 7.422c.422.156.828-.125.828-.547v-1.25c-.219.094-.5.156-.75.156-1.031 0-1.64-.562-2.078-1.609-.172-.422-.36-.672-.719-.719-.187-.015-.25-.093-.25-.187 0-.188.313-.328.625-.328.453 0 .844.281 1.25.86.313.452.64.655 1.031.655s.641-.14 1-.5c.266-.265.47-.5.657-.656" /></svg><span>GitHub</span></a>' +
-          '<a class="ani-pill-btn" href="https://greasyfork.org/zh-TW/scripts/606071" target="_blank" rel="noopener noreferrer"><span>Greasy Fork</span></a>' +
+          '<a class="ani-pill-btn" href="https://greasyfork.org/zh-TW/scripts/606071" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 6-6 6 6 6m8-12 6 6-6 6m-2-15-4 18"/></svg><span>Greasy Fork</span></a>' +
           '<a class="ani-pill-btn" href="https://github.com/aunight/Anigamer-Redesign3.0/issues" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg><span>前往 Issues</span></a>' +
           '</div></div>' +
           '<p class="ani-credit-update-msg" data-update-status role="status"></p>' +
@@ -4882,9 +4989,17 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
 
     // 七、頁面整合與生命週期
     const favoriteStudioPrefix = 'ani-favorite-studio:';
-    const studioCatalogData = JSON.parse(GM_getResourceText('ani_catalog'));
-    const studioProfileData = JSON.parse(GM_getResourceText('ani_profiles'));
-    const studioDirectoryIcons = JSON.parse(GM_getResourceText('ani_directory_icons'));
+    let studioCatalogDataCache;
+    const getStudioCatalogData = () =>
+      (studioCatalogDataCache ??= JSON.parse(readResource('ani_catalog')));
+    let studioProfileDataCache;
+    const getStudioProfileData = () =>
+      (studioProfileDataCache ??= JSON.parse(readResource('ani_profiles')));
+    let studioDirectoryIconsCache;
+    const getStudioDirectoryIcons = () =>
+      (studioDirectoryIconsCache ??= JSON.parse(readResource('ani_directory_icons')));
+    let studioLogoDataCache;
+    const getStudioLogoData = () => (studioLogoDataCache ??= JSON.parse(readResource('ani_logos')));
 
     function studioAliasLabel(alias) {
       return (
@@ -4927,19 +5042,21 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
     let studioNamesByAlias;
 
     function catalogStudiosForEpisode(sn, title) {
+      const catalog = getStudioCatalogData();
       const work =
-        studioCatalogData.find(([id, videoSn]) => id === sn || videoSn === sn) ||
-        studioCatalogData.find(([, , workTitle]) => title && workTitle === title);
+        catalog.find(([id, videoSn]) => id === sn || videoSn === sn) ||
+        catalog.find(([, , workTitle]) => title && workTitle === title);
       return work?.at(-1).join(' / ') || '';
     }
 
     function studioCreditLinks(value) {
       if (!studioNamesByAlias) {
         studioNamesByAlias = new Map();
-        for (const name of new Set(studioCatalogData.flatMap((work) => work.at(-1)))) {
+        const profileMap = getStudioProfileData();
+        for (const name of new Set(getStudioCatalogData().flatMap((work) => work.at(-1)))) {
           studioNamesByAlias.set(normalizeStudioName(name), name);
           studioNamesByAlias.set(normalizeStudioName(studioDisplayName(name)), name);
-          for (const alias of (studioProfileData[name]?.[0] || '').split('、')) {
+          for (const alias of (profileMap[name]?.[0] || '').split('、')) {
             if (alias.trim()) studioNamesByAlias.set(normalizeStudioName(alias), name);
           }
         }
@@ -5144,7 +5261,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         favoritesOnly || savedView ? null : new URLSearchParams(location.search).get('studio');
       if (requestedStudio || savedView?.active) shell.querySelector('button:last-child').click();
       function build(favorites, initialStudio) {
-        const logos = JSON.parse(GM_getResourceText('ani_logos'));
+        const logos = getStudioLogoData();
         const groups = new Map();
         for (const [
           id,
@@ -5156,7 +5273,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           cover,
           tags,
           names,
-        ] of studioCatalogData) {
+        ] of getStudioCatalogData()) {
           const work = {
             id,
             sn,
@@ -5307,7 +5424,8 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             card.querySelector('.anime-label-block').append(el('span', 'label-edition', tag));
           return card;
         }
-        const profiles = new Map(Object.entries(studioProfileData));
+        const profiles = new Map(Object.entries(getStudioProfileData()));
+        const directoryIcons = getStudioDirectoryIcons();
         function studioMark(name) {
           const mark = el('span', 'ani-studio-mark');
           mark.setAttribute('aria-hidden', 'true');
@@ -5324,7 +5442,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           const fallback = el('span', 'ani-studio-mark-fallback', initials.toUpperCase());
           mark.append(fallback);
           const logo = logos[name];
-          const entry = studioDirectoryIcons[name];
+          const entry = directoryIcons[name];
           if (logo || entry) {
             const image = el('img', 'ani-studio-favicon');
             image.alt = '';
@@ -5428,8 +5546,9 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           const list = el('div', 'theme-list-block');
           const works = groups.get(name);
           const cards = new Map();
+          const reorderMotions = new Map();
           let current = '人氣';
-          function order() {
+          function order(withMotion = false) {
             const sorted = [...works].sort((a, b) =>
               current === '最新'
                 ? b.date.localeCompare(a.date)
@@ -5437,7 +5556,59 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                   ? (b.score || 0) - (a.score || 0) || b.popularity - a.popularity
                   : b.popularity - a.popularity,
             );
-            list.append(...sorted.map((w) => cards.get(w)));
+            const next = sorted.map((work) => cards.get(work));
+            const previous = [...list.children];
+            if (
+              next.length === previous.length &&
+              next.every((card, index) => card === previous[index])
+            )
+              return;
+            const animate =
+              withMotion &&
+              !reducedMotion.matches &&
+              typeof list.animate === 'function' &&
+              list.clientWidth > 0;
+            const before = new Map();
+            let visible = [];
+            if (animate && previous.length) {
+              // The rail uses a fixed card width. Sample only the cards near the scroll viewport.
+              const gap = parseFloat(getComputedStyle(list).columnGap) || 0;
+              const stride = previous[0].offsetWidth + gap;
+              const start = Math.max(0, Math.floor(list.scrollLeft / stride) - 1);
+              const end = Math.ceil((list.scrollLeft + list.clientWidth) / stride) + 1;
+              visible = next.slice(start, end);
+              const nearby = new Set(previous.slice(start, end));
+              for (const card of visible) {
+                if (nearby.has(card) || reorderMotions.has(card))
+                  before.set(card, card.getBoundingClientRect());
+              }
+            }
+            for (const animation of reorderMotions.values()) animation.cancel();
+            reorderMotions.clear();
+            list.append(...next);
+            const offsets = visible.map((card) => {
+              const old = before.get(card);
+              const target = card.getBoundingClientRect();
+              const zoom = target.width / card.offsetWidth || 1;
+              return [
+                card,
+                old ? (old.left - target.left) / zoom : 28,
+                old ? (old.top - target.top) / zoom : 0,
+                !old,
+              ];
+            });
+            for (const [card, x, y, incoming] of offsets) {
+              if (Math.abs(x) + Math.abs(y) < 1) continue;
+              const motion = card.animate(
+                [
+                  { translate: `${x}px ${y}px`, ...(incoming ? { opacity: 0.55 } : {}) },
+                  { translate: '0 0', ...(incoming ? { opacity: 1 } : {}) },
+                ],
+                { duration: 330, easing: 'cubic-bezier(.2, .7, .25, 1)' },
+              );
+              reorderMotions.set(card, motion);
+              motion.onfinish = () => reorderMotions.delete(card);
+            }
           }
           let loading = false;
           async function rate() {
@@ -5454,7 +5625,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                 if (w.score) cards.get(w).dataset.aniRelatedScore = String(w.score);
               }
               if (current === '評分') {
-                order();
+                order(true);
                 enhanceCards([section]);
               }
             } finally {
@@ -5497,7 +5668,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               (label) => {
                 if (!cards.size) loadFeatured(name);
                 current = label;
-                order();
+                order(true);
                 if (label === '評分') void rate();
               },
             ),
@@ -5608,13 +5779,13 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             (width, character) =>
               width +
               (/\s/.test(character)
-                ? 0.38
+                ? 0.3
                 : /^[MWmw]$/.test(character)
-                  ? 1
+                  ? 0.94
                   : /^[A-Z]$/.test(character)
-                    ? 0.82
+                    ? 0.74
                     : /^[\x00-\x7f]$/.test(character)
-                      ? 0.68
+                      ? 0.55
                       : 1.08),
             0,
           );
@@ -5888,8 +6059,148 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         source,
         isShort: /泡麵番|輕動畫|短篇動畫/.test(html.match(/作品類型[：:]\s*([^<]+)/)?.[1] || ''),
       };
-    } // Traditional Chinese summaries for episodes with a Japanese-only source.
+    }
 
+    function workSynopsisIdentity(html) {
+      return {
+        title:
+          html
+            .match(/<h1[^>]*>[^<]*<\/h1>\s*<h2[^>]*>([^<]+)<\/h2>/i)?.[1]
+            ?.replace(/&amp;/g, '&')
+            .trim() || '',
+        year: Number(html.match(/當地首播[：:]\s*(\d{4})[-/]/)?.[1]) || 0,
+      };
+    }
+
+    function synopsisPlainText(value) {
+      return (typeof value === 'string' ? value : '')
+        .replace(/<br\s*\/?\s*>|<\/(?:p|div)>/gi, '\n')
+        .replace(/<[^>]+>/g, '')
+        .replace(
+          /&(?:amp|quot|apos|nbsp|lt|gt|#39|#x27);/gi,
+          (entity) =>
+            ({
+              '&amp;': '&',
+              '&quot;': '"',
+              '&apos;': "'",
+              '&nbsp;': ' ',
+              '&lt;': '<',
+              '&gt;': '>',
+              '&#39;': "'",
+              '&#x27;': "'",
+            })[entity.toLowerCase()],
+        )
+        .trim();
+    }
+
+    async function translateWorkSynopsis(value, request) {
+      const text = synopsisPlainText(value);
+      if (!text || text.length > 5000) return '';
+      const han = (text.match(/\p{Script=Han}/gu) || []).length;
+      const latin = (text.match(/[a-z]/gi) || []).length;
+      const japanese = (text.match(/[\p{Script=Hiragana}\p{Script=Katakana}]/gu) || []).length;
+      const korean = (text.match(/\p{Script=Hangul}/gu) || []).length;
+      if (
+        han > 0 &&
+        han >= latin / 2 &&
+        japanese < Math.max(2, han / 5) &&
+        korean < Math.max(2, han / 5)
+      )
+        return text;
+      const language =
+        korean > Math.max(japanese, latin / 4) ? 'ko' : japanese > latin / 4 ? 'ja' : 'en';
+      const encoder = new TextEncoder();
+      const paragraphs = text.split(/\n+/);
+      const translated = [];
+      for (const paragraph of paragraphs) {
+        const chunks = [];
+        let chunk = '';
+        for (const word of paragraph.match(/.{1,90}?(?:[。！？.!?]|\s+|$)|.{1,90}/gu) || []) {
+          if (encoder.encode(chunk + word).length > 500) {
+            chunks.push(chunk);
+            chunk = '';
+          }
+          chunk += word;
+        }
+        if (chunk.trim()) chunks.push(chunk);
+        const parts = [];
+        for (const part of chunks) {
+          const url = new URL('https://api.mymemory.translated.net/get');
+          url.searchParams.set('q', part.trim());
+          url.searchParams.set('langpair', language + '|zh-TW');
+          const response = await request(url.href, { signal: AbortSignal.timeout(6500) });
+          const data = response.ok ? await response.json() : null;
+          const result = synopsisPlainText(data?.responseData?.translatedText);
+          if (Number(data?.responseStatus) !== 200 || !/\p{Script=Han}/u.test(result)) return '';
+          parts.push(result);
+        }
+        if (parts.length) translated.push(parts.join(''));
+      }
+      return translated.join('\n\n');
+    }
+
+    async function fetchWorkSynopsis({ id, title, nativeTitle, year, movie }, request = fetch) {
+      let bangumiTitle;
+      if (/^\d{1,10}$/.test(String(id || ''))) {
+        try {
+          const response = await request('https://api.bgm.tv/v0/subjects/' + id, {
+            signal: AbortSignal.timeout(8000),
+          });
+          const work = response.ok ? await response.json() : null;
+          if (work?.type === 2) {
+            bangumiTitle = work.name;
+            const summary = await translateWorkSynopsis(work.summary, request);
+            if (summary) return { summary, source: 'Bangumi' };
+          }
+        } catch {}
+      }
+
+      const search = String(nativeTitle || bangumiTitle || title || '')
+        .trim()
+        .slice(0, 240);
+      if (search.length < 2) return {};
+      const normalize = (name) =>
+        String(name || '')
+          .normalize('NFKC')
+          .replace(/[\s\p{P}]/gu, '')
+          .toLowerCase();
+      try {
+        const response = await request('https://graphql.anilist.co', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          signal: AbortSignal.timeout(8000),
+          body: JSON.stringify({
+            query: `query ($search: String!) {
+          Page(perPage: 12) { media(search: $search, type: ANIME, sort: SEARCH_MATCH) {
+            title { native romaji english }
+            synonyms
+            startDate { year }
+            format
+            description(asHtml: false)
+          } }
+        }`,
+            variables: { search },
+          }),
+        });
+        const data = response.ok ? await response.json() : null;
+        const exact = normalize(search);
+        const matches = (data?.data?.Page?.media || []).filter(
+          (work) =>
+            (!year || Number(year) === work.startDate?.year) &&
+            (!movie || work.format === 'MOVIE') &&
+            [...Object.values(work.title || {}), ...(work.synonyms || [])].some(
+              (name) => normalize(name) === exact,
+            ),
+        );
+        if (matches.length !== 1) return {};
+        const summary = await translateWorkSynopsis(matches[0].description, request);
+        return summary ? { summary, source: 'AniList' } : {};
+      } catch {
+        return {};
+      }
+    }
+
+    // Traditional Chinese summaries for episodes with a Japanese-only source.
     const traditionalEpisodeDescriptions = new Map([
       [
         1749241,
@@ -5910,6 +6221,11 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         '颯太和小春到海邊玩，除了遇見當地女孩圓花，還和朋友們會合。害羞的小春卻因為穿泳裝躲到岩石後面。',
       ],
       [1749247, '泳裝被看見後，小春慌張逃走。在圓花直率的勸說和鼓勵下，她決定回去面對颯太。'],
+      // Bangumi episode 1746082 supplies a Japanese synopsis only.
+      [
+        1746082,
+        '露法絲派勇者一行尋找射手的故鄉，自己則前往阻止雷昂。途中，昔日戰友貝涅特奈修向她提出決鬥。',
+      ],
       // https://sasapi-anime.com/story_2nd.html
       [
         1748350,
@@ -5917,12 +6233,98 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
       ],
     ]);
 
-    async function fetchEpisodeTitles(rawTitle, request = fetch, acgUrl = '') {
+    async function fetchBangumiEpisodes(subjectId, request) {
+      const matchedEpisodes = {};
+      for (let offset = 0; offset <= 200; offset += 100) {
+        const epRes = await request(
+          `https://api.bgm.tv/v0/episodes?subject_id=${subjectId}&type=0&limit=100&offset=${offset}`,
+          {
+            headers: {
+              'User-Agent':
+                'aunight/Anigamer-Redesign3.0 (https://github.com/aunight/Anigamer-Redesign3.0)',
+            },
+            signal: AbortSignal.timeout(8000),
+          },
+        );
+        if (!epRes.ok) break;
+        const epJson = await epRes.json();
+        const rows = Array.isArray(epJson?.data) ? epJson.data : [];
+        for (const ep of rows) {
+          const epNum = ep?.sort ?? ep?.ep;
+          if (epNum === undefined || epNum === null) continue;
+          const name = String(ep.name_cn || '').trim();
+          const jp = String(ep.name || '').trim();
+          const description =
+            traditionalEpisodeDescriptions.get(ep.id) ||
+            (typeof ep.desc === 'string' ? ep.desc.trim() : '');
+          if (!name && !jp && !description && !ep.airdate) continue;
+          matchedEpisodes[String(epNum)] = {
+            name,
+            jp,
+            airdate: String(ep.airdate || '').trim(),
+            description,
+          };
+        }
+        const total = Number(epJson?.total) || rows.length;
+        if (offset + 100 >= total || rows.length < 100) break;
+      }
+      return matchedEpisodes;
+    }
+
+    const officialBunnyGirlStoryRequests = new WeakMap();
+    function fetchOfficialBunnyGirlStories(request = fetch) {
+      if (!officialBunnyGirlStoryRequests.has(request)) {
+        const result = request('https://www.aniplex.co.jp/lineup/ao-buta/story/', {
+          signal: AbortSignal.timeout(8000),
+        })
+          .then(async (response) => {
+            const html = response.ok ? await response.text() : '';
+            const stories = {};
+            const sections = html.split(/<h4 class="p-work:story-episode__no">\s*(\d+)\s*<\/h4>/i);
+            for (let index = 1; index < sections.length; index += 2) {
+              const description = synopsisPlainText(
+                sections[index + 1].match(
+                  /<div class="p-work:story-episode__outline">([\s\S]*?)<\/div>/i,
+                )?.[1],
+              );
+              if (description) stories[Number(sections[index])] = description;
+            }
+            return stories;
+          })
+          .catch(() => ({}))
+          .then((stories) => {
+            if (!Object.keys(stories).length) officialBunnyGirlStoryRequests.delete(request);
+            return stories;
+          });
+        officialBunnyGirlStoryRequests.set(request, result);
+      }
+      return officialBunnyGirlStoryRequests.get(request);
+    }
+
+    async function fetchEpisodeTitles(rawTitle, request = fetch, acgUrl = '', lastEpisode = 0) {
       const cleanTitle = String(rawTitle || '')
         .replace(/\s*(?:\[\s*\d+(?:\.\d+)?\s*\]|EP\.?\s*\d+(?:\.\d+)?)\s*$/i, '')
         .replace(/\s*-\s*巴哈姆特動畫瘋.*$/, '')
         .replace(/\s*\[(?:特別篇|劇場版|電影版|OAD|OVA|中文配音|年齡限制版)\]\s*/g, ' ')
         .trim();
+      const officialStories =
+        cleanTitle === '青春豬頭少年不會夢到兔女郎學姊'
+          ? fetchOfficialBunnyGirlStories(request)
+          : null;
+      const withOfficialStories = async (episodes) => {
+        if (!officialStories) return episodes;
+        const stories = await officialStories;
+        for (const [number, description] of Object.entries(stories)) {
+          const episode = episodes[number];
+          if (
+            !episode?.description ||
+            /[\p{Script=Hiragana}\p{Script=Katakana}]/u.test(episode.description)
+          ) {
+            episodes[number] = { ...episode, description };
+          }
+        }
+        return episodes;
+      };
       const stripped = cleanTitle
         .replace(/\s*(?:第[一二三四五六七八九十\d]+[季期部]|Season\s*\d+|Part\s*\d+)\s*$/i, '')
         .trim();
@@ -5992,41 +6394,44 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           const subjectId = subject?.id;
           if (!subjectId) continue;
 
-          const matchedEpisodes = {};
-          for (let offset = 0; offset <= 200; offset += 100) {
-            const epRes = await request(
-              `https://api.bgm.tv/v0/episodes?subject_id=${subjectId}&type=0&limit=100&offset=${offset}`,
-              {
-                headers: {
-                  'User-Agent':
-                    'aunight/Anigamer-Redesign3.0 (https://github.com/aunight/Anigamer-Redesign3.0)',
-                },
-                signal: AbortSignal.timeout(8000),
-              },
-            );
-            if (!epRes.ok) break;
-            const epJson = await epRes.json();
-            const rows = Array.isArray(epJson?.data) ? epJson.data : [];
-            for (const ep of rows) {
-              const epNum = ep?.sort ?? ep?.ep;
-              if (epNum === undefined || epNum === null) continue;
-              const name = String(ep.name_cn || '').trim();
-              const jp = String(ep.name || '').trim();
-              const description =
-                traditionalEpisodeDescriptions.get(ep.id) ||
-                (typeof ep.desc === 'string' ? ep.desc.trim() : '');
-              if (!name && !jp && !description && !ep.airdate) continue;
-              matchedEpisodes[String(epNum)] = {
-                name,
-                jp,
-                airdate: String(ep.airdate || '').trim(),
-                description,
-              };
+          const matchedEpisodes = await fetchBangumiEpisodes(subjectId, request);
+          if (Object.values(matchedEpisodes).some((ep) => ep.name || ep.jp)) {
+            let lastMatched = Math.max(...Object.keys(matchedEpisodes).map(Number));
+            if (!strippedSeason && lastEpisode > lastMatched) {
+              const workNames = new Set(
+                [kw, subject.name, subject.name_cn].map(normalize).filter(Boolean),
+              );
+              const continuations = (sJson?.data || [])
+                .flatMap((item) => {
+                  if (item.id === subjectId) return [];
+                  const season = [item.name, item.name_cn]
+                    .map(normalize)
+                    .map((name) => {
+                      const suffix = name.match(
+                        /(?:season(\d+)|part(\d+)|(\d+)(?:nd|rd|th)season|第([二三四五六七八九十])[季期部])$/,
+                      );
+                      if (!suffix || !workNames.has(name.slice(0, suffix.index))) return 0;
+                      return (
+                        Number(suffix[1] || suffix[2] || suffix[3]) ||
+                        '一二三四五六七八九十'.indexOf(suffix[4]) + 1
+                      );
+                    })
+                    .find((number) => number >= 2);
+                  return season ? [{ id: item.id, season }] : [];
+                })
+                .sort((a, b) => a.season - b.season);
+              for (const continuation of continuations) {
+                if (lastMatched >= lastEpisode) break;
+                const next = await fetchBangumiEpisodes(continuation.id, request).catch(() => ({}));
+                if (!Object.hasOwn(next, lastMatched + 1)) continue;
+                for (const [number, episode] of Object.entries(next)) {
+                  if (Number(number) > lastMatched) matchedEpisodes[number] = episode;
+                }
+                lastMatched = Math.max(...Object.keys(matchedEpisodes).map(Number));
+              }
             }
-            const total = Number(epJson?.total) || rows.length;
-            if (offset + 100 >= total || rows.length < 100) break;
+            return withOfficialStories(matchedEpisodes);
           }
-          if (Object.values(matchedEpisodes).some((ep) => ep.name || ep.jp)) return matchedEpisodes;
           if (Object.keys(episodes).length === 0) episodes = matchedEpisodes;
         } catch {}
       }
@@ -6055,11 +6460,11 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               episodes[num] = { jp: '', airdate: '', ...episodes[num], name: sub };
             }
           }
-          if (Object.values(episodes).some((ep) => ep.name)) return episodes;
+          if (Object.values(episodes).some((ep) => ep.name)) return withOfficialStories(episodes);
         } catch {}
       }
 
-      return episodes;
+      return withOfficialStories(episodes);
     }
 
     (() => {
@@ -6115,7 +6520,24 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         'p2.bahamut.com.tw',
         'i2.bahamut.com.tw',
       ]);
-      let instance, syncState;
+      let instance,
+        syncState,
+        enabledPreview = false;
+      let homeIndexRequest;
+      function getHomeIndex() {
+        return (homeIndexRequest ||= fetch('https://api.gamer.com.tw/anime/v1/index.php', {
+          credentials: 'include',
+          signal: AbortSignal.timeout(8000),
+        })
+          .then((response) => {
+            if (!response.ok) throw new Error('Homepage data unavailable');
+            return response.json();
+          })
+          .catch(() => {
+            homeIndexRequest = null;
+            return null;
+          }));
+      }
       function validImage(value) {
         try {
           const u = new URL(value);
@@ -6245,7 +6667,12 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         if (!/^\/(?:index\.php)?$/.test(location.pathname)) return;
         const host = document.querySelector('.big_banner');
         if (!host) return;
-        host.classList.toggle('ani-hero-enabled', Boolean(enabled));
+        enabledPreview = Boolean(enabled);
+        host.classList.toggle(
+          'ani-hero-enabled',
+          enabledPreview && Boolean(instance?.querySelector('.ani-hero-images img')),
+        );
+        if (!enabledPreview) host.classList.remove('ani-hero-pending');
         syncState?.();
         if (!enabled || instance) return;
         let saved = {};
@@ -6253,7 +6680,8 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           saved = JSON.parse(localStorage.getItem(KEY) || '{}');
         } catch {}
         const native = candidates(document);
-        const entries = [...(Array.isArray(saved.entries) ? saved.entries : []), ...native]
+        const cachedEntries = Array.isArray(saved.entries) ? saved.entries : [];
+        const entries = [...cachedEntries, ...native]
           .filter(
             (x) =>
               validImage(x.image) &&
@@ -6282,6 +6710,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           root.append(button);
           buttons.push(button);
         }
+        host.classList.add('ani-hero-pending');
         host.append(root);
         instance = root;
         const images = root.querySelector('.ani-hero-images'),
@@ -6297,11 +6726,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           loadingMetadata = new Map();
         let indexInfo;
         const getIndexInfo = () =>
-          (indexInfo ||= aniFetch('https://api.gamer.com.tw/anime/v1/index.php', {
-            credentials: 'include',
-            signal: AbortSignal.timeout(10000),
-          })
-            .then((r) => (r.ok ? r.json() : null))
+          (indexInfo ||= getHomeIndex()
             .then((result) => {
               const rows = [],
                 visit = (value) => {
@@ -6468,44 +6893,59 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               ],
               { duration: 320, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'both' },
             );
-          let src = objectUrls.get(entry.image);
-          if (!src) {
-            try {
-              src = await cachedImage(entry.image);
-              objectUrls.set(entry.image, src);
-            } catch {
-              src = entry.image;
-            }
-          }
-          if (version !== renderVersion) return;
+          const firstPaint = !images.children.length;
           const img = new Image();
           img.alt = '';
-          img.src = src;
+          if (firstPaint) img.fetchPriority = 'high';
+          let src = objectUrls.get(entry.image);
           try {
-            await img.decode();
+            if (!src && !firstPaint) {
+              try {
+                src = await cachedImage(entry.image);
+                objectUrls.set(entry.image, src);
+              } catch {}
+            }
+            if (version !== renderVersion) return;
+            img.src = src || entry.image;
+            const alreadyDecoded = firstPaint && !src && img.complete && img.naturalWidth > 0;
+            if (!alreadyDecoded) {
+              try {
+                await img.decode();
+              } catch (error) {
+                if (!firstPaint || src || version !== renderVersion) throw error;
+                src = await cachedImage(entry.image);
+                if (version !== renderVersion) {
+                  URL.revokeObjectURL(src);
+                  return;
+                }
+                objectUrls.set(entry.image, src);
+                img.src = src;
+                await img.decode();
+              }
+            }
           } catch {
-            if (!images.children.length) host.classList.remove('ani-hero-enabled');
-            schedule();
+            if (version === renderVersion) {
+              host.classList.remove('ani-hero-pending');
+              schedule();
+            }
             return;
           }
           if (version !== renderVersion) return;
-          host.style.setProperty('--ani-hero-cover', 'url(' + JSON.stringify(src) + ')');
+          host.style.setProperty('--ani-hero-cover', 'url(' + JSON.stringify(img.src) + ')');
           const previous = [...images.children];
           const ambient = img.cloneNode();
           ambient.className = 'ani-hero-ambient';
           images.append(ambient, img);
+          host.classList.remove('ani-hero-pending');
+          host.classList.toggle('ani-hero-enabled', enabledPreview);
           if (!reduced)
             previous.forEach((n) =>
               n.animate?.([{ opacity: 1 }, { opacity: 0 }], { duration: 450, fill: 'both' }),
             );
-          ambient.animate?.([{ opacity: 0 }, { opacity: 1 }], {
-            duration: reduced ? 0 : 450,
-            fill: 'both',
-          });
-          img.animate?.([{ opacity: 0 }, { opacity: 1 }], {
-            duration: reduced ? 0 : 450,
-            fill: 'both',
-          });
+          if (!firstPaint && !reduced) {
+            ambient.animate?.([{ opacity: 0 }, { opacity: 1 }], { duration: 450, fill: 'both' });
+            img.animate?.([{ opacity: 0 }, { opacity: 1 }], { duration: 450, fill: 'both' });
+          }
           setTimeout(() => previous.forEach((n) => n.remove()), 500);
           loadMeta(entry);
           schedule();
@@ -6543,16 +6983,19 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           },
           { once: true },
         );
-        show(0);
+        // Start with today's native banner, keeping its cached metadata if present.
+        const firstNativeIndex = entries.findIndex((entry) => entry.image === native[0]?.image);
+        const firstRender = show(Math.max(0, firstNativeIndex));
         persist();
         // A small bounded sample, at most once per six hours, never a polling loop.
         if (
           !(saved.sampled > Date.now() - TTL) ||
           (entries.length < 6 && saved.sampleVersion !== 2)
         ) {
-          saved.sampled = Date.now();
-          persist();
-          (async () => {
+          const sample = async () => {
+            if (!enabledPreview || document.hidden) return;
+            saved.sampled = Date.now();
+            persist();
             for (let attempt = 0; attempt < 1 && entries.length < 6; attempt++) {
               try {
                 const r = await aniFetch('/', {
@@ -6569,20 +7012,27 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                   persist();
                   renderDots();
                   schedule();
-                  try {
-                    const url = await cachedImage(entry.image);
-                    objectUrls.set(entry.image, url);
-                  } catch {}
-                  await loadMeta(entry);
                 }
               } catch {
                 break;
               }
             }
-          })();
+          };
+          firstRender.then(() => {
+            setTimeout(() => {
+              if (typeof requestIdleCallback === 'function')
+                requestIdleCallback(
+                  () => {
+                    void sample();
+                  },
+                  { timeout: 3000 },
+                );
+              else void sample();
+            }, 2000);
+          });
         }
       }
-      globalThis.AniHeroBanner = { mount, candidates, metadata };
+      globalThis.AniHeroBanner = { mount, candidates, metadata, getHomeIndex };
     })();
 
     /**
@@ -6626,6 +7076,37 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
       const dayKey = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
       const hhmm = (d) => `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
       const deg = (n) => `${Math.round(n)}°`;
+      const temperaturePixels = {
+        0: ['111', '101', '101', '101', '111'],
+        1: ['010', '110', '010', '010', '111'],
+        2: ['111', '001', '111', '100', '111'],
+        3: ['111', '001', '111', '001', '111'],
+        4: ['101', '101', '111', '001', '001'],
+        5: ['111', '100', '111', '001', '111'],
+        6: ['111', '100', '111', '101', '111'],
+        7: ['111', '001', '010', '010', '010'],
+        8: ['111', '101', '111', '101', '111'],
+        9: ['111', '101', '111', '001', '111'],
+        '-': ['000', '000', '111', '000', '000'],
+        '°': ['111', '101', '111'],
+      };
+      const pixelTemperature = (value) => {
+        if (!Number.isFinite(value)) return '—';
+        const label = deg(value);
+        const path = [];
+        let width = 0;
+        for (const char of label) {
+          const rows = temperaturePixels[char];
+          if (!rows) return label;
+          rows.forEach((row, y) =>
+            [...row].forEach((pixel, x) => {
+              if (pixel === '1') path.push(`M${x + width} ${y}h1v1h-1z`);
+            }),
+          );
+          width += rows[0].length + 1;
+        }
+        return `<svg class="ani-wx-pixel-temp" width="${(width - 1) * 0.16}em" height=".8em" viewBox="0 0 ${width - 1} 5" fill="currentColor" shape-rendering="crispEdges" role="img" aria-label="${label}"><path d="${path.join('')}"/></svg>`;
+      };
       const WEEK_ZH = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
       const WEEK_1 = ['日', '一', '二', '三', '四', '五', '六'];
       const MONTH_EN = [
@@ -7302,7 +7783,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               manual: false,
               at: Date.now(),
             };
-            await storageSet(WX_LOC_KEY, next);
+            void storageSet(WX_LOC_KEY, next);
             return next;
           }
         } catch {}
@@ -7940,6 +8421,8 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         const renderWeather = () => {
           if (!wx) return;
           const w = wx;
+          const currentTemperature = h('span', { class: 'ani-wx-temp' });
+          currentTemperature.innerHTML = pixelTemperature(w.temp);
           const skyBox = h(
             'div',
             {
@@ -7951,7 +8434,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             h(
               'div',
               { class: 'ani-wx-now' },
-              h('span', { class: 'ani-wx-temp' }, deg(w.temp)),
+              currentTemperature,
               h('span', { class: 'ani-wx-cond' }, w.condition),
             ),
           );
@@ -7977,7 +8460,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           hours.innerHTML = (w.hours || [])
             .map(
               (x) =>
-                `<li><span class="ani-wx-hl">${x.label}</span>${glyphSvg(x.kind, x.hour)}<b>${deg(x.temp)}</b></li>`,
+                `<li><span class="ani-wx-hl">${x.label}</span>${glyphSvg(x.kind, x.hour)}<b>${pixelTemperature(x.temp)}</b></li>`,
             )
             .join('');
 
@@ -8001,7 +8484,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           week.innerHTML = days
             .map(
               (d, i) =>
-                `<li data-kind="${d.kind}"><span class="ani-wx-dn">${d.name}</span>${glyphSvg(d.kind)}<span class="ani-wx-lo">${deg(d.low)}</span>${mkBar(d.low, d.high, i === 0 ? w.temp : undefined)}<span class="ani-wx-hi">${deg(d.high)}</span></li>`,
+                `<li data-kind="${d.kind}"><span class="ani-wx-dn">${d.name}</span>${glyphSvg(d.kind)}<span class="ani-wx-lo">${pixelTemperature(d.low)}</span>${mkBar(d.low, d.high, i === 0 ? w.temp : undefined)}<span class="ani-wx-hi">${pixelTemperature(d.high)}</span></li>`,
             )
             .join('');
 
@@ -8017,7 +8500,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                 'div',
                 { class: 'ani-wx-live' },
                 h('i', { class: 'ani-wx-led' }),
-                h('span', {}, 'Open-Meteo'),
+                h('span', {}, Date.now() - w.at >= WX_TTL ? '本機快取' : 'Open-Meteo'),
                 clockEl,
               ),
             ),
@@ -8032,15 +8515,20 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         const loadWeather = async (customLoc = null, force = false) => {
           try {
             const loc = customLoc || (await resolveWeatherLoc());
-            wx = await fetchWeather(loc, force);
+            const next = await fetchWeather(loc, force);
             if (el.isConnected) {
               delete el.dataset.aniWxErr;
+              if (wx?.at === next.at && wx.loc.lat === next.loc.lat && wx.loc.lon === next.loc.lon)
+                return;
+              wx = next;
+              el.dataset.aniWxReady = 'true';
               renderWeather();
             }
           } catch (err) {
             el.dataset.aniWxErr = String(err?.message || err || 'unknown');
             console.warn('[Anigamer-Redesign] weather failed:', err);
             if (!el.isConnected) return;
+            if (wx && !customLoc) return;
             const choose = h(
               'button',
               { type: 'button', class: 'ani-wx-retry', onclick: () => openPicker(choose) },
@@ -8080,6 +8568,19 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           stopTimers();
           io?.disconnect();
         };
+        // A recent forecast can paint without waiting on extension storage or IP lookup.
+        try {
+          const cached = JSON.parse(localStorage.getItem(WX_CACHE_KEY) || 'null');
+          if (
+            cached?.loc &&
+            Number.isFinite(cached.temp) &&
+            Date.now() - cached.at < 24 * 3600 * 1000
+          ) {
+            wx = cached;
+            el.dataset.aniWxReady = 'true';
+            renderWeather();
+          }
+        } catch {}
         void loadWeather();
         return el;
       }
@@ -8117,14 +8618,6 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           dash = document.createElement('div');
           dash.className = 'ani-home-dash';
         }
-        if (hero && hero.parentElement) {
-          if (dash.previousElementSibling !== hero) hero.after(dash);
-        } else if (!dash.isConnected) {
-          const anchor = containerHost.querySelector('#blockContinueWatch, #blockVideoInSeason');
-          if (anchor) anchor.before(dash);
-          else containerHost.prepend(dash);
-        }
-
         const curFp = dash.querySelector('.ani-fp-card');
         const curWx = dash.querySelector('.ani-wx-card');
         if (showFp && !curFp) {
@@ -8138,6 +8631,13 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         } else if (!showWx && curWx) {
           curWx._aniDispose?.();
           curWx.remove();
+        }
+        if (hero?.parentElement) {
+          if (dash.previousElementSibling !== hero) hero.after(dash);
+        } else if (!dash.isConnected) {
+          const anchor = containerHost.querySelector('#blockContinueWatch, #blockVideoInSeason');
+          if (anchor) anchor.before(dash);
+          else containerHost.prepend(dash);
         }
       }
 
@@ -8682,26 +9182,84 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
       if (globalThis.__aniTopbarBridgeInstalled) return;
       globalThis.__aniTopbarBridgeInstalled = true;
 
-      // Observe page-script navigation in the same world as the site's player.
-      if (location.pathname === '/animeVideo.php') {
-        let declined = false;
+      // Slick normally measures on window resize, but the homepage theme also
+      // changes the rail width without resizing the window.
+      if (location.pathname === '/' || location.pathname === '/index.php') {
+        const rail = document.getElementById('continueWatch');
+        if (rail && typeof ResizeObserver === 'function') {
+          let measuredWidth = 0;
+          const measure = () => {
+            if (!rail.isConnected) {
+              sizes.disconnect();
+              return;
+            }
+            const width = rail.clientWidth;
+            if (!width || width === measuredWidth || !rail.classList.contains('slick-initialized'))
+              return;
+            measuredWidth = width;
+            const carousel = rail.slick;
+            if (typeof carousel?.setPosition === 'function') carousel.setPosition();
+            else window.dispatchEvent(new Event('orientationchange'));
+            rail.dataset.aniContinueSized = 'true';
+          };
+          const sizes = new ResizeObserver(measure);
+          sizes.observe(rail);
+          if (!rail.classList.contains('slick-initialized')) {
+            const initialization = new MutationObserver(() => {
+              if (!rail.classList.contains('slick-initialized')) return;
+              initialization.disconnect();
+              measure();
+            });
+            initialization.observe(rail, { attributes: true, attributeFilter: ['class'] });
+          }
+          measure();
+        }
+      }
+
+      // The player can remove its prompt before requesting a homepage redirect.
+      if (location.pathname === '/animeVideo.php' && window.navigation) {
+        const agree = '.choose-btn-agree, .ani-consent-accept';
+        const choice = agree + ', .choose-btn-disagree, .ani-consent-decline';
+        let awaitingChoice = false;
+        let handledPrompt;
+        const rememberPrompt = (player) => {
+          const prompt = player.querySelector(agree);
+          if (prompt && prompt !== handledPrompt) awaitingChoice = true;
+        };
+        const player = document.getElementById('ani_video');
+        if (player) {
+          rememberPrompt(player);
+          new MutationObserver(() => rememberPrompt(player)).observe(player, {
+            childList: true,
+            subtree: true,
+          });
+        }
         document.addEventListener(
           'click',
           (event) => {
+            const currentPlayer = document.getElementById('ani_video');
             if (
-              event.isTrusted &&
-              event.target.closest?.(
-                '#ani_video .choose-btn-disagree, #ani_video .ani-consent-decline',
-              )
-            ) {
-              declined = true;
-            }
+              !event.isTrusted ||
+              !currentPlayer?.contains(event.target) ||
+              !event.target.closest?.(choice)
+            )
+              return;
+            handledPrompt = currentPlayer.querySelector(agree);
+            awaitingChoice = false;
           },
           true,
         );
-        window.navigation?.addEventListener('navigate', (event) => {
+        document.addEventListener(
+          'playing',
+          (event) => {
+            const currentPlayer = document.getElementById('ani_video');
+            if (currentPlayer?.contains(event.target) && !currentPlayer.querySelector(agree))
+              awaitingChoice = false;
+          },
+          true,
+        );
+        window.navigation.addEventListener('navigate', (event) => {
           if (
-            declined ||
             !document.body?.classList.contains('ani-ambientlight-page') ||
             !event.cancelable ||
             event.userInitiated ||
@@ -8716,10 +9274,10 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             !['/', '/index.php'].includes(destination.pathname)
           )
             return;
-          const consent = document.querySelector(
-            '#ani_video .choose-btn-agree, #ani_video .ani-consent-accept',
-          );
-          if (consent?.getClientRects().length) event.preventDefault();
+          const currentPlayer = document.getElementById('ani_video');
+          if (!currentPlayer) return;
+          rememberPrompt(currentPlayer);
+          if (awaitingChoice) event.preventDefault();
         });
       }
 
@@ -8879,6 +9437,46 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         script.remove();
       } else {
         installCommentImageZoom();
+      }
+
+      function installReviewEvents() {
+        if (window.aniReviewEventsInstalled) return;
+        document.addEventListener('ani-review-request-profile', () => {
+          const account = window.User?.Login;
+          const userId = account?.getUserid?.();
+          if (!userId) return;
+          const name = window.Cookies?.get?.('BAHANICK') || userId;
+          const rawAvatar = account.getAvatarUrl?.() || '';
+          const avatar = rawAvatar.startsWith('//') ? 'https:' + rawAvatar : rawAvatar;
+          document.dispatchEvent(
+            new CustomEvent('ani-review-profile', {
+              detail: JSON.stringify({ name, avatar }),
+            }),
+          );
+        });
+        const jquery = window.jQuery;
+        if (typeof jquery !== 'function') return;
+        window.aniReviewEventsInstalled = true;
+        jquery(window).on(
+          'AcgScorePostNew.aniRedesign AcgScorePostEdit.aniRedesign',
+          (_event, review) => {
+            if (typeof review?.content === 'string') {
+              document.dispatchEvent(
+                new CustomEvent('ani-review-saved', { detail: review.content }),
+              );
+            }
+          },
+        );
+      }
+      if (location.pathname === '/animeVideo.php') {
+        if (typeof GM_getValue === 'function' && typeof window.jQuery !== 'function') {
+          const script = document.createElement('script');
+          script.textContent = `(${installReviewEvents.toString()})();`;
+          (document.head || document.documentElement).append(script);
+          script.remove();
+        } else {
+          installReviewEvents();
+        }
       }
 
       document.addEventListener('click', (event) => {
@@ -9194,6 +9792,12 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                 ? `${watchTime}+08:00`
                 : watchTime;
               return {
+                animeSn: String(result.data.anime?.animeSn || ''),
+                episodeSns: new Set(
+                  Object.values(result.data.anime?.episodes || {}).flatMap((track) =>
+                    Array.isArray(track) ? track.map((episode) => String(episode.videoSn)) : [],
+                  ),
+                ),
                 date: String(video.upTime || '')
                   .split(' ')[0]
                   .replaceAll('-', '/'),
@@ -9213,6 +9817,80 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         return videoDetails.get(sn);
       };
       globalThis.aniGetEpisodeDetails = getEpisodeDetails;
+      // Playback IDs in the order used by the official Sakurasou story pages.
+      const sakurasouEpisodeIds = [
+        '4414',
+        '4425',
+        '4431',
+        '4432',
+        '4433',
+        '4434',
+        '4435',
+        '4436',
+        '4437',
+        '4415',
+        '4416',
+        '4417',
+        '4418',
+        '4419',
+        '4420',
+        '4421',
+        '4422',
+        '4423',
+        '4424',
+        '4426',
+        '4427',
+        '4428',
+        '4429',
+        '4430',
+      ];
+      const getVerifiedEpisodeStill = (sn) => {
+        const episode = sakurasouEpisodeIds.indexOf(sn) + 1;
+        return episode ? `https://sakurasou.tv/episode/${episode}_1.jpg` : '';
+      };
+      globalThis.aniGetVerifiedEpisodeStill = getVerifiedEpisodeStill;
+      function episodePagePoster(root, base = location.href) {
+        for (const source of [
+          root.querySelector('[data-video-poster]')?.getAttribute('data-video-poster'),
+          root.querySelector('meta[property="og:image"]')?.content,
+        ]) {
+          if (!source?.trim()) continue;
+          try {
+            const url = new URL(source, base);
+            if (url.protocol === 'https:') return url.href;
+          } catch {}
+        }
+        return '';
+      }
+      const episodePosters = new Map();
+      const getEpisodePagePoster = (sn) => {
+        if (!/^\d+$/.test(sn || '')) return '';
+        if (new URLSearchParams(location.search).get('sn') === sn)
+          return episodePagePoster(document);
+        if (!episodePosters.has(sn)) {
+          const url = new URL('/animeVideo.php', location.origin);
+          url.searchParams.set('sn', sn);
+          episodePosters.set(
+            sn,
+            fetch(url, { signal: AbortSignal.timeout(8000) })
+              .then(async (response) =>
+                response.ok
+                  ? episodePagePoster(
+                      new DOMParser().parseFromString(await response.text(), 'text/html'),
+                      url,
+                    )
+                  : '',
+              )
+              .catch(() => '')
+              .then((poster) => {
+                if (!poster) episodePosters.delete(sn);
+                return poster;
+              }),
+          );
+        }
+        return episodePosters.get(sn);
+      };
+      globalThis.aniGetEpisodePagePoster = getEpisodePagePoster;
       const episodeFrameStorageKey = 'aniEpisodeFramesV1';
       function readEpisodeFrames() {
         try {
@@ -9332,7 +10010,40 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             )
           : null;
 
+      const SETTINGS_BOOT_CACHE_KEY = 'aniSettingsBootCacheV1';
       const storage = globalThis.AniAmbientStorage || globalThis.chrome?.storage?.sync;
+      let resolveSharedSettings;
+      globalThis.__aniSettingsPromise = new Promise((resolve) => {
+        resolveSharedSettings = resolve;
+      });
+      let bootSnapshot = '';
+      let hydratedFromBootCache = false;
+      if (storage) {
+        try {
+          const cachedBoot = JSON.parse(localStorage.getItem(SETTINGS_BOOT_CACHE_KEY) || 'null');
+          if (cachedBoot && typeof cachedBoot === 'object') {
+            Object.assign(settings, options.normalize(cachedBoot));
+            bootSnapshot = JSON.stringify(settings);
+            hydratedFromBootCache = true;
+          }
+        } catch {}
+      } else {
+        try {
+          const savedLocal = JSON.parse(localStorage.getItem('aniAmbientSettingsV1') || 'null');
+          if (savedLocal && typeof savedLocal === 'object') {
+            Object.assign(settings, options.normalize(savedLocal));
+          }
+        } catch {}
+      }
+      const cacheResolvedSettings = () => {
+        const snapshot = { ...settings };
+        globalThis.__aniResolvedSettings = snapshot;
+        try {
+          localStorage.setItem(SETTINGS_BOOT_CACHE_KEY, JSON.stringify(snapshot));
+        } catch {}
+        resolveSharedSettings?.(snapshot);
+      };
+
       let fontSettingsKnown = !storage;
       let initialUiBound = false;
       if (storage) {
@@ -9340,6 +10051,14 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           fontSettingsKnown = true;
           if (!globalThis.chrome?.runtime?.lastError)
             Object.assign(settings, options.normalize(saved));
+          const resolvedSnapshot = JSON.stringify(settings);
+          cacheResolvedSettings();
+          if (hydratedFromBootCache && resolvedSnapshot === bootSnapshot) {
+            applySelectedFont();
+            syncSettingsPanel();
+            markInitialUiReady();
+            return;
+          }
           applyPageTheme();
           active?.applySettings();
           active?.refresh();
@@ -9354,11 +10073,14 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           for (const key of Object.keys(DEFAULTS))
             if (changes[key]) updated[key] = changes[key].newValue;
           Object.assign(settings, options.normalize(updated, settings));
+          cacheResolvedSettings();
           applyPageTheme();
           active?.applySettings();
           active?.refresh();
           syncSettingsPanel();
         });
+      } else {
+        resolveSharedSettings?.(null);
       }
 
       // ── 二、主題配色、字體與可逆的頁面重排 ──
@@ -9575,6 +10297,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         }
         if (fontSettingsKnown) applySelectedFont();
         document.body?.classList.toggle('ani-ambientlight-page', Boolean(settings.themeEnabled));
+        globalThis.AniHeroBanner?.mount(Boolean(settings.themeEnabled));
         document.body?.classList.toggle('ani-ambientlight-ui', Boolean(settings.uiEffectsEnabled));
         document.documentElement.classList.toggle(
           'ani-ambientlight-ui',
@@ -9902,9 +10625,24 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             columns.append(commentBox);
             const aside = document.createElement('aside');
             aside.className = 'ani-comment-recommendations';
-            aside.hidden = true;
+            aside.setAttribute('aria-label', '推薦動畫');
             columns.append(aside);
-            renderCommentRecommendations(aside);
+            mountRecommendationHeading(aside, commentHeader);
+            showRecommendationSkeleton(aside);
+            if (typeof IntersectionObserver === 'function') {
+              // Start the request near the reserved sidebar.
+              const recommendationsObserver = new IntersectionObserver(
+                (entries) => {
+                  if (!entries.some((entry) => entry.isIntersecting)) return;
+                  recommendationsObserver.disconnect();
+                  if (aside.isConnected) void renderCommentRecommendations(aside);
+                },
+                { rootMargin: '400px 0px' },
+              );
+              recommendationsObserver.observe(commentBox);
+            } else {
+              void renderCommentRecommendations(aside);
+            }
           }
           if (list && !observedCommentLists.has(list)) {
             observedCommentLists.add(list);
@@ -10519,7 +11257,52 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         return Object.values(combined).some(Boolean) ? combined : null;
       }
 
+      function mountRecommendationHeading(aside, segment) {
+        const heading = document.createElement('h3');
+        heading.className = 'ani-recommend-heading';
+        heading.innerHTML =
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linejoin="round" d="m9 3 1.9 5.6L16.5 11l-5.6 2.4L9 19l-2-5.6L1.5 11 7 8.6Z M19 2l1 3 3 1-3 1-1 3-1-3-3-1 3-1Z"/></svg>推薦動畫';
+        const desktop = matchMedia('(min-width:900px)');
+        const place = () => {
+          if (!aside.isConnected) {
+            desktop.removeEventListener?.('change', place);
+            heading.remove();
+            return;
+          }
+          heading.classList.toggle('ani-recommend-heading-desktop', desktop.matches);
+          if (desktop.matches) segment.after(heading);
+          else aside.prepend(heading);
+        };
+        place();
+        desktop.addEventListener('change', place);
+      }
+
+      function showRecommendationSkeleton(aside) {
+        const skeleton = document.createElement('div');
+        skeleton.className = 'ani-rec-skeleton';
+        skeleton.setAttribute('aria-hidden', 'true');
+        skeleton.innerHTML =
+          '<div class="ani-rec-skeleton-row"><span class="ani-rec-poster"></span><span class="ani-rec-copy"><strong></strong><span class="ani-rec-facts"><span></span><span></span></span><small class="ani-rec-genres"></small></span></div>'.repeat(
+            12,
+          );
+        aside.setAttribute('aria-busy', 'true');
+        aside.replaceChildren(...aside.querySelectorAll(':scope > h3'), skeleton);
+      }
+
+      function showRecommendationRetry(aside) {
+        const retry = document.createElement('button');
+        retry.type = 'button';
+        retry.className = 'ani-pill-btn';
+        retry.textContent = '重新載入推薦動畫';
+        retry.addEventListener('click', () => {
+          showRecommendationSkeleton(aside);
+          void renderCommentRecommendations(aside);
+        });
+        aside.replaceChildren(...aside.querySelectorAll(':scope > h3'), retry);
+      }
+
       async function renderCommentRecommendations(aside) {
+        aside.classList.add('ani-rec-fetching');
         try {
           let pool = [];
           try {
@@ -10559,23 +11342,8 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             }
           }
           if (!aside.isConnected) return;
-          const heading = document.createElement('h3');
-          heading.className = 'ani-recommend-heading';
-          heading.innerHTML =
-            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linejoin="round" d="m9 3 1.9 5.6L16.5 11l-5.6 2.4L9 19l-2-5.6L1.5 11 7 8.6Z M19 2l1 3 3 1-3 1-1 3-1-3-3-1 3-1Z"/></svg>推薦動畫';
-          aside.replaceChildren(heading);
           if (!pool.length) {
-            const retry = document.createElement('button');
-            retry.type = 'button';
-            retry.className = 'ani-pill-btn';
-            retry.textContent = '重新載入推薦動畫';
-            retry.addEventListener('click', async () => {
-              retry.disabled = true;
-              await renderCommentRecommendations(aside);
-              retry.disabled = false;
-            });
-            aside.append(retry);
-            aside.hidden = false;
+            showRecommendationRetry(aside);
             return;
           }
           const count = document.querySelector('#w-anime-comment-count');
@@ -10631,7 +11399,8 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                   { rootMargin: '1100px 0px' },
                 )
               : null;
-          while (pool.length && aside.childElementCount <= 48) {
+          const cards = document.createDocumentFragment();
+          while (pool.length && cards.childElementCount < 48) {
             const [[href, item]] = pool.splice(Math.floor(Math.random() * pool.length), 1);
             const link = document.createElement('a');
             link.href = href;
@@ -10644,6 +11413,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               } catch {}
             }
             const copy = document.createElement('span');
+            copy.className = 'ani-rec-copy';
             const facts = document.createElement('span');
             facts.className = 'ani-rec-facts';
             facts.innerHTML =
@@ -10661,6 +11431,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             }
             const title = document.createElement('strong');
             title.textContent = item.title;
+            link.title = item.title;
             const genres = document.createElement('small');
             genres.className = 'ani-rec-genres';
             copy.append(title, facts, genres);
@@ -10685,7 +11456,40 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               }
               metadata?.observe(link);
             }
-            aside.append(link);
+            cards.append(link);
+          }
+          const skeleton = aside.querySelector('.ani-rec-skeleton');
+          if (
+            matchMedia('(prefers-reduced-motion: reduce)').matches ||
+            typeof skeleton.animate !== 'function'
+          ) {
+            skeleton.replaceWith(cards);
+          } else {
+            const enteringCards = [...cards.children].slice(0, skeleton.childElementCount);
+            const { offsetTop, offsetLeft, offsetWidth } = skeleton;
+            const skeletonOpacity = Number(getComputedStyle(skeleton).opacity) || 1;
+            Object.assign(skeleton.style, {
+              position: 'absolute',
+              pointerEvents: 'none',
+              top: offsetTop + 'px',
+              left: offsetLeft + 'px',
+              width: offsetWidth + 'px',
+            });
+            while (skeleton.childElementCount > enteringCards.length)
+              skeleton.lastElementChild.remove();
+            aside.classList.remove('ani-rec-fetching');
+            skeleton.after(cards);
+            const timing = { duration: 220, easing: 'ease-out' };
+            for (const card of enteringCards)
+              card.animate([{ opacity: 0 }, { opacity: 1 }], timing);
+            const fade = skeleton.animate([{ opacity: skeletonOpacity }, { opacity: 0 }], {
+              ...timing,
+              fill: 'forwards',
+            });
+            fade.finished.then(
+              () => skeleton.remove(),
+              () => skeleton.remove(),
+            );
           }
           syncCount();
           if (count)
@@ -10694,25 +11498,11 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               characterData: true,
               subtree: true,
             });
-          const desktop = matchMedia('(min-width:900px)');
-          const placeHeading = () => {
-            if (!aside.isConnected) return;
-            for (const stale of document.querySelectorAll(
-              '.commend-title .ani-recommend-heading',
-            )) {
-              if (stale !== heading) stale.remove();
-            }
-            heading.classList.toggle('ani-recommend-heading-desktop', desktop.matches);
-            const segment =
-              desktop.matches && document.querySelector('.commend-title .commend-segment-wrapper');
-            if (segment) segment.after(heading);
-            else aside.prepend(heading);
-          };
-          placeHeading();
-          desktop.addEventListener('change', placeHeading);
-          aside.hidden = false;
         } catch {
-          aside.parentElement?.classList.add('ani-recs-unavailable');
+          if (aside.isConnected) showRecommendationRetry(aside);
+        } finally {
+          aside.classList.remove('ani-rec-fetching');
+          aside.removeAttribute('aria-busy');
         }
       }
 
@@ -10806,12 +11596,15 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
       }
 
       let continueTimesRequested = false;
+      let continueTimesSettled = false;
       const continueTimes = new Map();
       const continueDetailsRequested = new Set();
       let continueSectionAnchor;
+      const nextEpisodeGlyph =
+        '<path fill="currentColor" stroke="none" d="M5 5.5a1.5 1.5 0 0 1 2.35-1.24l8.5 6.5a1.5 1.5 0 0 1 0 2.48l-8.5 6.5A1.5 1.5 0 0 1 5 18.5Z"/><rect fill="currentColor" stroke="none" x="18" y="4" width="3" height="16" rx="1.5"/>';
       const refreshContinueTitle = (target) => {
         const track = target.querySelector('.ani-marquee-track');
-        if (!track || !target.clientWidth || target.closest('.continue-watch-card:hover')) return;
+        if (!track || !target.clientWidth) return;
         const overflow = Math.max(0, track.scrollWidth - target.clientWidth);
         target.classList.toggle('ani-continue-overflow', overflow > 2);
         target.style.setProperty('--ani-marquee-dist', `-${overflow + 8}px`);
@@ -10841,18 +11634,6 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         const section = document.querySelector('#blockContinueWatch');
         if (!section) return;
         const list = section.querySelector('#continueWatch');
-        if (list)
-          requestAnimationFrame(() => {
-            const grid = document.querySelector('#blockVideoInSeason .newanime-block');
-            if (!grid || !grid.clientWidth) return;
-            const width = `${grid.clientWidth}px`;
-            const offset = `${grid.getBoundingClientRect().left - section.getBoundingClientRect().left}px`;
-            if (list.style.width !== width || list.style.marginLeft !== offset) {
-              list.style.setProperty('width', width, 'important');
-              list.style.setProperty('margin-left', offset, 'important');
-              window.dispatchEvent(new Event('resize'));
-            }
-          });
         if (list && !section.querySelector('.ani-continue-body')) {
           const body = document.createElement('div');
           body.className = 'ani-continue-body';
@@ -10946,6 +11727,57 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           ])
             section.addEventListener(event, refresh, { passive: true });
         }
+        const syncContinueCardPosition = (card, sn) => {
+          const row = card.querySelector('.info-row');
+          const timing = continueTimes.get(sn);
+          const seconds = timing?.position;
+          if (!row || !Number.isFinite(seconds)) return;
+          const position =
+            row.querySelector('.ani-continue-position') || document.createElement('span');
+          position.className = 'ani-continue-position';
+          const label = `${formatContinueTime(seconds)} / ${Number.isFinite(timing.duration) ? formatContinueTime(timing.duration) : '—'}`;
+          if (position.textContent !== label) position.textContent = label;
+          position.title = '播放時間／完整片長';
+          if (!position.isConnected) row.append(position);
+        };
+        const queueContinueDetails = (sn) => {
+          if (!sn || continueDetailsRequested.has(sn)) return;
+          if (readScoreCache()[sn]?.s && Number.isFinite(continueTimes.get(sn)?.duration)) return;
+          continueDetailsRequested.add(sn);
+          aniFetch(`animeVideo.php?sn=${encodeURIComponent(sn)}`, { credentials: 'same-origin' })
+            .then((response) => (response.ok ? response.text() : ''))
+            .then((html) => {
+              if (!html) return;
+              const page = new DOMParser().parseFromString(html, 'text/html');
+              const score = parseScoreFromVideoHtml(html);
+              if (score) writeScoreCache(sn, score);
+              let duration;
+              for (const script of page.querySelectorAll('script[type="application/ld+json"]')) {
+                try {
+                  const data = JSON.parse(script.textContent);
+                  for (const entry of Array.isArray(data) ? data : [data]) {
+                    const match = entry.duration?.match(/^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/);
+                    if (match)
+                      duration =
+                        Number(match[1] || 0) * 3600 +
+                        Number(match[2] || 0) * 60 +
+                        Number(match[3] || 0);
+                  }
+                } catch {}
+              }
+              if (duration) continueTimes.set(sn, { ...continueTimes.get(sn), duration });
+              for (const target of section.querySelectorAll('[data-video-sn]')) {
+                if (target.dataset.videoSn !== sn) continue;
+                const image = target.querySelector('.img-block');
+                if (score && image) renderTopLeftScoreBadge(image, score);
+                const cardEl = target.classList.contains('continue-watch-card')
+                  ? target
+                  : target.querySelector('.continue-watch-card');
+                if (cardEl) syncContinueCardPosition(cardEl, sn);
+              }
+            })
+            .catch(() => {});
+        };
         if (!continueTimesRequested) {
           continueTimesRequested = true;
           try {
@@ -10953,12 +11785,13 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             if (local && Number.isFinite(local.breakPoint) && local.breakPoint >= 0)
               continueTimes.set(String(local.videoSn), { position: local.breakPoint });
           } catch {}
-          // Fetch index API immediately (not queued behind 10+ animeVideo.php HTML fetches)
-          fetch('https://api.gamer.com.tw/anime/v1/index.php', {
-            credentials: 'include',
-            signal: AbortSignal.timeout(8000),
-          })
-            .then((response) => (response.ok ? response.json() : null))
+          const indexRequest =
+            globalThis.AniHeroBanner?.getHomeIndex?.() ??
+            fetch('https://api.gamer.com.tw/anime/v1/index.php', {
+              credentials: 'include',
+              signal: AbortSignal.timeout(8000),
+            }).then((response) => (response.ok ? response.json() : null));
+          indexRequest
             .then((result) => {
               const entries = result?.data?.continueWatch;
               if (Array.isArray(entries)) {
@@ -10976,7 +11809,14 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               }
             })
             .catch(() => {})
-            .finally(enhanceContinueWatch);
+            .finally(() => {
+              continueTimesSettled = true;
+              for (const card of section.querySelectorAll('.continue-watch-card')) {
+                const sn = card.closest('[data-video-sn]')?.dataset.videoSn;
+                syncContinueCardPosition(card, sn);
+                queueContinueDetails(sn);
+              }
+            });
         }
         for (const card of section.querySelectorAll('.continue-watch-card')) {
           card.querySelector('.ani-continue-favorite')?.remove();
@@ -10987,8 +11827,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             const icon = document.createElement('span');
             icon.className = 'ani-next-icon';
             icon.setAttribute('aria-hidden', 'true');
-            icon.innerHTML =
-              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 6 6 6-6 6m8-12 6 6-6 6"/></svg>';
+            icon.innerHTML = `<svg viewBox="0 0 24 24">${nextEpisodeGlyph}</svg>`;
             next.append(icon);
             next.title = '預覽下一集，點擊播放';
             const animateEpisode = () => {
@@ -11016,7 +11855,6 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             continueVisibilityObserver?.observe(name);
             requestAnimationFrame(() => refreshContinueTitle(name));
           }
-          const row = card.querySelector('.info-row');
           const sn = card.closest('[data-video-sn]')?.dataset.videoSn;
           for (const episode of card.querySelectorAll('.episode-watched')) {
             for (const key of ['episode', 'nextEpisode']) {
@@ -11029,50 +11867,8 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           const picture = card.querySelector('.img-block');
           const cachedScore = readScoreCache()[sn]?.s;
           if (picture && cachedScore) renderTopLeftScoreBadge(picture, cachedScore);
-          if (sn && !continueDetailsRequested.has(sn)) {
-            continueDetailsRequested.add(sn);
-            aniFetch(`animeVideo.php?sn=${encodeURIComponent(sn)}`, { credentials: 'same-origin' })
-              .then((response) => (response.ok ? response.text() : ''))
-              .then((html) => {
-                if (!html) return;
-                const page = new DOMParser().parseFromString(html, 'text/html');
-                const score = parseScoreFromVideoHtml(html);
-                if (score) writeScoreCache(sn, score);
-                let duration;
-                for (const script of page.querySelectorAll('script[type="application/ld+json"]')) {
-                  try {
-                    const data = JSON.parse(script.textContent);
-                    for (const entry of Array.isArray(data) ? data : [data]) {
-                      const match = entry.duration?.match(/^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/);
-                      if (match)
-                        duration =
-                          Number(match[1] || 0) * 3600 +
-                          Number(match[2] || 0) * 60 +
-                          Number(match[3] || 0);
-                    }
-                  } catch {}
-                }
-                if (duration) continueTimes.set(sn, { ...continueTimes.get(sn), duration });
-                for (const target of section.querySelectorAll('[data-video-sn]')) {
-                  if (target.dataset.videoSn !== sn) continue;
-                  const image = target.querySelector('.img-block');
-                  if (score && image) renderTopLeftScoreBadge(image, score);
-                }
-                enhanceContinueWatch();
-              })
-              .catch(() => {});
-          }
-          const timing = continueTimes.get(sn);
-          const seconds = timing?.position;
-          if (row && Number.isFinite(seconds)) {
-            const position =
-              row.querySelector('.ani-continue-position') || document.createElement('span');
-            position.className = 'ani-continue-position';
-            const label = `${formatContinueTime(seconds)} / ${Number.isFinite(timing.duration) ? formatContinueTime(timing.duration) : '—'}`;
-            if (position.textContent !== label) position.textContent = label;
-            position.title = '播放時間／完整片長';
-            if (!position.isConnected) row.append(position);
-          }
+          if (continueTimesSettled) queueContinueDetails(sn);
+          syncContinueCardPosition(card, sn);
         }
       }
 
@@ -11083,6 +11879,8 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         cover.className = 'ani-week-cover';
         cover.setAttribute('aria-hidden', 'true');
         cover.alt = '';
+        cover.loading = 'lazy';
+        cover.decoding = 'async';
         cover.onerror = () => {
           if (tile.dataset.aniCoverUrl === url) delete tile.dataset.aniCoverUrl;
         };
@@ -11457,6 +12255,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         return byVideo;
       }
       const localWatchByTitle = new Map();
+      const localHistoryBangumi = new Map();
       const completedLocalTitles = new Set();
       const normalizeWatchTitle = (title) => title.normalize('NFKC').replace(/\s+/g, ' ').trim();
       const episodeOrdinals = new Map();
@@ -11471,8 +12270,11 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             localEpisodeProgress = indexEpisodeProgress(records);
             localWatch.clear();
             localWatchByTitle.clear();
+            localHistoryBangumi.clear();
             completedLocalTitles.clear();
             for (const [id, record] of Object.entries(records || {})) {
+              if (typeof record?.bangumi === 'string')
+                localHistoryBangumi.set(String(record.sn || id), record.bangumi);
               if (
                 typeof record?.title === 'string' &&
                 globalThis.AniEnhancements?.resolveEpisodeProgress?.({
@@ -11500,9 +12302,14 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           })
           .catch(() => {});
       }
-      document.addEventListener('ani-enhancements-ready', () => loadLocalPosterProgress(), {
-        once: true,
-      });
+      document.addEventListener(
+        'ani-enhancements-ready',
+        () => {
+          loadLocalPosterProgress();
+          if (location.pathname === '/viewList.php') enhanceWatchHistory();
+        },
+        { once: true },
+      );
       if (globalThis.AniEnhancements) loadLocalPosterProgress();
       if (location.pathname === '/viewList.php') {
         window.addEventListener('storage', (event) => {
@@ -11584,6 +12391,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
       let nativeHistoryPage = 1;
       let nativeHistoryLastPage = 1;
       const nativeHistoryRequests = new Map();
+      const nativeHistoryWorks = new Set();
       function fetchNativeHistoryPage(page) {
         if (nativeHistoryRequests.has(page)) return nativeHistoryRequests.get(page);
         const request = fetch(`https://api.gamer.com.tw/anime/v3/history.php?page=${page}`, {
@@ -11597,6 +12405,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             nativeHistoryPage = Math.max(nativeHistoryPage, page);
             nativeHistoryLastPage = Math.max(page, Number(data.totalPage) || 1);
             for (const anime of data.history) {
+              if (anime.animeSn) nativeHistoryWorks.add(String(anime.animeSn));
               const episodes = [anime.episode];
               for (const entry of anime.history || []) {
                 const sn = String(entry.videoSn);
@@ -11638,20 +12447,29 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           completed: entry.completed === true || elapsedSec >= durationSec,
         };
       }
-      async function findNativeEpisodeHistory(videoSns) {
+      async function findNativeEpisodeHistory(videoSns, work) {
         const positions = await syncNativeWatch();
+        if (nativeHistoryPage >= nativeHistoryLastPage || videoSns.every((sn) => positions.has(sn)))
+          return positions;
+        const details = await work;
+        // The native feed groups an anime's watched episodes into one record.
+        const animeSn =
+          details?.episodeSns && videoSns.every((sn) => details.episodeSns.has(sn))
+            ? details.animeSn
+            : '';
         while (
           nativeHistoryPage < nativeHistoryLastPage &&
-          !videoSns.some((sn) => positions.has(sn))
+          !nativeHistoryWorks.has(animeSn) &&
+          !videoSns.every((sn) => positions.has(sn))
         ) {
           const nextPage = nativeHistoryPage + 1;
           if (!(await fetchNativeHistoryPage(nextPage))) break;
         }
         return positions;
       }
-      async function getEpisodeWatchHistory(videoSns) {
+      async function getEpisodeWatchHistory(videoSns, work) {
         const [native, local] = await Promise.all([
-          findNativeEpisodeHistory(videoSns),
+          findNativeEpisodeHistory(videoSns, work),
           Promise.resolve(globalThis.AniEnhancements?.storageGet('aniPermanentHistoryV1', {}))
             .then(indexEpisodeProgress)
             .catch(() => new Map()),
@@ -11791,6 +12609,102 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           },
           { rootMargin: '500px 0px' },
         );
+      const seasonScoreObserver =
+        typeof IntersectionObserver === 'function'
+          ? new IntersectionObserver(
+              (entries) => {
+                for (const entry of entries) {
+                  if (!entry.isIntersecting) continue;
+                  const area = entry.target;
+                  seasonScoreObserver.unobserve(area);
+                  const sn = area.dataset.aniPendingScoreSn;
+                  if (sn) queueScoreFetch(sn);
+                }
+              },
+              { rootMargin: '180px 0px' },
+            )
+          : null;
+      const measureWeekTitle = (title) => {
+        const track = title?.querySelector('.ani-week-marquee');
+        if (!track) return;
+        const style = getComputedStyle(title);
+        const available =
+          title.clientWidth -
+          (parseFloat(style.paddingLeft) || 0) -
+          (parseFloat(style.paddingRight) || 0);
+        const distance = Math.max(0, track.scrollWidth - available);
+        title.classList.toggle('ani-week-overflow', available > 0 && distance > 2);
+        title.style.setProperty('--ani-week-travel', `-${distance}px`);
+        title.style.setProperty('--ani-week-duration', `${Math.max(2.5, distance / 30 + 1)}s`);
+      };
+      const weekMarqueeObserver =
+        typeof ResizeObserver === 'function'
+          ? new ResizeObserver((entries) => {
+              const titles = new Set();
+              for (const { target } of entries) {
+                const title = target.classList?.contains('text-anime-name')
+                  ? target
+                  : target.parentElement;
+                if (title) titles.add(title);
+              }
+              for (const title of titles) measureWeekTitle(title);
+            })
+          : null;
+      function enhanceCardSurface(card) {
+        if (!card.classList.contains('ani-card-surface')) card.classList.add('ani-card-surface');
+        const glowImage = card.querySelector(
+          'img.card-img:not(.is-next),.anime-blocker img,.anime-pic-block img:not(.anime-clock-img):not([src$=".svg"]),.theme-img',
+        );
+        const glowUrl = glowImage?.dataset.src || glowImage?.getAttribute('src');
+        if (glowUrl && /^https:\/\/(?:p2|i2|truth)\.bahamut\.com\.tw\//.test(glowUrl)) {
+          const cover = `url("${glowUrl.replace(/["\\\n\r]/g, '')}")`;
+          if (card.style.getPropertyValue('--ani-card-cover') !== cover)
+            card.style.setProperty('--ani-card-cover', cover);
+        }
+        if (glowUrl && !card.querySelector(':scope > .ani-season-glow')) {
+          const glow = document.createElement('span');
+          glow.className = 'ani-season-glow';
+          glow.setAttribute('aria-hidden', 'true');
+          card.prepend(glow);
+        }
+        const info = card.querySelector('.content-block, .anime-detail-block');
+        if (info && !info.classList.contains('ani-card-info')) info.classList.add('ani-card-info');
+        if (card.dataset.aniSurfaceReady === 'true') return;
+        card.dataset.aniSurfaceReady = 'true';
+        if (card.querySelector(':scope > .ani-hover-outline')) return;
+        const footer = info;
+        if (!footer) return;
+        const outline = document.createElement('span');
+        outline.className = 'ani-hover-outline';
+        outline.setAttribute('aria-hidden', 'true');
+        card.append(outline);
+        let footerObserver;
+        const measure = () => {
+          const bounds = card.getBoundingClientRect();
+          const height = `${Math.max(bounds.height, footer.getBoundingClientRect().bottom - bounds.top)}px`;
+          if (outline.style.height !== height) outline.style.height = height;
+        };
+        const trackOutline = () => {
+          measure();
+          if (
+            card.classList.contains('ani-card-has-overflow') &&
+            typeof ResizeObserver === 'function'
+          ) {
+            footerObserver ||= new ResizeObserver(measure);
+            footerObserver.observe(card);
+            footerObserver.observe(footer);
+          }
+        };
+        card.addEventListener('mouseenter', trackOutline);
+        card.addEventListener('focusin', trackOutline);
+        const resetOutline = () => {
+          if (card.matches(':hover, :focus-within')) return;
+          footerObserver?.disconnect();
+          outline.style.removeProperty('height');
+        };
+        card.addEventListener('mouseleave', resetOutline);
+        card.addEventListener('focusout', () => requestAnimationFrame(resetOutline));
+      }
       function bindPosterRail(rail, list, cardSelector, label) {
         const arrows = [];
         for (const direction of [-1, 1]) {
@@ -11842,6 +12756,8 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
       }
 
       const fallbackScoreSections = '.old_list,#blockHotAnime,[id^="blockAnimeNewArrive"]';
+      // AniGamer's related cards omit the movie tag for these titles.
+      const relatedMovieSeriesIds = new Set(['113603', '113435', '101403']);
       const fallbackScoreObserver =
         typeof IntersectionObserver === 'function' &&
         new IntersectionObserver(
@@ -11870,14 +12786,21 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             const score = parseScoreFromVideoHtml(html);
             if (score && card.isConnected && section?.isConnected) {
               card.dataset.aniRelatedScore = score;
-              enhancePosterRails([section]);
+              const image = card.querySelector('.theme-img-block');
+              if (image && !image.querySelector('.ani-poster-score')) {
+                const pill = document.createElement('span');
+                pill.className = 'ani-poster-score';
+                pill.textContent = `★ ${score}`;
+                image.append(pill);
+                applyStarMapRatingToCard(card, score, image);
+              }
             }
           })
           .catch(() => {});
       }
 
       function enhancePosterRails(sections) {
-        syncNativeWatch();
+        let needsWatchHistory = false;
         for (const section of sections ||
           document.querySelectorAll(
             '#BH_background .animate-theme-list, #BH_background .old_list:not(:has(.search_result))',
@@ -11890,18 +12813,16 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             homeRailObserver.observe(section);
             continue;
           }
+          needsWatchHistory = true;
           if (section.matches('.old_list')) section.classList.add('ani-related-list');
           const isRelated = section.matches('.old_list:not(:has(.search_result))');
+          const isWish = section.matches('.animate-wish');
           section.classList.toggle(
             'ani-filtered-list',
             Boolean(section.querySelector(':scope > .filter-section')),
           );
           const heading = section.querySelector('.theme-title, :scope > h2, .old_list-title > h2');
-          if (
-            section.matches('.animate-wish') &&
-            heading &&
-            !heading.querySelector('.ani-section-icon')
-          ) {
+          if (isWish && heading && !heading.querySelector('.ani-section-icon')) {
             heading.insertAdjacentHTML(
               'afterbegin',
               '<span class="ani-section-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"/><path d="M9 8h6m-6 4h6"/></svg></span>',
@@ -11929,6 +12850,21 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           }
           for (const card of section.querySelectorAll('.theme-list-main')) {
             if (!card.classList.contains('ani-poster-card')) card.classList.add('ani-poster-card');
+            enhanceCardSurface(card);
+            if (isWish) {
+              const cover = card.querySelector(':scope > .theme-wish-block');
+              cover?.classList.add('theme-img-block');
+              cover?.querySelector('img')?.classList.add('theme-img');
+              const info = card.querySelector(':scope > .theme-info-block');
+              if (info) {
+                const footer =
+                  card.querySelector(':scope > .anime-detail-block') ||
+                  document.createElement('div');
+                footer.classList.add('anime-detail-block');
+                if (!footer.isConnected) info.before(footer);
+                footer.prepend(info);
+              }
+            }
             if (card.matches('.wish-card[onclick]') && !card.querySelector('.ani-wish-vote')) {
               const star = card.querySelector('.btn-card-block.btn-star');
               if (star) {
@@ -11937,8 +12873,8 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                 vote.type = 'button';
                 vote.className = 'ani-wish-vote';
                 vote.innerHTML =
-                  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg><span></span>';
-                card.append(vote);
+                  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="ani-wish-ballot" d="M8 13H5l-2 4v4h18v-4l-2-4h-3M3 17h18M9 4h6v10H9z"/><path class="ani-wish-check" d="m5 12 4 4L19 6"/></svg><span></span>';
+                (card.querySelector(':scope > .anime-detail-block') || card).append(vote);
                 card.addEventListener(
                   'click',
                   (event) => {
@@ -12112,7 +13048,8 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               const normalized = episodeOrdinals.get(animeId)?.get(position);
               const isMovie =
                 isRelated &&
-                (episodes.textContent.trim() === '電影' ||
+                (relatedMovieSeriesIds.has(animeId) ||
+                  episodes.textContent.trim() === '電影' ||
                   /劇[場场]版|電影版/.test(title || '') ||
                   [...card.querySelectorAll('.label-edition')].some((badge) =>
                     /^(電影|劇場版)$/.test(badge.textContent.trim()),
@@ -12255,6 +13192,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           rail.append(list);
           bindPosterRail(rail, list, '.theme-list-main', '動畫');
         }
+        if (needsWatchHistory) void syncNativeWatch();
         for (const actions of document.querySelectorAll('.ani-section-actions')) {
           if (location.pathname === '/viewList.php' || actions.closest('.animate-wish')) continue;
           let input = actions.querySelector('input.ani-owned-rating-toggle');
@@ -12377,49 +13315,6 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             qa.classList.add('ani-info-badge-host');
           }
         }
-        const decorateExternalRatingPills = () => {
-          for (const pill of document.querySelectorAll(
-            '#BH_background :is(button, a, div, span), body > :is(button, div)',
-          )) {
-            if (
-              pill.closest(
-                '#ani_video, .ani-player-settings-drawer, .ani-settings-panel, .ani-view-settings-panel, .ani-home-dash',
-              )
-            )
-              continue;
-            if (pill.childElementCount > 2) continue;
-            const txt = (pill.textContent || '').replace(/\s+/g, ' ').trim();
-            if (!txt || txt.length > 48) continue;
-            if (!/(?:預先載入.*評等|排序完成|載入所有評等)/.test(txt)) continue;
-            if (
-              [...pill.children].some(
-                (c) =>
-                  !c.classList.contains('ani-ext-sort-icon') &&
-                  /(?:預先載入.*評等|排序完成|載入所有評等)/.test(c.textContent || ''),
-              )
-            )
-              continue;
-            pill.classList.add('ani-ext-rating-pill');
-            if (/排序完成/.test(txt)) pill.classList.add('is-done');
-            const tw = document.createTreeWalker(pill, NodeFilter.SHOW_TEXT);
-            let tNode;
-            while ((tNode = tw.nextNode())) {
-              const cleaned = (tNode.nodeValue || '')
-                .replace(/[\u2705\u2714\u2611\uFE0F]/g, '')
-                .replace(/^\s+/, '');
-              if (cleaned !== tNode.nodeValue) tNode.nodeValue = cleaned;
-            }
-            if (!pill.querySelector('.ani-ext-sort-icon')) {
-              const ic = document.createElement('span');
-              ic.className = 'ani-ext-sort-icon';
-              ic.setAttribute('aria-hidden', 'true');
-              ic.innerHTML =
-                '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
-              pill.prepend(ic);
-            }
-          }
-        };
-        decorateExternalRatingPills();
         for (const tb of document.querySelectorAll('.user-setting-toolbox')) {
           const secBtn = tb.querySelector('a.btn-account-manage');
           if (secBtn && !secBtn.dataset.aniSecPolished) {
@@ -12762,6 +13657,68 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         progress.prepend(graph);
       }
 
+      globalThis.aniBindSidebarToolbarBlur = (
+        toolbar,
+        scrollWrap,
+        filterId,
+        { overlap = false } = {},
+      ) => {
+        const filterHost = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        filterHost.setAttribute('class', 'ani-sidebar-filter-defs');
+        filterHost.setAttribute('aria-hidden', 'true');
+        filterHost.innerHTML = `
+      <filter id="${filterId}" x="0%" y="0%" width="100%" height="100%" color-interpolation-filters="sRGB">
+        <feFlood x="0" y="0" width="100%" result="toolbarStrip" />
+        <feImage preserveAspectRatio="none" result="toolbarRegion" />
+        <feComposite in="SourceGraphic" in2="toolbarStrip" operator="out" result="sharp" />
+        <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="soft" />
+        <feComposite in="soft" in2="toolbarRegion" operator="in" result="softInside" />
+        <feMerge><feMergeNode in="sharp" /><feMergeNode in="softInside" /></feMerge>
+      </filter>
+    `;
+        scrollWrap.before(filterHost);
+        const toolbarRegion = filterHost.querySelector('feImage');
+        const toolbarStrip = filterHost.querySelector('feFlood');
+        const pane = scrollWrap.parentElement;
+        const updateToolbarBounds = () => {
+          const bounds = toolbar.getBoundingClientRect();
+          if (!bounds.width || !bounds.height || !pane.offsetHeight) return;
+          if (overlap) {
+            const offset = Math.max(0, Math.round(pane.getBoundingClientRect().top - bounds.top));
+            scrollWrap.style.setProperty('--ani-intro-header-overlap', `${offset}px`);
+          } else {
+            scrollWrap.style.setProperty('--ani-danmu-toolbar-height', `${toolbar.offsetHeight}px`);
+          }
+          const scrollBounds = scrollWrap.getBoundingClientRect();
+          const { width, height } = bounds;
+          const radius = parseFloat(getComputedStyle(toolbar).borderTopLeftRadius) || 0;
+          const shape = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"><rect width="${width}" height="${height}" rx="${radius}"/></svg>`;
+          toolbarRegion.setAttribute('href', `data:image/svg+xml,${encodeURIComponent(shape)}`);
+          toolbarRegion.setAttribute('x', bounds.left - scrollBounds.left);
+          const top = bounds.top - scrollBounds.top;
+          toolbarRegion.setAttribute('y', top);
+          toolbarStrip.setAttribute('height', Math.max(0, top + height));
+          toolbarRegion.setAttribute('width', width);
+          toolbarRegion.setAttribute('height', height);
+        };
+        updateToolbarBounds();
+        const observer =
+          typeof ResizeObserver === 'function' ? new ResizeObserver(updateToolbarBounds) : null;
+        observer?.observe(toolbar);
+        observer?.observe(pane);
+        if (overlap) pane.addEventListener('animationend', updateToolbarBounds);
+        return () => {
+          observer?.disconnect();
+          pane.removeEventListener('animationend', updateToolbarBounds);
+          filterHost.remove();
+        };
+      };
+
+      const playerShortcuts = new WeakMap();
+      const getShortcutSettingsHost = () =>
+        document.querySelector(
+          '#BH_background .ani-player-settings-body > .ani-settings-anim-inner',
+        );
       function enhancePlayerControls() {
         syncDanmuHeat();
         const dlgMuteSvg =
@@ -12811,6 +13768,28 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         const shareUrl = document.querySelector('#share-url-text');
         const shareBody = shareUrl?.closest('.dialogify__body'),
           shareCard = shareUrl?.closest('.dialogify__content');
+        const reviewDialog = document.querySelector('.dialogify__content:has(.textarea-score)');
+        const reviewStars = reviewDialog?.querySelector('.user-star-block');
+        if (reviewStars && !reviewStars.closest('.ani-review-stars-group')) {
+          const group = document.createElement('div');
+          group.className = 'ani-review-stars-group';
+          const label = document.createElement('div');
+          label.className = 'ani-review-stars-label';
+          label.textContent = '作品評分';
+          reviewStars.before(group);
+          group.append(label, reviewStars);
+        }
+        const reviewWorkName = reviewDialog?.querySelector('.main-user-info > span > a');
+        const watchWorkName = document
+          .querySelector('.anime_name h1')
+          ?.textContent.trim()
+          .replace(/\s*(?:\[\s*\d+(?:\.\d+)?\s*\]|EP\.\s*\d+(?:\.\d+)?)\s*$/i, '')
+          .trim();
+        const officialWorkName = reviewWorkName?.textContent.trim();
+        if (watchWorkName && officialWorkName?.startsWith(watchWorkName + ' ')) {
+          reviewWorkName.title = officialWorkName;
+          reviewWorkName.textContent = watchWorkName;
+        }
         if (shareBody && shareCard && !shareCard.dataset.aniShare) {
           shareCard.closest('.dialogify')?.classList.add('ani-share-dialog');
           shareCard.dataset.aniShare = 'true';
@@ -13118,11 +14097,9 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               'ani-glyph-pause',
             ),
           '.vjs-pre-button': svg(
-            '<path fill="currentColor" stroke="none" d="M5 4h3v16H5zm15 0L8 12l12 8Z"/>',
+            `<g transform="translate(24 0) scale(-1 1)">${nextEpisodeGlyph}</g>`,
           ),
-          '.vjs-next-button': svg(
-            '<path fill="currentColor" stroke="none" d="M16 4h3v16h-3zM4 4v16l12-8Z"/>',
-          ),
+          '.vjs-next-button': svg(nextEpisodeGlyph),
           '.vjs-mute-control': svg(
             '<path fill="currentColor" stroke="none" d="M3 9v6h4l6 5V4L7 9Z"/><path class="ani-volume-waves" d="M16 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/><path class="ani-volume-muted" d="m16 9 5 6m0-6-5 6"/>',
           ),
@@ -13138,10 +14115,6 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         Object.assign(icons, {
           '.vjs-play-control':
             '<svg class="ani-player-glyph ani-glyph-play" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true">\n  <path fill-rule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clip-rule="evenodd"/>\n</svg>\n<svg class="ani-player-glyph ani-glyph-pause" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true">\n  <path fill-rule="evenodd" d="M6.75 5.25a.75.75 0 0 1 .75-.75H9a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H7.5a.75.75 0 0 1-.75-.75V5.25Zm7.5 0A.75.75 0 0 1 15 4.5h1.5a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H15a.75.75 0 0 1-.75-.75V5.25Z" clip-rule="evenodd"/>\n</svg>\n',
-          '.vjs-pre-button':
-            '<svg class="ani-player-glyph" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true">\n  <path d="M9.195 18.44c1.25.714 2.805-.189 2.805-1.629v-2.34l6.945 3.968c1.25.715 2.805-.188 2.805-1.628V8.69c0-1.44-1.555-2.343-2.805-1.628L12 11.029v-2.34c0-1.44-1.555-2.343-2.805-1.628l-7.108 4.061c-1.26.72-1.26 2.536 0 3.256l7.108 4.061Z"/>\n</svg>\n',
-          '.vjs-next-button':
-            '<svg class="ani-player-glyph" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true">\n  <path d="M5.055 7.06C3.805 6.347 2.25 7.25 2.25 8.69v8.122c0 1.44 1.555 2.343 2.805 1.628L12 14.471v2.34c0 1.44 1.555 2.343 2.805 1.628l7.108-4.061c1.26-.72 1.26-2.536 0-3.256l-7.108-4.061C13.555 6.346 12 7.249 12 8.689v2.34L5.055 7.061Z"/>\n</svg>\n',
           '.vjs-mute-control':
             '<svg class="ani-player-glyph ani-speaker-on" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true">\n  <path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.508c-1.141 0-2.318.664-2.66 1.905A9.76 9.76 0 0 0 1.5 12c0 .898.121 1.768.35 2.595.341 1.24 1.518 1.905 2.659 1.905h1.93l4.5 4.5c.945.945 2.561.276 2.561-1.06V4.06Z"/>\n  <path d="M15.932 7.757a.75.75 0 0 1 1.061 0 6 6 0 0 1 0 8.486.75.75 0 0 1-1.06-1.061 4.5 4.5 0 0 0 0-6.364.75.75 0 0 1 0-1.06Z"/>\n  <path d="M18.584 5.106a.75.75 0 0 1 1.06 0c3.808 3.807 3.808 9.98 0 13.788a.75.75 0 0 1-1.06-1.06 8.25 8.25 0 0 0 0-11.668.75.75 0 0 1 0-1.06Z"/>\n</svg>\n<svg class="ani-player-glyph ani-speaker-off" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true">\n  <path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.508c-1.141 0-2.318.664-2.66 1.905A9.76 9.76 0 0 0 1.5 12c0 .898.121 1.768.35 2.595.341 1.24 1.518 1.905 2.659 1.905h1.93l4.5 4.5c.945.945 2.561.276 2.561-1.06V4.06ZM17.78 9.22a.75.75 0 1 0-1.06 1.06L18.44 12l-1.72 1.72a.75.75 0 1 0 1.06 1.06l1.72-1.72 1.72 1.72a.75.75 0 1 0 1.06-1.06L20.56 12l1.72-1.72a.75.75 0 1 0-1.06-1.06l-1.72 1.72-1.72-1.72Z"/>\n</svg>\n',
           '.vjs-indent-button':
@@ -13405,6 +14378,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             }
           }
           for (const a of root.querySelectorAll('a[href*="youtube.com"]')) {
+            if (a.closest('.ani-theme-songs, .ani-theme-player')) continue;
             if (!a.querySelector('.ani-yt-svg') || (a.textContent || '').trim().length > 0) {
               a.classList.add('ani-yt-link');
               a.title = a.title || '在 YouTube 搜尋';
@@ -13507,6 +14481,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         const controlBar = document.querySelector('#ani_video .vjs-control-bar');
         controlBar?.querySelectorAll('.ani-player-brand').forEach((logo) => logo.remove());
         const playerEl = document.querySelector('#ani_video');
+        const plusToolBox = document.querySelector('.plus_imagetool_box');
         if (playerEl) {
           const existingAmbient = playerEl.querySelector('.ani-ambientlight-toggle');
           const rightCtrl = controlBar?.querySelector('.control-bar-rightbtn');
@@ -13533,27 +14508,6 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           }
           const infoDetail = document.querySelector('.anime-title .anime_info_detail');
           if (infoDetail) {
-            for (const p of infoDetail.querySelectorAll('p, span, div')) {
-              if (
-                /上架(?:時間|日期)/.test(p.textContent || '') &&
-                ![...p.children].some((c) => /上架(?:時間|日期)/.test(c.textContent || '')) &&
-                !p.querySelector('.ani-info-clock')
-              ) {
-                const walk = document.createTreeWalker(p, NodeFilter.SHOW_TEXT);
-                let tn;
-                while ((tn = walk.nextNode())) {
-                  if (/上架(?:時間|日期)/.test(tn.textContent)) {
-                    tn.textContent = tn.textContent.replace(/上架(?:時間|日期)\s*[：:]?\s*/, '');
-                  }
-                }
-                p.classList.add('ani-info-upload-time');
-                p.insertAdjacentHTML(
-                  'afterbegin',
-                  '<svg class="ani-info-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 11h18"/></svg>',
-                );
-                break;
-              }
-            }
             for (const item of infoDetail.children) {
               if (
                 item.classList.contains('ani-info-upload-time') ||
@@ -13578,7 +14532,9 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           const animeName = document.querySelector('.anime-title .anime_name');
           const animeTitleRoot = document.querySelector('.anime-title');
           const shareBtn = playerEl.querySelector('.top-tool-bar .share-button');
-          const shortcutBtn = playerEl.querySelector('.top-tool-bar .shortcut-button');
+          const shortcutBtn =
+            playerEl.querySelector('.top-tool-bar .shortcut-button') ||
+            playerShortcuts.get(playerEl);
           const bgmtv =
             document.querySelector('#bgmtv') ||
             [...document.querySelectorAll('#BH_background a, #BH_background button')].find(
@@ -13598,7 +14554,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               /哈啦[板版]/.test(a.textContent || '') ||
               /forum\.gamer\.com\.tw\/B\.php/i.test(a.href || ''),
           );
-          if (animeName && (shareBtn || shortcutBtn || bgmtv || infoLink || forumLink)) {
+          if (animeName && (shareBtn || bgmtv || infoLink || forumLink)) {
             let actions = animeName.querySelector('.ani-title-actions');
             if (!actions) {
               actions = document.createElement('div');
@@ -13611,22 +14567,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                 animeName.append(actions);
               }
             }
-            let searchLink = actions.querySelector('.ani-bgm-search');
-            if (!bgmtv && rawTitleText && !searchLink) {
-              searchLink = document.createElement('a');
-              searchLink.className = 'ani-title-pill-link ani-bgm-search';
-              searchLink.href =
-                'https://bgm.tv/subject_search/' +
-                encodeURIComponent(rawTitleText.replace(/\s*\[[^\]]+\]\s*$/, '')) +
-                '?cat=2';
-              searchLink.target = '_blank';
-              searchLink.rel = 'noopener noreferrer';
-              searchLink.innerHTML =
-                '<svg class="ani-bgm-icon" width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3l2.5 3M16 3l-2.5 3" stroke="#f09199" stroke-width="2" stroke-linecap="round"/><rect x="3" y="6" width="18" height="14" rx="4" fill="#f09199"/><rect x="5.5" y="8.5" width="13" height="9" rx="2" fill="#ffffff"/><path d="M8.5 11.5h2M13.5 11.5h2M10 14.5h4" stroke="#f09199" stroke-width="1.6" stroke-linecap="round"/></svg>點格子';
-              actions.append(searchLink);
-            }
-            if (bgmtv && bgmtv !== searchLink) {
-              searchLink?.remove();
+            if (bgmtv) {
               const bgmLink = bgmtv.querySelector('a') || bgmtv;
               if (bgmLink && !bgmLink.querySelector('.ani-bgm-icon')) {
                 const iconImg = document.createElement('img');
@@ -13646,7 +14587,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               }
               if (!bgmtv.closest('.ani-title-actions')) actions.append(bgmtv);
             }
-            const bgmNode = actions.querySelector('#bgmtv, .ani-bgm-search');
+            const bgmNode = actions.contains(bgmtv) ? bgmtv : null;
             for (const [link, iconSvg, cls] of [
               [
                 infoLink,
@@ -13682,102 +14623,103 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                 );
               }
             }
-            const plusBarForShortcut = document.querySelector('.plus_imagetool_box');
-            if (shortcutBtn) {
-              if (plusBarForShortcut && !shortcutBtn.closest('.plus_imagetool_box')) {
-                plusBarForShortcut.append(shortcutBtn);
-                shortcutBtn.classList.add('ani-shortcut-in-toolbar');
-              } else if (!plusBarForShortcut && !shortcutBtn.closest('.ani-title-actions')) {
-                actions.prepend(shortcutBtn);
+          }
+          if (shortcutBtn) {
+            const previousShortcut = playerShortcuts.get(playerEl);
+            if (previousShortcut && previousShortcut !== shortcutBtn) previousShortcut.remove();
+            playerShortcuts.set(playerEl, shortcutBtn);
+            const settingsHost = getShortcutSettingsHost();
+            const host = settingsHost || playerEl;
+            shortcutBtn.classList.toggle('ani-shortcut-in-settings', Boolean(settingsHost));
+            shortcutBtn.classList.toggle('ani-shortcut-in-player', !settingsHost);
+            if (shortcutBtn.parentElement !== host) host.append(shortcutBtn);
+            if (!shortcutBtn.dataset.aniShortcutModal) {
+              shortcutBtn.dataset.aniShortcutModal = 'true';
+              shortcutBtn.setAttribute('role', 'button');
+              shortcutBtn.setAttribute('tabindex', '0');
+              shortcutBtn.setAttribute('aria-label', '鍵盤快捷鍵');
+              if (!shortcutBtn.querySelector('.ani-shortcut-btn-glyph')) {
+                shortcutBtn
+                  .querySelectorAll(':scope > img, :scope > .material-icons-round, :scope > i')
+                  .forEach((n) => {
+                    n.style.display = 'none';
+                  });
+                shortcutBtn.insertAdjacentHTML(
+                  'afterbegin',
+                  '<svg class="ani-shortcut-btn-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2.5"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h.01M18 14h.01M9 14h6"/></svg><span class="ani-shortcut-label">鍵盤快捷鍵</span>',
+                );
               }
-              if (!shortcutBtn.dataset.aniShortcutModal) {
-                shortcutBtn.dataset.aniShortcutModal = 'true';
-                shortcutBtn.setAttribute('role', 'button');
-                shortcutBtn.setAttribute('tabindex', '0');
-                shortcutBtn.setAttribute('aria-label', '鍵盤快捷鍵');
-                if (!shortcutBtn.querySelector('.ani-shortcut-btn-glyph')) {
-                  shortcutBtn
-                    .querySelectorAll(':scope > img, :scope > .material-icons-round, :scope > i')
-                    .forEach((n) => {
-                      n.style.display = 'none';
-                    });
-                  shortcutBtn.insertAdjacentHTML(
-                    'afterbegin',
-                    '<svg class="ani-shortcut-btn-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2.5"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h.01M18 14h.01M9 14h6"/></svg><span class="ani-shortcut-label">鍵盤快捷鍵</span>',
+              const openShortcutModal = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                let modal = document.querySelector('#ani-shortcut-modal');
+                if (!modal) {
+                  modal = document.createElement('dialog');
+                  modal.id = 'ani-shortcut-modal';
+                  modal.className = 'ani-shortcut-modal';
+                  modal.setAttribute('aria-label', '鍵盤快捷鍵');
+                  const cap = document.createElement('div');
+                  cap.className = 'ani-shortcut-caption';
+                  const h = document.createElement('h3');
+                  h.innerHTML =
+                    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2.5"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h.01M18 14h.01M9 14h6"/></svg><span>鍵盤快捷鍵</span>';
+                  const close = document.createElement('button');
+                  close.type = 'button';
+                  close.className = 'ani-shortcut-close';
+                  close.setAttribute('aria-label', '關閉');
+                  close.innerHTML =
+                    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+                  close.addEventListener('click', () => modal.close());
+                  cap.append(h, close);
+                  const body = document.createElement('div');
+                  body.className = 'ani-shortcut-body';
+                  const sourcePanel = shortcutBtn.querySelector(
+                    '.shortcut-panel-inner, .shortcut-panel',
                   );
-                }
-                const openShortcutModal = (e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  let modal = document.querySelector('#ani-shortcut-modal');
-                  if (!modal) {
-                    modal = document.createElement('dialog');
-                    modal.id = 'ani-shortcut-modal';
-                    modal.className = 'ani-shortcut-modal';
-                    modal.setAttribute('aria-label', '鍵盤快捷鍵');
-                    const cap = document.createElement('div');
-                    cap.className = 'ani-shortcut-caption';
-                    const h = document.createElement('h3');
-                    h.innerHTML =
-                      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2.5"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h.01M18 14h.01M9 14h6"/></svg><span>鍵盤快捷鍵</span>';
-                    const close = document.createElement('button');
-                    close.type = 'button';
-                    close.className = 'ani-shortcut-close';
-                    close.setAttribute('aria-label', '關閉');
-                    close.innerHTML =
-                      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
-                    close.addEventListener('click', () => modal.close());
-                    cap.append(h, close);
-                    const body = document.createElement('div');
-                    body.className = 'ani-shortcut-body';
-                    const sourcePanel = shortcutBtn.querySelector(
-                      '.shortcut-panel-inner, .shortcut-panel',
-                    );
-                    const items = sourcePanel
-                      ? [...sourcePanel.querySelectorAll('li, .shortcut-item, tr, p, div')].filter(
-                          (el) =>
-                            !el.querySelector('li, .shortcut-item, tr, p, div') &&
-                            el.textContent.trim() &&
-                            !/^鍵盤快捷鍵$/.test(el.textContent.trim()),
-                        )
-                      : [];
-                    if (items.length) {
-                      for (const item of items) {
-                        const row = document.createElement('div');
-                        row.className = 'ani-shortcut-row';
-                        row.innerHTML = item.innerHTML;
-                        body.append(row);
-                      }
-                    } else {
-                      const fallback = [
-                        ['播放 / 暫停', '空白鍵'],
-                        ['靜音 / 取消靜音', 'M'],
-                        ['調整音量', '↑ / ↓'],
-                        ['快轉 / 倒轉', '→ / ←'],
-                        ['開啟 / 關閉全螢幕', 'F'],
-                        ['開啟 / 關閉彈幕', 'D'],
-                        ['劇場模式', 'T'],
-                      ];
-                      for (const [label, key] of fallback) {
-                        const row = document.createElement('div');
-                        row.className = 'ani-shortcut-row';
-                        row.innerHTML = `<span>${label}</span><kbd>${key}</kbd>`;
-                        body.append(row);
-                      }
+                  const items = sourcePanel
+                    ? [...sourcePanel.querySelectorAll('li, .shortcut-item, tr, p, div')].filter(
+                        (el) =>
+                          !el.querySelector('li, .shortcut-item, tr, p, div') &&
+                          el.textContent.trim() &&
+                          !/^鍵盤快捷鍵$/.test(el.textContent.trim()),
+                      )
+                    : [];
+                  if (items.length) {
+                    for (const item of items) {
+                      const row = document.createElement('div');
+                      row.className = 'ani-shortcut-row';
+                      row.innerHTML = item.innerHTML;
+                      body.append(row);
                     }
-                    modal.append(cap, body);
-                    modal.addEventListener('click', (ev) => {
-                      if (ev.target === modal) modal.close();
-                    });
-                    document.body.append(modal);
+                  } else {
+                    const fallback = [
+                      ['播放 / 暫停', '空白鍵'],
+                      ['靜音 / 取消靜音', 'M'],
+                      ['調整音量', '↑ / ↓'],
+                      ['快轉 / 倒轉', '→ / ←'],
+                      ['開啟 / 關閉全螢幕', 'F'],
+                      ['開啟 / 關閉彈幕', 'D'],
+                      ['劇場模式', 'T'],
+                    ];
+                    for (const [label, key] of fallback) {
+                      const row = document.createElement('div');
+                      row.className = 'ani-shortcut-row';
+                      row.innerHTML = `<span>${label}</span><kbd>${key}</kbd>`;
+                      body.append(row);
+                    }
                   }
-                  if (!modal.open) modal.showModal();
-                };
-                shortcutBtn.addEventListener('click', openShortcutModal);
-                shortcutBtn.addEventListener('keydown', (ev) => {
-                  if (ev.key === 'Enter' || ev.key === ' ') openShortcutModal(ev);
-                });
-              }
+                  modal.append(cap, body);
+                  modal.addEventListener('click', (ev) => {
+                    if (ev.target === modal) modal.close();
+                  });
+                  document.body.append(modal);
+                }
+                if (!modal.open) modal.showModal();
+              };
+              shortcutBtn.addEventListener('click', openShortcutModal);
+              shortcutBtn.addEventListener('keydown', (ev) => {
+                if (ev.key === 'Enter' || ev.key === ' ') openShortcutModal(ev);
+              });
             }
           }
           syncLastWatchedEpisodes();
@@ -13876,7 +14818,6 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         )) {
           if (/^\s*auto\s*$/i.test(resLabel.textContent || '')) resLabel.textContent = '自動';
         }
-        const plusToolBox = document.querySelector('.plus_imagetool_box');
         if (plusToolBox && !plusToolBox.dataset.aniToolCollapsedInit) {
           plusToolBox.dataset.aniToolCollapsedInit = 'true';
           let hidden = false;
@@ -13899,6 +14840,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           };
           toggleTools.addEventListener('click', () => {
             const next = !plusToolBox.classList.contains('ani-tools-collapsed');
+            plusToolBox.classList.add('ani-tools-interacted');
             plusToolBox.classList.toggle('ani-tools-collapsed', next);
             try {
               localStorage.setItem('aniHidePlusTools', next ? '1' : '0');
@@ -13907,13 +14849,6 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           });
           syncToolToggle();
           plusToolBox.prepend(toggleTools);
-        }
-        if (plusToolBox) {
-          const floatingShortcut = document.querySelector('.shortcut-button');
-          if (floatingShortcut && !floatingShortcut.closest('.plus_imagetool_box')) {
-            plusToolBox.append(floatingShortcut);
-            floatingShortcut.classList.add('ani-shortcut-in-toolbar');
-          }
         }
         for (const box of document.querySelectorAll('.plus_imagetool_box .plus_button_box')) {
           for (const child of box.children) {
@@ -14012,16 +14947,21 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           '.plus_imagetool_box .plus_button:not([button-type="text"]):not(label):not(.ani-plus-capture-btn)',
         )) {
           const label = tool.textContent.trim();
-          if (/圖像融合|映像重構/.test(label)) tool.classList.add('ani-tool-fixed-icon');
+          const fixedLabel = label.match(/圖像融合|映像重構/)?.[0];
+          if (fixedLabel) {
+            const box = tool.closest('.plus_button_box');
+            const description =
+              fixedLabel === '圖像融合'
+                ? '圖像融合：加入本機圖片、貼圖與圖形疊加到畫面中'
+                : '映像重構：開啟 AniGamer Plus 映像重構編輯面板';
+            tool.classList.add('ani-tool-fixed-icon');
+            if (box && box.dataset.aniPlusTip !== description) box.dataset.aniPlusTip = description;
+            if (!tool.hasAttribute('aria-label')) tool.setAttribute('aria-label', fixedLabel);
+            if (tool.hasAttribute('title')) tool.removeAttribute('title');
+          }
           if (!tool.dataset.aniCleaned) {
             tool.dataset.aniCleaned = 'true';
-            if (/圖像融合/.test(label)) {
-              tool.title = '圖像融合：加入本機圖片、貼圖與圖形疊加到畫面中';
-            } else if (/映像重構/.test(label)) {
-              tool.title = '映像重構：開啟 AniGamer Plus 映像重構編輯面板';
-            } else if (label && !tool.title) {
-              tool.title = label;
-            }
+            if (!fixedLabel && label && !tool.title) tool.title = label;
           }
           tool.style.setProperty('background-image', 'none', 'important');
           for (const extra of tool.querySelectorAll(
@@ -14274,29 +15214,6 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           )
             continue;
           el.classList.add('ani-bgm-toast');
-          el.style.setProperty('display', 'inline-flex', 'important');
-          el.style.setProperty('flex-direction', 'row', 'important');
-          el.style.setProperty('flex-wrap', 'nowrap', 'important');
-          el.style.setProperty('align-items', 'center', 'important');
-          el.style.setProperty('gap', '8px', 'important');
-          el.style.setProperty('width', 'max-content', 'important');
-          el.style.setProperty('min-width', '0', 'important');
-          el.style.setProperty('max-width', 'calc(100vw - 32px)', 'important');
-          el.style.setProperty('height', 'auto', 'important');
-          el.style.setProperty('padding', '8px 12px 8px 14px', 'important');
-          el.style.setProperty('border-radius', '999px', 'important');
-          el.style.setProperty('background', 'rgba(18, 30, 44, 0.86)', 'important');
-          el.style.setProperty('background-color', 'rgba(18, 30, 44, 0.86)', 'important');
-          el.style.setProperty('background-image', 'none', 'important');
-          el.style.setProperty('border', '1px solid rgba(255, 255, 255, 0.28)', 'important');
-          el.style.setProperty(
-            'box-shadow',
-            'inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 8px 24px rgba(0, 0, 0, 0.36)',
-            'important',
-          );
-          el.style.setProperty('color', '#ffffff', 'important');
-          el.style.setProperty('white-space', 'nowrap', 'important');
-          el.style.setProperty('writing-mode', 'horizontal-tb', 'important');
           for (const child of el.querySelectorAll('*')) {
             if (child.closest('.ani-bgm-toast-close')) continue;
             child.style.setProperty('background', 'transparent', 'important');
@@ -14321,11 +15238,9 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             }
             if (/^\s*(?:\[X\]|[×✕✖])\s*$/i.test(tn.textContent)) {
               const p = tn.parentElement;
-              if (p && !p.querySelector('.ani-bgm-toast-close-icon')) {
+              if (p && p !== el) {
                 tn.textContent = '';
                 p.classList.add('ani-bgm-toast-close');
-                p.innerHTML =
-                  '<svg class="ani-bgm-toast-close-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
               }
             }
           }
@@ -14334,8 +15249,6 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             const bt = (btn.textContent || '').trim();
             if (/^(?:\[X\]|[×✕✖]|X)$/i.test(bt) && btn.childElementCount <= 1) {
               btn.classList.add('ani-bgm-toast-close');
-              btn.innerHTML =
-                '<svg class="ani-bgm-toast-close-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
             }
           }
           for (const oldSvg of [
@@ -14360,14 +15273,13 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           }
         }
         if (plusToolBox) {
-          const shortcutInBar = plusToolBox.querySelector(
-            ':scope > .shortcut-button.ani-shortcut-in-toolbar',
+          let anchor = plusToolBox.querySelector(':scope > .ani-player-settings-toggle');
+          const boxes = plusToolBox.querySelectorAll(
+            ':scope > .plus_button_box[data-ani-plus-tip]',
           );
-          for (const box of [...plusToolBox.querySelectorAll(':scope > .plus_button_box')]) {
-            if (/圖像融合|映像重構/.test(box.textContent || '')) {
-              if (shortcutInBar) plusToolBox.insertBefore(box, shortcutInBar);
-              else plusToolBox.append(box);
-            }
+          for (const box of Array.from(boxes).reverse()) {
+            if (box.nextElementSibling !== anchor) plusToolBox.insertBefore(box, anchor);
+            anchor = box;
           }
         }
         for (const range of document.querySelectorAll(
@@ -14824,7 +15736,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                 : null;
             const setEpisodePlayback = (
               row,
-              { elapsed, duration, completed, displayProgress, watched, watchedWithoutTiming },
+              { elapsed, duration, completed, displayProgress, watchedWithoutTiming },
             ) => {
               const time = row.querySelector('.ani-ep-time');
               const text =
@@ -14837,7 +15749,6 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               const progress = row.querySelector('progress');
               const max = duration || 1;
               const position = displayProgress * max;
-              row.toggleAttribute('data-ani-watch-known', watched);
               if (progress.getAttribute('aria-label') !== '觀看進度')
                 progress.setAttribute('aria-label', '觀看進度');
               if (watchedWithoutTiming) progress.setAttribute('aria-valuetext', '已看完');
@@ -14857,21 +15768,38 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                 return;
               thumb.dataset.aniThumbLoading = 'true';
               try {
-                const frame = readEpisodeFrames().get(sn);
-                const captured =
-                  typeof frame === 'string' && frame.startsWith('data:image/jpeg;base64,');
-                const cover = captured ? '' : (await getEpisodeDetails(sn))?.cover?.trim();
-                const url =
-                  cover && URL.canParse(cover, location.href)
-                    ? new URL(cover, location.href)
-                    : null;
-                const src = url?.protocol === 'https:' ? url.href : captured ? frame : '';
-                if (!src || !row.isConnected) return;
                 const img = document.createElement('img');
                 img.alt = '';
                 img.decoding = 'async';
-                img.src = src;
-                await img.decode();
+                const still = getVerifiedEpisodeStill(sn);
+                let hasStill = false;
+                if (still) {
+                  img.src = still;
+                  hasStill = await img.decode().then(
+                    () => true,
+                    () => false,
+                  );
+                }
+                if (!hasStill) {
+                  const frame = readEpisodeFrames().get(sn);
+                  const captured =
+                    typeof frame === 'string' && frame.startsWith('data:image/jpeg;base64,');
+                  const cover = captured ? '' : (await getEpisodeDetails(sn))?.cover?.trim();
+                  const url =
+                    cover && URL.canParse(cover, location.href)
+                      ? new URL(cover, location.href)
+                      : null;
+                  const src = captured
+                    ? frame
+                    : url?.protocol === 'https:'
+                      ? url.href
+                      : await getEpisodePagePoster(sn);
+                  if (!src || !row.isConnected) return;
+                  img.src = src;
+                  await img.decode();
+                }
+                if (img.naturalWidth * 9 < img.naturalHeight * 16)
+                  img.classList.add('ani-episode-image-contain');
                 img.dataset.aniThumbReady = 'true';
                 loadedThumbnails.set(sn, img);
                 if (row.isConnected) {
@@ -14962,11 +15890,16 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                 visibleEpisodes?.disconnect();
                 scrollObserver?.disconnect();
                 const visibleDetails = new WeakMap();
+                const nativeWatchedRows = new WeakSet();
                 let records;
                 const updatePlayback = (row) => {
                   if (!row.isConnected) return;
+                  const record = records?.get(row.dataset.videoSn);
                   const state = globalThis.AniEnhancements?.resolveEpisodeProgress({
-                    ...records?.get(row.dataset.videoSn),
+                    ...record,
+                    native:
+                      record?.native ||
+                      (nativeWatchedRows.has(row) ? { watched: true } : undefined),
                     details: visibleDetails.get(row),
                     media: readEpisodeMedia(row),
                   });
@@ -15017,6 +15950,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                     epBtnItem.className = 'ani-ep-drawer-btn';
                     const isPlaying = Boolean(srcLink.closest('li')?.classList.contains('playing'));
                     row.className = isPlaying ? 'ani-ep-row is-playing' : 'ani-ep-row';
+                    if (srcLink.closest('li.saw')) nativeWatchedRows.add(row);
                     row.append(epBtnItem);
                     const sn = getVideoSn(srcLink);
                     const thumb = document.createElement('span');
@@ -15117,6 +16051,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                   }
                 }
                 bodyEl.append(grid);
+                for (const row of grid.children) updatePlayback(row);
                 watchHistory.then((history) => {
                   records = history;
                   for (const row of grid.children) updatePlayback(row);
@@ -15182,6 +16117,11 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               if (ev.key !== 'Escape' || !epDrawer.classList.contains('is-open')) return;
               ev.stopPropagation();
               closeEpisodeDrawer();
+            });
+            epBtn.addEventListener('pointerenter', (ev) => {
+              if (ev.pointerType !== 'mouse' || epDrawer.classList.contains('is-open')) return;
+              renderEpDrawer();
+              setEpisodeDrawerOpen(true);
             });
             epBtn.addEventListener('click', (ev) => {
               ev.stopPropagation();
@@ -16219,6 +17159,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             const activePlan =
               document.querySelector('.status-info-program')?.textContent.trim() || '';
             const activeDays = activePlan.match(/(\d+)\s*天/)?.[1];
+            const mountedCards = document.createDocumentFragment();
             for (const source of cards) {
               const card = document.importNode(source, true);
               card.querySelectorAll('script,iframe,object').forEach((n) => n.remove());
@@ -16375,8 +17316,9 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                     node.classList.add('ani-original-price');
                 }
               }
-              grid.append(card);
+              mountedCards.append(card);
             }
+            grid.append(mountedCards);
             fallback.remove();
             grid.hidden = false;
             membership.dataset.aniPlans = 'loaded';
@@ -16397,8 +17339,9 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             };
             frame.addEventListener('load', () => {
               try {
+                watcher?.disconnect();
                 const doc = frame.contentDocument;
-                if (!doc) return;
+                if (!doc?.documentElement) return;
                 if (mountPlans(doc)) {
                   cleanup();
                   return;
@@ -16424,23 +17367,23 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             }, 12000);
             document.body.append(frame);
           };
-          aniFetch(new URL('animePay.php', location.href).href, {
-            credentials: 'include',
+          // The account page loads its own catalog even while background enrichment is cooling down.
+          fetch(new URL('animePay.php', location.href).href, {
+            credentials: 'same-origin',
             signal: AbortSignal.timeout(12000),
           })
-            .then((r) => {
-              if (!r.ok) throw new Error('plans unavailable');
-              return r.text();
+            .then(async (response) => {
+              if (response.status === 429 || response.status === 503) {
+                grid.hidden = false;
+                membership.dataset.aniPlans = 'failed';
+                fallback.textContent = '開啟完整付費方案';
+                return;
+              }
+              if (!response.ok) throw new Error('plans unavailable');
+              const plans = new DOMParser().parseFromString(await response.text(), 'text/html');
+              if (!mountPlans(plans)) loadRenderedPlans();
             })
-            .then((html) => {
-              if (!mountPlans(new DOMParser().parseFromString(html, 'text/html')))
-                loadRenderedPlans();
-            })
-            .catch(() => {
-              grid.hidden = false;
-              membership.dataset.aniPlans = 'failed';
-              fallback.textContent = '開啟完整付費方案';
-            });
+            .catch(loadRenderedPlans);
         }
         for (const item of document.querySelectorAll('.userpay-precautions .item > svg'))
           item.remove();
@@ -16888,6 +17831,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                   tags,
                   studio: studioNode?.textContent.trim().replace(/\s+/g, ' ').slice(0, 80) || '',
                   duration,
+                  bangumi: globalThis.AniEnhancements?.bangumiWorkLink(doc),
                   favorite: ids
                     ? {
                         acgSn: ids[1],
@@ -16917,36 +17861,46 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
       }
       if (location.pathname === '/viewList.php')
         window.addEventListener('resize', scheduleHistoryRefresh, { passive: true });
+      document.addEventListener('ani-bangumi-mappings-ready', scheduleHistoryRefresh);
+      const historyDrawerAnimations = new WeakMap();
       function animateHistoryDrawer(details, open) {
-        details.getAnimations?.().forEach((animation) => animation.cancel());
-        if (open) details.style.display = 'block';
+        const previous = historyDrawerAnimations.get(details);
+        const visible = details.style.display !== 'none';
+        const current =
+          visible && previous
+            ? {
+                maxHeight: `${details.getBoundingClientRect().height}px`,
+                marginTop: getComputedStyle(details).marginTop,
+                opacity: getComputedStyle(details).opacity,
+              }
+            : null;
+        if (previous) {
+          previous.onfinish = null;
+          previous.cancel();
+          historyDrawerAnimations.delete(details);
+        }
         if (
           globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ||
           typeof details.animate !== 'function'
         ) {
-          if (!open) details.style.display = 'none';
-          return;
-        }
-        if (open) {
-          details.animate(
-            [
-              { opacity: 0, transform: 'translateY(-8px)' },
-              { opacity: 1, transform: 'translateY(0)' },
-            ],
-            { duration: 220, easing: 'ease-out' },
-          );
+          details.style.display = open ? 'block' : 'none';
           return;
         }
         details.style.display = 'block';
+        const expanded = {
+          maxHeight: `${details.getBoundingClientRect().height}px`,
+          marginTop: getComputedStyle(details).marginTop || '0px',
+          opacity: 1,
+        };
+        const collapsed = { maxHeight: '0px', marginTop: '0px', opacity: 0 };
         const animation = details.animate(
-          [
-            { opacity: 1, transform: 'translateY(0)' },
-            { opacity: 0, transform: 'translateY(-6px)' },
-          ],
-          { duration: 190, easing: 'ease-in' },
+          [current || (open ? collapsed : expanded), open ? expanded : collapsed],
+          { duration: open ? 220 : 190, easing: 'cubic-bezier(0.2, 0.75, 0.25, 1)' },
         );
+        historyDrawerAnimations.set(details, animation);
         animation.onfinish = () => {
-          details.style.display = 'none';
+          if (!open) details.style.display = 'none';
+          historyDrawerAnimations.delete(details);
         };
       }
       globalThis.aniAnimateHistoryDrawer = animateHistoryDrawer;
@@ -16986,6 +17940,25 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           const href = playLink?.getAttribute('href'),
             videoSn = href?.match(/[?&]sn=(\d+)/)?.[1];
           const metadata = historyMetadata.get(`${id}:${videoSn || id}`);
+          const bangumiActions = card.querySelector('.btn-set');
+          const historyEnhancements = globalThis.AniEnhancements;
+          if (bangumiActions && historyEnhancements) {
+            const episode =
+              card.querySelector('.user-lastwatch')?.textContent ||
+              historyEpisodeFromLabel(title?.textContent || '');
+            const markup = historyEnhancements.historyBangumiLink(
+              title?.textContent,
+              episode,
+              localHistoryBangumi.get(id || videoSn),
+              metadata?.bangumi,
+              historyEnhancements.bangumiWorkLink(card),
+            );
+            if ((bangumiActions.dataset.aniBangumiMarkup || '') !== markup) {
+              bangumiActions.querySelector('.ani-history-bangumi')?.remove();
+              if (markup) bangumiActions.insertAdjacentHTML('afterbegin', markup);
+              bangumiActions.dataset.aniBangumiMarkup = markup;
+            }
+          }
           const savedPlayback = localEpisodeProgress.get(videoSn);
           const data = { ...metadata, duration: savedPlayback?.durationSec || metadata?.duration };
           if (info) {
@@ -17185,10 +18158,11 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                       '.user-watch-list > .user-watchTime-list',
                     )) {
                       if (other !== details) {
-                        other.style.display = 'none';
-                        other.parentElement
-                          .querySelector('.ani-history-card')
-                          ?.classList.remove('is-open');
+                        const otherCard = other.parentElement.querySelector('.ani-history-card');
+                        if (otherCard?.classList.contains('is-open')) {
+                          otherCard.classList.remove('is-open');
+                          animateHistoryDrawer(other, false);
+                        }
                       }
                     }
                     card.classList.toggle('is-open', !wasOpen);
@@ -17315,12 +18289,11 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                 const playerRoot = screen.closest('#ani_video');
                 playerRoot?.classList.add('ani-age-player');
                 const poster =
-                  document.querySelector('#ani_video video')?.poster ||
-                  document.querySelector('meta[property="og:image"]')?.content;
-                if (poster && /^https:\/\//.test(poster))
+                  episodePagePoster(document) || playerRoot?.querySelector('video[poster]')?.poster;
+                if (poster?.startsWith('https://'))
                   screen.style.setProperty(
                     '--ani-consent-cover',
-                    `url("${poster.replace(/["\\]/g, '')}")`,
+                    'url(' + JSON.stringify(poster) + ')',
                   );
                 screen.classList.add('ani-age-ready');
                 playerRoot?.classList.add('ani-age-screen-ready');
@@ -17331,6 +18304,13 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         }
 
         const consentPlayer = document.querySelector('#ani_video');
+        const nativePoster = consentPlayer?.querySelector('.vjs-poster');
+        const pagePoster = nativePoster && episodePagePoster(document);
+        if (pagePoster)
+          nativePoster.style.setProperty(
+            '--ani-page-poster',
+            'url(' + JSON.stringify(pagePoster) + ')',
+          );
         if (consentPlayer) {
           const consentScreen = consentPlayer.querySelector('.ani-age-screen');
           consentPlayer.classList.toggle(
@@ -17503,8 +18483,182 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         button.setAttribute('aria-expanded', String(expanded));
       }
 
+      let playerOverlayDirty = true;
+      let seasonWatchDirty = true;
+      function enhanceWeeklySchedule(weekly) {
+        if (!weekly) return;
+        const today = new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'Asia/Taipei',
+          year: 'numeric',
+          month: 'numeric',
+          day: 'numeric',
+        });
+        const parts = Object.fromEntries(
+          today
+            .formatToParts(new Date())
+            .filter((part) => part.type !== 'literal')
+            .map((part) => [part.type, Number(part.value)]),
+        );
+        const monday = new Date(Date.UTC(parts.year, parts.month - 1, parts.day));
+        monday.setUTCDate(monday.getUTCDate() - ((monday.getUTCDay() + 6) % 7));
+        let hasExtra = false;
+        [...weekly.querySelectorAll('.day-list')].forEach((day, dayIndex) => {
+          if (day.dataset.aniWeekDay !== String(dayIndex))
+            day.dataset.aniWeekDay = String(dayIndex);
+          const date = new Date(monday);
+          date.setUTCDate(date.getUTCDate() + dayIndex);
+          const dateLabel = `${date.getUTCMonth() + 1}/${date.getUTCDate()}`;
+          let dayLabel = day.querySelector(':scope > .ani-week-hover-date');
+          if (!dayLabel) {
+            dayLabel = document.createElement('span');
+            dayLabel.className = 'ani-week-hover-date';
+            dayLabel.setAttribute('aria-hidden', 'true');
+            day.append(dayLabel);
+          }
+          if (dayLabel.textContent !== dateLabel) dayLabel.textContent = dateLabel;
+          if (!day.dataset.aniDateFollow) {
+            day.dataset.aniDateFollow = 'true';
+            let frame = 0,
+              x = 0;
+            day.addEventListener('pointermove', (event) => {
+              x = event.clientX;
+              if (frame) return;
+              frame = requestAnimationFrame(() => {
+                frame = 0;
+                const label = day.querySelector(':scope > .ani-week-hover-date');
+                if (!label) return;
+                const rect = day.getBoundingClientRect(),
+                  half = label.offsetWidth / 2;
+                label.style.left = `${Math.min(rect.width - half - 4, Math.max(half + 4, x - rect.left))}px`;
+              });
+            });
+          }
+          [...day.querySelectorAll('.text-anime-info')].forEach((tile, index) => {
+            tile.classList.toggle('ani-week-extra', index >= 5);
+            if (index >= 5) hasExtra = true;
+            let shell = tile.parentElement;
+            if (!shell.classList.contains('ani-week-tile-shell')) {
+              shell = document.createElement('div');
+              shell.className = 'ani-week-tile-shell';
+              tile.before(shell);
+              shell.append(tile);
+            }
+            shell.classList.toggle('ani-week-extra-shell', index >= 5);
+            shell.querySelector('.ani-week-hover-date')?.remove();
+          });
+        });
+        if (hasExtra && !weekly.querySelector('.ani-week-expand')) {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'ani-week-expand';
+          button.setAttribute('aria-expanded', 'false');
+          button.innerHTML =
+            '<span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+          const label = button.firstElementChild;
+          const sync = () => {
+            const open = weekly.classList.contains('ani-week-expanded');
+            button.setAttribute('aria-expanded', String(open));
+            label.textContent = open ? '收合週期表' : '展開完整週期表';
+          };
+          button.addEventListener('click', (event) => {
+            event.stopPropagation();
+            const open = !weekly.classList.contains('ani-week-expanded');
+            weekly.classList.toggle('ani-week-expanded', open);
+            sync();
+            if (open && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+              button.animate?.([{ opacity: 0.65 }, { opacity: 1 }], {
+                duration: 150,
+                easing: 'ease-out',
+              });
+            }
+          });
+          sync();
+          (
+            weekly.querySelector('.programlist-wrap_block') ||
+            weekly.querySelector('.programlist-block')
+          )?.after(button);
+        }
+        const sourceByHref = new Map();
+        const sourceByName = new Map();
+        for (const card of weekly.querySelectorAll('.anime-card-block')) {
+          const href = card.getAttribute('href');
+          const name = card.querySelector('.anime-name')?.textContent.trim();
+          if (href && !sourceByHref.has(href)) sourceByHref.set(href, card);
+          if (name && !sourceByName.has(name)) sourceByName.set(name, card);
+        }
+        for (const tile of weekly.querySelectorAll('.text-anime-info')) {
+          const title = tile.querySelector('.text-anime-name');
+          if (title && !title.querySelector('.ani-week-marquee')) {
+            const track = document.createElement('span');
+            track.className = 'ani-week-marquee';
+            track.textContent = title.textContent.trim();
+            title.title = track.textContent;
+            title.replaceChildren(track);
+            if (weekMarqueeObserver) {
+              weekMarqueeObserver.observe(title);
+              weekMarqueeObserver.observe(track);
+            } else {
+              requestAnimationFrame(() => measureWeekTitle(title));
+            }
+          }
+          for (const node of tile.querySelector('.text-anime-number')?.childNodes || []) {
+            if (node.nodeType === 3) {
+              const text = node.textContent.replace(/第\s*(\d+(?:\.\d+)?)\s*集/g, 'EP.$1');
+              if (node.textContent !== text) node.textContent = text;
+            }
+          }
+          for (const [selector, path] of [
+            ['.text-anime-time', 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm1 4v5l4 2-1 2-5-3V7Z'],
+            [
+              '.text-anime-number',
+              'M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm4 4v10l8-5Z',
+            ],
+          ]) {
+            const badge = tile.querySelector(selector);
+            if (badge && !badge.querySelector('svg')) {
+              badge.insertAdjacentHTML(
+                'afterbegin',
+                `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="${path}"/></svg>`,
+              );
+            }
+          }
+          const name = tile.querySelector('.text-anime-name')?.textContent.trim();
+          const source = sourceByHref.get(tile.getAttribute('href')) || sourceByName.get(name);
+          const image = source?.querySelector('.anime-blocker img');
+          const url = image?.dataset.src || image?.src;
+          if (url && /^https:\/\/(?:p2|i2|truth)\.bahamut\.com\.tw\//.test(url))
+            prepareWeekCover(tile, url);
+          if (!tile.querySelector('.ani-week-score')) {
+            const score = [
+              ...(source?.querySelectorAll('.ani-score-badge-top-left,.label-edition') || []),
+            ]
+              .map((n) => n.textContent.trim())
+              .find((t) => /^(?:★\s*)?[0-5](?:\.\d+)?$/.test(t));
+            if (score) {
+              const pill = document.createElement('span');
+              pill.className = 'ani-week-score';
+              pill.textContent = `★ ${score.replace(/★\s*/, '')}`;
+              tile.append(pill);
+            }
+          }
+          if (source && !tile.querySelector('.ani-week-favorite')) {
+            const original = source.querySelector('.btn-favorite');
+            if (original) {
+              const favorite = original.cloneNode(true);
+              favorite.classList.add('ani-week-favorite');
+              favorite.innerHTML =
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>';
+              tile.append(favorite);
+            }
+          }
+        }
+      }
+
       function enhanceSiteControls() {
-        stylePlayerConsent();
+        const path = location.pathname;
+        const isHome = path === '/' || path === '/index.php';
+        const isWatch = path === '/animeVideo.php';
+        if (isWatch || document.querySelector('#ani_video')) stylePlayerConsent();
         const sectionIcons = {
           忍者: '<svg class="ani-section-icon" fill="currentColor" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224 256c-57.2 0-105.6-37.5-122-89.3c-1.1 1.3-2.2 2.6-3.5 3.8c-15.8 15.8-38.8 20.7-53.6 22.1c-8.1 .8-14.6-5.7-13.8-13.8c1.4-14.7 6.3-37.8 22.1-53.6c5.8-5.8 12.6-10.1 19.6-13.4c-7-3.2-13.8-7.6-19.6-13.4C37.4 82.7 32.6 59.7 31.1 44.9c-.8-8.1 5.7-14.6 13.8-13.8c14.7 1.4 37.8 6.3 53.6 22.1c4.8 4.8 8.7 10.4 11.7 16.1C131.4 28.2 174.4 0 224 0c70.7 0 128 57.3 128 128s-57.3 128-128 128zM0 482.3C0 399.5 56.4 330 132.8 309.9c6-1.6 12.2 .9 15.9 5.8l62.5 83.3c6.4 8.5 19.2 8.5 25.6 0l62.5-83.3c3.7-4.9 9.9-7.4 15.9-5.8C391.6 330 448 399.5 448 482.3c0 16.4-13.3 29.7-29.7 29.7L29.7 512C13.3 512 0 498.7 0 482.3zM160 96c-8.8 0-16 7.2-16 16s7.2 16 16 16l128 0c8.8 0 16-7.2 16-16s-7.2-16-16-16L160 96z"/></svg>',
           競速: '<svg class="ani-section-icon" fill="currentColor" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M32 0C49.7 0 64 14.3 64 32l0 16 69-17.2c38.1-9.5 78.3-5.1 113.5 12.5c46.3 23.2 100.8 23.2 147.1 0l9.6-4.8C423.8 28.1 448 43.1 448 66.1l0 279.7c0 13.3-8.3 25.3-20.8 30l-34.7 13c-46.2 17.3-97.6 14.6-141.7-7.4c-37.9-19-81.3-23.7-122.5-13.4L64 384l0 96c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-80 0-66L0 64 0 32C0 14.3 14.3 0 32 0zM64 187.1l64-13.9 0 65.5L64 252.6 64 318l48.8-12.2c5.1-1.3 10.1-2.4 15.2-3.3l0-63.9 38.9-8.4c8.3-1.8 16.7-2.5 25.1-2.1l0-64c13.6 .4 27.2 2.6 40.4 6.4l23.6 6.9 0 66.7-41.7-12.3c-7.3-2.1-14.8-3.4-22.3-3.8l0 71.4c21.8 1.9 43.3 6.7 64 14.4l0-69.8 22.7 6.7c13.5 4 27.3 6.4 41.3 7.4l0-64.2c-7.8-.8-15.6-2.3-23.2-4.5l-40.8-12 0-62c-13-3.8-25.8-8.8-38.2-15c-8.2-4.1-16.9-7-25.8-8.8l0 72.4c-13-.4-26 .8-38.7 3.6L128 173.2 128 98 64 114l0 73.1zM320 335.7c16.8 1.5 33.9-.7 50-6.8l14-5.2 0-71.7-7.9 1.8c-18.4 4.3-37.3 5.7-56.1 4.5l0 77.4zm64-149.4l0-70.8c-20.9 6.1-42.4 9.1-64 9.1l0 69.4c13.9 1.4 28 .5 41.7-2.6l22.3-5.2z"/></svg>',
@@ -17538,10 +18692,17 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           more.insertAdjacentHTML('beforeend', articleArrowIcon);
         }
 
-        enhanceCollectionFilters();
-        enhanceAccountPages();
+        if (path === '/mygather.php') enhanceCollectionFilters();
+        if (
+          /^\/(?:animePay(?:ed|2)?|redeem|member|vip)\.php$/i.test(path) ||
+          document.querySelector(
+            '.pay-state, .paycard, .userpaychose, .redeem-card, .status-info, .record-list',
+          )
+        ) {
+          enhanceAccountPages();
+        }
         enhanceWatchHistory();
-        if (location.pathname === '/viewList.php' && typeof IntersectionObserver === 'function')
+        if (path === '/viewList.php' && typeof IntersectionObserver === 'function')
           for (const more of document.querySelectorAll(
             '.history-wrapper .anime-btn-show-more:not([data-ani-infinite])',
           )) {
@@ -17577,8 +18738,8 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               node.textContent = pageTitles[node.textContent.trim()];
           }
         }
-        enhanceCatalogFilters();
-        enhanceInfiniteCatalog();
+        if (path === '/animeList.php') enhanceCatalogFilters();
+        if (path === '/animeList.php' || path === '/mygather.php') enhanceInfiniteCatalog();
         const weekly = document.querySelector('#blockVideoInSeason');
         if (weekly) {
           if (!weekly.dataset.aniScheduleTabs) {
@@ -17596,6 +18757,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                 event.stopPropagation();
                 if (tab.classList.contains('nav-choose-segment')) return;
                 const weeklyView = tab.matches('.textpage-switch-page');
+                if (weeklyView) enhanceWeeklySchedule(weekly);
                 releases.classList.toggle('ani-release-panel', weeklyView);
                 for (const button of tab.parentElement.querySelectorAll('.nav-segment-control')) {
                   button.classList.toggle('nav-choose-segment', button === tab);
@@ -17613,249 +18775,35 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               true,
             );
           }
-          const today = new Intl.DateTimeFormat('en-CA', {
-            timeZone: 'Asia/Taipei',
-            year: 'numeric',
-            month: 'numeric',
-            day: 'numeric',
-          });
-          const parts = Object.fromEntries(
-            today
-              .formatToParts(new Date())
-              .filter((part) => part.type !== 'literal')
-              .map((part) => [part.type, Number(part.value)]),
-          );
-          const monday = new Date(Date.UTC(parts.year, parts.month - 1, parts.day));
-          monday.setUTCDate(monday.getUTCDate() - ((monday.getUTCDay() + 6) % 7));
-          let hasExtra = false;
-          [...weekly.querySelectorAll('.day-list')].forEach((day, dayIndex) => {
-            if (day.dataset.aniWeekDay !== String(dayIndex))
-              day.dataset.aniWeekDay = String(dayIndex);
-            const date = new Date(monday);
-            date.setUTCDate(date.getUTCDate() + dayIndex);
-            const dateLabel = `${date.getUTCMonth() + 1}/${date.getUTCDate()}`;
-            let dayLabel = day.querySelector(':scope > .ani-week-hover-date');
-            if (!dayLabel) {
-              dayLabel = document.createElement('span');
-              dayLabel.className = 'ani-week-hover-date';
-              dayLabel.setAttribute('aria-hidden', 'true');
-              day.append(dayLabel);
-            }
-            if (dayLabel.textContent !== dateLabel) dayLabel.textContent = dateLabel;
-            if (!day.dataset.aniDateFollow) {
-              day.dataset.aniDateFollow = 'true';
-              let frame = 0,
-                x = 0;
-              day.addEventListener('pointermove', (event) => {
-                x = event.clientX;
-                if (frame) return;
-                frame = requestAnimationFrame(() => {
-                  frame = 0;
-                  const label = day.querySelector(':scope > .ani-week-hover-date');
-                  if (!label) return;
-                  const rect = day.getBoundingClientRect(),
-                    half = label.offsetWidth / 2;
-                  label.style.left = `${Math.min(rect.width - half - 4, Math.max(half + 4, x - rect.left))}px`;
-                });
-              });
-            }
-
-            [...day.querySelectorAll('.text-anime-info')].forEach((tile, index) => {
-              tile.classList.toggle('ani-week-extra', index >= 5);
-              if (index >= 5) hasExtra = true;
-              let shell = tile.parentElement;
-              if (!shell.classList.contains('ani-week-tile-shell')) {
-                shell = document.createElement('div');
-                shell.className = 'ani-week-tile-shell';
-                tile.before(shell);
-                shell.append(tile);
-              }
-              shell.classList.toggle('ani-week-extra-shell', index >= 5);
-              shell.querySelector('.ani-week-hover-date')?.remove();
-            });
-          });
-          if (hasExtra && !weekly.querySelector('.ani-week-expand')) {
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.className = 'ani-week-expand';
-            button.setAttribute('aria-expanded', 'false');
-            button.innerHTML =
-              '<span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
-            const label = button.firstElementChild;
-            const sync = () => {
-              const open = weekly.classList.contains('ani-week-expanded');
-              button.setAttribute('aria-expanded', String(open));
-              label.textContent = open ? '收合週期表' : '展開完整週期表';
-            };
-            button.addEventListener('click', (event) => {
-              event.stopPropagation();
-              const open = !weekly.classList.contains('ani-week-expanded');
-              weekly.classList.toggle('ani-week-expanded', open);
-              sync();
-              if (open && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                button.animate?.([{ opacity: 0.65 }, { opacity: 1 }], {
-                  duration: 150,
-                  easing: 'ease-out',
-                });
-              }
-            });
-            sync();
-            (
-              weekly.querySelector('.programlist-wrap_block') ||
-              weekly.querySelector('.programlist-block')
-            )?.after(button);
-          }
-          const sourceByHref = new Map();
-          const sourceByName = new Map();
-          for (const card of weekly.querySelectorAll('.anime-card-block')) {
-            const href = card.getAttribute('href');
-            const name = card.querySelector('.anime-name')?.textContent.trim();
-            if (href && !sourceByHref.has(href)) sourceByHref.set(href, card);
-            if (name && !sourceByName.has(name)) sourceByName.set(name, card);
-          }
-          for (const tile of weekly.querySelectorAll('.text-anime-info')) {
-            const title = tile.querySelector('.text-anime-name');
-            if (title && !title.querySelector('.ani-week-marquee')) {
-              const track = document.createElement('span');
-              track.className = 'ani-week-marquee';
-              track.textContent = title.textContent.trim();
-              title.title = track.textContent;
-              title.replaceChildren(track);
-              const measure = () => {
-                const style = getComputedStyle(title);
-                const available =
-                  title.clientWidth -
-                  (parseFloat(style.paddingLeft) || 0) -
-                  (parseFloat(style.paddingRight) || 0);
-                const distance = Math.max(0, track.scrollWidth - available);
-                title.classList.toggle('ani-week-overflow', available > 0 && distance > 2);
-                title.style.setProperty('--ani-week-travel', `-${distance}px`);
-                title.style.setProperty(
-                  '--ani-week-duration',
-                  `${Math.max(2.5, distance / 30 + 1)}s`,
-                );
-              };
-              if (typeof ResizeObserver === 'function') {
-                const observer = new ResizeObserver(measure);
-                observer.observe(title);
-                observer.observe(track);
-              } else {
-                requestAnimationFrame(measure);
-              }
-            }
-
-            for (const node of tile.querySelector('.text-anime-number')?.childNodes || []) {
-              if (node.nodeType === 3) {
-                const text = node.textContent.replace(/第\s*(\d+(?:\.\d+)?)\s*集/g, 'EP.$1');
-                if (node.textContent !== text) node.textContent = text;
-              }
-            }
-            for (const [selector, path] of [
-              ['.text-anime-time', 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm1 4v5l4 2-1 2-5-3V7Z'],
-              [
-                '.text-anime-number',
-                'M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm4 4v10l8-5Z',
-              ],
-            ]) {
-              const badge = tile.querySelector(selector);
-              if (badge && !badge.querySelector('svg'))
-                badge.insertAdjacentHTML(
-                  'afterbegin',
-                  `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="${path}"/></svg>`,
-                );
-            }
-            const name = tile.querySelector('.text-anime-name')?.textContent.trim();
-            const source = sourceByHref.get(tile.getAttribute('href')) || sourceByName.get(name);
-            const image = source?.querySelector('.anime-blocker img');
-            const url = image?.dataset.src || image?.src;
-            if (url && /^https:\/\/(?:p2|i2|truth)\.bahamut\.com\.tw\//.test(url))
-              prepareWeekCover(tile, url);
-            if (!tile.querySelector('.ani-week-score')) {
-              const score = [
-                ...(source?.querySelectorAll('.ani-score-badge-top-left,.label-edition') || []),
-              ]
-                .map((n) => n.textContent.trim())
-                .find((t) => /^(?:★\s*)?[0-5](?:\.\d+)?$/.test(t));
-              if (score) {
-                const pill = document.createElement('span');
-                pill.className = 'ani-week-score';
-                pill.textContent = `★ ${score.replace(/★\s*/, '')}`;
-                tile.append(pill);
-              }
-            }
-            if (source && !tile.querySelector('.ani-week-favorite')) {
-              const original = source.querySelector('.btn-favorite');
-              if (original) {
-                const favorite = original.cloneNode(true);
-                favorite.classList.add('ani-week-favorite');
-                favorite.innerHTML =
-                  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>';
-                tile.append(favorite);
-              }
-            }
+          if (
+            !weekly.querySelector('.programlist-wrap')?.classList.contains('newanime-content-hide')
+          ) {
+            enhanceWeeklySchedule(weekly);
           }
         }
-        const continueRail = document.querySelector('#continueWatch');
+        const continueRail =
+          isHome || document.getElementById('continueWatch')
+            ? document.querySelector('#continueWatch')
+            : null;
         const continueImage = continueRail?.querySelector('.img-block');
         if (continueImage) {
           const height = `${Math.ceil(continueImage.getBoundingClientRect().height)}px`;
-          if (continueRail.style.getPropertyValue('--ani-continue-image-height') !== height)
+          if (continueRail.style.getPropertyValue('--ani-continue-image-height') !== height) {
             continueRail.style.setProperty('--ani-continue-image-height', height);
+          }
         }
-        enhancePlayerControls();
-        if (typeof window !== 'undefined' && !window.__aniSkipIntroTimer) {
+        if (
+          isWatch ||
+          document.querySelector('#ani_video, .dialogify, #share-url-text, section.player')
+        ) {
+          enhancePlayerControls();
+        }
+        if (document.getElementById('ani_video') && !window.__aniSkipIntroTimer) {
           window.__aniSkipIntroTimer = setInterval(() => {
+            if (document.hidden) return;
             try {
-              for (const qa of document.querySelectorAll('.qa-icon:not(.ani-info-badge-host)')) {
-                qa.innerHTML =
-                  '<svg class="ani-info-i-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4"/><circle cx="12" cy="8.2" r="0.6" fill="currentColor" stroke="none"/></svg>';
-                qa.classList.add('ani-info-badge-host');
-              }
-              for (const pill of document.querySelectorAll(
-                '#BH_background :is(button, a, div, span), body > :is(button, div)',
-              )) {
-                if (
-                  pill.closest(
-                    '#ani_video, .ani-player-settings-drawer, .ani-settings-panel, .ani-view-settings-panel, .ani-home-dash',
-                  )
-                )
-                  continue;
-                if (pill.childElementCount > 2) continue;
-                const pTxt = (pill.textContent || '').replace(/\s+/g, ' ').trim();
-                if (
-                  !pTxt ||
-                  pTxt.length > 48 ||
-                  !/(?:預先載入.*評等|排序完成|載入所有評等)/.test(pTxt)
-                )
-                  continue;
-                if (
-                  [...pill.children].some(
-                    (c) =>
-                      !c.classList.contains('ani-ext-sort-icon') &&
-                      /(?:預先載入.*評等|排序完成|載入所有評等)/.test(c.textContent || ''),
-                  )
-                )
-                  continue;
-                pill.classList.add('ani-ext-rating-pill');
-                if (/排序完成/.test(pTxt)) pill.classList.add('is-done');
-                const tw = document.createTreeWalker(pill, NodeFilter.SHOW_TEXT);
-                let tNode;
-                while ((tNode = tw.nextNode())) {
-                  const cleaned = (tNode.nodeValue || '')
-                    .replace(/[\u2705\u2714\u2611\uFE0F]/g, '')
-                    .replace(/^\s+/, '');
-                  if (cleaned !== tNode.nodeValue) tNode.nodeValue = cleaned;
-                }
-                if (!pill.querySelector('.ani-ext-sort-icon')) {
-                  const ic = document.createElement('span');
-                  ic.className = 'ani-ext-sort-icon';
-                  ic.setAttribute('aria-hidden', 'true');
-                  ic.innerHTML =
-                    '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
-                  pill.prepend(ic);
-                }
-              }
-              if (!document.querySelector('#ani_video')) return;
+              const player = document.querySelector('#ani_video');
+              if (!player) return;
               const msgEl = document.querySelector('#BH_background #ani-info #ani-info-msg');
               const boxEl = document.querySelector('#BH_background #ani-info');
               if (typeof window.__aniSyncSidebarIntro === 'function')
@@ -17869,8 +18817,13 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               const orphanBgm = document.querySelector('#bgmtv:not(.ani-title-actions #bgmtv)');
               const plusToolbar = document.querySelector('.plus_imagetool_box');
               const floatingToggle = document.querySelector('.ani-player-settings-toggle');
+              const shortcut = playerShortcuts.get(player);
+              const shortcutNeedsPlacement =
+                player.querySelector('.top-tool-bar .shortcut-button') ||
+                (shortcut && shortcut.parentElement !== (getShortcutSettingsHost() || player));
               if (
                 orphanBgm ||
+                shortcutNeedsPlacement ||
                 (plusToolbar && floatingToggle && !plusToolbar.contains(floatingToggle))
               ) {
                 enhancePlayerControls();
@@ -17885,133 +18838,90 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               }
             } catch (_) {}
             try {
-              const badQrBox = (node) => {
-                if (!node) return false;
-                if (
-                  /掃描|QR\s*code|App\s*Store|Google\s*Play|前往動畫瘋APP|立即下載/i.test(
-                    node.textContent || '',
-                  )
-                )
-                  return true;
-                if (
-                  node.matches(
-                    '.app-download-toolbox, [class*="qrcode" i], [class*="download" i]',
-                  ) ||
-                  node.querySelector(
-                    'img, canvas, .app-download-toolbox, a.apple, a[href*="apple"], a[href*="play.google"]',
-                  )
-                )
-                  return true;
-                const r = node.getBoundingClientRect();
-                return r.height > 110;
-              };
-              for (const rootEl of document.querySelectorAll(
-                '#BH_background #ani_video, #BH_background .videoframe',
-              )) {
-                for (const qrBox of rootEl.querySelectorAll('div, section')) {
+              if (playerOverlayDirty) {
+                playerOverlayDirty = false;
+                const badQrBox = (node) => {
+                  if (!node) return false;
                   if (
-                    /掃描\s*QR\s*code|前往動畫瘋APP觀看/i.test(qrBox.textContent || '') &&
-                    qrBox.querySelector('img, canvas, a[href*="apple"], .apple') &&
-                    !qrBox.querySelector('#ani_video, .video-js')
-                  ) {
-                    const r = qrBox.getBoundingClientRect();
-                    if (r.width > 120 && r.width < 520 && r.height > 120 && r.height < 520) {
-                      qrBox.classList.add('ani-app-qr-popup');
-                      qrBox.classList.remove('ani-skip-intro-pill');
-                    }
-                  }
-                }
-                const walker = document.createTreeWalker(rootEl, NodeFilter.SHOW_TEXT);
-                let textNode;
-                while ((textNode = walker.nextNode())) {
-                  const val = (textNode.nodeValue || '').trim();
-                  if (!/(?:跳過|略過)(?:片頭|片尾)|按此跳過/.test(val)) continue;
-                  const leaf = textNode.parentElement;
-                  if (
-                    !leaf ||
-                    leaf.closest(
-                      '.vjs-control-bar, .vjs-menu, .ani-DanmuMenu, .plus_imagetool_box, .app-download-toolbox, .ani-app-qr-popup',
+                    /掃描|QR\s*code|App\s*Store|Google\s*Play|前往動畫瘋APP|立即下載/i.test(
+                      node.textContent || '',
                     )
                   )
-                    continue;
-                  if (badQrBox(leaf)) continue;
-                  let box = leaf;
-                  while (
-                    box.parentElement &&
-                    box.parentElement !== rootEl &&
-                    !box.parentElement.matches(
-                      '#ani_video, .video-js, .videoframe, .video, #video-container, .vjs-control-bar',
-                    ) &&
-                    (box.parentElement.textContent || '').replace(/\s+/g, '').length <= 36 &&
-                    !badQrBox(box.parentElement)
-                  ) {
-                    box = box.parentElement;
+                    return true;
+                  if (
+                    node.matches(
+                      '.app-download-toolbox, [class*="qrcode" i], [class*="download" i]',
+                    ) ||
+                    node.querySelector(
+                      'img, canvas, .app-download-toolbox, a.apple, a[href*="apple"], a[href*="play.google"]',
+                    )
+                  )
+                    return true;
+                  const r = node.getBoundingClientRect();
+                  return r.height > 110;
+                };
+                const rootEl =
+                  document.querySelector('#BH_background .videoframe') ||
+                  document.querySelector('#BH_background #ani_video');
+                if (rootEl) {
+                  for (const qrBox of rootEl.querySelectorAll('div, section')) {
+                    if (
+                      /掃描\s*QR\s*code|前往動畫瘋APP觀看/i.test(qrBox.textContent || '') &&
+                      qrBox.querySelector('img, canvas, a[href*="apple"], .apple') &&
+                      !qrBox.querySelector('#ani_video, .video-js')
+                    ) {
+                      const r = qrBox.getBoundingClientRect();
+                      if (r.width > 120 && r.width < 520 && r.height > 120 && r.height < 520) {
+                        qrBox.classList.add('ani-app-qr-popup');
+                        qrBox.classList.remove('ani-skip-intro-pill');
+                      }
+                    }
                   }
-                  styleSkipIntroPill(box);
+                  const walker = document.createTreeWalker(rootEl, NodeFilter.SHOW_TEXT);
+                  let textNode;
+                  while ((textNode = walker.nextNode())) {
+                    const val = (textNode.nodeValue || '').trim();
+                    if (!/(?:跳過|略過)(?:片頭|片尾)|按此跳過/.test(val)) continue;
+                    const leaf = textNode.parentElement;
+                    if (
+                      !leaf ||
+                      leaf.closest(
+                        '.vjs-control-bar, .vjs-menu, .ani-DanmuMenu, .plus_imagetool_box, .app-download-toolbox, .ani-app-qr-popup',
+                      )
+                    )
+                      continue;
+                    if (badQrBox(leaf)) continue;
+                    let box = leaf;
+                    while (
+                      box.parentElement &&
+                      box.parentElement !== rootEl &&
+                      !box.parentElement.matches(
+                        '#ani_video, .video-js, .videoframe, .video, #video-container, .vjs-control-bar',
+                      ) &&
+                      (box.parentElement.textContent || '').replace(/\s+/g, '').length <= 36 &&
+                      !badQrBox(box.parentElement)
+                    ) {
+                      box = box.parentElement;
+                    }
+                    styleSkipIntroPill(box);
+                  }
                 }
               }
-              syncLastWatchedEpisodes();
+              if (seasonWatchDirty) {
+                seasonWatchDirty = false;
+                syncLastWatchedEpisodes();
+              }
             } catch (_) {}
           }, 700);
         }
-        for (const card of document.querySelectorAll(
-          '#blockContinueWatch .continue-watch-card, #blockVideoInSeason .anime-card-block, #BH_background .animate-theme-list .theme-list-main, #BH_background .old_list:not(:has(.search_result)) .theme-list-main',
-        )) {
-          if (!card.classList.contains('ani-card-surface')) card.classList.add('ani-card-surface');
-          const glowImage = card.querySelector(
-            'img.card-img:not(.is-next),.anime-blocker img,.anime-pic-block img:not(.anime-clock-img):not([src$=".svg"]),.theme-img',
-          );
-          const glowUrl = glowImage?.dataset.src || glowImage?.getAttribute('src');
-          if (glowUrl && /^https:\/\/(?:p2|i2|truth)\.bahamut\.com\.tw\//.test(glowUrl)) {
-            const cover = `url("${glowUrl.replace(/["\\\n\r]/g, '')}")`;
-            if (card.style.getPropertyValue('--ani-card-cover') !== cover)
-              card.style.setProperty('--ani-card-cover', cover);
-          }
-          if (glowUrl && !card.querySelector(':scope > .ani-season-glow')) {
-            const glow = document.createElement('span');
-            glow.className = 'ani-season-glow';
-            glow.setAttribute('aria-hidden', 'true');
-            card.prepend(glow);
-          }
-          const info = card.querySelector('.content-block, .anime-detail-block');
-          if (info && !info.classList.contains('ani-card-info'))
-            info.classList.add('ani-card-info');
-          if (card.querySelector(':scope > .ani-hover-outline')) continue;
-          const footer = card.querySelector('.content-block, .anime-detail-block');
-          if (!footer) continue;
-          const outline = document.createElement('span');
-          outline.className = 'ani-hover-outline';
-          outline.setAttribute('aria-hidden', 'true');
-          card.append(outline);
-          let footerObserver;
-          const measure = () => {
-            const bounds = card.getBoundingClientRect();
-            const height = `${Math.max(bounds.height, footer.getBoundingClientRect().bottom - bounds.top)}px`;
-            if (outline.style.height !== height) outline.style.height = height;
-          };
-          const trackOutline = () => {
-            measure();
-            if (
-              card.classList.contains('ani-card-has-overflow') &&
-              typeof ResizeObserver === 'function'
-            ) {
-              footerObserver ||= new ResizeObserver(measure);
-              footerObserver.observe(card);
-              footerObserver.observe(footer);
-            }
-          };
-          card.addEventListener('mouseenter', trackOutline);
-          card.addEventListener('focusin', trackOutline);
-          const resetOutline = () => {
-            if (card.matches(':hover, :focus-within')) return;
-            footerObserver?.disconnect();
-            outline.style.removeProperty('height');
-          };
-          card.addEventListener('mouseleave', resetOutline);
-          card.addEventListener('focusout', () => requestAnimationFrame(resetOutline));
+        const cardSelectors = isHome
+          ? '#blockContinueWatch .continue-watch-card, #blockVideoInSeason .anime-card-block'
+          : '#blockContinueWatch .continue-watch-card, #blockVideoInSeason .anime-card-block, #BH_background .animate-theme-list .theme-list-main, #BH_background .old_list:not(:has(.search_result)) .theme-list-main';
+        for (const card of document.querySelectorAll(cardSelectors)) {
+          enhanceCardSurface(card);
         }
         const conanWatchPage =
-          location.pathname === '/animeVideo.php' &&
+          isWatch &&
           settings.showNews &&
           /名偵探柯南/.test(document.querySelector('.anime_name h1')?.textContent || '');
         for (const list of document.querySelectorAll('#BH_background .theme-extend-block')) {
@@ -18115,8 +19025,12 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           if (/收藏|作品.*我的動畫/.test(toast.textContent || ''))
             toast.classList.add('ani-favorite-toast');
         }
-        globalThis.AniHeroBanner?.mount(Boolean(settings.themeEnabled));
-        globalThis.AniHomeDashboard?.mount(settings);
+        if (isHome) {
+          if (!document.querySelector('.big_banner .ani-hero'))
+            globalThis.AniHeroBanner?.mount(Boolean(settings.themeEnabled));
+          if (!document.querySelector('#BH_background .ani-home-dash'))
+            globalThis.AniHomeDashboard?.mount(settings);
+        }
         if (globalThis.AniLensSwitch) {
           let savedLight = false;
           try {
@@ -18135,102 +19049,109 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             },
           });
         }
-        const catalogHeading = document.querySelector('.filter-title-block .theme-title');
-        if (catalogHeading && !catalogHeading.querySelector('.ani-section-icon')) {
-          const icon = document.createElement('span');
-          icon.className = 'ani-section-icon';
-          icon.setAttribute('aria-hidden', 'true');
-          icon.innerHTML =
-            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="14" rx="3"/><path d="m8 3 4 4 4-4m-6 8 5 3-5 3Z"/></svg>';
-          catalogHeading.prepend(icon);
-        }
-        for (const native of document.querySelectorAll(
-          '.filter-title-block .btn-newanime-filter:not([data-ani-catalog-sort])',
-        )) {
-          const items = [...native.querySelectorAll('[data-ani-list-sort]')];
-          if (!items.length) continue;
-          native.dataset.aniCatalogSort = 'true';
-          const group = document.createElement('div');
-          group.className = 'ani-catalog-sort';
-          group.setAttribute('role', 'group');
-          group.setAttribute('aria-label', '動畫排序');
-          const sync = () => {
-            const text = native.querySelector('.newanime-filter-text')?.textContent || '';
-            for (const button of group.children)
-              button.setAttribute('aria-pressed', String(text.includes(button.dataset.mode)));
-          };
-          for (const item of items) {
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.dataset.mode = item.textContent.includes('年份') ? '年份' : '月人氣';
-            button.innerHTML =
-              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">' +
-              (button.dataset.mode === '年份'
-                ? '<rect x="4" y="5" width="16" height="16" rx="3"/><path d="M8 3v4m8-4v4M4 11h16"/>'
-                : '<path d="M5 19v-6m7 6V5m7 14v-9"/>') +
-              '</svg>' +
-              button.dataset.mode;
-            button.addEventListener('click', () => {
-              item.click();
-              sync();
-            });
-            group.append(button);
+        const hasBrowseBlocks =
+          !isWatch ||
+          Boolean(
+            document.querySelector(
+              '.filter-title-block, #blockAnimePublisherChannel, #blockVideoInSeason, #continueWatch',
+            ),
+          );
+        if (hasBrowseBlocks) {
+          const catalogHeading = document.querySelector('.filter-title-block .theme-title');
+          if (catalogHeading && !catalogHeading.querySelector('.ani-section-icon')) {
+            const icon = document.createElement('span');
+            icon.className = 'ani-section-icon';
+            icon.setAttribute('aria-hidden', 'true');
+            icon.innerHTML =
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="14" rx="3"/><path d="m8 3 4 4 4-4m-6 8 5 3-5 3Z"/></svg>';
+            catalogHeading.prepend(icon);
           }
-          native.after(group);
-          sync();
-          new MutationObserver(sync).observe(native, {
-            childList: true,
-            subtree: true,
-            characterData: true,
-          });
-        }
-        const channelHeading = document.querySelector('#blockAnimePublisherChannel .theme-title');
-        if (channelHeading && !channelHeading.querySelector('.ani-section-icon')) {
-          const icon = document.createElement('span');
-          icon.className = 'ani-section-icon';
-          icon.setAttribute('aria-hidden', 'true');
-          icon.innerHTML =
-            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="14" rx="3"/><path d="m8 3 4 4 4-4m-6 8 5 3-5 3Z"/></svg>';
-          channelHeading.prepend(icon);
-        }
-        // Rating controls are injected inside h1 by the site's rating helper.
-        // Move the existing label, retaining its input and listeners, into the row.
-        for (const header of document.querySelectorAll(
-          '#BH_background > .container .theme-title-block',
-        )) {
-          if (
-            header.closest('#blockHotAnime, [id^="blockAnimeNewArrive"]') &&
-            !header.querySelector('.ani-section-actions')
-          ) {
-            const actions = document.createElement('div');
-            actions.className = 'ani-section-actions';
-            header.append(actions);
-          }
-          for (const label of header.querySelectorAll(
-            '.theme-title label:has(input[type="checkbox"])',
+          for (const native of document.querySelectorAll(
+            '.filter-title-block .btn-newanime-filter:not([data-ani-catalog-sort])',
           )) {
-            let actions = header.querySelector(':scope > .ani-section-actions');
-            if (!actions) {
-              actions = document.createElement('div');
+            const items = [...native.querySelectorAll('[data-ani-list-sort]')];
+            if (!items.length) continue;
+            native.dataset.aniCatalogSort = 'true';
+            const group = document.createElement('div');
+            group.className = 'ani-catalog-sort';
+            group.setAttribute('role', 'group');
+            group.setAttribute('aria-label', '動畫排序');
+            const sync = () => {
+              const text = native.querySelector('.newanime-filter-text')?.textContent || '';
+              for (const button of group.children)
+                button.setAttribute('aria-pressed', String(text.includes(button.dataset.mode)));
+            };
+            for (const item of items) {
+              const button = document.createElement('button');
+              button.type = 'button';
+              button.dataset.mode = item.textContent.includes('年份') ? '年份' : '月人氣';
+              button.innerHTML =
+                '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">' +
+                (button.dataset.mode === '年份'
+                  ? '<rect x="4" y="5" width="16" height="16" rx="3"/><path d="M8 3v4m8-4v4M4 11h16"/>'
+                  : '<path d="M5 19v-6m7 6V5m7 14v-9"/>') +
+                '</svg>' +
+                button.dataset.mode;
+              button.addEventListener('click', () => {
+                item.click();
+                sync();
+              });
+              group.append(button);
+            }
+            native.after(group);
+            sync();
+            new MutationObserver(sync).observe(native, {
+              childList: true,
+              subtree: true,
+              characterData: true,
+            });
+          }
+          const channelHeading = document.querySelector('#blockAnimePublisherChannel .theme-title');
+          if (channelHeading && !channelHeading.querySelector('.ani-section-icon')) {
+            const icon = document.createElement('span');
+            icon.className = 'ani-section-icon';
+            icon.setAttribute('aria-hidden', 'true');
+            icon.innerHTML =
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="14" rx="3"/><path d="m8 3 4 4 4-4m-6 8 5 3-5 3Z"/></svg>';
+            channelHeading.prepend(icon);
+          }
+          for (const header of document.querySelectorAll(
+            '#BH_background > .container .theme-title-block',
+          )) {
+            if (
+              header.closest('#blockHotAnime, [id^="blockAnimeNewArrive"]') &&
+              !header.querySelector('.ani-section-actions')
+            ) {
+              const actions = document.createElement('div');
               actions.className = 'ani-section-actions';
               header.append(actions);
             }
-            actions.append(label);
+            for (const label of header.querySelectorAll(
+              '.theme-title label:has(input[type="checkbox"])',
+            )) {
+              let actions = header.querySelector(':scope > .ani-section-actions');
+              if (!actions) {
+                actions = document.createElement('div');
+                actions.className = 'ani-section-actions';
+                header.append(actions);
+              }
+              actions.append(label);
+            }
           }
         }
         enhancePosterRails();
-        requestAnimationFrame(fitPremiumCard);
-        const premiumGrid = document.querySelector(
-          '#blockVideoInSeason .newanime-block:has(> .premium-block)',
-        );
-        if (premiumGrid && !premiumGridObserver && typeof ResizeObserver === 'function') {
-          premiumGridObserver = new ResizeObserver(([entry]) => {
-            if (entry.contentRect.width && !entry.target.closest('.newanime-content-hide'))
-              fitPremiumCard();
-          });
-          premiumGridObserver.observe(premiumGrid);
+        if (weekly) {
+          requestAnimationFrame(fitPremiumCard);
+          const premiumGrid = weekly.querySelector('.newanime-block:has(> .premium-block)');
+          if (premiumGrid && !premiumGridObserver && typeof ResizeObserver === 'function') {
+            premiumGridObserver = new ResizeObserver(([entry]) => {
+              if (entry.contentRect.width && !entry.target.closest('.newanime-content-hide'))
+                fitPremiumCard();
+            });
+            premiumGridObserver.observe(premiumGrid);
+          }
         }
-        enhanceContinueWatch();
+        if (isHome || document.getElementById('blockContinueWatch')) enhanceContinueWatch();
         for (const item of document.querySelectorAll('.sky .member > li:has(> .tooltip)')) {
           const link = item.querySelector(':scope > a'),
             label = item.querySelector(':scope > .tooltip')?.textContent;
@@ -18455,53 +19376,64 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             }
           }
         }
-        const cache = readScoreCache();
-        for (const area of document.querySelectorAll('#blockVideoInSeason .newanime-date-area')) {
-          const picBlock = area.querySelector('.anime-pic-block');
-          const cardLink = area.querySelector('.anime-card-block');
-          if (!picBlock) continue;
-          let capturedScore = '';
-          for (const candidate of area.querySelectorAll('*')) {
+        if (weekly) {
+          const cache = readScoreCache();
+          for (const area of weekly.querySelectorAll('.newanime-date-area')) {
+            const picBlock = area.querySelector('.anime-pic-block');
             if (
-              candidate.matches(
-                '.anime-detail-info-block, .anime-label-block, .anime-detail-block, .anime-pic-block, .anime-blocker, .anime-card-block, .anime-block, .anime-content-block, .anime-hours-block, .anime-hours, .anime-episode, .anime-watch-number, .anime-name-block, .anime-name, .date-block, .anime-date-info, a',
-              ) ||
-              candidate.closest(
-                '.ani-score-badge-top-left, .anime-episode, .anime-watch-number, .anime-name-block, .date-block, .anime-date-info',
-              )
-            ) {
+              !picBlock ||
+              picBlock.querySelector(':scope > .ani-score-badge-top-left:not([hidden])')
+            )
               continue;
+            const cardLink = area.querySelector('.anime-card-block');
+            let capturedScore = '';
+            for (const candidate of area.querySelectorAll(
+              '.label-edition, .tm-acg-rating, .ani-custom-rating, .anime-detail-info-block span, .anime-pic-block > span, .anime-pic-block > div',
+            )) {
+              if (
+                candidate.matches(
+                  '.anime-detail-info-block, .anime-label-block, .anime-detail-block, .anime-pic-block, .anime-blocker, .anime-card-block, .anime-block, .anime-content-block, .anime-hours-block, .anime-hours, .anime-episode, .anime-watch-number, .anime-name-block, .anime-name, .date-block, .anime-date-info, a',
+                ) ||
+                candidate.closest(
+                  '.ani-score-badge-top-left, .anime-episode, .anime-watch-number, .anime-name-block, .date-block, .anime-date-info',
+                )
+              ) {
+                continue;
+              }
+              if (candidate.children.length > 0) continue;
+              const rawTxt = (candidate.textContent || '').replace(/\s+/g, ' ').trim();
+              const match = rawTxt.match(/^(?:★\s*)?([0-5]\.\d{1,2})$/);
+              if (!match) continue;
+              capturedScore = match[1];
+              candidate.style.setProperty('display', 'none', 'important');
+              break;
             }
-            if (candidate.children.length > 0) continue;
-            const rawTxt = (candidate.textContent || '').replace(/\s+/g, ' ').trim();
-            const match = rawTxt.match(/^(?:★\s*)?([0-5]\.\d{1,2})$/);
-            if (!match) continue;
-            capturedScore = match[1];
-            candidate.style.setProperty('display', 'none', 'important');
-            break;
-          }
-          const snMatch = (cardLink?.getAttribute('href') || '').match(/[?&]sn=(\d+)/);
-          const sn = snMatch ? snMatch[1] : '';
-          if (capturedScore) {
-            if (sn) writeScoreCache(sn, capturedScore);
-            renderTopLeftScoreBadge(picBlock, capturedScore);
-          } else if (
-            !picBlock.querySelector(':scope > .ani-score-badge-top-left:not([hidden])') &&
-            sn
-          ) {
-            if (cache[sn]?.s) {
-              renderTopLeftScoreBadge(picBlock, cache[sn].s);
-            } else {
-              renderTopLeftScoreBadge(picBlock, '');
-              queueScoreFetch(sn);
+            const snMatch = (cardLink?.getAttribute('href') || '').match(/[?&]sn=(\d+)/);
+            const sn = snMatch ? snMatch[1] : '';
+            if (capturedScore) {
+              if (sn) writeScoreCache(sn, capturedScore);
+              renderTopLeftScoreBadge(picBlock, capturedScore);
+            } else if (sn) {
+              if (cache[sn]?.s) {
+                renderTopLeftScoreBadge(picBlock, cache[sn].s);
+              } else if (!area.dataset.aniScoreQueued) {
+                area.dataset.aniScoreQueued = 'true';
+                renderTopLeftScoreBadge(picBlock, '');
+                if (seasonScoreObserver) {
+                  area.dataset.aniPendingScoreSn = sn;
+                  seasonScoreObserver.observe(area);
+                } else {
+                  queueScoreFetch(sn);
+                }
+              }
             }
           }
-        }
-        for (const title of document.querySelectorAll(
-          '#blockVideoInSeason .newanime-date-area .anime-name:not([data-ani-marquee-init])',
-        )) {
-          if (releaseTitles) releaseTitles.observe(title);
-          else measureReleaseTitle(title);
+          for (const title of weekly.querySelectorAll(
+            '.newanime-date-area .anime-name:not([data-ani-marquee-init])',
+          )) {
+            if (releaseTitles) releaseTitles.observe(title);
+            else measureReleaseTitle(title);
+          }
         }
         // Style 相關商品 header icon, capsule buy button, right-aligned price & hide carousel arrows unless many items scroll
         const ungroupedMerch = document.querySelector(
@@ -18961,7 +19893,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                 if (!host) return;
                 if (
                   host.matches(
-                    'svg, img, input, select, textarea, .ani-hidden-glyph, .ani-plus-info-trigger, .ani-info-badge-host',
+                    'svg, img, input, select, textarea, .ani-hidden-glyph, .ani-plus-info-trigger, .ani-info-badge-host, .ani-plus-add-icon-btn, .ani-keyword-header > .bluebtn',
                   )
                 )
                   return;
@@ -19999,7 +20931,11 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                       const bt = ((b.tagName === 'INPUT' ? b.value : b.textContent) || '')
                         .replace(/\s+/g, '')
                         .trim();
-                      if (bt === '新增' && b.childElementCount <= 2 && !b.querySelector('input')) {
+                      if (
+                        (bt === '新增' || b.matches('.ani-keyword-header > .bluebtn')) &&
+                        b.childElementCount <= 2 &&
+                        !b.querySelector('input')
+                      ) {
                         if (
                           (b.tagName === 'SPAN' || b.tagName === 'DIV') &&
                           b.parentElement?.matches('button, a, [role="button"]')
@@ -20545,21 +21481,113 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           );
           let creditsUrl = '';
           let credits = [];
-          let introScrollObserver;
+          let workSynopsis = '';
+          let creditsPending = false;
+          let synopsisIdentity = {};
+          let synopsisRequestKey = '';
+          let externalSynopsis = '';
+          let closeThemePlayer;
           const escHtml = (s) =>
             String(s || '')
               .replace(/&/g, '&amp;')
               .replace(/</g, '&lt;')
               .replace(/>/g, '&gt;');
-          let staffGridObserver;
+          const creditGroup = (text) => {
+            const label = text
+              .trim()
+              .replace(/^[<＜【\[─—–-]+\s*|\s*[>＞】\]─—–-]+$|[:：]$/g, '')
+              .trim();
+            if (/^(?:STAFF|製作團隊|製作人員)$/i.test(label)) return '製作團隊';
+            if (/^(?:CAST|聲優(?:演員)?)$/i.test(label)) return '聲優';
+            if (/^(?:音樂|主題曲)$/.test(label)) return '主題曲';
+          };
+          const creditPair = (text) => text.trim().match(/^([^：:]{1,40})\s*[：:]\s*(\S.*)$/);
+          const introWorkTitle = (rawTitle) =>
+            rawTitle.replace(
+              /(?:\s*(?:\[\s*(?:\d+(?:\.\d+)?|中文配音|中配|國語(?:配音)?|日文配音|雙語|電影|特別篇|OAD|OVA)\s*\]|EP\.?\s*\d+(?:\.\d+)?))+\s*$/i,
+              '',
+            );
+          const loadExternalSynopsis = () => {
+            if (creditsPending || introPane.dataset.aniTabActive !== 'true') return;
+            const enhancement = globalThis.AniEnhancements;
+            const href = enhancement?.bangumiWorkLink(document);
+            const id = href?.match(/^https:\/\/bgm\.tv\/subject\/(\d+)$/)?.[1];
+            if (!id && !enhancement?.bangumiMappingsReady()) return;
+            const rawTitle = document.querySelector('.anime_name h1')?.textContent.trim() || '';
+            const premiere = [
+              ...document.querySelectorAll('section.data .type-list > li.type'),
+            ].find((item) =>
+              /^首播(?:日期)?$/.test(item.querySelector('.title')?.textContent.trim() || ''),
+            );
+            const metadata = {
+              id,
+              title: introWorkTitle(rawTitle),
+              nativeTitle: synopsisIdentity.title,
+              year:
+                synopsisIdentity.year ||
+                Number(premiere?.textContent.match(/\b\d{4}(?=[/-])/)?.[0]) ||
+                0,
+              movie: /\[電影\]/.test(rawTitle),
+            };
+            const key = JSON.stringify(metadata);
+            if (!metadata.title || synopsisRequestKey === key) return;
+            synopsisRequestKey = key;
+            const apply = (result) => {
+              if (
+                synopsisRequestKey !== key ||
+                !introPane.isConnected ||
+                typeof result?.summary !== 'string'
+              )
+                return;
+              externalSynopsis = enhancement.traditionalTitle(result.summary.trim());
+              if (externalSynopsis) populateIntroPane();
+            };
+            if (
+              typeof GM_xmlhttpRequest === 'function' &&
+              typeof fetchWorkSynopsis === 'function'
+            ) {
+              const request = (url, options) =>
+                new Promise((resolve, reject) =>
+                  GM_xmlhttpRequest({
+                    url,
+                    method: options.method || 'GET',
+                    headers: options.headers,
+                    data: options.body,
+                    anonymous: true,
+                    timeout: 8000,
+                    onerror: reject,
+                    ontimeout: reject,
+                    onload: (response) =>
+                      resolve({
+                        ok: response.status === 200,
+                        json: () => JSON.parse(response.responseText),
+                      }),
+                  }),
+                );
+              fetchWorkSynopsis(metadata, request).then(apply);
+            } else if (globalThis.chrome?.runtime?.sendMessage) {
+              chrome.runtime.sendMessage(
+                { type: 'ani-fetch-work-synopsis', ...metadata },
+                (response) => {
+                  if (!chrome.runtime.lastError) apply(response);
+                },
+              );
+            }
+          };
           const populateIntroPane = () => {
             if (!introPane) return;
             const acgUrl = document.querySelector('section.data a[href*="acgDetail.php"]')?.href;
             if (acgUrl && creditsUrl !== acgUrl) {
               creditsUrl = acgUrl;
-              const renderCredits = (html) => {
-                if (!html || creditsUrl !== acgUrl) return;
-                const doc = new DOMParser().parseFromString(html, 'text/html');
+              workSynopsis = '';
+              synopsisIdentity = {};
+              credits = [];
+              creditsPending = true;
+              const renderCredits = (html, synopsisHtml = '', identity = {}) => {
+                if (creditsUrl !== acgUrl) return;
+                creditsPending = false;
+                synopsisIdentity = identity;
+                const doc = new DOMParser().parseFromString(html || '', 'text/html');
                 credits = [];
                 let group;
                 let foundStaff = false;
@@ -20570,13 +21598,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                     .join('')
                     .trim();
                   if (node.matches('b')) {
-                    group = /[＜<](製作團隊|製作人員|STAFF)[＞>]/i.test(text)
-                      ? '製作團隊'
-                      : /[＜<]聲優(?:演員)?[＞>]/.test(text)
-                        ? '聲優'
-                        : /[＜<](?:音樂|主題曲)[＞>]/.test(text)
-                          ? '主題曲'
-                          : undefined;
+                    group = creditGroup(text);
                     if (group === '製作團隊') foundStaff = true;
                     continue;
                   }
@@ -20584,6 +21606,40 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                   if (foundStaff && group && field && !field[1].startsWith('┕'))
                     credits.push({ group, title: field[1].trim(), val: field[2].trim() });
                 }
+                let creditTable;
+                for (const table of doc.querySelectorAll('table')) {
+                  const [header, ...rows] = table.rows;
+                  if (!header) continue;
+                  const columns = Array.from(header.cells, (cell) => creditGroup(cell.textContent));
+                  if (!columns.includes('製作團隊') || !columns.includes('聲優')) continue;
+                  creditTable ||= table;
+                  for (const row of rows) {
+                    for (const [index, cell] of Array.from(row.cells).entries()) {
+                      const field = creditPair(cell.textContent);
+                      if (columns[index] && field) {
+                        credits.push({
+                          group: columns[index],
+                          title: field[1].trim(),
+                          val: field[2].trim(),
+                        });
+                      }
+                    }
+                  }
+                }
+                const wiki = synopsisHtml
+                  ? new DOMParser()
+                      .parseFromString(synopsisHtml, 'text/html')
+                      .querySelector('.wikiContent')
+                  : creditTable?.closest('.wikiContent');
+                const paragraphs = [];
+                for (const child of wiki?.childNodes || []) {
+                  if (child === creditTable) break;
+                  if (child.nodeType !== Node.TEXT_NODE && !child.matches?.('p, div, blockquote'))
+                    continue;
+                  const text = child.textContent.trim();
+                  if (text) paragraphs.push(text);
+                }
+                workSynopsis = paragraphs.join('\n\n');
                 populateIntroPane();
               };
               if (
@@ -20596,17 +21652,29 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                   anonymous: true,
                   timeout: 8000,
                   onload: (response) => {
-                    if (response.status === 200) renderCredits(response.responseText);
+                    if (response.status !== 200) return renderCredits('');
+                    renderCredits(
+                      response.responseText,
+                      '',
+                      workSynopsisIdentity(response.responseText),
+                    );
                   },
+                  onerror: () => renderCredits(''),
+                  ontimeout: () => renderCredits(''),
                 });
               } else if (globalThis.chrome?.runtime?.sendMessage) {
                 chrome.runtime.sendMessage(
                   { type: 'ani-fetch-acg-credits', url: acgUrl },
                   (response) => {
-                    if (!chrome.runtime.lastError) renderCredits(response?.credits);
+                    const failed = chrome.runtime.lastError;
+                    renderCredits(
+                      failed ? '' : response?.credits,
+                      response?.synopsisHtml,
+                      response?.identity,
+                    );
                   },
                 );
-              }
+              } else creditsPending = false;
             }
             const infoSrc = document.querySelector('#BH_background #ani-info');
             const activeInfoPane = infoSrc?.querySelector('.ani-tab-pane.active') || infoSrc;
@@ -20627,9 +21695,26 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             );
             const rawWorkTitle = document.querySelector('.anime_name h1')?.textContent.trim() || '';
 
-            const sig = `${rawWorkTitle}|${typeItems.length}|${rawDescText}|${castGrid?.children.length || 0}|${songGrid?.children.length || 0}|${credits.length}`;
+            const castSignature = castGrid
+              ? JSON.stringify([
+                  [...castGrid.children].map((node) => node.textContent.trim()),
+                  [...castGrid.querySelectorAll('a[href]')].map((link) =>
+                    link.getAttribute('href'),
+                  ),
+                ])
+              : '';
+            const songSignature = songGrid
+              ? JSON.stringify([
+                  songGrid.textContent,
+                  [...songGrid.querySelectorAll('a[href]')].map((link) =>
+                    link.getAttribute('href'),
+                  ),
+                ])
+              : '';
+            const sig = `${rawWorkTitle}|${typeItems.length}|${rawDescText}|${castSignature}|${songSignature}|${credits.length}|${workSynopsis}|${externalSynopsis}`;
             if (sig === lastIntroSig) {
               window.__aniIconifyInfoLinks?.(introPane);
+              if (!introPane.querySelector('.ani-side-synopsis')) loadExternalSynopsis();
               return;
             }
             lastIntroSig = sig;
@@ -20659,9 +21744,11 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
 
             // Lift STAFF / 製作團隊 lines out of synopsis into top pill-grid items (handles single-line ｜-separated and truncated tails like "｜導")
             const synopsisLines = [];
-            let inStaffBlock = false;
+            const synopsisCast = [];
+            let synopsisCreditGroup;
+            let previousCreditHeader;
             const staffKeyRe =
-              /^(?:原作性質|原作|原案|原作插畫|監督|導演|導演監督|總監督|系列構成|劇本|劇本統籌|角色原案|角色設定|人物設定|機械設定|音樂|動畫製作|製作|美術監督|色彩設計|攝影監督|音響監督|背景)$/;
+              /^(?:原作性質|原作|原案|原作插畫|監督|助監督|導演|導演監督|總監督|系列構成|構成、腳本|劇本|劇本統籌|角色原案|角色設定|角色設計|人物設定|道具設計|物品設計|機械設定|音樂|動畫製作|製作|美術設定|色彩設計|編輯|剪輯|背景|2D作業．特殊効果|(?:總作畫|作畫|美術|攝影|音響|3D)監督)$/;
             const rawSegments = [];
             for (const rawLine of rawDescText.split(/\r?\n/)) {
               if (/[｜|][^｜|\n]{1,14}[：:]/.test(rawLine)) {
@@ -20678,7 +21765,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               const line = rawSegments[idx].trim();
               if (!line) {
                 if (
-                  !inStaffBlock &&
+                  !synopsisCreditGroup &&
                   synopsisLines.length &&
                   synopsisLines[synopsisLines.length - 1] !== ''
                 ) {
@@ -20686,18 +21773,27 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                 }
                 continue;
               }
-              if (
-                /^(?:[<＜【\[]\s*)?(?:STAFF|製作團隊|製作人員)(?:\s*[>＞】\]])?[:：]?$/i.test(line)
-              ) {
-                inStaffBlock = true;
+              const header = creditGroup(line);
+              if (header === '製作團隊' || header === '聲優') {
+                synopsisCreditGroup =
+                  previousCreditHeader === '製作團隊' && header === '聲優' ? 'mixed' : header;
+                previousCreditHeader = header;
                 continue;
               }
+              previousCreditHeader = undefined;
               const cleanedStaffLine = line.replace(/^[｜|‧•・─\-]+\s*/, '').trim();
-              const kv = cleanedStaffLine.match(/^([^：:]{1,14})\s*[：:]\s*(.+)$/);
-              if (kv && (inStaffBlock || staffKeyRe.test(kv[1].trim()))) {
-                inStaffBlock = true;
+              const kv = creditPair(cleanedStaffLine);
+              if (kv && (synopsisCreditGroup || staffKeyRe.test(kv[1].trim()))) {
                 const keyName = kv[1].trim();
-                pushMeta(keyName, kv[2]);
+                if (
+                  synopsisCreditGroup === '聲優' ||
+                  (synopsisCreditGroup === 'mixed' && !staffKeyRe.test(keyName))
+                ) {
+                  synopsisCast.push({ title: keyName, val: kv[2].trim() });
+                } else {
+                  synopsisCreditGroup ||= '製作團隊';
+                  pushMeta(keyName, kv[2]);
+                }
                 continue;
               }
               // Strip truncated trailing pipe fragment or STAFF header caused by site intro length cutoff (e.g. "｜導", "｜原", "＜STA")
@@ -20705,11 +21801,14 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                 idx >= rawSegments.length - 1 &&
                 (/^[｜|]\s*[^\n：:]{0,14}$/.test(line) ||
                   /^[<＜【\[]\s*(?:STAF|製作團)/i.test(line));
-              if (isTrailingFragment) {
-                inStaffBlock = true;
+              if (
+                isTrailingFragment ||
+                (idx === rawSegments.length - 1 &&
+                  (synopsisCreditGroup === 'mixed' || synopsisCreditGroup === '聲優') &&
+                  /^\S{1,14}$/.test(line))
+              )
                 continue;
-              }
-              inStaffBlock = false;
+              synopsisCreditGroup = undefined;
               synopsisLines.push(line);
             }
             while (synopsisLines.length && synopsisLines[synopsisLines.length - 1] === '')
@@ -20718,10 +21817,29 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               .join('\n')
               .trim()
               .replace(/\s*※(?:[上下](?:半)?)?$/, '');
-            const workTitle = rawWorkTitle.replace(
-              /(?:\s*(?:\[\s*(?:\d+(?:\.\d+)?|中文配音|中配|國語(?:配音)?|日文配音|雙語|電影|特別篇|OAD|OVA)\s*\]|EP\.?\s*\d+(?:\.\d+)?))+\s*$/i,
-              '',
-            );
+            const workTitle = introWorkTitle(rawWorkTitle);
+            const bunnyGirl = workTitle === '青春豬頭少年不會夢到兔女郎學姊';
+            const episode = Number(rawWorkTitle.match(/(?:\[\s*|EP\.\s*)(\d+)(?!\d)/i)?.[1]);
+            // NBCUniversal Anime/Music's creditless videos for this continuously numbered second season.
+            const officialThemes =
+              /^野生的大魔王出現了[！!]$/.test(workTitle) && episode >= 13
+                ? [
+                    ['OP', 'Melodic Impact', 'Suspended 4th', 'i7XLEFdGMYU'],
+                    ['ED', '揺れてスカート', 'ちゃくら', 'mNmqZkTV3Nk'],
+                  ]
+                : null;
+            // TOHO animation's creditless themes and the official episode 12 ending from NexTone.
+            const mushokuThemes = /^無職轉生[\s~～〜]*到了異世界就拿出真本事[\s~～〜]*第二季$/.test(
+              workTitle,
+            )
+              ? [
+                  ['OP 1', 'spiral', 'LONGMAN', '_NIp8wvNXmM'],
+                  ['ED 1', 'ムスビメ', '大原ゆい子', 'zr19Xf-tH9o'],
+                  ['OP 2', 'オン・ザ・フロントライン', 'ヒトリエ', 'kQ5Zfgpirwc'],
+                  ['ED 2', '守りたいもの', '大原ゆい子', '1C_cjVx66PE'],
+                  ['ED', '花咲み', 'シルフィエット (CV. 茅野愛衣)', 'ZeDldD53qxI'],
+                ]
+              : [];
             const movieLabel = workTitle.match(
               /^(?:劇場版\s*)?關於我轉生變成史萊姆這檔事\s*(?:劇場版\s*)?(紅蓮之絆篇|蒼海之淚篇)$/,
             )?.[1];
@@ -20743,7 +21861,30 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                       /\[\s*[1-5]\s*\]\s*\[\s*(?:特別篇|OAD|OVA)\s*\]/i.test(rawWorkTitle)
                     ? 'oad'
                     : null;
+            const sakurasou = workTitle === '櫻花莊的寵物女孩';
+            const sakurasouStaff = sakurasou
+              ? {
+                  原作: '鴨志田一',
+                  原作插畫: '溝口ケージ',
+                  導演: 'いしづかあつこ',
+                  系列構成: '岡田麿里',
+                  角色設計: '藤井昌宏',
+                  道具設計: '小渕陽介',
+                  美術監督: '備前光一郎',
+                  色彩設計: '石田美由紀',
+                  攝影監督: '川下裕樹',
+                  剪輯: '西山茂（REAL-T）',
+                  音響監督: '明田川仁',
+                  音響製作: 'Magic Capsule',
+                  音樂: '林有三',
+                  音樂製作: 'Media Factory',
+                  企劃製作: 'GENCO',
+                  動畫製作: 'J.C.STAFF',
+                  製作: '櫻花莊製作委員會',
+                }
+              : null;
             const verifiedStaff =
+              sakurasouStaff ||
               slimeMovie?.staff ||
               (slimeSeason || slimeSpinoff
                 ? {
@@ -20769,20 +21910,22 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               );
             for (const title of ['原作性質', '原作']) {
               const field =
-                types.find((item) => item.title === title) ||
-                credits.find((item) => item.group === '製作團隊' && item.title === title);
+                credits.find((item) => item.group === '製作團隊' && item.title === title) ||
+                types.find((item) => item.title === title);
               const verified =
                 title === '原作'
                   ? verifiedStaff?.['原作']
-                  : slimeMovie
-                    ? '劇場版原創故事'
-                    : slimeSpinoff === 'diary'
-                      ? '四格漫畫改編'
-                      : slimeSpinoff === 'coleus'
-                        ? '第二季 Blu-ray 特典小說改編'
-                        : slimeSeason && !slimeSpinoff
-                          ? '輕小說衍生（動畫改編自漫畫版）'
-                          : '';
+                  : bunnyGirl
+                    ? '輕小說改編'
+                    : slimeMovie
+                      ? '劇場版原創故事'
+                      : slimeSpinoff === 'diary'
+                        ? '四格漫畫改編'
+                        : slimeSpinoff === 'coleus'
+                          ? '第二季 Blu-ray 特典小說改編'
+                          : slimeSeason && !slimeSpinoff
+                            ? '輕小說衍生（動畫改編自漫畫版）'
+                            : '';
               if (verified || field) summary.push(verified ? { title, val: verified } : field);
             }
             if (slimeSeason && !slimeSpinoff) {
@@ -20799,8 +21942,13 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             if (summary.length) {
               html += '<div class="ani-side-meta-grid">';
               for (const item of summary) {
+                const isOriginal = item.title === '原作';
                 const isWide =
-                  types.length === 1 || /分類/.test(item.title) || item.val.length > 14;
+                  isOriginal ||
+                  item.title === '原作性質' ||
+                  types.length === 1 ||
+                  /分類/.test(item.title) ||
+                  item.val.length > 14;
                 const season = /^首播(?:日期)?$/.test(item.title)
                   ? recommendationSeason(item.val).split(' ').at(-1)
                   : '';
@@ -20841,25 +21989,32 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                       )
                       .join('')
                   : escHtml(value);
-                html += `<div class="ani-side-meta-item${isWide ? ' is-wide' : ''}"><span class="ani-side-pill">${escHtml(item.title)}</span><span class="ani-side-meta-val">${valueHtml}</span></div>`;
+                html += `<div class="ani-side-meta-item${isWide ? ' is-wide' : ''}${isOriginal ? ' ani-side-original' : ''}"><span class="ani-side-pill">${escHtml(item.title)}</span><span class="ani-side-meta-val">${valueHtml}</span></div>`;
               }
               html += '</div>';
             }
-            const synopsis = slimeMovie?.synopsis || cleanSynopsis;
+            const synopsis = (
+              slimeMovie?.synopsis ||
+              cleanSynopsis ||
+              workSynopsis ||
+              externalSynopsis
+            ).replace(
+              /[^\S\r\n]*(※\s*[上下]半季\s*[：:])/g,
+              (_, marker, offset, text) =>
+                (offset > 0 && !/[\r\n]/.test(text[offset - 1]) ? '\n' : '') + marker,
+            );
             if (synopsis) {
               html += `<div class="ani-side-divider"></div><div class="ani-side-synopsis">${escHtml(synopsis)}</div>`;
-            }
+            } else loadExternalSynopsis();
             const groups = [
               { name: '製作團隊', icon: 'M3 6h18v14H3z M8 6V3h8v3' },
               {
                 name: '聲優',
                 icon: 'M9 5a3 3 0 0 1 6 0v6a3 3 0 0 1-6 0z M5 11a7 7 0 0 0 14 0 M12 18v4',
-                grid: castGrid,
               },
               {
                 name: '主題曲',
                 icon: 'M10 17V5l10-2v12 M10 17a3 3 0 1 1-3-3h3 M20 15a3 3 0 1 1-3-3h3',
-                grid: songGrid,
               },
             ];
             const selected =
@@ -20870,10 +22025,11 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               html += `<button type="button" data-credit-choice="${name}" aria-pressed="${name === selected}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="${icon}"/></svg>${name}</button>`;
             }
             html += '</div>';
-            for (const { name, grid } of groups) {
+            for (const { name } of groups) {
               const fields = [];
               const isStaff = name === '製作團隊';
               const candidates = credits.filter((item) => item.group === name);
+              if (name === '聲優') candidates.push(...synopsisCast);
               if (isStaff) {
                 candidates.unshift(...types.filter((item) => !summary.includes(item)));
                 candidates.push(
@@ -20908,89 +22064,455 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                 if (studio) fields.push({ title: '動畫製作', val: studio });
               }
               html += `<section class="ani-side-extra-block" data-credit-panel="${name}" ${name === selected ? '' : 'hidden'}>`;
-              if (!grid?.children.length) {
-                html += '<div class="ani-side-meta-grid">';
-                for (const { title, val } of fields)
-                  html += `<div class="ani-side-meta-item"><span class="ani-side-pill">${escHtml(title)}</span><span class="ani-side-meta-val">${escHtml(val)}</span></div>`;
-                html += fields.length ? '</div>' : '</div><p>暫無資料</p>';
-              }
+              if (name === '主題曲') {
+                const sourceSongs = (
+                  songGrid?.children.length
+                    ? Array.from(songGrid.querySelectorAll(':scope > a'), (link) => [
+                        link.previousElementSibling?.previousElementSibling?.textContent.trim() ||
+                          '',
+                        link.previousElementSibling?.textContent.trim() || '',
+                        link.href,
+                      ])
+                    : fields.map(({ title, val }) => [title, val])
+                )
+                  .map(([label, value, href]) => {
+                    const role =
+                      label.match(
+                        /^(?:片頭(?:曲)?|開場(?:曲)?|オープニング(?:テーマ)?|OP\d*|片尾(?:曲)?|結尾(?:曲)?|エンディング(?:テーマ)?|ED\d*)/i,
+                      )?.[0] || '';
+                    const kind = /^(?:片頭|開場|オープニング|OP)/i.test(role)
+                      ? 'OP'
+                      : /^(?:片尾|結尾|エンディング|ED)/i.test(role)
+                        ? 'ED'
+                        : '主題曲';
+                    const raw = label.slice(role.length).trim() || value;
+                    const quoted = raw.match(/[「『](.*?)[」』]/);
+                    const title = quoted?.[1] || raw;
+                    const artist = songGrid?.children.length
+                      ? value
+                      : quoted
+                        ? raw.replace(quoted[0], '').trim()
+                        : '';
+                    let videoId;
+                    if (href && URL.canParse(href)) {
+                      const url = new URL(href);
+                      if (url.protocol === 'https:') {
+                        const candidate =
+                          url.hostname === 'youtu.be'
+                            ? url.pathname.slice(1)
+                            : ['youtube.com', 'www.youtube.com', 'm.youtube.com'].includes(
+                                  url.hostname,
+                                ) && url.pathname === '/watch'
+                              ? url.searchParams.get('v')
+                              : '';
+                        if (/^[A-Za-z0-9_-]{11}$/.test(candidate || '')) videoId = candidate;
+                      }
+                    }
+                    return [kind, title, artist === '-' ? '' : artist, videoId];
+                  })
+                  .filter(([, title]) => title);
+                const normalizeSong = (title) =>
+                  title
+                    .normalize('NFKC')
+                    .replace(/[\s\p{P}]/gu, '')
+                    .toLowerCase();
+                const mushokuSongAliases = [
+                  'Musubime',
+                  'Musubime (ムスビメ)',
+                  'Hanaemi',
+                  'Hanaemi (花咲み)',
+                ];
+                const knownTitles = new Set(
+                  mushokuThemes.length
+                    ? [...mushokuThemes.map(([, title]) => title), ...mushokuSongAliases].map(
+                        normalizeSong,
+                      )
+                    : [],
+                );
+                const sakurasouSongs = sakurasou
+                  ? [
+                      ['OP 1', '君が夢を連れてきた', 'ペットな彼女たち', 'VcwzDxqzpo0', 'op'],
+                      ['ED 1', 'DAYS of DASH', '鈴木このみ', 'asSqfb7YP4Y', 'ed'],
+                      ['OP 2', '夢の続き', '鈴木このみ', 'NPc__cmzLL8', 'op2'],
+                      [
+                        'ED 2',
+                        'Prime number～君と出会える日～',
+                        '大倉明日香',
+                        '2PibRNxmUOE',
+                        'ed2',
+                      ],
+                    ]
+                  : null;
+                const bunnyGirlThemes = bunnyGirl
+                  ? [
+                      ['OP', '君のせい', 'the peggies', '0vcyIgLvPAo', /君のせい|kimi no sei/i],
+                      [
+                        'ED',
+                        '不可思議のカルテ',
+                        '瀬戸麻沙美、東山奈央、種﨑敦美、内田真礼、久保ユリカ、水瀬いのり',
+                        'fCh-gIxIUFs',
+                        /不可思議のカルテ|fukashigi no (?:carte|karte)/i,
+                      ],
+                    ]
+                  : [];
+                for (const [kind, title, artist, id, aliases] of bunnyGirlThemes) {
+                  const song = sourceSongs.find(
+                    (entry) => entry[0] === kind && aliases.test(entry[1]),
+                  );
+                  if (song) song[3] ||= id;
+                  else sourceSongs.push([kind, title, artist, id]);
+                }
+                const songs = sakurasouSongs ||
+                  officialThemes || [
+                    ...mushokuThemes,
+                    ...sourceSongs.filter(([, title]) => !knownTitles.has(normalizeSong(title))),
+                  ];
+                if (songs.length) {
+                  const largePlayers =
+                    !bunnyGirlThemes.length &&
+                    songs.length === 2 &&
+                    songs.every(([, , , id]) => id);
+                  const youtubeIcon =
+                    '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="1" y="4" width="22" height="16" rx="4" fill="currentColor"/><path d="m10 8 6 4-6 4z" fill="var(--ani-panel)"/></svg>';
+                  const externalIcon =
+                    '<svg class="ani-theme-song-external" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg>';
+                  html += `<div class="ani-theme-player" hidden><button type="button" data-theme-close aria-label="關閉主題曲播放器">×</button></div><div class="ani-theme-songs${largePlayers ? ' ani-theme-songs-large' : ''}">`;
+                  for (const [kind, title, artist, id, jacket] of songs) {
+                    const cover = jacket
+                      ? 'https://sakurasou.tv/products/assets/cd_' + jacket + '_cover.jpg'
+                      : '';
+                    const text = `<span class="ani-theme-song-info"><small>${escHtml(kind)}</small><strong>${escHtml(title)}</strong>${artist ? `<span>${escHtml(artist)}</span>` : ''}</span>`;
+                    if (id) {
+                      html += `<article class="ani-theme-song-row${largePlayers ? ' ani-theme-song-card' : ''}"><button type="button" class="ani-theme-song" data-theme-video="${id}" aria-expanded="false"><span class="ani-theme-song-cover"><img src="${cover || 'https://i.ytimg.com/vi/' + id + '/mqdefault.jpg'}" alt="" loading="lazy"><span aria-hidden="true">▶</span></span>${text}</button><a class="ani-theme-song-youtube" href="https://www.youtube.com/watch?v=${id}" target="_blank" rel="noopener noreferrer" aria-label="在 YouTube 開啟 ${escHtml(title)}（另開分頁）">${youtubeIcon}${externalIcon}</a></article>`;
+                    } else {
+                      html += `<a class="ani-theme-song" href="https://www.youtube.com/results?search_query=${encodeURIComponent(`${title} ${artist}`.trim())}" target="_blank" rel="noopener noreferrer">${cover ? '<span class="ani-theme-song-cover"><img src="' + cover + '" alt="" loading="lazy"></span>' : ''}${text}<span class="ani-theme-song-search" aria-label="在 YouTube 搜尋">${youtubeIcon}${externalIcon}</span></a>`;
+                    }
+                  }
+                  html += '</div>';
+                } else html += '<p>暫無主題曲資料</p>';
+              } else if (name === '聲優') {
+                const nodes = [...(castGrid?.children || [])];
+                const castKey = (name) => {
+                  const variants = {
+                    内: '內',
+                    沢: '澤',
+                    恵: '惠',
+                    聡: '聰',
+                    渉: '涉',
+                    斎: '齋',
+                    実: '實',
+                    会: '會',
+                    弥: '彌',
+                    すみれ: '堇',
+                    ファイルーズあい: '菲魯茲藍',
+                  };
+                  const normalized = name.normalize('NFKC');
+                  return (globalThis.AniEnhancements?.traditionalTitle(normalized) || normalized)
+                    .replace(/[\p{White_Space}・·]/gu, '')
+                    .replace(
+                      /ファイルーズあい|すみれ|[内沢恵聡渉斎実会弥]/g,
+                      (text) => variants[text],
+                    );
+                };
+                const localizedByActor = new Map();
+                const matchedCast = new Set();
+                for (const field of fields) {
+                  const key = castKey(field.val);
+                  localizedByActor.set(key, localizedByActor.has(key) ? null : field);
+                }
+                let rows = Array.from({ length: Math.floor(nodes.length / 3) }, (_, index) => {
+                  const [character, actor, link] = nodes.slice(index * 3, index * 3 + 3);
+                  const name = actor.textContent.trim();
+                  const nativeCharacter = character.textContent.trim();
+                  const localized = localizedByActor.get(castKey(name));
+                  if (localized) matchedCast.add(localized);
+                  const displayCharacter =
+                    !nativeCharacter ||
+                    /[\p{Script=Hiragana}\p{Script=Katakana}]/u.test(nativeCharacter)
+                      ? localized?.title || nativeCharacter
+                      : nativeCharacter;
+                  return [
+                    displayCharacter,
+                    localized?.val || name,
+                    (link.matches('a') ? link : link.querySelector('a'))?.href,
+                    name,
+                  ];
+                });
+                for (const field of fields) {
+                  if (
+                    !matchedCast.has(field) &&
+                    !rows.some(
+                      ([character, actor]) =>
+                        character === field.title && castKey(actor) === castKey(field.val),
+                    )
+                  ) {
+                    rows.push([field.title, field.val]);
+                  }
+                }
+                if (sakurasou) {
+                  // Official TV cast and episode credits, with role aliases from the Japanese listings.
+                  const cast = [
+                    ['神田空太', '松岡禎丞'],
+                    ['椎名真白', '茅野愛衣', '椎名ましろ'],
+                    ['青山七海', '中津真莉子'],
+                    ['上井草美咲', '高森奈津美'],
+                    ['三鷹仁', '櫻井孝宏'],
+                    ['赤坂龍之介', '堀江由衣', '赤阪龍之介'],
+                    ['千石千尋', '豐口惠', '千石ちひろ'],
+                    ['小女僕', '堀江由衣', 'メイドちゃん', '女僕秘書'],
+                    ['飯田綾乃', '淺野真澄'],
+                    ['神田優子', '小倉唯'],
+                    [
+                      '麗塔·愛因茲渥司',
+                      '川澄綾子',
+                      'リタ・エインズワース',
+                      'リタ・エインワーズ',
+                      '麗塔',
+                    ],
+                    ['館林總一郎', '日野聰', '館林総一郎', '舘林総一郎', '舘林總一郎'],
+                    ['宮原大地', '村田太志'],
+                    ['姬宮沙織', '藤村步', '姫宮沙織'],
+                    ['藤澤和希', '淺沼晉太郎', '藤沢和希'],
+                    ['白山小春', '高橋美佳子'],
+                    ['本庄彌生', '內山夕實', '本庄やよい', '本庄弥生'],
+                    ['高崎繭', '久保由利香', '高崎茧'],
+                    ['深谷志穗', '大西沙織', '深谷志穂'],
+                    ['姬宮伊織', '島崎信長', '姫宮伊織'],
+                    ['長谷栞奈', '山崎遙'],
+                    ['神田明子', '新井里美', '空太の母', '空太的母親'],
+                    ['空太的父親', '大川透', '空太の父'],
+                    ['紀子', '櫻井浩美'],
+                    ['桃子', '東山奈央'],
+                    ['上井草風香', '早見沙織'],
+                  ];
+                  const roleKey = (text) => text.normalize('NFKC').replace(/[\s・·．.]/g, '');
+                  const covered = new Set();
+                  const localized = cast.map(([role, actor, ...aliases]) => {
+                    const keys = [role, ...aliases].map(roleKey);
+                    keys.forEach((key) => covered.add(key));
+                    const matching = rows.filter(([character]) =>
+                      keys.includes(roleKey(character)),
+                    );
+                    const source = matching.find((row) => row[2]) || matching[0];
+                    return [role, actor, source?.[2], source?.[3] || source?.[1] || actor];
+                  });
+                  rows = [
+                    ...localized,
+                    ...rows.filter(([character]) => !covered.has(roleKey(character))),
+                  ];
+                }
+                if (rows.length) {
+                  html += '<ul class="ani-side-cast">';
+                  const verifiedWiki = new Map([
+                    ['內山夕實', '內山夕實'],
+                    ['會澤紗彌', '會澤紗彌'],
+                    ['田中理惠', '田中理惠 (配音員)'],
+                    ['鶴岡聰', '鶴岡聰'],
+                    ['諸星堇', '諸星堇'],
+                    ['菲魯茲藍', '菲魯茲·藍'],
+                    ['豐口惠', '豐口惠'],
+                    ['山崎遙', '山崎遙'],
+                    ['山崎はるか', '山崎遙'],
+                  ]);
+                  for (const [character, actor, url, originalActor = actor] of rows) {
+                    const isMao = /^M\s*[.・·‧．]\s*A\s*[.・·‧．]\s*O$/i.test(
+                      actor.normalize('NFKC'),
+                    );
+                    const direct =
+                      /^https?:\/\/(?:zh\.wikipedia\.org\/(?:wiki|zh(?:-tw|-hant)?)|ja\.wikipedia\.org\/wiki)\/[^?#]+/i.test(
+                        url || '',
+                      );
+                    const chineseTitle = isMao ? '市道真央' : verifiedWiki.get(castKey(actor));
+                    const isKujira =
+                      /^(?:人神|ヒトガミ)$/.test(character) &&
+                      /^(?:くじら|鯨)$/.test(originalActor);
+                    const wiki = isKujira
+                      ? 'https://zh.wikipedia.org/zh-tw/' + encodeURIComponent('鯨_(配音員)')
+                      : chineseTitle
+                        ? 'https://zh.wikipedia.org/zh-tw/' +
+                          encodeURIComponent(chineseTitle.replaceAll(' ', '_'))
+                        : direct
+                          ? url
+                              .replace(/^http:/, 'https:')
+                              .replace(
+                                /^(https:\/\/zh\.wikipedia\.org)\/(?:wiki|zh(?:-tw|-hant)?)\//i,
+                                '$1/zh-tw/',
+                              )
+                          : '';
+                    const safeHref = escHtml(wiki).replaceAll('"', '&quot;');
+                    const label = escHtml(`${actor} · 維基百科`).replaceAll('"', '&quot;');
+                    const lookup = !wiki || wiki.startsWith('https://ja.wikipedia.org/');
+                    html += `<li${lookup && originalActor ? ` data-cast-wiki="${escHtml(originalActor).replaceAll('"', '&quot;')}"` : ''}><span>${escHtml(isKujira ? '人神' : character)}</span><span>${escHtml(actor)}</span>${wiki ? `<a href="${safeHref}" title="${label}" target="_blank" rel="noopener noreferrer">Wiki</a>` : ''}</li>`;
+                  }
+                  html += '</ul>';
+                } else html += '<p>暫無聲優資料</p>';
+              } else if (isStaff && fields.length) {
+                const renderCreditText = (text) =>
+                  text
+                    .split(/(?<=、)/)
+                    .map((part) => `<span>${escHtml(part)}</span>`)
+                    .join('');
+                html += '<dl class="ani-staff-list">';
+                for (const { title, val } of fields) {
+                  html += `<div><dt>${renderCreditText(title)}</dt><dd>${renderCreditText(val)}</dd></div>`;
+                }
+                html += '</dl>';
+              } else html += '<p>暫無資料</p>';
               html += '</section>';
             }
             const prevScroll = introPane.querySelector('.ani-sidebar-scroll')?.scrollTop || 0;
-            staffGridObserver?.disconnect();
+            closeThemePlayer?.();
             introPane.innerHTML = html + '</div>';
-            for (const { name, grid } of groups) {
-              if (grid?.children.length)
-                introPane
-                  .querySelector(`[data-credit-panel="${name}"]`)
-                  .append(grid.cloneNode(true));
+            const wikiRows = [...introPane.querySelectorAll('[data-cast-wiki]')];
+            if (wikiRows.length && globalThis.chrome?.runtime?.sendMessage) {
+              const candidates = new Map(
+                wikiRows.map((row) => {
+                  const href = row.querySelector('a')?.href;
+                  let article = '';
+                  if (href?.startsWith('https://ja.wikipedia.org/wiki/')) {
+                    try {
+                      article = decodeURIComponent(
+                        new URL(href).pathname.slice('/wiki/'.length),
+                      ).replaceAll('_', ' ');
+                    } catch {}
+                  }
+                  return [
+                    row,
+                    [article, row.dataset.castWiki, row.children[1].textContent].filter(Boolean),
+                  ];
+                }),
+              );
+              const names = [...new Set([...candidates.values()].flat())];
+              const requests = [];
+              for (let offset = 0; offset < names.length; offset += 50) {
+                requests.push(
+                  new Promise((resolve) => {
+                    chrome.runtime.sendMessage(
+                      { type: 'ani-resolve-cast-wiki', names: names.slice(offset, offset + 50) },
+                      (response) => {
+                        resolve(
+                          chrome.runtime.lastError || !Array.isArray(response) ? [] : response,
+                        );
+                      },
+                    );
+                  }),
+                );
+              }
+              Promise.all(requests).then((results) => {
+                const links = new Map(
+                  results
+                    .flat()
+                    .filter((entry) => entry.wikiUrl)
+                    .map((entry) => [entry.cv, entry.wikiUrl]),
+                );
+                for (const [row, names] of candidates) {
+                  const resolved = names.map((name) => links.get(name)).filter(Boolean);
+                  const existing = row.querySelector('a');
+                  const href =
+                    resolved.find((url) => url.startsWith('https://zh.wikipedia.org/')) ||
+                    existing?.href ||
+                    resolved[0];
+                  if (!row.isConnected || !href) continue;
+                  const anchor = existing || row.appendChild(document.createElement('a'));
+                  if (!existing) anchor.textContent = 'Wiki';
+                  anchor.href = href;
+                  anchor.target = '_blank';
+                  anchor.rel = 'noopener noreferrer';
+                  anchor.title = `${row.children[1].textContent} · 維基百科`;
+                }
+                window.__aniIconifyInfoLinks?.(introPane);
+              });
             }
             const switcher = introPane.querySelector('.ani-credit-switch');
+            const themePlayer = introPane.querySelector('.ani-theme-player');
+            const themePanel = themePlayer?.closest('[data-credit-panel]');
+            const themeCardAnimations = new WeakMap();
+            const updateThemeCards = (update, closingCard) => {
+              if (
+                matchMedia('(prefers-reduced-motion: reduce)').matches ||
+                typeof themePlayer?.animate !== 'function'
+              ) {
+                update();
+                return;
+              }
+              const rows = [...themePanel.querySelectorAll('.ani-theme-song-row')];
+              const starts = rows.map((row) => row.getBoundingClientRect().top);
+              for (const row of rows) themeCardAnimations.get(row)?.cancel();
+              update();
+              const ends = rows.map((row) => row.getBoundingClientRect().top);
+              rows.forEach((row, index) => {
+                const shift = starts[index] - ends[index];
+                if (Math.abs(shift) < 1) return;
+                const animation = row.animate(
+                  [{ transform: 'translateY(' + shift + 'px)' }, { transform: 'translateY(0)' }],
+                  { duration: 180, easing: 'cubic-bezier(.22, .72, .24, 1)' },
+                );
+                themeCardAnimations.set(row, animation);
+              });
+              const image = closingCard?.querySelector('.ani-theme-song-cover img');
+              if (image) {
+                themeCardAnimations.get(image)?.cancel();
+                themeCardAnimations.set(
+                  image,
+                  image.animate([{ opacity: 0 }, { opacity: 1 }], {
+                    duration: 180,
+                    easing: 'ease-out',
+                  }),
+                );
+              }
+            };
+            closeThemePlayer = () => {
+              themePlayer?.querySelector('iframe')?.remove();
+              if (themePlayer) themePlayer.hidden = true;
+              themePanel
+                ?.querySelector('[data-theme-video][aria-expanded="true"]')
+                ?.setAttribute('aria-expanded', 'false');
+            };
+            if (themePanel)
+              themePanel.onclick = (event) => {
+                const current = themePanel.querySelector(
+                  '[data-theme-video][aria-expanded="true"]',
+                );
+                const currentCard = current?.closest('.ani-theme-song-row');
+                if (event.target.closest('[data-theme-close]')) {
+                  updateThemeCards(closeThemePlayer, currentCard);
+                  current?.focus({ preventScroll: true });
+                  return;
+                }
+                const song = event.target.closest('[data-theme-video]');
+                if (!song) return;
+                const id = song.dataset.themeVideo;
+                if (song.getAttribute('aria-expanded') === 'true') {
+                  updateThemeCards(closeThemePlayer, currentCard);
+                  return;
+                }
+                const frame = document.createElement('iframe');
+                frame.title = song.querySelector('strong').textContent;
+                frame.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1`;
+                frame.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+                frame.referrerPolicy = 'strict-origin-when-cross-origin';
+                const card = song.closest('.ani-theme-song-row');
+                updateThemeCards(() => {
+                  closeThemePlayer();
+                  if (card.classList.contains('ani-theme-song-card')) song.before(themePlayer);
+                  else card.append(themePlayer);
+                  themePlayer.append(frame);
+                  themePlayer.hidden = false;
+                  song.setAttribute('aria-expanded', 'true');
+                }, currentCard);
+              };
             switcher.onclick = (event) => {
               const choice = event.target.closest('[data-credit-choice]');
-              if (!choice) return;
-              for (const button of switcher.children)
+              if (!choice || choice.getAttribute('aria-pressed') === 'true') return;
+              closeThemePlayer();
+              for (const button of switcher.querySelectorAll('[data-credit-choice]'))
                 button.setAttribute('aria-pressed', String(button === choice));
               for (const panel of introPane.querySelectorAll('[data-credit-panel]'))
                 panel.hidden = panel.dataset.creditPanel !== choice.dataset.creditChoice;
             };
             window.__aniIconifyInfoLinks?.(introPane);
-            const staffGrid = introPane.querySelector(
-              '[data-credit-panel="製作團隊"] .ani-side-meta-grid',
-            );
-            if (staffGrid && typeof ResizeObserver === 'function') {
-              let previousWidth = 0;
-              staffGridObserver = new ResizeObserver(([entry]) => {
-                const width = entry.contentRect.width;
-                if (width === previousWidth) return;
-                previousWidth = width;
-                if (!width) return;
-                const gap = parseFloat(getComputedStyle(staffGrid).columnGap) || 0;
-                const items = [...staffGrid.querySelectorAll(':scope > .ani-side-meta-item')];
-                staffGrid.classList.add('ani-measure-staff');
-                const widths = items.map((item) => item.getBoundingClientRect().width);
-                staffGrid.classList.remove('ani-measure-staff');
-                const pairWidth = Math.floor(width - gap);
-                for (let index = 0; index < items.length; ) {
-                  const first = Math.ceil(widths[index]);
-                  const second = Math.ceil(widths[index + 1]);
-                  if (first + second <= pairWidth) {
-                    const left = Math.min(
-                      pairWidth - second,
-                      Math.max(first, Math.floor(pairWidth / 2)),
-                    );
-                    items[index].style.setProperty('--ani-staff-width', `${left}px`);
-                    items[index + 1].style.setProperty(
-                      '--ani-staff-width',
-                      `${pairWidth - left}px`,
-                    );
-                    index += 2;
-                  } else {
-                    items[index].style.setProperty('--ani-staff-width', '100%');
-                    index++;
-                  }
-                }
-              });
-              staffGridObserver.observe(staffGrid);
-            }
-            const newScrollEl = introPane.querySelector('.ani-sidebar-scroll');
-            newScrollEl.scrollTop = prevScroll;
-            const syncIntroEdges = () => {
-              const { scrollTop, scrollHeight, clientHeight } = newScrollEl;
-              introPane.classList.toggle('can-scroll-up', scrollTop > 1);
-              introPane.classList.toggle(
-                'can-scroll-down',
-                clientHeight > 0 && scrollHeight - clientHeight - scrollTop > 1,
-              );
-            };
-            newScrollEl.addEventListener('scroll', syncIntroEdges, { passive: true });
-            introScrollObserver?.disconnect();
-            if (typeof ResizeObserver === 'function') {
-              introScrollObserver = new ResizeObserver(syncIntroEdges);
-              introScrollObserver.observe(newScrollEl);
-              for (const child of newScrollEl.children) introScrollObserver.observe(child);
-            }
-            syncIntroEdges();
+            const introScroll = introPane.querySelector('.ani-sidebar-scroll');
+            introScroll.scrollTop = prevScroll;
           };
 
           let ratingPane = document.getElementById('ani-tab-content-rating');
@@ -21002,12 +22524,81 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           }
 
           let lastRatingSig = '';
+          let ratingReviewObserver;
+          let ratingRingAnimated = false;
+          const ratingRingDrawings = new Map();
+          let ratingBarsAnimated = false;
+          let ratingReviewsAnimated = false;
+          let ratingReviewsSettled = false;
+          const ringKeyframes = (angle, half) => {
+            const zero = { transform: 'rotate(0deg)' };
+            if (half === 2) return [zero, { transform: `rotate(${angle}deg)` }];
+            const full = { transform: 'rotate(180deg)' };
+            const end = {
+              transform: `rotate(${Math.max(0, Math.min(180, angle - half * 180))}deg)`,
+            };
+            if (angle <= 180) return [zero, end];
+            const split = 180 / angle;
+            return half
+              ? [zero, { ...zero, offset: split }, end]
+              : [zero, { ...full, offset: split }, full];
+          };
+          const animateLoadedRating = () => {
+            if (
+              ratingPane?.dataset.aniTabActive !== 'true' ||
+              matchMedia('(prefers-reduced-motion: reduce)').matches
+            )
+              return;
+
+            const timing = { duration: 1200, easing: 'linear' };
+            const ring = ratingPane.querySelector('.ani-rating-ring-graphic');
+            const angle = Number(ring?.dataset.angle);
+            const segments = ring ? [...ring.querySelectorAll('.ani-ring-rotator')] : [];
+            if (!ratingRingAnimated && angle > 0 && segments[0]?.animate) {
+              ratingRingAnimated = true;
+              segments.forEach((segment, half) => {
+                const drawing = segment.animate(ringKeyframes(angle, half), {
+                  ...timing,
+                  fill: 'backwards',
+                });
+                ratingRingDrawings.set(segment, drawing);
+                const releaseDrawing = () => {
+                  if (ratingRingDrawings.get(segment) === drawing)
+                    ratingRingDrawings.delete(segment);
+                };
+                drawing.finished.then(releaseDrawing, releaseDrawing);
+              });
+            }
+            const bars = [...ratingPane.querySelectorAll('.ani-rating-bar-fill')];
+            if (!ratingBarsAnimated && bars.some((bar) => parseFloat(bar.style.width) > 0)) {
+              ratingBarsAnimated = true;
+              for (const bar of bars) {
+                bar.animate?.([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], {
+                  duration: 1500,
+                  easing: 'linear',
+                  fill: 'backwards',
+                });
+              }
+            }
+
+            const reviews = ratingPane.querySelector('.ani-rating-reviews:not([hidden])');
+            if (reviews && !ratingReviewsAnimated) {
+              ratingReviewsAnimated = true;
+              reviews.animate?.([{ opacity: 0 }, { opacity: 1 }], {
+                duration: 220,
+                easing: 'ease-out',
+              });
+            }
+          };
           let cachedUserStars = 0;
+          let savedReviewContent;
+          let currentOwnReview;
           const reviewCache = new Map();
           const readAcgReviewMeta = () => {
             let fanpageId = '';
             let mediaType = '4';
             let userScore = 0;
+            let reviewMessageId = '';
             const moreOnclick =
               acgReviewEl?.querySelector('.user-score-more')?.getAttribute('onclick') || '';
             const mNav = moreOnclick.match(/navAllReviews\s*\(\s*(\d+)\s*,\s*(\d+)\s*\)/);
@@ -21031,15 +22622,18 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                   mediaType = mInit[2];
                 }
               }
-              const mUser = txt.match(/acgReview\.userReview\s*\(\s*(\d+)\s*(?:,|\))/);
+              const mUser = txt.match(
+                /acgReview\.userReview\s*\(\s*(\d+)\s*(?:,\s*["']?(\d+)["']?)?\s*\)/,
+              );
               if (mUser) {
                 userScore = Number(mUser[1]) || 0;
+                reviewMessageId = /^[1-9]\d*$/.test(mUser[2] || '') ? mUser[2] : '';
               }
               if (fanpageId && userScore) break;
             }
-            return { fanpageId, mediaType, userScore };
+            return { fanpageId, mediaType, userScore, reviewMessageId };
           };
-          const fetchPopularReviews = (fanpageId, mediaType = '4') => {
+          const fetchPopularReviews = (fanpageId, mediaType = '4', reviewMessageId = '') => {
             if (!fanpageId) return Promise.resolve({ myReview: null, reviews: [] });
             if (reviewCache.has(fanpageId)) return reviewCache.get(fanpageId);
             const p = (async () => {
@@ -21048,7 +22642,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                   const res = await new Promise((resolve) => {
                     try {
                       chrome.runtime.sendMessage(
-                        { type: 'ani-fetch-reviews', fanpageId, mediaType },
+                        { type: 'ani-fetch-reviews', fanpageId, mediaType, reviewMessageId },
                         (resp) => resolve(resp || {}),
                       );
                     } catch (_) {
@@ -21074,6 +22668,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                     GM_xmlhttpRequest({
                       method: 'GET',
                       url: `https://api.gamer.com.tw/acg/v1/reviews_list.php?sn=${encodeURIComponent(fanpageId)}&t=${encodeURIComponent(mediaType)}&sort=1&page=1`,
+                      nocache: true,
                       onload: (r) => {
                         try {
                           resolve(JSON.parse(r.responseText));
@@ -21274,7 +22869,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             const n = Math.max(1, Math.min(5, Number(count) || 0));
             return `<span class="ani-rating-star-row" aria-label="${n} 星">${goldStarSvg.repeat(n)}</span>`;
           };
-          const populateRatingPane = () => {
+          const populateRatingPane = (force = false) => {
             if (!ratingPane || !acgReviewEl) return;
             const scoreNumStr = (
               acgReviewEl.querySelector('.score-overall-number')?.textContent || '0'
@@ -21288,14 +22883,8 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               acgReviewEl.querySelector('.user-scored-tip')?.textContent || ''
             ).trim();
             const userStars = readUserRatedStars();
-            const rSig = `${scoreNumStr}|${peopleText}|${scoredTip}|${userStars}`;
-            if (rSig === lastRatingSig) return;
-            lastRatingSig = rSig;
-
             const scoreNum = parseFloat(scoreNumStr) || 0;
-            const r = 46;
-            const circ = 2 * Math.PI * r;
-            const dashOffset = circ * (1 - Math.max(0, Math.min(1, scoreNum / 5)));
+            const angle = 360 * Math.max(0, Math.min(1, scoreNum / 5));
             const dist = [];
             for (const row of acgReviewEl.querySelectorAll('.ACG-data .acg-score-date')) {
               const stars =
@@ -21304,6 +22893,9 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               const pctStr = row.querySelector('.scored-line')?.style?.width || '0%';
               dist.push({ stars, pctNum: Math.round(parseFloat(pctStr) || 0) });
             }
+            const rSig = JSON.stringify([scoreNumStr, peopleText, scoredTip, userStars, dist]);
+            if (!force && rSig === lastRatingSig) return;
+            lastRatingSig = rSig;
 
             const nativeDelBtn = acgReviewEl.querySelector(
               '.user-star-block :is([class*="del"], [class*="remove"], [class*="trash"]), .btn-delete-score, [onclick*="del" i]',
@@ -21322,7 +22914,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
 
             let html = '<div class="ani-sidebar-scroll ani-rating-scroll">';
             html += '<div class="ani-rating-hero">';
-            html += `<div class="ani-rating-ring-wrap"><svg viewBox="-8 -8 132 132" class="ani-rating-ring-svg"><circle class="ani-ring-bg" cx="58" cy="58" r="${r}"/><circle class="ani-ring-fg" cx="58" cy="58" r="${r}" stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${dashOffset.toFixed(1)}"/></svg><div class="ani-ring-center"><strong>${scoreNum ? scoreNum.toFixed(1) : '-'}</strong><span>${escHtml(peopleText)}</span></div></div>`;
+            html += `<div class="ani-rating-ring-wrap"><div class="ani-rating-ring-graphic" data-angle="${angle}" aria-hidden="true"><div class="ani-ring-half"><div class="ani-ring-rotator" style="transform:rotate(${Math.min(180, angle)}deg)"></div></div><div class="ani-ring-half"><div class="ani-ring-rotator" style="transform:rotate(${Math.max(0, angle - 180)}deg)"></div></div><div class="ani-ring-rotator ani-ring-cap-orbit" style="transform:rotate(${angle}deg)"></div></div><div class="ani-ring-center"><strong>${scoreNum ? scoreNum.toFixed(1) : '-'}</strong><span>${escHtml(peopleText)}</span></div></div>`;
             html += '<div class="ani-rating-bars">';
             for (const item of dist) {
               html += `<div class="ani-rating-bar-row"><span class="ani-rating-bar-label">${renderStarsHtml(item.stars)}</span><div class="ani-rating-bar-track"><div class="ani-rating-bar-fill" style="width:${item.pctNum}%"></div></div><span class="ani-rating-bar-pct"><span>${item.pctNum}</span> <span class="ani-rating-bar-unit">%</span></span></div>`;
@@ -21343,27 +22935,70 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                   : ''
               }${wallUrl || acgReviewEl.querySelector('.user-score-more') ? '<button type="button" class="ani-my-write-review-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4Z"/></svg><span>寫評論</span></button>' : ''}</div>`;
             }
-            html += '</div>';
-            html += '<div class="ani-rating-reviews" hidden></div>';
+            html += '<div class="ani-rating-own-review" hidden></div></div>';
+            if (meta.fanpageId && !ratingReviewsSettled) {
+              html += '<div class="ani-rating-loading" role="status">載入評價中</div>';
+            }
+            html +=
+              '<div class="ani-rating-reviews" hidden><div class="ani-side-divider"></div><div class="ani-reviews-title-row"><span>熱門評價</span></div><div class="ani-rating-review-viewport"><div class="ani-reviews-list" tabindex="0" aria-label="熱門評價"></div></div></div>';
             if (acgReviewEl.querySelector('.user-score-more') || wallUrl) {
               html += '<button type="button" class="ani-rating-more-btn">查看所有評價</button>';
             }
             html += '</div>';
 
+            ratingReviewObserver?.disconnect();
+            const previousRing = ratingPane.querySelector('.ani-rating-ring-graphic');
+            const previousBars = ratingPane.querySelector('.ani-rating-bars');
             ratingPane.innerHTML = html;
-            const openWallOrReviews = () => {
-              const nativeMore = acgReviewEl.querySelector('.user-score-more');
-              if (wallUrl) window.open(wallUrl, '_blank', 'noopener,noreferrer');
-              else if (nativeMore) nativeMore.click();
-            };
+            const nextRing = ratingPane.querySelector('.ani-rating-ring-graphic');
+            const nextBars = ratingPane.querySelector('.ani-rating-bars');
+            if (previousRing) {
+              if (previousRing.dataset.angle !== nextRing.dataset.angle) {
+                previousRing.dataset.angle = nextRing.dataset.angle;
+                const nextSegments = nextRing.querySelectorAll('.ani-ring-rotator');
+                previousRing.querySelectorAll('.ani-ring-rotator').forEach((segment, half) => {
+                  segment.style.transform = nextSegments[half].style.transform;
+                  ratingRingDrawings.get(segment)?.effect.setKeyframes(ringKeyframes(angle, half));
+                });
+              }
+              nextRing.replaceWith(previousRing);
+            }
+            const previousRows = previousBars ? [...previousBars.children] : [];
+            const nextRows = [...nextBars.children];
+            if (
+              previousBars &&
+              previousRows.length === nextRows.length &&
+              previousRows.every((row, index) =>
+                row.firstElementChild.isEqualNode(nextRows[index].firstElementChild),
+              )
+            ) {
+              previousRows.forEach((row, index) => {
+                const nextRow = nextRows[index];
+                const fill = row.querySelector('.ani-rating-bar-fill');
+                fill.style.width = nextRow.querySelector('.ani-rating-bar-fill').style.width;
+                row.lastElementChild.firstElementChild.textContent =
+                  nextRow.lastElementChild.firstElementChild.textContent;
+              });
+              nextBars.replaceWith(previousBars);
+            }
             ratingPane.querySelector('.ani-rating-more-btn')?.addEventListener('click', () => {
               const nativeMore = acgReviewEl.querySelector('.user-score-more');
               if (nativeMore) nativeMore.click();
               else if (wallUrl) window.open(wallUrl, '_blank', 'noopener,noreferrer');
             });
-            ratingPane
-              .querySelector('.ani-my-write-review-btn')
-              ?.addEventListener('click', openWallOrReviews);
+            const reviewButton = ratingPane.querySelector('.ani-my-write-review-btn');
+            reviewButton?.addEventListener('click', () => {
+              const nativeStars = getNativeStarNodes();
+              const nativeEdit = acgReviewEl.querySelector(
+                '.acg-score-user.is-scored > .user-score-block',
+              );
+              const nativeAction =
+                nativeEdit ||
+                nativeStars[(cachedUserStars || userStars || 5) - 1] ||
+                nativeStars.at(-1);
+              if (nativeAction) nativeAction.click();
+              else ratingPane.querySelector('.ani-my-star-btn')?.focus();
+            });
             ratingPane.querySelector('.ani-my-rating-clear')?.addEventListener('click', () => {
               cachedUserStars = 0;
               nativeDelBtn?.click();
@@ -21386,13 +23021,14 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
 
             if (meta.fanpageId) {
               const reviewsWrap = ratingPane.querySelector('.ani-rating-reviews');
+              const ownReview = ratingPane.querySelector('.ani-rating-own-review');
               const renderCard = (rev, isMine = false) => {
                 const postUrl = rev.id
                   ? `https://wall.gamer.com.tw/post.php?sn=${encodeURIComponent(rev.id)}`
                   : wallUrl;
                 const safeAvatar = rev.avatar && /^https:\/\//i.test(rev.avatar) ? rev.avatar : '';
                 const starBlock =
-                  rev.rating > 0
+                  !isMine && rev.rating > 0
                     ? `<span class="ani-rev-stars">${goldStarSvg.repeat(Math.min(5, rev.rating))}</span>`
                     : '';
                 return (
@@ -21401,55 +23037,135 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                   (safeAvatar
                     ? `<img class="ani-rev-avatar" src="${escHtml(safeAvatar)}" alt="" loading="lazy"/>`
                     : '<span class="ani-rev-avatar is-empty"></span>') +
-                  `<div class="ani-rev-meta"><strong class="ani-rev-author">${escHtml(rev.author)}${isMine ? '<span class="ani-rev-mine-badge">我的評論</span>' : ''}</strong>${starBlock}</div>` +
+                  `<div class="ani-rev-meta"><strong class="ani-rev-author">${escHtml(rev.author)}</strong>${starBlock}</div>` +
                   `<span class="ani-rev-likes" title="推薦數"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2 21h4V9H2v12Zm20-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L13.17 1 6.59 7.59C6.22 7.95 6 8.45 6 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2Z"/></svg>${rev.likeCount || 0}</span>` +
                   `</div>` +
                   `<p class="ani-rev-body">${escHtml(rev.content)}</p>` +
                   `</a>`
                 );
               };
-              fetchPopularReviews(meta.fanpageId, meta.mediaType).then((data) => {
-                const myReview = data?.myReview || null;
-                const resolvedRating = Number(data?.myRating || myReview?.rating || 0) || 0;
-                if (resolvedRating > 0 && cachedUserStars === 0) {
-                  cachedUserStars = resolvedRating;
-                  starBtns.forEach((b, j) => {
-                    const fill = j < resolvedRating;
-                    b.classList.toggle('is-filled', fill);
-                    b.setAttribute('aria-pressed', String(fill));
-                  });
-                  const statusEl = ratingPane.querySelector('.ani-my-rating-status');
-                  if (statusEl && !/[1-5]/.test(statusEl.textContent || '')) {
-                    const base = (statusEl.textContent || '').trim();
-                    statusEl.textContent = base
-                      ? `${base}（${resolvedRating} 星）`
-                      : `已評價 ${resolvedRating} 星`;
+              const renderOwnReview = () => {
+                const content = savedReviewContent ?? currentOwnReview?.content ?? '';
+                if (reviewButton)
+                  reviewButton.querySelector('span').textContent = content ? '修改評論' : '寫評論';
+                ownReview.hidden = !content;
+                let profile;
+                if (content) {
+                  const readProfile = (event) => {
+                    try {
+                      profile = JSON.parse(event.detail);
+                    } catch {}
+                  };
+                  document.addEventListener('ani-review-profile', readProfile);
+                  try {
+                    document.dispatchEvent(new Event('ani-review-request-profile'));
+                  } finally {
+                    document.removeEventListener('ani-review-profile', readProfile);
                   }
                 }
-                const reviews = Array.isArray(data) ? data : data?.reviews || [];
-                if (!reviewsWrap || (!myReview?.content && !reviews.length)) return;
-                let blocks = '';
-                if (myReview?.content) {
-                  blocks += `<div class="ani-side-divider"></div><div class="ani-reviews-title-row"><span>我的評論</span></div><div class="ani-reviews-list">${renderCard(myReview, true)}</div>`;
-                }
-                if (reviews.length) {
-                  const itemsHtml = reviews
-                    .slice(0, 5)
-                    .map((rev) => renderCard(rev, false))
-                    .join('');
-                  blocks += `<div class="ani-side-divider"></div><div class="ani-reviews-title-row"><span>熱門評價</span></div><div class="ani-reviews-list">${itemsHtml}</div>`;
-                }
-                reviewsWrap.innerHTML = blocks;
-                reviewsWrap.hidden = false;
-              });
+                ownReview.innerHTML = content
+                  ? renderCard(
+                      {
+                        ...currentOwnReview,
+                        content,
+                        author: profile?.name || currentOwnReview?.author || '巴哈勇者',
+                        avatar: profile?.avatar || currentOwnReview?.avatar || '',
+                      },
+                      true,
+                    )
+                  : '';
+              };
+              renderOwnReview();
+              fetchPopularReviews(meta.fanpageId, meta.mediaType, meta.reviewMessageId).then(
+                (data) => {
+                  if (!reviewsWrap?.isConnected) return;
+                  ratingReviewsSettled = true;
+                  ratingPane.querySelector('.ani-rating-loading')?.remove();
+                  const myReview = data?.myReview || null;
+                  const resolvedRating = Number(data?.myRating || myReview?.rating || 0) || 0;
+                  if (resolvedRating > 0 && cachedUserStars === 0) {
+                    cachedUserStars = resolvedRating;
+                    starBtns.forEach((b, j) => {
+                      const fill = j < resolvedRating;
+                      b.classList.toggle('is-filled', fill);
+                      b.setAttribute('aria-pressed', String(fill));
+                    });
+                    const statusEl = ratingPane.querySelector('.ani-my-rating-status');
+                    if (statusEl && !/[1-5]/.test(statusEl.textContent || '')) {
+                      const base = (statusEl.textContent || '').trim();
+                      statusEl.textContent = base
+                        ? `${base}（${resolvedRating} 星）`
+                        : `已評價 ${resolvedRating} 星`;
+                    }
+                  }
+                  const reviews = Array.isArray(data) ? data : data?.reviews || [];
+                  currentOwnReview = myReview;
+                  if (savedReviewContent === (myReview?.content ?? ''))
+                    savedReviewContent = undefined;
+                  renderOwnReview();
+                  if (reviews.length) {
+                    const viewport = reviewsWrap.querySelector('.ani-rating-review-viewport');
+                    const list = viewport.querySelector('.ani-reviews-list');
+                    list.innerHTML = reviews
+                      .slice(0, 5)
+                      .map((rev) => renderCard(rev))
+                      .join('');
+                    reviewsWrap.hidden = false;
+                    const syncEdges = () => {
+                      const { scrollTop, scrollHeight, clientHeight } = list;
+                      const range = Math.max(0, scrollHeight - clientHeight);
+                      const position = Math.min(range, Math.max(0, scrollTop));
+                      const fades = [
+                        ['--ani-review-shadow-top', position],
+                        ['--ani-review-shadow-bottom', range - position],
+                      ];
+                      for (const [property, distance] of fades) {
+                        const value =
+                          clientHeight && range > 1
+                            ? String(Math.min(1, Math.round(distance) / 20))
+                            : '0';
+                        if (viewport.style.getPropertyValue(property) !== value)
+                          viewport.style.setProperty(property, value);
+                      }
+                    };
+                    list.addEventListener('scroll', syncEdges, { passive: true });
+                    ratingReviewObserver?.disconnect();
+                    if (typeof ResizeObserver === 'function') {
+                      ratingReviewObserver = new ResizeObserver(syncEdges);
+                      ratingReviewObserver.observe(list);
+                      for (const card of list.children) ratingReviewObserver.observe(card);
+                    }
+                    syncEdges();
+                    animateLoadedRating();
+                  }
+                },
+              );
             }
+            animateLoadedRating();
           };
           if (acgReviewEl && !acgReviewEl.dataset.aniRatingObserved) {
             acgReviewEl.dataset.aniRatingObserved = 'true';
-            new MutationObserver(() => populateRatingPane()).observe(acgReviewEl, {
+            const refreshReviews = (content) => {
+              savedReviewContent = content;
+              reviewCache.delete(readAcgReviewMeta().fanpageId);
+              populateRatingPane(true);
+            };
+            document.addEventListener('ani-review-saved', (event) => {
+              if (typeof event.detail !== 'string' || !ratingPane?.isConnected) return;
+              refreshReviews(event.detail.trim());
+            });
+            let nativeScored = Boolean(acgReviewEl.querySelector('.acg-score-user.is-scored'));
+            new MutationObserver(() => {
+              const scored = Boolean(acgReviewEl.querySelector('.acg-score-user.is-scored'));
+              const removed = nativeScored && !scored;
+              nativeScored = scored;
+              if (removed) refreshReviews('');
+              else populateRatingPane();
+            }).observe(acgReviewEl, {
               childList: true,
               subtree: true,
               attributes: true,
+              characterData: true,
             });
           }
 
@@ -21466,6 +23182,11 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           };
 
           if (introPane) {
+            document.addEventListener('ani-bangumi-mappings-ready', populateIntroPane);
+            document.addEventListener('ani-opencc-ready', () => {
+              lastIntroSig = '';
+              populateIntroPane();
+            });
             addCustomTab(
               'ani-tab-content-intro',
               '作品簡介',
@@ -21495,6 +23216,12 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               const selected = panels.find((panel) => panel.id === id);
               for (const panel of panels) {
                 const isSel = selected ? panel === selected : false;
+                if (isSel && panel === ratingPane && panel.dataset.aniTabActive === 'true')
+                  continue;
+                if (!isSel && panel === ratingPane && panel.dataset.aniTabActive === 'true') {
+                  for (const drawing of ratingRingDrawings.values()) drawing.cancel();
+                  ratingRingDrawings.clear();
+                }
                 panel.classList.remove('is-tab-entering');
                 if (selected) panel.dataset.aniTabActive = String(isSel);
                 else delete panel.dataset.aniTabActive;
@@ -21505,7 +23232,11 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                 }
               }
               if (id === 'ani-tab-content-intro') populateIntroPane();
-              if (id === 'ani-tab-content-rating') populateRatingPane();
+              else closeThemePlayer?.();
+              if (id === 'ani-tab-content-rating') {
+                populateRatingPane();
+                animateLoadedRating();
+              }
             } finally {
               syncLocked = false;
             }
@@ -21681,6 +23412,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         const toolsTop = tools?.getBoundingClientRect().top;
         const changeId = ++layoutChangeId;
         Object.assign(settings, values);
+        cacheResolvedSettings();
         applyPageTheme();
         active?.applySettings();
         active?.refresh();
@@ -21805,6 +23537,70 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
       }
 
       // ── 四、播放器生命週期：一個影片只建立一組渲染資源 ──
+      function rememberPlaybackVolume(video, player) {
+        const key = 'aniPlaybackVolume';
+        let preference;
+        try {
+          const saved = JSON.parse(localStorage.getItem(key));
+          const volume = typeof saved === 'number' ? saved : saved?.volume;
+          if (Number.isFinite(volume) && volume >= 0 && volume <= 1) {
+            preference = {
+              volume,
+              muted: typeof saved?.muted === 'boolean' ? saved.muted : volume === 0,
+            };
+          }
+        } catch {}
+
+        const restore = () => {
+          if (!preference || beforeInteraction || player.matches(NON_EPISODE_PLAYER_SELECTOR))
+            return;
+          if (video.volume !== preference.volume) video.volume = preference.volume;
+          if (video.muted !== preference.muted) video.muted = preference.muted;
+        };
+        const volumeControls = '.vjs-volume-panel, .vjs-mute-control, .vjs-volume-control';
+        const interactionEvents = ['input', 'change', 'click', 'wheel', 'keydown', 'pointerdown'];
+        let beforeInteraction;
+        let saveTimer;
+        const saveVolume = () => {
+          clearTimeout(saveTimer);
+          if (!beforeInteraction) return;
+          const { volume, muted } = video;
+          const changed = volume !== beforeInteraction.volume || muted !== beforeInteraction.muted;
+          beforeInteraction = undefined;
+          if (!changed) return;
+          preference = { volume, muted };
+          try {
+            localStorage.setItem(key, JSON.stringify(preference));
+          } catch {}
+        };
+        const trackVolumeInteraction = (event) => {
+          if (!event.isTrusted) return;
+          const volumeKey =
+            event.type === 'keydown' &&
+            /^(?:m|ArrowUp|ArrowDown)$/i.test(event.key) &&
+            !event.target.closest?.('input, textarea, select, [contenteditable]');
+          if (!volumeKey && !event.target.closest?.(volumeControls)) return;
+          beforeInteraction ??= { volume: video.volume, muted: video.muted };
+          clearTimeout(saveTimer);
+          saveTimer = setTimeout(saveVolume, 0);
+        };
+        for (const type of interactionEvents)
+          player.addEventListener(type, trackVolumeInteraction, true);
+        video.addEventListener('loadedmetadata', restore);
+        video.addEventListener('playing', restore);
+        window.addEventListener('pagehide', saveVolume);
+        restore();
+
+        return () => {
+          saveVolume();
+          for (const type of interactionEvents)
+            player.removeEventListener(type, trackVolumeInteraction, true);
+          video.removeEventListener('loadedmetadata', restore);
+          video.removeEventListener('playing', restore);
+          window.removeEventListener('pagehide', saveVolume);
+        };
+      }
+
       function attach(video) {
         const player = video.closest('#ani_video, .video-js') || video.parentElement;
         const host = video.closest('.videoframe') || player?.parentElement;
@@ -21812,6 +23608,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         const originalClip = video.style.clipPath;
         const controlBar = player?.querySelector('.vjs-control-bar');
         if (!player || !host || !document.body) return null;
+        const stopRememberingVolume = rememberPlaybackVolume(video, player);
 
         const toggle = document.createElement('button');
         toggle.type = 'button';
@@ -21842,14 +23639,17 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         pageGlow.setAttribute('aria-hidden', 'true');
         document.body.prepend(pageGlow);
 
-        const sample = document.createElement('canvas');
-        sample.width = SAMPLE_WIDTH;
-        sample.height = SAMPLE_HEIGHT;
-        const sampleCtx = sample.getContext('2d', { willReadFrequently: true });
-        let renderer = globalThis.AniAmbientRenderer?.create(
-          pageGlow,
-          settings.renderer === 'canvas',
-        );
+        let sample = null;
+        let sampleCtx = null;
+        function ensureSampler() {
+          if (sampleCtx) return sampleCtx;
+          sample = document.createElement('canvas');
+          sample.width = SAMPLE_WIDTH;
+          sample.height = SAMPLE_HEIGHT;
+          sampleCtx = sample.getContext('2d', { willReadFrequently: true });
+          return sampleCtx;
+        }
+        let renderer = null;
         let rendererPreference = settings.renderer;
         function useCanvasFallback() {
           renderer?.destroy();
@@ -21858,7 +23658,15 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           pageGlow = replacement;
           renderer = globalThis.AniAmbientRenderer?.create(pageGlow, true);
         }
-        if (!renderer) useCanvasFallback();
+        function ensureRenderer() {
+          if (renderer) return renderer;
+          renderer = globalThis.AniAmbientRenderer?.create(
+            pageGlow,
+            settings.renderer === 'canvas',
+          );
+          if (!renderer) useCanvasFallback();
+          return renderer;
+        }
         let stopped = false;
         let failed = false;
         let frameHandle = null;
@@ -21918,15 +23726,13 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         function applySettings() {
           if (rendererPreference !== settings.renderer) {
             rendererPreference = settings.renderer;
-            renderer?.destroy();
-            const replacement = pageGlow.cloneNode(false);
-            pageGlow.replaceWith(replacement);
-            pageGlow = replacement;
-            renderer = globalThis.AniAmbientRenderer?.create(
-              pageGlow,
-              settings.renderer === 'canvas',
-            );
-            if (!renderer) useCanvasFallback();
+            if (renderer) {
+              renderer.destroy();
+              renderer = null;
+              const replacement = pageGlow.cloneNode(false);
+              pageGlow.replaceWith(replacement);
+              pageGlow = replacement;
+            }
             hasFrame = false;
           }
           // The page redesign is opt-in and its precise grid is used only when
@@ -22064,6 +23870,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             pageGlow.height = height;
           }
           // 值沒變就不寫：每影格寫 DOM 屬性會使樣式失效，下一次量測又得重排。
+          if (Number(settings.intensity) > 0 && !renderer) ensureRenderer();
           const kind = renderer?.kind || 'unavailable',
             acceleration = renderer?.acceleration || 'unknown';
           if (pageGlow.dataset.renderer !== kind) pageGlow.dataset.renderer = kind;
@@ -22163,8 +23970,10 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                 sampleHandle = null;
                 if (stopped || !shouldShow() || video.readyState < 2) return;
                 try {
-                  sampleCtx.drawImage(video, 0, 0, SAMPLE_WIDTH, SAMPLE_HEIGHT);
-                  const sampled = sampleCtx.getImageData(0, 0, SAMPLE_WIDTH, SAMPLE_HEIGHT);
+                  const ctx = ensureSampler();
+                  if (!ctx) return;
+                  ctx.drawImage(video, 0, 0, SAMPLE_WIDTH, SAMPLE_HEIGHT);
+                  const sampled = ctx.getImageData(0, 0, SAMPLE_WIDTH, SAMPLE_HEIGHT);
                   updateCrop(performance.now(), sampled.data);
                   if (sampleSceneColor) {
                     previousColor = averageEdges(sampled.data);
@@ -22435,6 +24244,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           refresh: sampleOnce,
           stop() {
             stopped = true;
+            stopRememberingVolume();
             if (sampleHandle !== null) clearTimeout(sampleHandle);
             if (frameHandle !== null) {
               if (video.cancelVideoFrameCallback) video.cancelVideoFrameCallback(frameHandle);
@@ -22472,6 +24282,29 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
 
       // ── 八、換集與頁面變動：解除舊監聽及資源後再綁定 ──
       let isBindingPlayer = false;
+      const watchInfoSelector = '.anime-title .anime_info_detail';
+      function syncWatchDatePills() {
+        if (location.pathname !== '/animeVideo.php') return;
+        for (const item of document.querySelectorAll(watchInfoSelector + ' > *')) {
+          const label = item.textContent.trim();
+          const upload = label.match(/^上架(?:時間|日期)\s*[：:]?\s*(.+)$/);
+          const expiry = label.match(
+            /^預定下架日期\s*[：:]?\s*(\d{4}\/\d{1,2}\/\d{1,2}(?:\s+\d{1,2}:\d{2})?)$/,
+          );
+          if (!upload && !expiry) continue;
+          item.classList.remove('ani-info-counting', 'ani-info-views');
+          item.classList.add(expiry ? 'ani-info-offshelf' : 'ani-info-upload-time');
+          item.textContent = expiry ? `下架 ${expiry[1]}` : upload[1];
+          const icon = expiry
+            ? '<path d="M9 21H6a3 3 0 0 1-3-3V8a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v3M7 3v4m10-4v4M3 10h18"/><circle cx="16.5" cy="16.5" r="5"/><path d="M16.5 14v2.5l1.5 1"/>'
+            : '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 11h18"/>';
+          item.insertAdjacentHTML(
+            'afterbegin',
+            `<svg class="ani-info-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icon}</svg>`,
+          );
+        }
+      }
+
       function markInitialUiReady() {
         const root = document.documentElement;
         if (!initialUiBound || !fontSettingsKnown || root.dataset.aniUiReady) return;
@@ -22483,6 +24316,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         if (isBindingPlayer) return;
         isBindingPlayer = true;
         try {
+          syncWatchDatePills();
           mountSettings();
           arrangeWatchPage();
           arrangeNavigation();
@@ -22847,6 +24681,55 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         }
       }
 
+      const ratingPillSelector =
+        '#BH_background :is(button, a, div, span), body > :is(button, div)';
+      function decorateRatingPill(pill) {
+        if (
+          pill.closest(
+            '#ani_video, .ani-player-settings-drawer, .ani-settings-panel, .ani-view-settings-panel, .ani-home-dash',
+          )
+        )
+          return;
+        if (pill.childElementCount > 2) return;
+        const txt = (pill.textContent || '').replace(/\s+/g, ' ').trim();
+        if (!txt || txt.length > 48) return;
+        if (!/(?:預先載入.*評等|排序完成|載入所有評等)/.test(txt)) return;
+        if (
+          [...pill.children].some(
+            (c) =>
+              !c.classList.contains('ani-ext-sort-icon') &&
+              /(?:預先載入.*評等|排序完成|載入所有評等)/.test(c.textContent || ''),
+          )
+        )
+          return;
+        pill.classList.add('ani-ext-rating-pill');
+        if (/排序完成/.test(txt)) pill.classList.add('is-done');
+        const tw = document.createTreeWalker(pill, NodeFilter.SHOW_TEXT);
+        let tNode;
+        while ((tNode = tw.nextNode())) {
+          const cleaned = (tNode.nodeValue || '')
+            .replace(/[\u2705\u2714\u2611\uFE0F]/g, '')
+            .replace(/^\s+/, '');
+          if (cleaned !== tNode.nodeValue) tNode.nodeValue = cleaned;
+        }
+        if (!pill.querySelector('.ani-ext-sort-icon')) {
+          const ic = document.createElement('span');
+          ic.className = 'ani-ext-sort-icon';
+          ic.setAttribute('aria-hidden', 'true');
+          ic.innerHTML =
+            '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+          pill.prepend(ic);
+        }
+      }
+      function syncAddedRatingPills(node) {
+        if (!/(?:預先載入|排序完成|載入所有評等)/.test(node.textContent || '')) return;
+        const element = node.nodeType === 1 ? node : node.parentElement;
+        if (!element) return;
+        for (const pill of element.querySelectorAll(ratingPillSelector)) decorateRatingPill(pill);
+        for (let pill = element; pill && pill !== document.body; pill = pill.parentElement) {
+          if (pill.matches(ratingPillSelector)) decorateRatingPill(pill);
+        }
+      }
       const ratingPreloadNotice = /已強制預先載入所有評等[，,、\s]*排序完成[！!]?/;
       function hideRatingPreloadNotice(node) {
         const element = node.nodeType === 1 ? node : node.parentElement;
@@ -22883,14 +24766,40 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           );
         }
       }
+      const preloadNoiseSelector =
+        '#ani_video, .video-js, .ani-ambientlight-page-glow, .ani-home-dash, .ani-hero, .ani-home-intro, .sub_list, .ani-danmu-list-wrap, .ani-danmu-tools-bar';
       const preloadNoticeObserver = new MutationObserver((records) => {
+        const isWatch = location.pathname === '/animeVideo.php';
+        let watchInfoDirty = false;
         for (const record of records) {
+          const recTarget =
+            record.target.nodeType === 1 ? record.target : record.target.parentElement;
+          if (recTarget?.closest(preloadNoiseSelector)) continue;
+          if (
+            isWatch &&
+            !watchInfoDirty &&
+            (recTarget?.closest(watchInfoSelector) ||
+              [...record.addedNodes].some(
+                (node) =>
+                  node.nodeType === 1 &&
+                  (node.matches(watchInfoSelector) || node.querySelector(watchInfoSelector)),
+              ))
+          ) {
+            watchInfoDirty = true;
+          }
+          const inToast = Boolean(recTarget?.closest(settingsToastSelector));
           const nodes = record.type === 'characterData' ? [record.target] : record.addedNodes;
           for (const node of nodes) {
-            hideRatingPreloadNotice(node);
-            hideSettingsSavedNotice(node);
+            const txt = node.nodeType === 3 ? node.data : node.textContent || '';
+            const hasRatingKeyword = /(?:預先載入|排序完成|載入所有評等)/.test(txt);
+            if (hasRatingKeyword) {
+              syncAddedRatingPills(node);
+              if (txt.includes('已強制預先載入所有評等')) hideRatingPreloadNotice(node);
+            }
+            if (inToast || txt.includes('設定')) hideSettingsSavedNotice(node);
           }
         }
+        if (watchInfoDirty) syncWatchDatePills();
       });
       preloadNoticeObserver.observe(document.documentElement, {
         subtree: true,
@@ -22898,6 +24807,13 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         characterData: true,
       });
       const observer = new MutationObserver((records) => {
+        for (const record of records) {
+          if (!record.addedNodes.length && !record.removedNodes.length) continue;
+          const target = record.target.nodeType === 1 ? record.target : record.target.parentElement;
+          if (!target) continue;
+          if (target.closest('#ani_video, .videoframe')) playerOverlayDirty = true;
+          if (target.closest('.season')) seasonWatchDirty = true;
+        }
         if (
           !document.documentElement.dataset.aniRatingIntegrated &&
           settingsPanel &&
@@ -22937,7 +24853,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           const target = record.target.nodeType === 1 ? record.target : record.target.parentElement;
           if (
             target?.closest(
-              '.ani-view-settings-panel, .ani-nav-more-menu, .ani-week-expand, .ani-date-cursor, .ani-home-dash, .ani-home-intro, .ani-studio-panel',
+              '.ani-view-settings-panel, .ani-nav-more-menu, .ani-week-expand, .ani-date-cursor, .ani-home-dash, .ani-hero, .ani-home-intro, .ani-studio-panel',
             )
           )
             return false;
@@ -22980,7 +24896,10 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         childList: true,
         subtree: true,
       });
-      if (document.body) hideRatingPreloadNotice(document.body);
+      if (document.body) {
+        syncAddedRatingPills(document.body);
+        hideRatingPreloadNotice(document.body);
+      }
       styleStarMapSettings(document.getElementById('ani-rating-overlay'));
       bindPlayer();
     })();
@@ -22997,7 +24916,142 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
       const WORK_META_CACHE_KEY = 'aniWorkMetaCacheV3';
       const LOCAL_MUTE_KEY = 'aniLocalMutedSendersV1';
       const EP_TITLES_CACHE_KEY = 'aniEpTitlesCacheV5';
-      const EP_METADATA_VERSION = 5;
+      const EP_METADATA_VERSION = 7;
+      const segmentGroups = [
+        '.ani-catalog-sort',
+        '.ani-rating-options',
+        '.ani-collection-sort-segment',
+        '.ani-sort-options',
+        '.ani-perm-tabs',
+        '.ani-segmented-tabs',
+        '.ani-info-tabs',
+        '.ani-rating-tabs',
+        '.ani-ep-drawer-tabs',
+        '.ani-danmu-sort-row',
+        '.commend-segment-wrapper',
+        '.ani-credit-switch',
+      ].join(',');
+      const selectedSegment =
+        '[aria-pressed="true"], [aria-selected="true"], [aria-current="true"], .is-active, .active, .now > :is(button, a)';
+      const segmentMotion = new WeakMap();
+      const pendingSegmentMotion = new WeakMap();
+      document.addEventListener(
+        'click',
+        (event) => {
+          const option = event.target.closest?.('button, a, [role="tab"]');
+          const group = option?.closest(segmentGroups);
+          if (
+            !group ||
+            !document.body.classList.contains('ani-ambientlight-ui') ||
+            typeof group.animate !== 'function' ||
+            matchMedia('(prefers-reduced-motion: reduce)').matches ||
+            event.ctrlKey ||
+            event.metaKey ||
+            event.shiftKey ||
+            event.altKey
+          )
+            return;
+          const findSelected = () =>
+            [...group.querySelectorAll('button, a, [role="tab"]')].find(
+              (item) => item.closest(segmentGroups) === group && item.matches(selectedSegment),
+            );
+          pendingSegmentMotion.get(group)?.();
+          const previous = findSelected();
+          if (!previous || option === previous) return;
+
+          const running = segmentMotion.get(group);
+          const from = (running?.indicator || previous).getBoundingClientRect();
+          const style = getComputedStyle(running?.indicator || previous);
+          const appearance = {
+            background: style.background,
+            border: style.border,
+            borderRadius: style.borderRadius,
+            boxShadow: style.boxShadow,
+          };
+          running?.stop();
+          const observer = new MutationObserver(() => {
+            const next = findSelected();
+            if (!next || next === previous) return;
+            disconnect();
+            play(next);
+            const results =
+              group.matches(
+                '.ani-collection-sort-segment, .ani-rating-options, .ani-catalog-sort',
+              ) &&
+              !group.closest('.ani-studio-row, .ani-studio-shell, .season') &&
+              document.querySelector('#BH_background .theme-list-block');
+            if (results) animateFilterSwitch(null, results, '.theme-list-main');
+          });
+          const disconnect = () => {
+            observer.disconnect();
+            clearTimeout(expiry);
+            pendingSegmentMotion.delete(group);
+          };
+          const expiry = setTimeout(disconnect, 8000);
+          pendingSegmentMotion.set(group, disconnect);
+          observer.observe(group, {
+            subtree: true,
+            attributes: true,
+            childList: true,
+            attributeFilter: ['aria-pressed', 'aria-selected', 'aria-current', 'class'],
+          });
+          const play = (next) => {
+            const to = next.getBoundingClientRect();
+            const bounds = group.getBoundingClientRect();
+            if (
+              !from.width ||
+              !to.width ||
+              !bounds.width ||
+              !group.offsetWidth ||
+              (from.left === to.left && from.top === to.top)
+            )
+              return;
+            const zoom = bounds.width / group.offsetWidth;
+            const indicator = document.createElement('span');
+            indicator.className = 'ani-segment-indicator';
+            indicator.setAttribute('aria-hidden', 'true');
+            Object.assign(indicator.style, appearance, {
+              left: `${(to.left - bounds.left) / zoom - group.clientLeft + group.scrollLeft}px`,
+              top: `${(to.top - bounds.top) / zoom - group.clientTop + group.scrollTop}px`,
+              width: `${to.width / zoom}px`,
+              height: `${to.height / zoom}px`,
+            });
+            group.classList.add('ani-segment-sliding');
+            if (getComputedStyle(group).position === 'static')
+              group.classList.add('ani-segment-positioned');
+            const properties = ['background', 'border-color', 'box-shadow'];
+            const original = properties.map((key) => [
+              key,
+              next.style.getPropertyValue(key),
+              next.style.getPropertyPriority(key),
+            ]);
+            next.style.setProperty('background', 'transparent', 'important');
+            next.style.setProperty('border-color', 'transparent', 'important');
+            next.style.setProperty('box-shadow', 'none', 'important');
+            group.append(indicator);
+            const motion = indicator.animate(
+              [
+                {
+                  transform: `translate(${(from.left - to.left) / zoom}px, ${(from.top - to.top) / zoom}px) scale(${from.width / to.width}, ${from.height / to.height})`,
+                },
+                { transform: 'none' },
+              ],
+              { duration: 230, easing: 'cubic-bezier(.22, .75, .25, 1)' },
+            );
+            const stop = () => {
+              motion.cancel();
+              indicator.remove();
+              for (const [key, value, priority] of original)
+                next.style.setProperty(key, value, priority);
+              group.classList.remove('ani-segment-sliding', 'ani-segment-positioned');
+              segmentMotion.delete(group);
+            };
+            segmentMotion.set(group, { indicator, stop });
+            motion.onfinish = stop;
+          };
+        },
+        true,
+      );
       // 繁中分集資料依中華電信 MOD 的第一季分集介紹改寫。
       const slimeSeasonOneDescriptions = [
         '三上悟遭人持刀襲擊，醒來後發現自己成了史萊姆，還在洞窟裡遇見被封印的暴風龍。',
@@ -23168,6 +25222,45 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         24: '大家各自迎來入學考，接著便是畢業典禮。東準備離開時，平想到畢業後或許難再見面，下意識拉住了她。',
         25: '谷回想鈴木是怎麼一步步走進自己的生活。春天來臨，兩人即將展開遠距離交往，在車站迎來分別。',
       };
+      // LINE TV episode titles and short summaries adapted from https://www.lastboss-anime.com/story/13.html onward.
+      const wildLastBossEpisodes = {
+        13: [
+          '機動王都布魯托剛格出現了！',
+          '得知世界的真相後，露法絲決心反擊女神。她帶著新夥伴前往機動王都，試圖阻止斯科皮烏斯。',
+        ],
+        14: [
+          '失控的斯科皮烏斯出現了！',
+          '魔物大軍逼近王都。露法絲與昔日部下重逢，兩人聯手迎戰性情大變的斯科皮烏斯。',
+        ],
+        15: [
+          '飛天的帥哥出現了！',
+          '露法絲發現女神操控了斯科皮烏斯，激戰也讓她更難壓抑原本的意識。另一邊，月之露娜現身。',
+        ],
+        16: [
+          '鍛造王米薩爾出現了！',
+          '平息王都的騷亂後，露法絲與鍛造王米薩爾重逢。米薩爾說起兩百年前決戰的真相，以及女神與魔神族的關係。',
+        ],
+        17: [
+          '狩獵祭的參賽者出現了！',
+          '一行人在前往下一站的路上來到獸人國。露法絲讓同伴參加狩獵祭，自己觀戰時意外認出勇者南十字瀨衣。',
+        ],
+        18: [
+          '十二星天薩吉塔利烏斯出現了！',
+          '瀨衣和同伴受託尋找傳說中的靈藥，卻遇上七曜的墨丘利烏斯。另一邊，莉布拉開始尋找十二星天的射手。',
+        ],
+        19: [
+          '七曜之墨丘利烏斯出現了！',
+          '瀨衣一行為了靈藥與墨丘利烏斯交戰。對方接受女神的力量反擊，眾人陷入危機時，一名男子突然現身。',
+        ],
+        20: [
+          '「魔物」出現了！',
+          '瀨衣一行取得靈藥後，前往森林為守護龍治療。他們發現守護龍身受重傷，還遇上自稱是雷昂部下的魔物。',
+        ],
+        21: [
+          '吸血姬貝涅特奈修出現了！',
+          '露法絲派勇者一行尋找射手的故鄉，自己則前往阻止雷昂。途中，昔日戰友貝涅特奈修向她提出決鬥。',
+        ],
+      };
       const OFFSHELF_CACHE_KEY = 'aniOffshelfCacheV1';
       const TAG_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
       const WORK_META_TTL_MS = 14 * 24 * 60 * 60 * 1000;
@@ -23184,16 +25277,29 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         `<svg class="ani-enh-svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
 
       let toTraditional;
+      let openccMissed = false;
       const traditionalTitle = (title) => {
         toTraditional ||= globalThis.OpenCC?.Converter({ from: 'cn', to: 'tw' });
+        if (!toTraditional && title) openccMissed = true;
         return toTraditional?.(title) ?? title;
       };
+      document.addEventListener(
+        'ani-opencc-ready',
+        () => {
+          if (!openccMissed || !globalThis.OpenCC) return;
+          openccMissed = false;
+          if (location.pathname === '/animeVideo.php') {
+            void initEpisodeTitleTooltips().catch(() => {});
+          }
+        },
+        { once: true },
+      );
 
       const COL_STATUS_ICONS = {
         all: '<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/>',
         plan: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
         watching: '<polygon points="6 4 20 12 6 20" fill="currentColor" stroke="none"/>',
-        completed: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/>',
+        completed: '<circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 4.5-5"/>',
         paused:
           '<g fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></g>',
         unset:
@@ -23314,6 +25420,133 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             })[ch],
         );
 
+      function bangumiSubjectUrl(source) {
+        if (!source) return '';
+        try {
+          const url = new URL(source, location.origin);
+          if (
+            /^https?:$/.test(url.protocol) &&
+            ['bgm.tv', 'bangumi.tv', 'chii.in'].includes(url.hostname) &&
+            /^\/subject\/\d+\/?$/.test(url.pathname)
+          ) {
+            return `https://bgm.tv${url.pathname.replace(/\/$/, '')}`;
+          }
+        } catch {}
+        return '';
+      }
+
+      const bangumiIcon =
+        '<img class="ani-bgm-icon" src="https://bgm.tv/img/favicon.ico" width="17" height="17" alt="" aria-hidden="true">';
+      const bangumiMappingsUrl =
+        'https://raw.githubusercontent.com/david082321/animad-bgm-toolkit/refs/heads/main/animeData.json';
+      let bangumiMappings = {};
+      let bangumiMappingsReady = false;
+
+      async function loadBangumiMappings() {
+        const cache = await storageGet('aniBangumiMappingsV1', null);
+        if (cache?.data) bangumiMappings = cache.data;
+        if (!(cache?.expires > Date.now())) {
+          try {
+            const response = await fetch(bangumiMappingsUrl, { signal: AbortSignal.timeout(7000) });
+            if (response.ok) {
+              bangumiMappings = await response.json();
+              await storageSet('aniBangumiMappingsV1', {
+                data: bangumiMappings,
+                expires: Date.now() + 86400000,
+              });
+            }
+          } catch {}
+        }
+      }
+
+      function mappedBangumiSubject(title, episode) {
+        const name = String(title || '')
+          .normalize('NFKC')
+          .trim();
+        const number = Number(String(episode ?? '').match(/\d+(?:\.\d+)?/)?.[0]);
+        const cleanTitle = name.replace(/\s*(?:EP\.?\s*\d+(?:\.\d+)?|\[\d+(?:\.\d+)?\])\s*$/i, '');
+        if (/^野生的?大魔王出現了[!\s]*$/.test(cleanTitle) && number > 0) {
+          return `https://bgm.tv/subject/${number >= 13 ? 616808 : 509355}`;
+        }
+        const special = /特別篇/.test(String(episode)) || /\[特別篇\]/.test(cleanTitle);
+        const lookupTitle = cleanTitle.replace(/\s*\[特別篇\]\s*$/, '');
+        const entry =
+          bangumiMappings[title] ||
+          bangumiMappings[lookupTitle] ||
+          bangumiMappings[lookupTitle.replace(/!/g, '！')];
+        const parts = special
+          ? Array.isArray(entry?.special)
+            ? entry.special
+            : entry?.special
+              ? [entry.special]
+              : []
+          : entry?.parts;
+        const range = parts?.filter((part) => {
+          const start = part.startEp ?? part.ep ?? 1;
+          const end = part.endEp ?? part.ep ?? (special ? start : Infinity);
+          return number >= start && number <= end;
+        });
+        const singleSpecial =
+          special &&
+          parts.length === 1 &&
+          ['startEp', 'endEp', 'ep'].every((key) => parts[0][key] === undefined);
+        const id = singleSpecial
+          ? parts[0].bgmId
+          : parts
+            ? range.length === 1
+              ? range[0].bgmId
+              : undefined
+            : entry?.bgmId;
+        return /^\d+$/.test(String(id)) ? `https://bgm.tv/subject/${id}` : '';
+      }
+
+      function historyBangumiLink(title, episode, ...sources) {
+        const href =
+          mappedBangumiSubject(title, episode) || sources.map(bangumiSubjectUrl).find(Boolean);
+        if (!href) return '';
+        const label = '開啟 Bangumi 作品頁';
+        return `<a class="round-btn ani-history-bangumi" href="${href}" target="_blank" rel="noopener noreferrer" aria-label="${label}" title="${label}">${bangumiIcon}</a>`;
+      }
+
+      function bangumiWorkLink(root) {
+        const links = root.querySelectorAll(
+          '#bgmtv a[href], a#bgmtv[href], .ani-title-actions a[href]',
+        );
+        for (const link of links) {
+          if (link.matches('.ani-history-bangumi')) continue;
+          const href = bangumiSubjectUrl(link.getAttribute('href'));
+          if (href) return href;
+        }
+        return '';
+      }
+
+      function syncPlaybackBangumi() {
+        const heading = document.querySelector('.anime_name h1');
+        if (!heading) return;
+        const title = heading.textContent;
+        const episode =
+          document.querySelector('.season li.playing a')?.textContent ||
+          title.match(/(?:\[|EP\.?\s*)(\d+(?:\.\d+)?)\]?\s*$/i)?.[1] ||
+          (/\[電影\]/.test(title) ? '1' : '');
+        const href = mappedBangumiSubject(title, episode);
+        if (!href) return;
+        const ownLink = heading.parentElement.querySelector('.ani-bgm-work-link');
+        const plugin = document.querySelector('a#bgmtv, #bgmtv a');
+        if (plugin) {
+          ownLink?.remove();
+          if (plugin.href !== href) plugin.href = href;
+        } else if (ownLink) {
+          if (ownLink.href !== href) ownLink.href = href;
+        } else {
+          const actions =
+            heading.parentElement.querySelector('.ani-title-actions') || heading.parentElement;
+          actions.insertAdjacentHTML(
+            'beforeend',
+            `<a class="ani-title-pill-link ani-bgm-work-link" href="${href}" target="_blank" rel="noopener noreferrer">${bangumiIcon}點格子</a>`,
+          );
+        }
+      }
+
       const renderHistoryMetadata = (tags, studio) => {
         const labels = Array.isArray(tags) ? tags.filter(Boolean) : [];
         const icon = (label, path) =>
@@ -23419,6 +25652,9 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
 
       const notifySettings = (next) => {
         currentSettings = normalizeSettings(next);
+        if (Object.hasOwn(globalThis, '__aniResolvedSettings')) {
+          globalThis.__aniResolvedSettings = currentSettings;
+        }
         for (const fn of settingsListeners) {
           try {
             fn(currentSettings);
@@ -23426,7 +25662,25 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         }
       };
 
-      const readSettings = async () => {
+      const readSettings = async (force = false) => {
+        if (!force) {
+          if (
+            globalThis.__aniResolvedSettings &&
+            typeof globalThis.__aniResolvedSettings === 'object'
+          ) {
+            currentSettings = normalizeSettings(globalThis.__aniResolvedSettings);
+            return currentSettings;
+          }
+          if (globalThis.__aniSettingsPromise) {
+            try {
+              const shared = await globalThis.__aniSettingsPromise;
+              if (shared && typeof shared === 'object') {
+                currentSettings = normalizeSettings(shared);
+                return currentSettings;
+              }
+            } catch {}
+          }
+        }
         const mod = globalThis.AniAmbientSettings;
         const defaults = mod?.defaults || {};
         if (globalThis.AniAmbientStorage?.get) {
@@ -23520,7 +25774,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           toast.setAttribute('aria-live', 'polite');
           document.body.append(toast);
         }
-        toast.innerHTML = `${enhIcon('<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/>', 18)}<span>${escapeHtml(message || '')}</span>`;
+        toast.innerHTML = `${enhIcon('<circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 4.5-5"/>', 18)}<span>${escapeHtml(message || '')}</span>`;
         toast.hidden = false;
         toast.classList.add('is-visible');
         clearTimeout(toastTimer);
@@ -24011,6 +26265,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           latestEp,
           cover,
           score,
+          bangumi: mappedBangumiSubject(title, episode) || bangumiWorkLink(document),
           elapsedSec,
           durationSec,
           completed: Boolean(isEpisodeMedia && video.ended),
@@ -24098,6 +26353,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             title: info.title || prev.title || '',
             cover: info.cover || prevCover || '',
             score: info.score || prev.score || '',
+            bangumi: info.bangumi || bangumiSubjectUrl(prev.bangumi),
             latestEp: info.latestEp || prev.latestEp || '',
             episode: info.episode || prev.episode || '',
             elapsedSec: position.elapsedSec,
@@ -24139,6 +26395,37 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           document.documentElement.dataset.aniPermPagehide = '1';
           window.addEventListener('pagehide', () => {
             recordVideoProgress();
+          });
+        }
+        const page = document.querySelector('#BH_background') || document.body;
+        if (page && !page.dataset.aniBangumiObserved) {
+          page.dataset.aniBangumiObserved = '1';
+          // The companion userscript can inject the link after the player is ready.
+          let savedLink = bangumiWorkLink(page);
+          const observer = new MutationObserver((mutations) => {
+            const selector = '#bgmtv, #bgmtv a';
+            const pluginChanged = mutations.some((mutation) =>
+              mutation.type === 'attributes'
+                ? mutation.target.matches(selector)
+                : [...mutation.addedNodes].some(
+                    (node) =>
+                      node.nodeType === 1 &&
+                      (node.matches(selector) || node.querySelector(selector)),
+                  ),
+            );
+            if (!pluginChanged) return;
+            syncPlaybackBangumi();
+            const link = bangumiWorkLink(page);
+            if (link && link !== savedLink) {
+              savedLink = link;
+              recordVideoProgress();
+            }
+          });
+          observer.observe(page, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['href'],
           });
         }
         const player = document.querySelector('#ani_video');
@@ -24282,6 +26569,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               title: title || prev?.title || '',
               cover: cover || (!isLandscapeOgBanner(prev?.cover) ? prev?.cover : '') || '',
               score: scoreTxt || prev?.score || '',
+              bangumi: bangumiWorkLink(card) || bangumiSubjectUrl(prev?.bangumi),
               latestEp: latestMatch || prev?.latestEp || '',
               tags: cachedTags,
               studio: cachedStudio,
@@ -24449,7 +26737,8 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           if (!it?.sn || enrichInflight.has(it.sn) || typeof fetch !== 'function') return;
           const needsCover = !it.cover || isLandscapeOgBanner(it.cover);
           const needsMeta = !Array.isArray(it.tags) || !it.tags.length || !it.studio;
-          if (!needsCover && !needsMeta) return;
+          const savedBangumi = bangumiSubjectUrl(it.bangumi);
+          if (!needsCover && !needsMeta && savedBangumi) return;
           enrichInflight.add(it.sn);
           try {
             let fetchedCover = '';
@@ -24474,12 +26763,14 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             let fetchedScore = it.score || '';
             let fetchedLatest = it.latestEp || '';
             let fetchedDuration = it.durationSec || 0;
+            let fetchedBangumi = savedBangumi;
 
             try {
               const rawMeta = localStorage.getItem(
                 `ani-history-meta:${it.sn}:${it.videoSn || it.sn}`,
               );
               const parsedMeta = rawMeta ? JSON.parse(rawMeta)?.value : null;
+              fetchedBangumi ||= bangumiSubjectUrl(parsedMeta?.bangumi);
               if (parsedMeta?.tags?.length) fetchedTags = parsedMeta.tags;
               if (parsedMeta?.studio) fetchedStudio = parsedMeta.studio;
               if (!fetchedDuration && parsedMeta?.duration > 0)
@@ -24494,6 +26785,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               const resp = await fetch(targetUrl.href, { credentials: 'include' });
               if (resp.ok) {
                 const doc = new DOMParser().parseFromString(await resp.text(), 'text/html');
+                fetchedBangumi ||= bangumiWorkLink(doc);
                 const imgEl = doc.querySelector(
                   '.data-img, .data-file img, .anime_info_detail img',
                 );
@@ -24557,7 +26849,8 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               fetchedStudio ||
               fetchedScore ||
               fetchedLatest ||
-              fetchedDuration
+              fetchedDuration ||
+              fetchedBangumi
             ) {
               await mutatePermanentHistory((data) => {
                 const cur = data[it.sn];
@@ -24567,6 +26860,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                 if (fetchedStudio) cur.studio = fetchedStudio;
                 if (fetchedScore) cur.score = fetchedScore;
                 if (fetchedLatest) cur.latestEp = fetchedLatest;
+                if (fetchedBangumi) cur.bangumi = fetchedBangumi;
                 if (!cur.durationSec && fetchedDuration > 0) cur.durationSec = fetchedDuration;
                 return true;
               });
@@ -24574,6 +26868,59 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             }
           } catch {}
         };
+
+        const renderedHistoryCards = new WeakMap();
+        function updateHistorySlot(slot, template) {
+          const card = slot.firstElementChild;
+          const next = template.firstElementChild;
+          const last = renderedHistoryCards.get(slot)?.firstElementChild;
+          for (const selector of ['.click-area', '.delete-btn', '.anime-info', '.btn-set']) {
+            const replacement = next.querySelector(selector);
+            if (last?.querySelector(selector)?.isEqualNode(replacement)) continue;
+            const current = card.querySelector(selector);
+            if (selector === '.anime-info') {
+              const heading = current.querySelector('.ani-perm-title');
+              const newHeading = replacement.querySelector('.ani-perm-title');
+              if (heading?.textContent === newHeading?.textContent) {
+                for (const child of [...current.children]) if (child !== heading) child.remove();
+                current.append(
+                  ...[...replacement.children]
+                    .filter((child) => child !== newHeading)
+                    .map((child) => child.cloneNode(true)),
+                );
+                continue;
+              }
+            }
+            current.replaceWith(replacement.cloneNode(true));
+          }
+          const poster = card.querySelector('.postimg');
+          const nextPoster = next.querySelector('.postimg');
+          const cover = poster.querySelector('img');
+          const nextCover = nextPoster.querySelector('img');
+          if (nextCover && !cover) poster.prepend(nextCover.cloneNode(true));
+          else if (nextCover && cover) {
+            if (cover.getAttribute('src') !== nextCover.getAttribute('src'))
+              cover.src = nextCover.src;
+            if (cover.alt !== nextCover.alt) cover.alt = nextCover.alt;
+          } else if (cover) cover.remove();
+          const score = poster.querySelector('.ani-history-score');
+          const nextScore = nextPoster.querySelector('.ani-history-score');
+          if (score && nextScore) {
+            if (score.textContent !== nextScore.textContent)
+              score.textContent = nextScore.textContent;
+          } else if (nextScore) poster.append(nextScore.cloneNode(true));
+          else score?.remove();
+          const drawer = slot.querySelector('.ani-perm-ep-drawer');
+          const nextDrawer = template.querySelector('.ani-perm-ep-drawer');
+          if (drawer && nextDrawer) {
+            if (!drawer.firstElementChild.isEqualNode(nextDrawer.firstElementChild)) {
+              drawer.firstElementChild.replaceWith(nextDrawer.firstElementChild.cloneNode(true));
+            }
+          } else if (nextDrawer) slot.append(nextDrawer.cloneNode(true));
+          else drawer?.remove();
+          card.classList.toggle('is-open', next.classList.contains('is-open'));
+          renderedHistoryCards.set(slot, template);
+        }
 
         const renderGrid = async () => {
           const records = await storageGet(PERM_HIST_KEY, {});
@@ -24648,6 +26995,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                 <div class="ani-history-meta">${metadata.genres}</div>
               </div>
               <div class="btn-set ani-perm-actions">
+                ${historyBangumiLink(it.title, it.episode, it.bangumi)}
                 <a class="play-btn round-btn ani-perm-resume" href="animeVideo.php?sn=${resumeSn}">
                   <svg class="ani-history-play-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8Z"/></svg>
                   <span class="ani-history-play-label">繼續觀看</span>
@@ -24674,15 +27022,43 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           const readEpisodeScroller = () =>
             document.getElementById(openDrawerId)?.querySelector('.user-watch-textlist');
           const episodeScrollTop = openDrawerId ? readEpisodeScroller()?.scrollTop : undefined;
-          panel.innerHTML = [...monthGroups.entries()]
-            .map(
-              ([monthLabel, groupItems]) => `
-          <div class="history-year-month-block ani-perm-month-block">
-            <div class="date-title">${escapeHtml(monthLabel)}</div>
-            <div class="ani-perm-grid">${groupItems.map(renderPermCardHtml).join('')}</div>
-          </div>`,
-            )
-            .join('');
+          const existingMonths = new Map(
+            [...panel.children].map((block) => [block.firstElementChild?.textContent, block]),
+          );
+          const existingSlots = new Map(
+            [...panel.querySelectorAll('.ani-perm-watch-slot')].map((slot) => [
+              slot.firstElementChild.dataset.permSn,
+              slot,
+            ]),
+          );
+          const template = document.createElement('template');
+          let monthIndex = 0;
+          for (const [monthLabel, groupItems] of monthGroups) {
+            let block = existingMonths.get(monthLabel);
+            if (!block) {
+              template.innerHTML = `<div class="history-year-month-block ani-perm-month-block"><div class="date-title">${escapeHtml(monthLabel)}</div><div class="ani-perm-grid"></div></div>`;
+              block = template.content.firstElementChild;
+            }
+            existingMonths.delete(monthLabel);
+            if (panel.children[monthIndex] !== block)
+              panel.insertBefore(block, panel.children[monthIndex] || null);
+            monthIndex++;
+            const grid = block.lastElementChild;
+            groupItems.forEach((item, index) => {
+              const key = String(item.sn);
+              template.innerHTML = renderPermCardHtml(item);
+              const fresh = template.content.firstElementChild;
+              const existing = existingSlots.get(key);
+              const slot = existing || fresh.cloneNode(true);
+              if (existing) updateHistorySlot(slot, fresh);
+              else renderedHistoryCards.set(slot, fresh);
+              existingSlots.delete(key);
+              if (grid.children[index] !== slot)
+                grid.insertBefore(slot, grid.children[index] || null);
+            });
+          }
+          for (const slot of existingSlots.values()) slot.remove();
+          for (const block of existingMonths.values()) block.remove();
           if (episodeScrollTop !== undefined) {
             const scroller = readEpisodeScroller();
             if (scroller) scroller.scrollTop = episodeScrollTop;
@@ -24695,6 +27071,13 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           }
         };
 
+        document.addEventListener(
+          'ani-bangumi-mappings-ready',
+          () => {
+            if (permActiveTab === 'perm') renderGrid();
+          },
+          { once: true },
+        );
         tabNative.addEventListener('click', () => {
           permActiveTab = 'native';
           renderGrid();
@@ -24797,6 +27180,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                   videoSn: String(item.videoSn || prev?.videoSn || sn),
                   title: String(item.title || prev?.title || `動畫 #${sn}`).slice(0, 120),
                   cover: safeImageUrl(item.cover || prev?.cover),
+                  bangumi: bangumiSubjectUrl(item.bangumi) || bangumiSubjectUrl(prev?.bangumi),
                   episode: String(item.episode || prev?.episode || '').slice(0, 16),
                   elapsedSec: Math.max(0, Number(item.elapsedSec || 0)),
                   durationSec: Math.max(0, Number(item.durationSec || 0)),
@@ -25893,44 +28277,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           if (tabContent && scrollWrap) {
             tabContent.classList.add('ani-has-dm-tools');
             scrollWrap.before(bar);
-            // Blur the scrolled content directly so the toolbar does not depend on backdrop sampling.
-            const filterHost = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-            filterHost.setAttribute('class', 'ani-dm-filter-defs');
-            filterHost.setAttribute('aria-hidden', 'true');
-            filterHost.innerHTML = `
-          <filter id="ani-dm-toolbar-blur" x="0%" y="0%" width="100%" height="100%" color-interpolation-filters="sRGB">
-            <feFlood x="0" y="0" width="100%" result="toolbarStrip" />
-            <feImage preserveAspectRatio="none" result="toolbarRegion" />
-            <feComposite in="SourceGraphic" in2="toolbarStrip" operator="out" result="sharp" />
-            <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="soft" />
-            <feComposite in="soft" in2="toolbarRegion" operator="in" result="softInside" />
-            <feMerge><feMergeNode in="sharp" /><feMergeNode in="softInside" /></feMerge>
-          </filter>
-        `;
-            scrollWrap.before(filterHost);
-            const toolbarRegion = filterHost.querySelector('feImage');
-            const toolbarStrip = filterHost.querySelector('feFlood');
-            const updateToolbarBounds = () => {
-              scrollWrap.style.setProperty('--ani-danmu-toolbar-height', `${bar.offsetHeight}px`);
-              const width = bar.offsetWidth;
-              const height = bar.offsetHeight;
-              if (!width || !height) return;
-              const radius = parseFloat(getComputedStyle(bar).borderTopLeftRadius);
-              const shape = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"><rect width="${width}" height="${height}" rx="${radius}"/></svg>`;
-              toolbarRegion.setAttribute('href', `data:image/svg+xml,${encodeURIComponent(shape)}`);
-              toolbarRegion.setAttribute('x', bar.offsetLeft - scrollWrap.offsetLeft);
-              const top = bar.offsetTop - scrollWrap.offsetTop;
-              toolbarRegion.setAttribute('y', top);
-              toolbarStrip.setAttribute('height', Math.max(0, top + height));
-              toolbarRegion.setAttribute('width', width);
-              toolbarRegion.setAttribute('height', height);
-            };
-            updateToolbarBounds();
-            if (typeof ResizeObserver === 'function') {
-              const toolbarObserver = new ResizeObserver(updateToolbarBounds);
-              toolbarObserver.observe(bar);
-              toolbarObserver.observe(scrollWrap);
-            }
+            globalThis.aniBindSidebarToolbarBlur?.(bar, scrollWrap, 'ani-dm-toolbar-blur');
           } else {
             subList.before(bar);
           }
@@ -26222,14 +28569,34 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         const details = /^\d+$/.test(sn) ? globalThis.aniGetEpisodeDetails?.(sn) : null;
         const original =
           originalSn && originalSn !== sn ? globalThis.aniGetEpisodeDetails?.(originalSn) : null;
-        void renderEpisodeCardCover(frame, original, details);
-        const data = await details;
-        if (!frame.isConnected || !data) return;
-        const date = frame.parentElement.querySelector('.ani-episode-card-date');
-        setEpisodeCardDate(date, data.date);
         const watch = episodeCardWatch.get(frame);
+        const [data, artwork] = await Promise.all([
+          details,
+          findEpisodeCardCover(frame, original, details, originalSn || sn, sn),
+          watch.historyReady,
+        ]);
+        if (!frame.isConnected) return;
+        const card = frame.parentElement;
+        setEpisodeCardDate(card.querySelector('.ani-episode-card-date'), data?.date);
         watch.details = data;
         updateEpisodeCardWatch(frame, watch);
+        if (artwork) {
+          frame.append(artwork.image);
+          if (artwork.glow)
+            card.querySelector('.ani-episode-card-glow').replaceChildren(artwork.glow);
+        }
+        card.dataset.aniEpisodeMediaReady = 'true';
+      }
+      async function decodeEpisodeGlow(image) {
+        const glow = new Image();
+        glow.alt = '';
+        glow.src = image.currentSrc || image.src;
+        try {
+          await glow.decode();
+        } catch {
+          return null;
+        }
+        return glow;
       }
       function setEpisodeCardDate(element, value) {
         const date = value?.match(/^\d{4}[-/]\d{2}[-/]\d{2}/)?.[0];
@@ -26238,38 +28605,48 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         element.dataset.label = date.replaceAll('-', '/');
         element.setAttribute('aria-label', `上架日期 ${element.dataset.label}`);
       }
-      async function renderEpisodeCardCover(frame, original, details) {
-        const cover = safeImageUrl((await original)?.cover) || safeImageUrl((await details)?.cover);
-        if (!frame.isConnected) return;
-        if (cover.startsWith('https://')) {
-          frame.parentElement.style.setProperty(
-            '--ani-card-cover',
-            `url(${JSON.stringify(cover)})`,
-          );
+      async function findEpisodeCardCover(frame, original, details, originalSn, sn) {
+        const tried = new Set();
+        for (const getCover of [
+          () => globalThis.aniGetVerifiedEpisodeStill?.(originalSn),
+          async () => (await original)?.cover,
+          async () => (await details)?.cover,
+          () => globalThis.aniGetEpisodePagePoster?.(originalSn),
+          () => originalSn !== sn && globalThis.aniGetEpisodePagePoster?.(sn),
+        ]) {
+          if (!frame.isConnected) return;
+          const cover = safeImageUrl(await getCover());
+          if (!frame.isConnected || !cover.startsWith('https://') || tried.has(cover)) continue;
+          tried.add(cover);
           const image = document.createElement('img');
           image.alt = '';
           image.decoding = 'async';
           image.src = cover;
           try {
             await image.decode();
-            if (frame.isConnected) frame.append(image);
           } catch {
-            // The card can still show its episode number and history.
+            continue;
           }
+          if (image.naturalWidth * 9 < image.naturalHeight * 16)
+            image.classList.add('ani-episode-image-contain');
+          return { image, glow: await decodeEpisodeGlow(image) };
         }
       }
       const episodeCardObserver =
         typeof IntersectionObserver === 'function'
-          ? new IntersectionObserver((entries) => {
-              for (const entry of entries)
-                if (entry.isIntersecting) {
-                  episodeCardObserver.unobserve(entry.target);
-                  void loadEpisodeCard(
-                    entry.target,
-                    episodeCardWatch.get(entry.target)?.originalSn,
-                  );
-                }
-            })
+          ? new IntersectionObserver(
+              (entries) => {
+                for (const entry of entries)
+                  if (entry.isIntersecting) {
+                    episodeCardObserver.unobserve(entry.target);
+                    void loadEpisodeCard(
+                      entry.target,
+                      episodeCardWatch.get(entry.target)?.originalSn,
+                    );
+                  }
+              },
+              { rootMargin: '320px 0px' },
+            )
           : null;
 
       const episodeTitleObserver =
@@ -26549,12 +28926,17 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               episodeTitleObserver?.observe(titleTrack);
               episodeSurfaceObserver?.observe(link);
               episodeSurfaceObserver?.observe(synopsisReveal);
-              if (episodeCardObserver) episodeCardObserver.observe(frame);
-              else void loadEpisodeCard(frame, originalSn);
             }
             if (pendingCards.length) {
-              globalThis
-                .aniGetEpisodeWatchHistory?.(pendingCards.map((frame) => frame.dataset.videoSn))
+              const currentSn = new URLSearchParams(location.search).get('sn');
+              const work = /^\d+$/.test(currentSn)
+                ? globalThis.aniGetEpisodeDetails?.(currentSn)
+                : null;
+              const historyReady = globalThis
+                .aniGetEpisodeWatchHistory?.(
+                  pendingCards.map((frame) => frame.dataset.videoSn),
+                  work,
+                )
                 .then((history) => {
                   for (const frame of pendingCards) {
                     if (!frame.isConnected) continue;
@@ -26562,7 +28944,14 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                     Object.assign(watch, history.get(frame.dataset.videoSn));
                     updateEpisodeCardWatch(frame, watch);
                   }
-                });
+                })
+                .catch(() => {});
+              for (const frame of pendingCards) {
+                const watch = episodeCardWatch.get(frame);
+                watch.historyReady = historyReady;
+                if (episodeCardObserver) episodeCardObserver.observe(frame);
+                else void loadEpisodeCard(frame, watch.originalSn);
+              }
             }
             return;
           }
@@ -26582,7 +28971,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             for (const label of link.querySelectorAll(':scope > .ani-episode-original-label'))
               label.replaceWith(...label.childNodes);
             link.querySelector('.ani-episode-card-glow')?.remove();
-            link.style.removeProperty('--ani-card-cover');
+            delete link.dataset.aniEpisodeMediaReady;
             link.style.removeProperty('--ani-episode-surface-height');
             frame.remove();
           }
@@ -27045,13 +29434,17 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         return tip;
       };
 
-      const readEpisodeSynopsis = (value) => {
+      const episodeStoryText = (value) => {
         const source = typeof value === 'string' ? value : '';
         // Some episode records put staff credits in the description field.
-        const story = source.split(
-          /(?:^|\r?\n)[^\S\r\n]*(?:[＜<【\[]\s*)?(?:(?:STAFF|製作團隊|製作人員)(?:\s*[＞>】\]])?(?=\s|[:：]|$)|(?:[｜|]\s*)?(?:脚本|腳本|劇本|分鏡|分镜|絵コンテ|演出|原畫|原画|作畫監督|作画監督|原畫\s*[/／]\s*作監|作監)\s*[:：])/i,
-        )[0];
-        const chinese = story
+        return source
+          .split(
+            /(?:^|\r?\n)[^\S\r\n]*(?:[＜<【\[]\s*)?(?:(?:STAFF|製作團隊|製作人員)(?:\s*[＞>】\]])?(?=\s|[:：]|$)|(?:[｜|]\s*)?(?:脚本|腳本|劇本|分鏡|分镜|絵コンテ|演出|原畫|原画|作畫監督|作画監督|原畫\s*[/／]\s*作監|作監)\s*[:：])/i,
+          )[0]
+          .trim();
+      };
+      const readEpisodeSynopsis = (value) => {
+        const chinese = episodeStoryText(value)
           .split(/\r?\n[^\S\r\n]*\r?\n/)
           .map((paragraph) => paragraph.trim())
           .filter(
@@ -27060,6 +29453,101 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               !/[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u.test(paragraph),
           );
         return chinese.join(' ');
+      };
+      const synopsisJobs = new WeakMap();
+      const synopsisTranslations = new Map();
+      const episodeMetadataRefreshes = new WeakSet();
+      const episodeSynopsisCacheKey = 'aniEpisodeSynopsisTranslationsV1';
+      let episodeSynopsisCache;
+      const cachedEpisodeSynopsis = (text) =>
+        (episodeSynopsisCache ||= readJsonLocal(episodeSynopsisCacheKey))[text];
+      const saveEpisodeMetadata = (title, entry) => {
+        const cache = readJsonLocal(EP_TITLES_CACHE_KEY);
+        cache[title] = entry;
+        const keys = Object.keys(cache);
+        if (keys.length > 120) {
+          keys
+            .sort((a, b) => (cache[b]?.ts || 0) - (cache[a]?.ts || 0))
+            .slice(120)
+            .forEach((key) => delete cache[key]);
+        }
+        writeJsonLocal(EP_TITLES_CACHE_KEY, cache);
+      };
+      const synopsisObserver =
+        typeof IntersectionObserver === 'function'
+          ? new IntersectionObserver(
+              (entries) => {
+                for (const entry of entries) {
+                  if (!entry.isIntersecting) continue;
+                  synopsisObserver.unobserve(entry.target);
+                  synopsisJobs.get(entry.target)?.run();
+                }
+              },
+              { rootMargin: '240px 0px' },
+            )
+          : null;
+
+      const requestEpisodeTranslation = (text) => {
+        if (!synopsisTranslations.has(text)) {
+          // The cards display an excerpt. Keep the request within one translation segment.
+          const maxLength =
+            /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u.test(text)
+              ? 145
+              : 450;
+          const excerpt = Array.from(text).slice(0, maxLength).join('').trim();
+          const content =
+            text === excerpt ? text : excerpt.match(/^[\s\S]*[。！？.!?]/u)?.[0] || excerpt;
+          const request =
+            typeof GM_xmlhttpRequest === 'function' && typeof translateWorkSynopsis === 'function'
+              ? translateWorkSynopsis(
+                  content,
+                  (url, options) =>
+                    new Promise((resolve, reject) =>
+                      GM_xmlhttpRequest({
+                        url,
+                        method: options.method || 'GET',
+                        anonymous: true,
+                        timeout: 8000,
+                        onerror: reject,
+                        ontimeout: reject,
+                        onload: (response) =>
+                          resolve({
+                            ok: response.status === 200,
+                            json: () => JSON.parse(response.responseText),
+                          }),
+                      }),
+                    ),
+                )
+              : sendWorkerMessage({ type: 'ani-translate-episode-synopsis', text: content }).then(
+                  (result) => result?.summary || '',
+                );
+          synopsisTranslations.set(
+            text,
+            request.then(
+              (summary) => {
+                if (!summary) {
+                  synopsisTranslations.delete(text);
+                  return '';
+                }
+                const cache = readJsonLocal(episodeSynopsisCacheKey);
+                const recent = Object.fromEntries(
+                  Object.entries(cache)
+                    .filter(([key]) => key !== text)
+                    .slice(-159),
+                );
+                recent[text] = summary;
+                episodeSynopsisCache = recent;
+                writeJsonLocal(episodeSynopsisCacheKey, recent);
+                return summary;
+              },
+              () => {
+                synopsisTranslations.delete(text);
+                return '';
+              },
+            ),
+          );
+        }
+        return synopsisTranslations.get(text);
       };
 
       const renderUpcomingEpisode = (latest, workTitle, number, metadata) => {
@@ -27137,13 +29625,29 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         if (preview.dataset.coverWork === workTitle) return;
         preview.dataset.coverWork = workTitle;
         const image = preview.querySelector('img');
+        const card = image.closest('.ani-upcoming-episode-card');
         const setCover = (source) => {
-          if (!/^https:\/\//i.test(source || '')) return;
+          delete card.dataset.aniEpisodeMediaReady;
+          card.querySelector('.ani-episode-card-glow').replaceChildren();
+          image.hidden = true;
+          const finish = async (loaded) => {
+            if (!preview.isConnected || preview.dataset.coverWork !== workTitle) return;
+            image.onload = image.onerror = null;
+            const glow = loaded ? await decodeEpisodeGlow(image) : null;
+            if (!preview.isConnected || preview.dataset.coverWork !== workTitle) return;
+            if (loaded) {
+              if (glow) card.querySelector('.ani-episode-card-glow').replaceChildren(glow);
+              image.hidden = false;
+            }
+            card.dataset.aniEpisodeMediaReady = 'true';
+          };
+          if (!/^https:\/\//i.test(source || '')) {
+            finish(false);
+            return;
+          }
+          image.onload = () => finish(true);
+          image.onerror = () => finish(false);
           image.src = source;
-          image.hidden = false;
-          preview
-            .querySelector('.ani-upcoming-episode-card')
-            .style.setProperty('--ani-card-cover', `url("${image.src.replace(/["\\]/g, '\\$&')}")`);
         };
         const fallbackCover = [
           document.querySelector(
@@ -27189,11 +29693,13 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         if (!season) return;
         const cleanTitle = getCleanAnimeTitle();
         if (!cleanTitle) return;
+        const isBunnyGirl = cleanTitle === '青春豬頭少年不會夢到兔女郎學姊';
 
         const tip = getEpTooltipNode();
         if (!season.dataset.aniEpTipWired) {
           season.dataset.aniEpTipWired = '1';
           const showTip = (link) => {
+            synopsisJobs.get(link)?.run();
             link.removeAttribute('title');
             if (link.closest('.ani-episode-cards')) {
               tip.hidden = true;
@@ -27253,61 +29759,100 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
 
         const cache = readJsonLocal(EP_TITLES_CACHE_KEY, {});
         const cachedEntry = cache[cleanTitle];
-        let epMap =
-          cachedEntry &&
-          Date.now() - Number(cachedEntry.ts || 0) < WORK_META_TTL_MS &&
-          cachedEntry.episodes
-            ? cachedEntry.episodes
-            : null;
+        let epMap = cachedEntry?.episodes || null;
 
-        if (!epMap || cachedEntry.metadataVersion !== EP_METADATA_VERSION) {
+        const lastEpisode = Math.max(
+          0,
+          ...[...(season.querySelector('ul')?.querySelectorAll('li a') || [])]
+            .map((link) => Number(link.textContent.trim()))
+            .filter(Number.isFinite),
+        );
+        const needsMetadata =
+          !cachedEntry?.episodes ||
+          Date.now() - Number(cachedEntry.ts || 0) >= WORK_META_TTL_MS ||
+          cachedEntry.metadataVersion !== EP_METADATA_VERSION ||
+          lastEpisode > (cachedEntry.lastEpisode || 0);
+        if (needsMetadata && !episodeMetadataRefreshes.has(season)) {
+          episodeMetadataRefreshes.add(season);
+          void refreshMetadata()
+            .catch(() => {})
+            .finally(() => episodeMetadataRefreshes.delete(season));
+        }
+        async function refreshMetadata() {
+          const request =
+            typeof GM_xmlhttpRequest === 'function'
+              ? (url, options) =>
+                  new Promise((resolve, reject) =>
+                    GM_xmlhttpRequest({
+                      url,
+                      method: options.method || 'GET',
+                      headers: options.headers,
+                      data: options.body,
+                      timeout: 8000,
+                      onerror: reject,
+                      ontimeout: reject,
+                      onload: (res) =>
+                        resolve({
+                          ok: res.status === 200,
+                          text: () => res.responseText,
+                          json: () => JSON.parse(res.responseText),
+                        }),
+                    }),
+                  )
+              : null;
+          if (isBunnyGirl && !epMap) {
+            const preview =
+              request && typeof fetchOfficialBunnyGirlStories === 'function'
+                ? fetchOfficialBunnyGirlStories(request)
+                : sendWorkerMessage({ type: 'ani-fetch-bunny-girl-stories' }).then(
+                    (result) => result?.stories,
+                  );
+            void preview
+              .then((stories) => {
+                if (
+                  !stories ||
+                  !season.isConnected ||
+                  cleanTitle !== getCleanAnimeTitle() ||
+                  readJsonLocal(EP_TITLES_CACHE_KEY)[cleanTitle]?.episodes
+                )
+                  return;
+                const entries = Object.entries(stories);
+                if (!entries.length) return;
+                saveEpisodeMetadata(cleanTitle, {
+                  ts: Date.now(),
+                  metadataVersion: 0,
+                  lastEpisode,
+                  episodes: Object.fromEntries(
+                    entries.map(([number, description]) => [number, { description }]),
+                  ),
+                });
+                return initEpisodeTitleTooltips();
+              })
+              .catch(() => {});
+          }
           const acgUrl =
             document.querySelector('a[href*="acg.gamer.com.tw/acgDetail.php?s="]')?.href || '';
           let resp = await sendWorkerMessage({
             type: 'ani-fetch-episode-titles',
             title: cleanTitle,
             acgUrl,
+            lastEpisode,
           });
-          if (
-            !resp?.ok &&
-            typeof fetchEpisodeTitles === 'function' &&
-            typeof GM_xmlhttpRequest === 'function'
-          ) {
-            const request = (url, options) =>
-              new Promise((resolve, reject) =>
-                GM_xmlhttpRequest({
-                  url,
-                  method: options.method || 'GET',
-                  headers: options.headers,
-                  data: options.body,
-                  timeout: 8000,
-                  onerror: reject,
-                  ontimeout: reject,
-                  onload: (res) =>
-                    resolve({
-                      ok: res.status === 200,
-                      text: () => res.responseText,
-                      json: () => JSON.parse(res.responseText),
-                    }),
-                }),
-              );
-            resp = { ok: true, episodes: await fetchEpisodeTitles(cleanTitle, request, acgUrl) };
+          if (!resp?.ok && request && typeof fetchEpisodeTitles === 'function') {
+            resp = {
+              ok: true,
+              episodes: await fetchEpisodeTitles(cleanTitle, request, acgUrl, lastEpisode),
+            };
           }
           if (resp?.ok && resp.episodes && Object.keys(resp.episodes).length > 0) {
-            epMap = resp.episodes;
-            cache[cleanTitle] = {
+            saveEpisodeMetadata(cleanTitle, {
               ts: Date.now(),
               metadataVersion: EP_METADATA_VERSION,
-              episodes: epMap,
-            };
-            const keys = Object.keys(cache);
-            if (keys.length > 120) {
-              keys
-                .sort((a, b) => (cache[b]?.ts || 0) - (cache[a]?.ts || 0))
-                .slice(120)
-                .forEach((k) => delete cache[k]);
-            }
-            writeJsonLocal(EP_TITLES_CACHE_KEY, cache);
+              lastEpisode,
+              episodes: resp.episodes,
+            });
+            if (season.isConnected && cleanTitle === getCleanAnimeTitle())
+              await initEpisodeTitleTooltips();
           }
         }
 
@@ -27355,6 +29900,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             .map((paragraph) => paragraph.textContent.trim())
             .join(' ');
         const isPolarOpposites = /^相反的你和我(?:\s*第[二2][季期])?$/.test(cleanTitle);
+        const isWildLastBoss = /^野生的大魔王出現了[！!]$/.test(cleanTitle);
         const slimeSeasonLabel = cleanTitle.match(
           /^關於我轉生變成史萊姆這檔事(?:\s*第([一二三四1-4])[季期])?$/,
         );
@@ -27373,12 +29919,28 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         const verifiedTitles = (
           slimeSeasonTitles[slimeSeasonNumber] || slimeSpinoff?.titles
         )?.split('｜');
+        // https://www.ofiii.com/vod/44765/2/E13?is_force_episode=true
+        const mushokuSecondSeasonTitles = /^無職轉生.*(?:第二季|第2季|season\s*2)$/i.test(
+          cleanTitle,
+        )
+          ? [
+              '我夢想中的家',
+              '婚宴',
+              '遙遠',
+              '諾倫與愛夏',
+              '大哥的心情',
+              '轉折點3',
+              '沙漠之旅',
+              '進入迷宮',
+              '第六層的魔法陣',
+              '雙親',
+              '回去吧',
+              '繼承',
+            ]
+          : null;
         for (const a of season.querySelectorAll('li a')) {
           const rawEp = (a.textContent || '').trim();
           const numMatch = rawEp.match(/(\d+(?:\.\d+)?)/)?.[1];
-          const epData =
-            epMap?.[rawEp] ||
-            (numMatch ? epMap?.[numMatch] || epMap?.[String(Number(numMatch))] : null);
           const list = a.closest('ul');
           const previous = list?.previousElementSibling;
           const listLabel =
@@ -27387,9 +29949,18 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               : previous
             )?.textContent.trim() || '';
           const isStoryList =
-            (list === mainEpisodes && (!slimeSeason || !/特別篇|OAD|OVA/i.test(listLabel))) ||
+            (list === mainEpisodes && !/特別篇|OAD|OVA/i.test(listLabel)) ||
             /^(?:中文配音|中配|國語配音|國語)(?:版)?$/.test(listLabel);
+          const epData = isStoryList
+            ? (epMap?.[rawEp] ?? epMap?.[numMatch] ?? epMap?.[String(Number(numMatch))])
+            : null;
           const episodeNumber = Number(numMatch);
+          const videoSn =
+            a.dataset.aniVideoSn || new URL(a.href, location.href).searchParams.get('sn');
+          const specialTitle =
+            !isStoryList && mushokuSecondSeasonTitles && videoSn === '34047' ? '守護術師菲茲' : '';
+          const lastBossEpisode =
+            isWildLastBoss && isStoryList ? wildLastBossEpisodes[episodeNumber] : null;
           const isMovie =
             isMovieEpisodeTrack(listLabel) ||
             (movieWork && list?.querySelectorAll('li a').length === 1 && isStoryList);
@@ -27407,10 +29978,13 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           const episodeTitle = isMovie
             ? movieSubtitle
             : isStoryList
-              ? translatedTitle || verifiedTitles?.[verifiedIndex] || icebladeTitle
-              : slimeSeason || slimeSpinoff
-                ? null
-                : translatedTitle;
+              ? mushokuSecondSeasonTitles?.[episodeNumber - 13] ||
+                translatedTitle ||
+                verifiedTitles?.[verifiedIndex] ||
+                icebladeTitle ||
+                lastBossEpisode?.[0] ||
+                (isBunnyGirl && episodeNumber === 1 ? '學姊是兔女郎' : '')
+              : specialTitle;
           if (episodeTitle) {
             a.dataset.aniEpTitle = traditionalTitle(episodeTitle);
             const heading = a.querySelector('.ani-episode-card-heading');
@@ -27430,15 +30004,21 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           if (details) details.dataset.title = a.dataset.aniEpTitle || '';
           const synopsis = description?.querySelector('.ani-episode-card-synopsis');
           if (isStoryList || isMovie) {
+            const foreignStory = episodeStoryText(epData?.description);
             const verifiedStory =
               slimeSeason || slimeSpinoff
                 ? (slimeSeason || slimeSpinoff).summaries[verifiedIndex]
                 : readEpisodeSynopsis(epData?.description) ||
+                  lastBossEpisode?.[1] ||
+                  (isBunnyGirl && episodeNumber === 1
+                    ? '咲太在圖書館遇見扮成兔女郎的學姊櫻島麻衣，卻發現旁人看不見她。隔天在車站再次碰面，他開始追問這樁怪事。'
+                    : '') ||
                   (isMovie ? workSynopsis() : '') ||
                   fireflySummaries?.[episodeNumber - 1] ||
-                  (isPolarOpposites ? polarOppositesSeasonTwoDescriptions[episodeNumber] : '');
-            if (verifiedStory) {
-              const text = traditionalTitle(verifiedStory).replace(/\s+/g, ' ').trim();
+                  (isPolarOpposites ? polarOppositesSeasonTwoDescriptions[episodeNumber] : '') ||
+                  (foreignStory && cachedEpisodeSynopsis(foreignStory));
+            const paintSynopsis = (value) => {
+              const text = traditionalTitle(value).replace(/\s+/g, ' ').trim();
               const maxLength = 82;
               const characters = Array.from(text);
               const excerpt = characters.slice(0, maxLength).join('');
@@ -27447,13 +30027,52 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                 characters.length <= maxLength
                   ? text
                   : completeSentences || excerpt.trimEnd() + '…';
-              if (description) description.dataset.text = a.dataset.aniEpDescription;
-              if (synopsis) synopsis.dataset.text = a.dataset.aniEpDescription;
+              const currentDescription = a.querySelector('.ani-episode-card-description');
+              if (currentDescription) {
+                if (!currentDescription.dataset.text && a.dataset.aniEpDescription) {
+                  currentDescription.classList.add('ani-episode-description-reveal');
+                }
+                currentDescription.dataset.text = a.dataset.aniEpDescription;
+              }
+              const currentSynopsis = currentDescription?.querySelector(
+                '.ani-episode-card-synopsis',
+              );
+              if (currentSynopsis) currentSynopsis.dataset.text = a.dataset.aniEpDescription;
+            };
+            if (verifiedStory) {
+              synopsisJobs.delete(a);
+              synopsisObserver?.unobserve(a);
+              paintSynopsis(verifiedStory);
+              continue;
+            }
+            if (foreignStory) {
+              const existing = synopsisJobs.get(a);
+              if (existing?.text !== foreignStory) {
+                let started = false;
+                const run = async () => {
+                  if (started || !a.isConnected) return;
+                  started = true;
+                  synopsisObserver?.unobserve(a);
+                  const translation = await requestEpisodeTranslation(foreignStory);
+                  if (!translation || synopsisJobs.get(a)?.text !== foreignStory || !a.isConnected)
+                    return;
+                  paintSynopsis(translation);
+                  season.dispatchEvent(new Event('ani-episode-titles-ready'));
+                  if (a.matches(':hover, :focus'))
+                    a.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+                };
+                synopsisJobs.set(a, { text: foreignStory, run });
+                if (a.closest('li.playing') || !synopsisObserver) void run();
+                else synopsisObserver.observe(a);
+              }
               continue;
             }
           }
           delete a.dataset.aniEpDescription;
-          if (description) description.dataset.text = '';
+          if (description) {
+            description.dataset.text = '';
+            description.classList.remove('ani-episode-description-reveal');
+          }
           if (synopsis) synopsis.dataset.text = '';
         }
         if (mainEpisodes && !movieWork) {
@@ -27484,7 +30103,10 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         const dated = text.match(
           /(?:預計|將於|本作品將於)?\s*((?:20\d{2}[\/\-年])?\d{1,2}[\/\-月]\d{1,2}日?(?:\s*\d{1,2}:\d{2})?)\s*(?:起)?(?:下架|到期|停止授權)/,
         );
-        const labeled = text.match(/(?:下架時間|授權到期)[：:]\s*([^\n，,。]{3,28})/);
+        const labeled =
+          text.match(
+            /(?:預定下架日期\s*[：:]?|^下架)\s*(20\d{2}\/\d{1,2}\/\d{1,2}(?:\s+\d{1,2}:\d{2})?)/,
+          ) || text.match(/(?:下架時間|授權到期)[：:]\s*([^\n，,。]{3,28})/);
         const generic = !dated && !labeled ? text.match(/(即將下架|即將到期|下架預告)/) : null;
         if (!dated && !labeled && !generic) return null;
 
@@ -27508,6 +30130,8 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         const notice = dated?.[0] || labeled?.[0] || generic?.[0] || '即將下架';
         return { notice, dateText, daysLeft };
       };
+
+      const hasOffshelfDetails = /^\/(?:animeVideo|animeRef)\.php$/.test(location.pathname);
 
       let offshelfSubscribed = false;
 
@@ -27539,29 +30163,46 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             }
           }
 
-          if (location.pathname === '/animeVideo.php' || location.pathname === '/animeRef.php') {
-            const scanText = [
-              ...document.querySelectorAll(
-                '.anime_info_detail, .data_intro, .notice, .season, .anime_name',
-              ),
-            ]
-              .map((el) => el.textContent || '')
-              .join(' ');
-            const parsed = parseOffshelfNotice(scanText);
+          if (hasOffshelfDetails) {
+            const details = [...document.querySelectorAll('.anime_info_detail')];
+            const rows = details.flatMap((detail) =>
+              detail.children.length ? [...detail.children] : [detail],
+            );
+            const notices = [...document.querySelectorAll('.data_intro, .notice')];
+            const parsed = [...rows, ...notices]
+              .map((node) => parseOffshelfNotice(node.textContent))
+              .find(Boolean);
             const refLink = document.querySelector('a[href*="animeRef.php?sn="]');
             const sn = getSnFromHref(refLink?.getAttribute('href')) || getSnFromHref(location.href);
             const title = getCleanAnimeTitle();
+            let banner = document.querySelector('.ani-offshelf-banner');
             if (parsed) {
-              if (sn) {
+              const cached = offshelfCache[sn];
+              if (
+                sn &&
+                (cached?.notice !== parsed.notice ||
+                  cached?.title !== title ||
+                  cached?.daysLeft !== parsed.daysLeft ||
+                  now - cached.detectedAt >= 86400000)
+              ) {
                 offshelfCache[sn] = { sn, title, ...parsed, detectedAt: now };
                 cacheUpdated = true;
               }
+            }
+
+            const titlePill =
+              location.pathname === '/animeVideo.php'
+                ? document.querySelector('.anime-title .anime_info_detail > .ani-info-offshelf')
+                : null;
+            const pillDate = titlePill && parseOffshelfNotice(titlePill.textContent)?.dateText;
+            if (!parsed || (pillDate && pillDate === parsed.dateText)) {
+              banner?.remove();
+            } else {
               const hostAnchor =
                 document.querySelector('.container-player > .anime-title') ||
                 document.querySelector('.anime_name') ||
                 document.querySelector('#BH_background');
               if (hostAnchor) {
-                let banner = document.querySelector('.ani-offshelf-banner');
                 if (!banner) {
                   banner = document.createElement('div');
                   banner.className = 'ani-offshelf-banner';
@@ -27575,7 +30216,10 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                       ? '（今天到期）'
                       : `（剩餘 ${parsed.daysLeft} 天）`
                     : '';
-                banner.innerHTML = `<span class="ani-offshelf-dot" aria-hidden="true">!</span><strong>即將下架提醒</strong><span>${escapeHtml(parsed.notice)}${escapeHtml(dayNote)}</span>`;
+                const label = `${parsed.dateText ? `${parsed.dateText} 下架` : parsed.notice}${dayNote}`;
+                if (banner.lastElementChild?.textContent !== label) {
+                  banner.innerHTML = `<span class="ani-offshelf-dot" aria-hidden="true">!</span><strong>即將下架提醒</strong><span>${escapeHtml(label)}</span>`;
+                }
               }
             }
           } else {
@@ -27654,9 +30298,28 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
 
         if (!offshelfSubscribed) {
           offshelfSubscribed = true;
-          settingsListeners.add(() => {
-            run();
-          });
+          settingsListeners.add(run);
+          const host = hasOffshelfDetails && document.querySelector('#BH_background');
+          if (host) {
+            const sourceSelector = '.anime_info_detail, .data_intro, .notice';
+            new MutationObserver((records) => {
+              const sourceChanged = records.some(({ target, addedNodes, removedNodes }) => {
+                const element = target.nodeType === 1 ? target : target.parentElement;
+                return (
+                  element?.closest(sourceSelector) ||
+                  [...addedNodes].some(
+                    (node) =>
+                      node.nodeType === 1 &&
+                      (node.matches(sourceSelector) || node.querySelector(sourceSelector)),
+                  ) ||
+                  [...removedNodes].some(
+                    (node) => node.nodeType === 1 && node.matches('.ani-offshelf-banner'),
+                  )
+                );
+              });
+              if (sourceChanged) run();
+            }).observe(host, { childList: true, subtree: true, characterData: true });
+          }
         }
         run();
       };
@@ -27672,6 +30335,9 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         storageGet,
         storageSet,
         escapeHtml,
+        historyBangumiLink,
+        bangumiWorkLink,
+        bangumiMappingsReady: () => bangumiMappingsReady,
         renderHistoryMetadata,
         traditionalTitle,
         showToast,
@@ -27684,7 +30350,8 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         normalizeBilingualEpisodeTracks,
         initBrowseFilters: initCatalogEnhancements,
         reinit: async () => {
-          await readSettings();
+          await readSettings(true);
+          if (hasOffshelfDetails) initOffshelfAlerts();
           initLongEpisodeGrouping();
           await initCollectionStatusTagger();
           await initWatchCollectionStatusButton();
@@ -27693,7 +30360,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           await initDanmuListTools();
           initCommentSendButton();
           await initEpisodeTitleTooltips();
-          initOffshelfAlerts();
+          if (!hasOffshelfDetails) initOffshelfAlerts();
           initVideoHistoryTracker();
           await initPermanentHistoryPage();
         },
@@ -27704,6 +30371,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
 
       const boot = async () => {
         await readSettings();
+        if (hasOffshelfDetails) initOffshelfAlerts();
         initLongEpisodeGrouping();
         await initCollectionStatusTagger();
         initCatalogEnhancements();
@@ -27711,13 +30379,22 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           document.documentElement.dataset.aniEpisodePreview = 'true';
         document.documentElement.dataset.aniEnhancementsUiReady = 'true';
         window.dispatchEvent(new Event('ani-enhancements-ui-ready'));
+        // Track playback before optional metadata or plugin integrations finish.
+        initVideoHistoryTracker();
+        void initEpisodeTitleTooltips().catch(() => {});
+        if (/^\/(?:animeVideo|viewList)\.php$/.test(location.pathname)) {
+          if (location.pathname === '/animeVideo.php') syncPlaybackBangumi();
+          loadBangumiMappings().then(() => {
+            bangumiMappingsReady = true;
+            if (location.pathname === '/animeVideo.php') syncPlaybackBangumi();
+            document.dispatchEvent(new Event('ani-bangumi-mappings-ready'));
+          });
+        }
         await initWatchCollectionStatusButton();
         await initSpoilerBlur();
         await initDanmuListTools();
         initCommentSendButton();
-        await initEpisodeTitleTooltips();
-        initOffshelfAlerts();
-        initVideoHistoryTracker();
+        if (!hasOffshelfDetails) initOffshelfAlerts();
         await initPermanentHistoryPage();
       };
 
