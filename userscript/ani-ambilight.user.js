@@ -13,16 +13,16 @@
 // @run-at       document-start
 // @inject-into  content
 // @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
-// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2ea5a0a775e3e4e88c7db6750ba5c99df40999b2/src/studio-catalog.json
-// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2ea5a0a775e3e4e88c7db6750ba5c99df40999b2/src/studio-profiles.json
-// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2ea5a0a775e3e4e88c7db6750ba5c99df40999b2/src/studio-directory-icons.json
-// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2ea5a0a775e3e4e88c7db6750ba5c99df40999b2/src/studio-logos.json
-// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2ea5a0a775e3e4e88c7db6750ba5c99df40999b2/src/content.css
-// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2ea5a0a775e3e4e88c7db6750ba5c99df40999b2/src/effects.css
-// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2ea5a0a775e3e4e88c7db6750ba5c99df40999b2/src/settings-ui.css
-// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2ea5a0a775e3e4e88c7db6750ba5c99df40999b2/src/hero-banner.css
-// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2ea5a0a775e3e4e88c7db6750ba5c99df40999b2/src/home-dashboard.css
-// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2ea5a0a775e3e4e88c7db6750ba5c99df40999b2/src/ui-repairs.css
+// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/ee8282e63c6fa4380d2be526026aff78c2802b02/src/studio-catalog.json
+// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/ee8282e63c6fa4380d2be526026aff78c2802b02/src/studio-profiles.json
+// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/ee8282e63c6fa4380d2be526026aff78c2802b02/src/studio-directory-icons.json
+// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/ee8282e63c6fa4380d2be526026aff78c2802b02/src/studio-logos.json
+// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/ee8282e63c6fa4380d2be526026aff78c2802b02/src/content.css
+// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/ee8282e63c6fa4380d2be526026aff78c2802b02/src/effects.css
+// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/ee8282e63c6fa4380d2be526026aff78c2802b02/src/settings-ui.css
+// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/ee8282e63c6fa4380d2be526026aff78c2802b02/src/hero-banner.css
+// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/ee8282e63c6fa4380d2be526026aff78c2802b02/src/home-dashboard.css
+// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/ee8282e63c6fa4380d2be526026aff78c2802b02/src/ui-repairs.css
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -19380,19 +19380,15 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           const cache = readScoreCache();
           for (const area of weekly.querySelectorAll('.newanime-date-area')) {
             const picBlock = area.querySelector('.anime-pic-block');
-            if (
-              !picBlock ||
-              picBlock.querySelector(':scope > .ani-score-badge-top-left:not([hidden])')
-            )
-              continue;
+            if (!picBlock) continue;
             const cardLink = area.querySelector('.anime-card-block');
             let capturedScore = '';
             for (const candidate of area.querySelectorAll(
-              '.label-edition, .tm-acg-rating, .ani-custom-rating, .anime-detail-info-block span, .anime-pic-block > span, .anime-pic-block > div',
+              ':scope > span, :scope > p, .anime-card-block :is(span, div, p, b, strong, em, small, i, a), .label-edition, .tm-acg-rating, .ani-custom-rating',
             )) {
               if (
                 candidate.matches(
-                  '.anime-detail-info-block, .anime-label-block, .anime-detail-block, .anime-pic-block, .anime-blocker, .anime-card-block, .anime-block, .anime-content-block, .anime-hours-block, .anime-hours, .anime-episode, .anime-watch-number, .anime-name-block, .anime-name, .date-block, .anime-date-info, a',
+                  '.anime-detail-info-block, .anime-label-block, .anime-detail-block, .anime-pic-block, .anime-blocker, .anime-card-block, .anime-block, .anime-content-block, .anime-hours-block, .anime-hours, .anime-episode, .anime-watch-number, .anime-name-block, .anime-name, .date-block, .anime-date-info, a.anime-card-block',
                 ) ||
                 candidate.closest(
                   '.ani-score-badge-top-left, .anime-episode, .anime-watch-number, .anime-name-block, .date-block, .anime-date-info',
@@ -19400,20 +19396,29 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               ) {
                 continue;
               }
-              if (candidate.children.length > 0) continue;
+              if (
+                [...candidate.children].some((ch) => !ch.matches('svg, img, i')) &&
+                !candidate.matches('.tm-acg-rating, .ani-custom-rating')
+              ) {
+                continue;
+              }
               const rawTxt = (candidate.textContent || '').replace(/\s+/g, ' ').trim();
               const match = rawTxt.match(/^(?:★\s*)?([0-5]\.\d{1,2})$/);
               if (!match) continue;
-              capturedScore = match[1];
-              candidate.style.setProperty('display', 'none', 'important');
-              break;
+              if (!capturedScore) capturedScore = match[1];
+              if (candidate.style.display !== 'none') {
+                candidate.style.setProperty('display', 'none', 'important');
+              }
             }
             const snMatch = (cardLink?.getAttribute('href') || '').match(/[?&]sn=(\d+)/);
             const sn = snMatch ? snMatch[1] : '';
             if (capturedScore) {
-              if (sn) writeScoreCache(sn, capturedScore);
+              if (sn && cache[sn]?.s !== capturedScore) writeScoreCache(sn, capturedScore);
               renderTopLeftScoreBadge(picBlock, capturedScore);
-            } else if (sn) {
+            } else if (
+              sn &&
+              !picBlock.querySelector(':scope > .ani-score-badge-top-left:not([hidden])')
+            ) {
               if (cache[sn]?.s) {
                 renderTopLeftScoreBadge(picBlock, cache[sn].s);
               } else if (!area.dataset.aniScoreQueued) {
