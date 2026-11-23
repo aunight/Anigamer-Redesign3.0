@@ -79,11 +79,12 @@
       else nextFrame(() => nextFrame(() => reveal()));
     };
     const pageshow = event => { if (event.persisted) reveal(true); };
+    const maintenance = () => reveal(true);
     const minimum = minimumElapsed ? null : setTimeout(() => {
       minimumElapsed = true;
       ready();
     }, 750);
-    const deadline = setTimeout(() => reveal(), homePage ? 900 : 5000);
+    const deadline = setTimeout(() => reveal(), homePage ? 250 : 5000);
     function reveal(immediate = false) {
       if (finished) return;
       finished = true;
@@ -93,6 +94,7 @@
       window.removeEventListener('ani-ui-ready', ready);
       window.removeEventListener('ani-enhancements-ui-ready', ready);
       window.removeEventListener('pageshow', pageshow);
+      window.removeEventListener('ani-site-maintenance', maintenance);
       delete root.dataset.aniReloading;
       delete root.dataset.aniBooting;
       if (!root.dataset.aniEnhancementsUiReady) delete root.dataset.aniEpisodePreview;
@@ -109,6 +111,11 @@
     window.addEventListener('ani-ui-ready', ready);
     window.addEventListener('ani-enhancements-ui-ready', ready);
     window.addEventListener('pageshow', pageshow);
+    window.addEventListener('ani-site-maintenance', maintenance);
+    if (root.dataset.aniSiteMaintenance === 'true') {
+      maintenance();
+      return;
+    }
     whenSettingsDisabled(() => reveal(true));
     ready();
   }

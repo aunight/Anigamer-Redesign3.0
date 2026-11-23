@@ -4,6 +4,16 @@ import test from 'node:test';
 import { JSDOM } from 'jsdom';
 function boot(html,path){const dom=new JSDOM(html,{url:'https://ani.gamer.com.tw'+path,runScripts:'outside-only',pretendToBeVisual:true});const w=dom.window;w.matchMedia=()=>({matches:false,addEventListener(){}});w.fetch=async()=>({ok:true,text:async()=>'<div class="theme-list-block"><a class="theme-list-main" href="animeRef.php?sn=2"></a></div>'});for(const file of ['page-entry.js','settings.js','content.js'])w.eval(fs.readFileSync('src/'+file,'utf8'));return dom;}
 const card=(id,year,progress)=>`<a class="theme-list-main" href="animeRef.php?sn=${id}"><div class="theme-img-block"><img class="theme-img"><span class="ani-watch-progress-badge">看到第 ${progress} 話</span></div><div class="anime-detail-block"><div class="theme-info-block"><p class="theme-name">作品${id}</p><div class="theme-detail-info-block"><p class="theme-time">${year} 春番</p><span class="theme-number">${progress} / 12 集</span></div></div></div></a>`;
+test('movie filter labels untitled movies and keeps the paid lock', t => {
+  const movie = card(1, 2026, 0).replace('0 / 12 集', '0 / 1 集')
+    .replace('<div class="anime-detail-block">', '<div class="anime-detail-block"><span class="label-edition">付費會員</span>');
+  const dom = boot(`<div id="BH_background"><div class="animate-theme-list"><div class="theme-list-block">${movie}</div></div></div>`, '/animeList.php?category=' + encodeURIComponent('電影'));
+  t.after(() => dom.window.close());
+  const episode = dom.window.document.querySelector('.theme-number');
+  assert.equal(episode.textContent, '電影');
+  assert(episode.firstElementChild?.matches('.ani-member-lock'));
+});
+
 test('related movies show a check only when completed while specials retain episode progress', async t => {
   const movie = card(1, 2026, 0).replace('作品1', '作品劇場版').replace(' / 12 集', ' / 1 集');
   const tagged = card(2, 2026, 0).replace(' / 12 集', ' / 1 集')
@@ -147,7 +157,10 @@ test('collection shares the catalog panel and combines official classifications 
   assert.equal(toggle.getAttribute('aria-expanded'), 'true');
   click('屬性', '校園');
   click('屬性', '戀愛');
-  click('類型', '電影');
+  const classifications = group('作品分類');
+  assert.deepEqual([...classifications.querySelectorAll('button')].map(button => button.textContent.trim()),
+    ['全部', '漫畫改編', '輕小說改編', '遊戲改編', '原創動畫', '電影', 'OVA', '雙語', '泡麵番', '輕動畫', '真人演出']);
+  click('作品分類', '電影');
   click('對象', '闔家觀賞');
   await new Promise(resolve => setTimeout(resolve, 650));
   assert.equal(requests.length, 1);
@@ -155,8 +168,10 @@ test('collection shares the catalog panel and combines official classifications 
   assert.equal(requests[0].get('category'), '電影');
   assert.equal(requests[0].get('target'), '闔家觀賞');
   assert.deepEqual(hidden(), [true,false,true]);
+  click('作品分類', '漫畫改編');
+  assert.deepEqual([...classifications.querySelectorAll('button[aria-pressed="true"]')].map(button => button.textContent.trim()), ['漫畫改編']);
   click('屬性', '全部');
-  click('類型', '全部');
+  click('作品分類', '全部');
   click('對象', '全部');
   assert(cards.every(c => !c.hidden));
   const search = d.querySelector('input[type="search"]');
@@ -168,15 +183,61 @@ test('collection shares the catalog panel and combines official classifications 
   cards[0].click();
   assert.equal(clicks,1);
 });
+test('catalog and collection keep bilingual and age labels and show the member lock inside the episode pill', t => {
+  const marked = card(1, 2026, 12).replace('<div class="anime-detail-block">', `<div class="anime-detail-block">
+    <div class="anime-tag-row"><div class="anime-label-block">
+      <span class="label-edition">雙語</span><span class="label-edition">年齡限制</span><span class="label-edition">付費會員</span>
+    </div></div>`);
+  for (const path of ['/animeList.php', '/mygather.php']) {
+    const dom = boot(`<div id="BH_background"><div class="animate-theme-list"><div class="theme-list-block">${marked}</div></div></div>`, path);
+    t.after(() => dom.window.close());
+    const image = dom.window.document.querySelector('.theme-img-block');
+    assert.deepEqual([...image.querySelectorAll(':scope > .ani-poster-episode-labels > .label-edition')]
+      .map(label => label.textContent.trim()), ['雙語', '18+']);
+    const episodes = image.querySelector(':scope > .theme-number.ani-member-episodes');
+    assert(episodes.firstElementChild.matches('.ani-member-lock[title="付費會員限定"]'));
+    assert(image.querySelector('.ani-age-restricted[title="年齡限制"]'));
+    assert.match(episodes.getAttribute('aria-label'), /^付費會員限定，/);
+  }
+});
 test('weekly expansion exposes remaining native tiles and closes reversibly',()=>{const tiles=Array.from({length:6},(_,i)=>`<a class="text-anime-info" href="animeVideo.php?sn=${i}"><span class="text-anime-name">作品${i}</span></a>`).join('');const dom=boot(`<div id="BH_background"><section id="blockVideoInSeason"><div class="textpage-switch-page nav-choose-segment"></div><div class="programlist-wrap_block"><div class="programlist-block"><div class="day-list today-list"><h3 class="day-title">週二</h3>${tiles}</div></div></div></section></div>`,'/');const d=dom.window.document;assert.equal(d.querySelectorAll('.ani-week-extra').length,1);const button=d.querySelector('.ani-week-expand');button.click();assert(d.querySelector('#blockVideoInSeason').classList.contains('ani-week-expanded'));assert.equal(button.getAttribute('aria-expanded'),'true');button.click();assert.equal(button.getAttribute('aria-expanded'),'false');assert(d.documentElement.dataset.aniUiReady);dom.window.close();});
 
-test('weekly reveal animates its control without fading the entire schedule',async()=>{
+test('weekly disclosure reverses and animates the panel again after closing',async()=>{
  const tiles=Array.from({length:7},(_,i)=>`<a class="text-anime-info"><span class="text-anime-name">作品${i}</span></a>`).join('');
  const dom=boot(`<div id="BH_background"><section id="blockVideoInSeason"><div class="programlist-wrap_block"><div class="programlist-block"><div class="day-list"><h3>週一</h3>${tiles}</div></div></div></section></div>`,'/');
- const d=dom.window.document;let animations=0;
- d.querySelector('.programlist-wrap_block').animate=()=>assert.fail('full schedule should not fade');
- d.querySelector('.ani-week-expand').animate=frames=>{assert(frames.every(frame=>!('height' in frame)));animations++;return {finished:Promise.resolve()};};
- const button=d.querySelector('.ani-week-expand');button.click();assert.equal(animations,1);button.click();await new Promise(r=>setTimeout(r,0));assert(!d.querySelector('#blockVideoInSeason').classList.contains('ani-week-expanded'));dom.window.close();
+ const d=dom.window.document;
+ const viewport=d.querySelector('.ani-season-viewport');
+ const motions=[];
+ let collapsedHeight=100;
+ viewport.getBoundingClientRect=()=>({height:d.querySelector('#blockVideoInSeason').classList.contains('ani-week-expanded')?240:collapsedHeight});
+ viewport.firstElementChild.getBoundingClientRect=()=>({height:240});
+ const fades=[];
+ const record = list => (frames, timing) => {
+   const motion={frames,timing,reversals:0,reverse(){this.reversals++;},cancel(){}};
+   list.push(motion);
+   return motion;
+ };
+ viewport.animate=record(motions);
+ for(const tile of viewport.querySelectorAll('.ani-week-extra-shell')) tile.animate=record(fades);
+ const button=d.querySelector('.ani-week-expand');
+ button.click();
+ button.click();
+ assert.equal(motions.length,1);
+ assert.equal(motions[0].reversals,1);
+ assert(fades.length===2 && fades.every(fade=>fade.reversals===1));
+ motions[0].onfinish();
+ assert(!d.querySelector('#blockVideoInSeason').classList.contains('ani-week-expanded'));
+ button.click();
+ assert.deepEqual(Array.from(motions[1].frames, frame => frame.height), ['100px', '240px', '240px']);
+ motions[1].onfinish();
+ assert.equal(button.getAttribute('aria-expanded'),'true');
+ collapsedHeight=130;
+ button.click();
+ assert.deepEqual(Array.from(motions[2].frames, frame => frame.height), ['130px', '240px', '240px']);
+ assert.equal(motions[2].timing.direction,'reverse');
+ motions[2].onfinish();
+ assert.equal(button.getAttribute('aria-expanded'),'false');
+ dom.window.close();
 });
 
 test('homepage cover glow samples artwork rather than the clock icon',()=>{

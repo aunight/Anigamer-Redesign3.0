@@ -55,8 +55,7 @@ body.ani-ambientlight-page .ani-hero h2 { margin: 0; font-size: clamp(20px, 1.9v
 .ani-hero-stats { display: flex; gap: 6px; flex-wrap: wrap; }
 .ani-hero-stat { display: inline-flex; align-items: center; padding: 5px 9px; font-size: 12px; line-height: 1.2; border: 1px solid #d7eafa40; border-radius: 999px; background: #172b40a6; color: #f1f5f9; white-space: nowrap; }
 .ani-hero-stat:first-child { background: #b58039a6; border-color: #f8da9e66; }
-body.ani-ambientlight-page .ani-hero-description { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin: 12px 0 0; font-size: 13px; line-height: 1.8; color: #e2eaf2; }
-.ani-hero-description:empty { display: none; }
+body.ani-ambientlight-page .ani-hero-description { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; block-size: 2lh; overflow: hidden; overflow-wrap: anywhere; margin: 12px 0 0; font-size: 13px; line-height: 1.8; color: #e2eaf2; }
 body.ani-ambientlight-page .ani-hero-watch { position: absolute; right: 24px; bottom: 56px; display: inline-flex; align-items: center; gap: 8px; padding: 12px 18px; background: #62ccd2e6; border: 1px solid #c2ffff70; border-radius: 999px; color: #09222d; font-size: 16px; font-weight: 700; text-decoration: none; box-shadow: 0 6px 20px #0004; }
 .ani-hero-watch svg { width: 18px; height: 18px; }
 .ani-hero-arrow { position: absolute; top: 38%; z-index: 3; display: grid; place-items: center; width: 34px; height: 60px; padding: 0; background: #20384cb3; border: 1px solid #d1e7fc52; border-radius: 999px; color: #f1f5f9; backdrop-filter: blur(14px); cursor: pointer; }
@@ -74,7 +73,6 @@ body.ani-ambientlight-page .ani-hero-watch { position: absolute; right: 24px; bo
   .ani-hero-panel { left: 12px; right: 12px; width: auto; bottom: 100px; padding: 16px; }
   .ani-hero-heading { gap: 10px; }
   body.ani-ambientlight-page .ani-hero h2 { font-size: 24px; }
-  body.ani-ambientlight-page .ani-hero-description { -webkit-line-clamp: 2; }
   body.ani-ambientlight-page .ani-hero-watch { right: 12px; bottom: 48px; padding: 8px 14px; font-size: 14px; }
   .ani-hero-arrow { top: 20%; }
   .ani-hero-pause { right: 12px; }
@@ -164,7 +162,6 @@ body.ani-ambientlight-page .ani-hero-images img {
   padding: 16px 70px 16px 20px;
 }
 body.ani-ambientlight-page .ani-hero-description {
-  -webkit-line-clamp: 2;
   margin-top: 8px;
 }
 body.ani-ambientlight-page .ani-hero-watch {

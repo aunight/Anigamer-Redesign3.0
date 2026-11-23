@@ -2,7 +2,7 @@ html[data-ani-booting='true'] { background:#111c2b !important;overflow:hidden !i
 html[data-ani-booting='true'] > body { opacity: 0 !important; }
 @media (prefers-reduced-motion: no-preference) {
   html:not([data-ani-booting]) > body.ani-home-page.ani-ambientlight-page #BH_background
-    :is(.big_banner.ani-hero-enabled > .ani-hero, .ani-fp-card, .ani-wx-card, #continueWatch[data-ani-continue-sized], #blockVideoInSeason .newanime-wrap, #blockAnimePublisherChannel, .animate-theme-list) {
+    :is(.big_banner.ani-hero-enabled > .ani-hero, .ani-fp-card, .ani-wx-card, #continueWatch[data-ani-continue-sized], #blockVideoInSeason .newanime-wrap, .animate-theme-list) {
     animation: aniHomeModuleIn 220ms ease-out;
   }
   body.ani-home-page.ani-ambientlight-page .ani-wx-card[data-ani-wx-ready] > :is(.ani-wx-sky, .ani-wx-side) {

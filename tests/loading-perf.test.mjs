@@ -113,6 +113,9 @@ test('home page skips hidden weekly schedule enhancement until switched to weekl
   const cover = d.querySelector('.ani-week-cover');
   assert(cover, 'weekly cover mounts when switched to weekly schedule');
   assert.equal(cover.loading, 'lazy');
+  assert.equal(cover.classList.contains('is-ready'), false);
+  cover.dispatchEvent(new w.Event('load'));
+  assert.equal(cover.classList.contains('is-ready'), true);
   assert(d.querySelector('.ani-week-marquee'));
 });
 

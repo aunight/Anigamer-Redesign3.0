@@ -3,6 +3,83 @@
   if (globalThis.__aniTopbarBridgeInstalled) return;
   globalThis.__aniTopbarBridgeInstalled = true;
 
+  if (location.pathname === '/animeVideo.php') {
+    const replyEndpoint = 'https://wall.gamer.com.tw/app/v1/reply_detail.php';
+    const triggerSelector = '#w-post-box [data-morereply]';
+    const prefetched = new Map();
+    let transportInstalled = false;
+    let hoverTimer;
+    const requestReplies = (jquery, url) => new Promise((resolve, reject) => {
+      jquery.ajax({ url, method: 'GET', dataType: 'text', xhrFields: { withCredentials: true }, timeout: 8000 })
+        .done((body, _status, xhr) => resolve({ body, headers: xhr.getAllResponseHeaders() }))
+        .fail(reject);
+    });
+    const installTransport = jquery => {
+      jquery.ajaxTransport('+*', options => {
+        if (options.type !== 'GET' || !options.url.startsWith(replyEndpoint + '?')) return;
+        const url = new URL(options.url);
+        const key = url.searchParams.get('commentId');
+        const entry = prefetched.get(key);
+        if (!entry || [...url.searchParams].length !== 1) return;
+        prefetched.delete(key);
+        if (Date.now() >= entry.expires) return;
+        let aborted = false;
+        return {
+          send(_headers, complete) {
+            entry.request.catch(() => requestReplies(jquery, options.url)).then(
+              ({ body, headers }) => { if (!aborted) complete(200, 'success', { text: body }, headers); },
+              () => { if (!aborted) complete(0, 'error'); },
+            );
+          },
+          abort() { aborted = true; },
+        };
+      });
+      transportInstalled = true;
+    };
+    const preload = trigger => {
+      const jquery = window.jQuery || window.$;
+      if (!trigger.isConnected || typeof jquery?.ajaxTransport !== 'function') return;
+      let key;
+      try { key = String(JSON.parse(trigger.dataset.morereply).c); } catch { return; }
+      if (!/^\d+$/.test(key) || prefetched.get(key)?.expires > Date.now()) return;
+      if (!transportInstalled) installTransport(jquery);
+      prefetched.delete(key);
+      const entry = { expires: Date.now() + 30000, images: [] };
+      entry.request = requestReplies(jquery, replyEndpoint + '?commentId=' + key).then(response => {
+        const replies = JSON.parse(response.body).comments;
+        if (!Array.isArray(replies)) throw new Error('Replies unavailable');
+        const urls = new Set(replies.slice(0, 12).flatMap(reply => [reply?.propic, reply?.image?.B]));
+        for (const url of urls) {
+          if (!/^https:\/\/(?:[\w-]+\.)?bahamut\.com\.tw\//i.test(url || '')) continue;
+          const image = new Image();
+          image.src = url;
+          image.decode?.().catch(() => {});
+          entry.images.push(image);
+        }
+        return response;
+      });
+      entry.request.catch(() => {
+        if (prefetched.get(key) === entry) prefetched.delete(key);
+      });
+      prefetched.set(key, entry);
+      if (prefetched.size > 6) prefetched.delete(prefetched.keys().next().value);
+    };
+    document.addEventListener('pointerover', event => {
+      const trigger = event.target.closest?.(triggerSelector);
+      if (!trigger || event.pointerType !== 'mouse' || trigger.contains(event.relatedTarget)) return;
+      clearTimeout(hoverTimer);
+      hoverTimer = setTimeout(() => preload(trigger), 90);
+    });
+    document.addEventListener('pointerout', event => {
+      const trigger = event.target.closest?.(triggerSelector);
+      if (trigger && !trigger.contains(event.relatedTarget)) clearTimeout(hoverTimer);
+    });
+    document.addEventListener('focusin', event => {
+      const trigger = event.target.closest?.(triggerSelector);
+      if (trigger) preload(trigger);
+    });
+  }
+
   // Slick normally measures on window resize, but the homepage theme also
   // changes the rail width without resizing the window.
   if (location.pathname === '/' || location.pathname === '/index.php') {
@@ -37,21 +114,46 @@
   }
 
   // The player can remove its prompt before requesting a homepage redirect.
-  if (location.pathname === '/animeVideo.php' && window.navigation) {
+  function installConsentRedirectGuard() {
+    if (location.pathname !== '/animeVideo.php' || !window.navigation || window.__aniConsentGuardInstalled) return;
+    window.__aniConsentGuardInstalled = true;
     const agree = '.choose-btn-agree, .ani-consent-accept';
     const choice = agree + ', .choose-btn-disagree, .ani-consent-decline';
     let awaitingChoice = false;
     let handledPrompt;
-    const rememberPrompt = (player) => {
-      const prompt = player.querySelector(agree);
+    let lastHomeLinkClickAt = 0;
+    let observedPlayer = null;
+    const rememberPrompt = () => {
+      const player = document.getElementById('ani_video');
+      const prompt = player?.querySelector(agree);
       if (prompt && prompt !== handledPrompt) awaitingChoice = true;
     };
-    const player = document.getElementById('ani_video');
-    if (player) {
-      rememberPrompt(player);
-      new MutationObserver(() => rememberPrompt(player)).observe(player, { childList: true, subtree: true });
+    const playerObserver = new MutationObserver(rememberPrompt);
+    const attachPlayerObserver = () => {
+      const player = document.getElementById('ani_video');
+      if (!player || player === observedPlayer) return false;
+      observedPlayer = player;
+      playerObserver.disconnect();
+      playerObserver.observe(player, { childList: true, subtree: true });
+      rememberPrompt();
+      return true;
+    };
+    if (!attachPlayerObserver()) {
+      const rootObserver = new MutationObserver(() => {
+        if (attachPlayerObserver()) rootObserver.disconnect();
+      });
+      rootObserver.observe(document.documentElement, { childList: true, subtree: true });
     }
     document.addEventListener('click', event => {
+      const link = event.target?.closest?.('a[href]');
+      if (event.isTrusted && link && !link.closest('#ani_video')) {
+        try {
+          const url = new URL(link.getAttribute('href'), location.href);
+          if (url.host === location.host && ['/', '/index.php'].includes(url.pathname)) {
+            lastHomeLinkClickAt = Date.now();
+          }
+        } catch {}
+      }
       const currentPlayer = document.getElementById('ani_video');
       if (!event.isTrusted || !currentPlayer?.contains(event.target) || !event.target.closest?.(choice)) return;
       handledPrompt = currentPlayer.querySelector(agree);
@@ -63,93 +165,147 @@
     }, true);
     window.navigation.addEventListener('navigate', event => {
       if (!document.body?.classList.contains('ani-ambientlight-page') ||
-          !event.cancelable || event.userInitiated || event.navigationType === 'traverse' ||
-          navigator.userActivation?.isActive) return;
+          !event.cancelable || event.userInitiated || event.navigationType === 'traverse') return;
+      if (Date.now() - lastHomeLinkClickAt < 2000) return;
       const destination = new URL(event.destination.url);
       if (destination.host !== location.host || !['http:', 'https:'].includes(destination.protocol) ||
           !['/', '/index.php'].includes(destination.pathname)) return;
-      const currentPlayer = document.getElementById('ani_video');
-      if (!currentPlayer) return;
-      rememberPrompt(currentPlayer);
+      rememberPrompt();
       if (awaitingChoice) event.preventDefault();
     });
   }
+  if (location.pathname === '/animeVideo.php') {
+    if (typeof GM_getValue === 'function') {
+      const script = document.createElement('script');
+      script.textContent = `(${installConsentRedirectGuard.toString()})();`;
+      (document.head || document.documentElement).append(script);
+      script.remove();
+    } else {
+      installConsentRedirectGuard();
+    }
+  }
 
   function installCommentImageZoom() {
-    const hoverAnimations = new Map();
     const motion = matchMedia('(prefers-reduced-motion: reduce)');
-    const hoverTiming = { duration: 220, easing: 'cubic-bezier(.25,.7,.35,1)' };
+    const hoverTiming = { duration: 200, easing: 'cubic-bezier(.25,.7,.35,1)' };
+    let preview = null;
+    let previewAnim = null;
+    let activeThumbnail = null;
 
-    function animateHoverChange(element, from, to) {
-      const animation = element.animate([from, to], hoverTiming);
-      hoverAnimations.set(element, animation);
-      animation.finished.then(() => {
-        if (hoverAnimations.get(element) === animation) hoverAnimations.delete(element);
-      }, () => {});
+    function clearPreview(immediate = false) {
+      if (previewAnim) {
+        try { previewAnim.cancel(); } catch {}
+        previewAnim = null;
+      }
+      const node = preview;
+      const thumb = activeThumbnail;
+      preview = null;
+      activeThumbnail = null;
+      if (!node) return;
+      if (immediate || motion.matches || typeof node.animate !== 'function' || !thumb?.isConnected) {
+        node.remove();
+        return;
+      }
+      const thumbRect = thumb.getBoundingClientRect();
+      const boxRect = node.getBoundingClientRect();
+      if (!thumbRect.width || !thumbRect.height || !boxRect.width || !boxRect.height) {
+        node.remove();
+        return;
+      }
+      const anim = node.animate(
+        [
+          { transformOrigin: 'top left', transform: 'none', opacity: 1 },
+          {
+            transformOrigin: 'top left',
+            transform: `translate(${thumbRect.left - boxRect.left}px, ${thumbRect.top - boxRect.top}px) scale(${thumbRect.width / boxRect.width}, ${thumbRect.height / boxRect.height})`,
+            opacity: 0,
+          },
+        ],
+        { duration: 150, easing: 'cubic-bezier(.4,0,.6,1)' },
+      );
+      anim.finished.then(() => node.remove(), () => node.remove());
     }
 
-    function resizeThumbnail(event, expanded) {
-      if (event.pointerType !== 'mouse') return;
+    function openPreview(thumbnail) {
+      if (activeThumbnail === thumbnail && preview?.isConnected) return;
+      clearPreview(true);
+      const rect = thumbnail.getBoundingClientRect();
+      if (!rect.width || !rect.height || !thumbnail.naturalWidth || !thumbnail.naturalHeight || !document.body) return;
+      const aspect = thumbnail.naturalWidth / thumbnail.naturalHeight;
+      const scale = thumbnail.naturalHeight > thumbnail.naturalWidth ? 2.6 : 1.8;
+      const maxW = Math.min(window.innerWidth - 32, Math.max(rect.width * scale, 320), 560);
+      const maxH = Math.min(window.innerHeight - 32, 520);
+      let width = Math.min(rect.width * scale, maxW);
+      let height = width / aspect;
+      if (height > maxH) {
+        height = maxH;
+        width = height * aspect;
+      }
+      const left = Math.max(16, Math.min(rect.left, window.innerWidth - width - 16));
+      const top = Math.max(16, Math.min(rect.top, window.innerHeight - height - 16));
+
+      const node = document.createElement('img');
+      node.className = 'ani-comment-hover-zoom';
+      node.src = thumbnail.currentSrc || thumbnail.src;
+      node.alt = '';
+      node.setAttribute('aria-hidden', 'true');
+      node.style.cssText = [
+        'position:fixed',
+        `left:${left}px`,
+        `top:${top}px`,
+        `width:${width}px`,
+        `height:${height}px`,
+        'max-width:none',
+        'max-height:none',
+        'margin:0',
+        'padding:0',
+        'object-fit:cover',
+        'border-radius:10px',
+        'box-shadow:0 14px 36px rgba(0,0,0,.48)',
+        'pointer-events:none',
+        'z-index:2147483640',
+      ].join(';');
+      document.body.append(node);
+      preview = node;
+      activeThumbnail = thumbnail;
+
+      if (!motion.matches && typeof node.animate === 'function') {
+        previewAnim = node.animate(
+          [
+            {
+              transformOrigin: 'top left',
+              transform: `translate(${rect.left - left}px, ${rect.top - top}px) scale(${rect.width / width}, ${rect.height / height})`,
+              opacity: 0.92,
+            },
+            { transformOrigin: 'top left', transform: 'none', opacity: 1 },
+          ],
+          hoverTiming,
+        );
+        previewAnim.finished.then(() => {
+          if (preview === node) previewAnim = null;
+        }, () => {});
+      }
+    }
+
+    document.addEventListener('pointerover', (event) => {
+      if (event.pointerType !== 'mouse' || !document.body.classList.contains('ani-layout-comments')) return;
       const thumbnail = event.target.closest?.('#w-post-box .reply-content__cont img[data-evt-show-img]');
-      if (!thumbnail?.naturalWidth || !document.body.classList.contains('ani-layout-comments')) return;
-      if (!expanded && !thumbnail.hasAttribute('data-ani-image-expanded')) return;
+      if (!thumbnail?.naturalWidth) return;
+      openPreview(thumbnail);
+    });
 
-      const before = new Map();
-      if (!motion.matches) {
-        const imageRect = thumbnail.getBoundingClientRect();
-        before.set(thumbnail, imageRect);
-        const comments = thumbnail.closest('#w-post-box');
-        const viewportLimit = innerHeight + (expanded ? 0 : imageRect.height);
-        // These siblings follow the image in the layout, from its caption to later comments.
-        for (let node = thumbnail; node !== comments; node = node.parentElement) {
-          for (let sibling = node.nextElementSibling; sibling; sibling = sibling.nextElementSibling) {
-            const rect = sibling.getBoundingClientRect();
-            if (rect.top >= viewportLimit) break;
-            if (rect.width && rect.height && rect.bottom > 0) before.set(sibling, rect);
-          }
-        }
-        for (const element of hoverAnimations.keys()) {
-          if (element.isConnected && !element.contains(thumbnail) && !before.has(element)) {
-            before.set(element, element.getBoundingClientRect());
-          }
-        }
+    document.addEventListener('pointerout', (event) => {
+      if (!activeThumbnail) return;
+      const thumbnail = event.target.closest?.('#w-post-box .reply-content__cont img[data-evt-show-img]');
+      if (thumbnail === activeThumbnail && !thumbnail.contains(event.relatedTarget)) {
+        clearPreview(false);
       }
-      for (const animation of hoverAnimations.values()) animation.cancel();
-      hoverAnimations.clear();
-      thumbnail.removeAttribute('data-ani-image-expanded');
-      thumbnail.style.removeProperty('--ani-expanded-comment-width');
-      if (expanded) {
-        const originalWidth = thumbnail.getBoundingClientRect().width;
-        if (originalWidth) {
-          const scale = thumbnail.naturalHeight > thumbnail.naturalWidth ? 2.6 : 1.8;
-          thumbnail.style.setProperty('--ani-expanded-comment-width', `${originalWidth * scale}px`);
-          thumbnail.setAttribute('data-ani-image-expanded', '');
-        }
-      }
+    });
 
-      // Measure the final layout before starting any compositor animations.
-      const after = [...before.keys()].map(element => [element, element.getBoundingClientRect()]);
-      for (const [element, rect] of after) {
-        const previous = before.get(element);
-        const x = previous.left - rect.left;
-        const y = previous.top - rect.top;
-        if (element.matches('img[data-evt-show-img]') && rect.width && rect.height) {
-          const scaleX = previous.width / rect.width;
-          const scaleY = previous.height / rect.height;
-          if (Math.abs(scaleX - 1) + Math.abs(scaleY - 1) < .001 && Math.abs(x) + Math.abs(y) < .5) continue;
-          animateHoverChange(element,
-            { transformOrigin: 'top left', transform: `translate(${x}px, ${y}px) scale(${scaleX}, ${scaleY})` },
-            { transformOrigin: 'top left', transform: 'none' });
-        } else if (Math.abs(y) >= .5) {
-          animateHoverChange(element, { translate: `0 ${y}px` }, { translate: '0 0' });
-        }
-      }
-    }
-
-    document.addEventListener('pointerover', event => resizeThumbnail(event, true));
-    document.addEventListener('pointerout', event => resizeThumbnail(event, false));
+    document.addEventListener('scroll', () => clearPreview(true), { passive: true, capture: true });
 
     document.addEventListener('click', (event) => {
+      clearPreview(true);
       if (!document.body.classList.contains('ani-layout-comments')) return;
       const thumbnail = event.target.closest?.('#w-post-box img[data-evt-show-img], #w-post-box [data-evt-show-img] img');
       const PhotoSwipe = window.PhotoSwipe;

@@ -466,7 +466,9 @@ test('Phase 2: catalog negative tags, keyword exclude, origin classification, pa
         <div class="theme-detail-info-block"><p class="theme-time">年份：2026/04</p><span class="theme-number">共12集</span></div>
       </div></div>
     </a>`;
-  const group = (name) => `<section class="class_list"><div class="class-header"><h3>${name}</h3></div><ul><li class="now"><a href="#">全部</a></li><li><a href="animeList.php?tags=異世界">異世界</a></li><li><a href="animeList.php?tags=戀愛">戀愛</a></li>${name === '對象' ? '<li><a href="animeList.php?tags=年齡限制">年齡限制</a></li>' : ''}</ul></section>`;
+  const group = (name) => `<section class="class_list"><div class="class-header"><h3>${name}</h3></div><ul><li class="now"><a href="#">全部</a></li>${name === '類型'
+    ? ['真人演出', 'OVA', '泡麵番', '雙語', '電影'].map(label => `<li><a href="?category=${label}">${label}</a></li>`).join('')
+    : `<li><a href="animeList.php?tags=異世界">異世界</a></li><li><a href="animeList.php?tags=戀愛">戀愛</a></li>${name === '對象' ? '<li><a href="animeList.php?tags=年齡限制">年齡限制</a></li>' : ''}`}</ul></section>`;
   const html = `<div id="BH_background"><div class="container"><div class="animate-theme-list">
     <div class="filter-section">${group('屬性')}<div class="class-wrapper">${group('類型')}${group('對象')}</div></div>
     <div class="theme-list-block">${catCard(201, '轉生異世界冒險')}${catCard(202, '敗北女角太多了')}${catCard(203, '夜晚的水母不會游泳')}</div>
@@ -538,23 +540,23 @@ test('Phase 2: catalog negative tags, keyword exclude, origin classification, pa
   ageExclusion.click();
   assert(!cards[1].classList.contains('ani-catalog-excluded'));
 
-  // 2B: Origin filter queries worker meta & keeps only 原創動畫 (sn=203)
-  const originStatus = d.querySelector('.ani-origin-status');
-  assert.equal(originRequests, 1, 'starts metadata prefetch before the first click');
-  d.querySelector('.ani-origin-pill[data-origin="light_novel"]').click();
-  assert.match(originStatus.textContent, /正在比對 3 部/);
-  d.querySelector('.ani-origin-pill[data-origin="all"]').click();
-  assert.equal(originStatus.textContent, '');
-  assert.equal(cards.some((card) => card.classList.contains('ani-origin-hidden')), false);
-  d.querySelector('.ani-origin-pill[data-origin="original"]').click();
-  assert.equal(originRequests, 1, 'changing filters reuses the in-flight request');
+  const typeSection = [...d.querySelectorAll('.class_list')].find(section => section.querySelector('h3')?.textContent.trim() === '作品分類');
+  assert.deepEqual([...typeSection.querySelectorAll('li')].map(item => item.textContent.trim()),
+    ['全部', '漫畫改編', '輕小說改編', '遊戲改編', '原創動畫', '電影', 'OVA', '雙語', '泡麵番', '輕動畫', '真人演出']);
+  assert.equal(originRequests, 1);
+  const original = typeSection.querySelector('[data-origin="original"]');
+  original.click();
   replyOrigin();
   await new Promise((r) => setTimeout(r, 50));
   assert.equal(cards[0].classList.contains('ani-origin-hidden'), true);
-  assert.equal(cards[1].classList.contains('ani-origin-hidden'), true);
-  assert.equal(cards[2].classList.contains('ani-origin-hidden'), false);
+  assert.equal(original.getAttribute('aria-pressed'), 'true');
+  assert.equal(typeSection.querySelector('li.now'), null);
+  assert.equal(w.location.hash, '#ani-origin=original');
+  typeSection.querySelector('li:first-child a').click();
+  assert.equal(original.getAttribute('aria-pressed'), 'false');
+  assert.equal(typeSection.querySelector('li.now a').textContent, '全部');
+  assert.equal(cards.some(card => card.classList.contains('ani-origin-hidden')), false);
   assert.equal(cards[2].querySelector('.ani-origin-badge')?.textContent, '原創');
-  assert.equal(originStatus.textContent, '符合此原作分類：1 部');
 
   // 2C: Page elevator removed (infinite scroll only)
   assert.equal(d.querySelector('.ani-page-elevator'), null, 'page elevator removed in favor of infinite scroll');
@@ -1171,6 +1173,14 @@ test('next episode uses a future schedule and the work widescreen cover', async 
   assert.equal(preview.querySelector('.ani-episode-frame time').dateTime, '2099-11-27T23:30:00+08:00');
   assert.equal(preview.querySelector('.ani-episode-card-description').dataset.text, '兩人再次踏上旅程。');
   assert.equal(preview.querySelector('.ani-upcoming-hover-date'), null);
+  const order = dom.window.document.querySelector('.ani-ep-order');
+  const episodes = () => [...preview.parentElement.children].map(row => row === preview ? 'EP.3' : row.querySelector('a')?.textContent.trim());
+  order.click();
+  assert.deepEqual(episodes(), ['EP.3', '2', '1']);
+  await new Promise(resolve => setTimeout(resolve, 0));
+  assert.deepEqual(episodes(), ['EP.3', '2', '1']);
+  order.click();
+  assert.deepEqual(episodes(), ['1', '2', 'EP.3']);
 });
 
 test('Wild Last Boss episode cards fill both fields when a valid cache ends at episode 12', async t => {
@@ -1295,4 +1305,335 @@ test('hovering the player episode button shows progress from all history pages',
   await new Promise(resolve => setTimeout(resolve, 40));
   const bars = [...w.document.querySelectorAll('.ani-ep-row progress')];
   assert.deepEqual(bars.map(bar => bar.position), [0.25, 0.5, 1, 0]);
+});
+
+test('comment send button uses one native Enter event for the current reply editor without hovering comment images expanding layout', async t => {
+  const dom = bootEnhancements(`<div id="BH_background">
+    <div id="w-post-box">
+      <div class="webview_commendlist">
+        <div class="c-reply__item" data-w-comment-row="1">
+          <div class="reply-content">
+            <article class="reply-content__cont">
+              <img src="https://p2.bahamut.com.tw/pic.png" data-evt-show-img="comment" width="120" height="90">
+              <p class="text_content-hide">長留言測試</p>
+              <a class="more-text" href="javascript:;"><b>&nbsp;......閱讀更多</b></a>
+            </article>
+          </div>
+        </div>
+        <div class="c-reply__editor">
+          <div class="reply-input">
+            <div class="input-article-content" contenteditable="true">測試留言</div>
+            <textarea></textarea>
+            <div class="comment_icon"><a href="javascript:;"></a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`, '/animeVideo.php?sn=8201');
+  t.after(() => dom.window.close());
+  const w = dom.window;
+  w.eval(fs.readFileSync('src/topbar-bridge.js', 'utf8'));
+  await new Promise(resolve => setTimeout(resolve, 40));
+  const original = w.document.querySelector('.c-reply__editor');
+  const reply = original.cloneNode(true);
+  const input = reply.querySelector('.input-article-content');
+  input.textContent = '新回覆';
+  original.after(reply);
+  const sendBtn = reply.querySelector('.ani-comment-send-btn');
+  assert.ok(sendBtn, 'cloned reply editor already has a send button');
+  const events = [];
+  for (const type of ['input', 'keydown', 'keypress', 'keyup']) {
+    w.document.body.addEventListener(type, event => events.push(event));
+  }
+  sendBtn.click();
+  assert.deepEqual(events.map(event => event.type), ['input', 'keypress']);
+  assert(events.every(event => event.target === input), 'uses the current reply editor');
+  assert.equal(events[1].key, 'Enter');
+  assert.equal(w.document.activeElement, input);
+  const img = w.document.querySelector('.reply-content__cont img[data-evt-show-img]');
+  Object.defineProperty(img, 'naturalWidth', { value: 400 });
+  Object.defineProperty(img, 'naturalHeight', { value: 300 });
+  img.getBoundingClientRect = () => ({ left: 40, top: 80, width: 160, height: 120 });
+  const over = new w.Event('pointerover', { bubbles: true });
+  Object.defineProperty(over, 'pointerType', { value: 'mouse' });
+  img.dispatchEvent(over);
+  assert.equal(img.hasAttribute('data-ani-image-expanded'), false);
+  assert.equal(img.style.getPropertyValue('--ani-expanded-comment-width'), '');
+  const preview = w.document.querySelector('.ani-comment-hover-zoom');
+  assert.ok(preview, 'hover zoom overlay renders without reflowing comment layout');
+  assert.equal(preview.style.pointerEvents, 'none');
+  const out = new w.Event('pointerout', { bubbles: true });
+  img.dispatchEvent(out);
+  assert.equal(w.document.querySelector('.ani-comment-hover-zoom'), null);
+
+  const repairsCss = fs.readFileSync('src/ui-repairs.css', 'utf8');
+  assert.match(repairsCss, /a\.more-text[\s\S]*text-decoration:\s*none/);
+  assert.match(repairsCss, /a\.more-text:is\(:hover,\s*:focus-visible\)[\s\S]*text-decoration:\s*underline/);
+  assert.match(repairsCss, /\.reply-content__cont a:not\(\.more-text\)[\s\S]*color:\s*var\(--ani-accent/);
+  assert.match(repairsCss, /\.reply-content__cont a:not\(\.more-text\):is\(:hover,\s*:focus-visible\)[\s\S]*text-decoration:\s*underline/);
+  assert.match(repairsCss, /\.ani-time-capsule\s*\{[\s\S]*padding:\s*0 20px !important/);
+  assert.match(repairsCss, /\.ani-time-capsule > \.vjs-time-divider\s*\{[\s\S]*padding:\s*0 4px !important/);
+  assert.doesNotMatch(repairsCss, /img\[data-ani-image-expanded\]/);
+});
+
+test('original episode toggle keeps control position, avoids duplicate work, and caches card elements', async t => {
+  const episodes = Array.from({ length: 8 }, (_, index) =>
+    `<li${index === 7 ? ' class="playing"' : ''}><a href="?sn=${9001 + index}">${index + 1}</a></li>`).join('');
+  const storageOnChanged = [];
+  let currentSyncState = { episodeThumbnailGrid: true };
+  let themeSyncSkips = 0;
+  const dom = bootEnhancements(`<div id="BH_background"><div class="container-player">
+    <div class="anime-title"><div class="anime_name"><h1>測試番劇 [8]</h1></div><section class="season"><ul>${episodes}</ul></section></div>
+  </div></div>`, '/animeVideo.php?sn=9008', {
+    chromeMock: {
+      storage: {
+        sync: {
+          get(defaults, cb) { queueMicrotask(() => cb({ ...defaults, ...currentSyncState })); },
+          set(next, cb) {
+            const changes = {};
+            for (const [k, v] of Object.entries(next || {})) {
+              if (currentSyncState[k] !== v) changes[k] = { oldValue: currentSyncState[k], newValue: v };
+            }
+            currentSyncState = { ...currentSyncState, ...next };
+            for (const fn of storageOnChanged) fn(changes, 'sync');
+            cb?.();
+          },
+        },
+        onChanged: { addListener(fn) { storageOnChanged.push(fn); } },
+      },
+    },
+  });
+  t.after(() => dom.window.close());
+  const w = dom.window;
+  const d = w.document;
+  await new Promise(resolve => setTimeout(resolve, 40));
+
+  const ul = d.querySelector('.season ul');
+  const toggle = d.querySelector('.ani-ep-layout-switch');
+  assert.ok(toggle);
+  const initialFrames = [...ul.querySelectorAll('.ani-episode-frame')];
+  assert.equal(initialFrames.length, 8);
+  for (const link of ul.querySelectorAll('li > a')) link.dataset.aniEpisodeMediaReady = 'true';
+
+  const animCalls = [];
+  ul.animate = (frames, options) => {
+    animCalls.push({ frames, options });
+    return { cancel() {}, onfinish: null, oncancel: null };
+  };
+  const itemAnims = [];
+  for (const li of ul.querySelectorAll('li')) {
+    li.animate = (frames, options) => {
+      itemAnims.push({ frames, options });
+      return { cancel() {} };
+    };
+  }
+  const toggleAnims = [];
+  toggle.animate = (frames, options) => {
+    toggleAnims.push({ frames, options });
+    return { cancel() {} };
+  };
+  let scrollDeltas = [];
+  Object.defineProperty(w, 'scrollY', { value: 300, configurable: true });
+  w.scrollBy = (opts) => { scrollDeltas.push(opts.top); };
+  toggle.getBoundingClientRect = () => ({ top: 120 });
+
+  let historyCalls = 0;
+  w.aniGetEpisodeWatchHistory = () => {
+    historyCalls++;
+    return Promise.resolve(new Map());
+  };
+
+  // Switch to original layout: onChanged echo must not trigger a second ul.animate
+  const origSetProperty = d.body.style.setProperty.bind(d.body.style);
+  d.body.style.setProperty = (...args) => {
+    if (String(args[0]).startsWith('--ani-')) themeSyncSkips++;
+    return origSetProperty(...args);
+  };
+  toggle.click();
+  await new Promise(resolve => setTimeout(resolve, 20));
+  assert.equal(toggle.getAttribute('aria-checked'), 'true');
+  assert.equal(ul.querySelectorAll('.ani-episode-frame').length, 0);
+  assert.equal(animCalls.length, 0);
+  assert.equal(toggleAnims.length, 1);
+  assert.equal(itemAnims.length, 6);
+  assert.equal(itemAnims[0].options.fill, 'backwards');
+  assert.equal(themeSyncSkips, 0);
+
+  // Switch back to card layout: restores cached frames without re-querying watch history
+  toggle.click();
+  await new Promise(resolve => setTimeout(resolve, 20));
+  assert.equal(toggle.getAttribute('aria-checked'), 'false');
+  assert.equal(ul.querySelectorAll('.ani-episode-frame').length, 8);
+  assert.equal(ul.querySelector('.ani-episode-frame'), initialFrames[0]);
+  assert.equal(d.querySelector('.season ul > li > a').dataset.aniEpisodeMediaCached, 'true');
+  assert.equal(historyCalls, 0);
+  assert.equal(animCalls.length, 0);
+  assert.equal(toggleAnims.length, 2);
+  assert.equal(itemAnims.length, 14);
+
+  // Scroll anchoring adjusts window scroll when button top shifts on next frame
+  const prevOnclick = toggle.onclick;
+  toggle.onclick = () => {
+    const origGetRect = toggle.getBoundingClientRect;
+    let calls = 0;
+    toggle.getBoundingClientRect = () => ({ top: calls++ === 0 ? 120 : 180 });
+    prevOnclick();
+    setTimeout(() => { toggle.getBoundingClientRect = origGetRect; }, 30);
+  };
+  toggle.click();
+  await new Promise(resolve => setTimeout(resolve, 40));
+  assert.deepEqual(scrollDeltas, [60]);
+
+  const enhCss = fs.readFileSync('src/enhancements.css', 'utf8');
+  assert.match(enhCss, /\.ani-episode-shelf\s*\{[^}]*overflow-anchor:\s*none/);
+  assert.match(enhCss, /\.ani-episode-shelf\s+\.season\s+li\s*>\s*a\s*\{[^}]*transition:\s*none\s*!important/);
+  assert.match(enhCss, /\.ani-episode-shelf\s+\.season\s*>\s*ul\.ani-ep-managed\s*\{[^}]*margin-block-start:\s*12px\s*!important/);
+});
+
+test('upcoming episode without synopsis displays 本集暫無簡介 even before earlier episodes finish translating', async t => {
+  const dom = bootEnhancements(`<div id="BH_background">
+    <div class="anime-title"><div class="anime_name"><h1>未公布簡介測試 [1]</h1></div><div class="anime_info_detail">上架時間：2099/11/13 23:30</div></div>
+    <section class="season"><ul><li><a href="?sn=9101">1</a></li></ul></section>
+  </div>`, '/animeVideo.php?sn=9101', {
+    chromeMock: { runtime: { lastError: null, sendMessage(message, done) {
+      done(message.type === 'ani-fetch-episode-titles' ? {
+        ok: true,
+        episodes: {
+          1: { jp: '第1話', description: '日本語のあらすじです。' },
+          2: { jp: '第2話', airdate: '2099-11-20', description: '' },
+        },
+      } : {});
+    } } },
+  });
+  t.after(() => dom.window.close());
+  await new Promise(resolve => setTimeout(resolve, 50));
+  const preview = dom.window.document.querySelector('.ani-upcoming-episode');
+  assert.ok(preview, 'upcoming episode card renders');
+  assert.equal(preview.querySelector('.ani-episode-card-description').dataset.text, '本集暫無簡介');
+});
+
+test('upcoming episode keeps weekly release time across hiatus weeks', async t => {
+  const dom = bootEnhancements(`<div id="BH_background">
+    <div class="anime-title"><div class="anime_name"><h1>休刊時間測試 [8]</h1></div><div class="anime_info_detail">上架時間：2099/11/23 21:00</div></div>
+    <section class="season"><ul><li class="playing"><a href="?sn=9308">8</a></li></ul></section>
+  </div>`, '/animeVideo.php?sn=9308', {
+    chromeMock: { runtime: { lastError: null, sendMessage(message, done) {
+      done(message.type === 'ani-fetch-episode-titles' ? {
+        ok: true,
+        episodes: { 9: { jp: '第9話', airdate: '2099-12-07', description: '' } },
+      } : {});
+    } } },
+  });
+  t.after(() => dom.window.close());
+  await new Promise(resolve => setTimeout(resolve, 50));
+  const preview = dom.window.document.querySelector('.ani-upcoming-episode');
+  assert.equal(preview.querySelector('time span').textContent, '12/07 21:00');
+  assert.equal(preview.querySelector('time').dateTime, '2099-12-07T21:00:00+08:00');
+});
+
+test('consent redirect guard blocks idle homepage navigation even with active userActivation', async t => {
+  const dom = bootEnhancements(`<div id="BH_background">
+    <div id="ani_video"><div class="R18"><button class="choose-btn-agree">同意</button><button class="choose-btn-disagree">不同意</button></div></div>
+  </div>`, '/animeVideo.php?sn=9201');
+  t.after(() => dom.window.close());
+  const w = dom.window;
+  const navListeners = [];
+  w.navigation = {
+    addEventListener(type, fn) { if (type === 'navigate') navListeners.push(fn); },
+  };
+  Object.defineProperty(w.navigator, 'userActivation', { value: { isActive: true }, configurable: true });
+  w.eval(fs.readFileSync('src/topbar-bridge.js', 'utf8'));
+  assert.equal(navListeners.length, 1);
+
+  // Player removes prompt before requesting an idle redirect to http://ani.gamer.com.tw/index.php
+  w.document.querySelector('.R18').remove();
+  let prevented = false;
+  navListeners[0]({
+    cancelable: true,
+    userInitiated: false,
+    navigationType: 'push',
+    destination: { url: 'http://ani.gamer.com.tw/index.php' },
+    preventDefault() { prevented = true; },
+  });
+  assert.equal(prevented, true, 'idle redirect is blocked even when userActivation is active');
+});
+
+test('comment read-more and expand-replies trigger smooth entrance animations', async t => {
+  const dom = bootEnhancements(`<div id="BH_background">
+    <div id="w-post-box">
+      <div class="webview_commendlist">
+        <div class="main-container_wall-post">
+          <div class="c-reply__item" data-w-comment-row="1">
+            <div class="reply-content">
+              <article class="reply-content__cont">
+                <p class="text_content-hide">這是一段很長的留言內容</p>
+                <a class="more-text" href="javascript:;"><b>&nbsp;......閱讀更多</b></a>
+              </article>
+            </div>
+            <a class="c-more-msg" href="javascript:;">展開 2 則回覆</a>
+            <div class="reply-list"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`, '/animeVideo.php?sn=8202');
+  t.after(() => dom.window.close());
+  const w = dom.window;
+  const d = w.document;
+  await new Promise(resolve => setTimeout(resolve, 40));
+
+  const cont = d.querySelector('.reply-content__cont');
+  let contHeight = 48;
+  cont.getBoundingClientRect = () => ({ height: contHeight });
+  const contAnims = [];
+  cont.animate = (frames, options) => {
+    const anim = { frames, options, onfinish: null, oncancel: null };
+    contAnims.push(anim);
+    return anim;
+  };
+  const moreLink = d.querySelector('a.more-text');
+  moreLink.addEventListener('click', () => {
+    contHeight = 140;
+    moreLink.remove();
+  });
+  moreLink.click();
+  await new Promise(resolve => setTimeout(resolve, 40));
+  assert.equal(contAnims.length, 1);
+  assert.equal(contAnims[0].frames[0].height, '48px');
+  assert.equal(contAnims[0].frames[1].height, '140px');
+  contAnims[0].onfinish?.();
+  assert.equal(cont.style.overflow, '');
+
+  const replyBtn = d.querySelector('.c-more-msg');
+  const replyList = d.querySelector('.reply-list');
+  const replyAnims = [];
+  let image;
+  let avatar;
+  replyBtn.addEventListener('click', () => {
+    const r1 = d.createElement('div');
+    r1.className = 'c-msg-item';
+    r1.animate = (frames, options) => { replyAnims.push({ frames, options }); return {}; };
+    const r2 = d.createElement('div');
+    r2.className = 'c-msg-item';
+    r2.innerHTML = '<div class="reply-avatar"><img class="lazyload" data-src="/avatar.png" alt=""></div><article class="reply-content__cont"><img class="lazyload" data-src="/reply.png" alt=""></article>';
+    [avatar, image] = r2.querySelectorAll('img');
+    r2.animate = (frames, options) => { replyAnims.push({ frames, options }); return {}; };
+    replyList.append(r1, r2);
+  });
+  replyBtn.click();
+  await new Promise(resolve => setTimeout(resolve, 40));
+  assert.equal(replyAnims.length, 1);
+  assert.equal(replyAnims[0].frames[0].opacity, 0);
+  assert(replyList.lastElementChild.classList.contains('ani-reply-media-pending'));
+  assert.equal(image.getAttribute('src'), '/reply.png');
+  assert.equal(avatar.getAttribute('src'), '/avatar.png');
+  image.dispatchEvent(new w.Event('load'));
+  await Promise.resolve();
+  assert.equal(replyAnims.length, 1);
+  avatar.dispatchEvent(new w.Event('error'));
+  await new Promise(resolve => setTimeout(resolve, 0));
+  assert.equal(replyAnims.length, 2);
+  assert.equal(replyAnims[1].options.delay ?? 0, 0);
+  assert.equal(replyAnims[1].options.duration, 180);
+  assert(!replyList.lastElementChild.classList.contains('ani-reply-media-pending'));
 });

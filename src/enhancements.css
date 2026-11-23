@@ -312,6 +312,11 @@ body #BH_background .filter-section.ani-browse-filters :is(.ani-exclude-panel, .
   grid-column: 2;
   white-space: nowrap;
 }
+@media (max-width: 600px) {
+  .ani-browse-filters .class_list > .ani-origin-status {
+    grid-column: 1;
+  }
+}
 
 /* ── Unified Rounded-Rectangle Filter Tags (matches .ani-browse-filters section.class_list li a/button) ── */
 #BH_background .ani-col-status-chip::before,
@@ -528,7 +533,7 @@ body #BH_background .ani-perm-btn.is-danger.is-armed {
   z-index: 25 !important;
   pointer-events: auto !important;
 }
-.theme-list-main .theme-img-block:has(> .ani-poster-labels :is(.ani-age-restricted, .ani-serial-label, .label-edition:not(.ani-rating-source))) > .ani-col-status-bar {
+.theme-list-main .theme-img-block:has(> .ani-poster-labels:not(.ani-poster-episode-labels) :is(.ani-age-restricted, .ani-serial-label, .label-edition:not(.ani-rating-source, .ani-paid-label-source))) > .ani-col-status-bar {
   bottom: 46px !important;
 }
 .ani-poster-card .theme-img-block:has(.ani-col-status-menu:not([hidden])),
@@ -1623,6 +1628,23 @@ body #BH_background .ani-danmu-search-capsule > button.ani-danmu-search-icon {
 }
 
 /* ── Comment Input Send Icon (matching danmu send button, sized to capsule height) ── */
+#w-post-box .ani-reply-media-pending {
+  position: relative;
+  visibility: hidden;
+}
+#w-post-box .ani-reply-media-pending::after {
+  content: '';
+  position: absolute;
+  inset: 10px 12px auto;
+  height: 24px;
+  visibility: visible;
+  pointer-events: none;
+  background:
+    linear-gradient(currentColor, currentColor) left top / min(35%, 12rem) 5px no-repeat,
+    linear-gradient(currentColor, currentColor) left 13px / min(60%, 20rem) 5px no-repeat;
+  opacity: .13;
+}
+
 body.ani-layout-comments #BH_background #w-post-box .c-reply__editor .comment_icon {
   display: inline-flex !important;
   align-items: center !important;
@@ -2149,6 +2171,20 @@ body.ani-light-mode.ani-ambientlight-ui .ani-offshelf-dot {
 }
 
 /* Playback-page episode cards share the drawer's episode labels and progress color. */
+html body.ani-ambientlight-page #BH_background .ani-episode-shelf {
+  overflow-anchor: none;
+  contain: layout style;
+}
+html body.ani-ambientlight-page #BH_background .ani-episode-shelf,
+html body.ani-ambientlight-page #BH_background .ani-episode-shelf .season,
+html body.ani-ambientlight-page #BH_background .ani-episode-shelf .season ul,
+html body.ani-ambientlight-page #BH_background .ani-episode-shelf .season li,
+html body.ani-ambientlight-page #BH_background .ani-episode-shelf .season li > a {
+  transition: none !important;
+}
+html body.ani-ambientlight-page #BH_background .ani-episode-shelf .season > ul.ani-ep-managed {
+  margin-block-start: 12px !important;
+}
 html body.ani-ambientlight-page #BH_background .season ul.ani-ep-managed.ani-episode-cards {
   grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
   align-items: start;
@@ -2167,13 +2203,14 @@ html body.ani-ambientlight-page #BH_background .ani-episode-track-choices > butt
   min-width: 84px;
   white-space: nowrap;
 }
-html body.ani-ambientlight-page #BH_background .ani-episode-shelf .season:has(> .ani-episode-track-choices) > ul.ani-ep-managed.ani-episode-cards {
+html body.ani-ambientlight-page #BH_background .ani-episode-shelf .season:has(> .ani-episode-track-choices) > ul.ani-ep-managed,
+html body.ani-ambientlight-page #BH_background .ani-episode-shelf .season > .ani-ep-group-bar + ul.ani-ep-managed {
   margin-block-start: 0 !important;
 }
 html body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-episode-shelf .season > .ani-episode-track-hidden.ani-episode-track-hidden {
   display: none !important;
 }
-html body.ani-ambientlight-page #BH_background .ani-episode-shelf .season > p + ul.ani-ep-managed.ani-episode-cards {
+html body.ani-ambientlight-page #BH_background .ani-episode-shelf .season > p + ul.ani-ep-managed {
   margin-block-start: 5px !important;
 }
 html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li {
@@ -2297,19 +2334,19 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
 }
 .ani-episode-card-description::before { display: none; }
 @media (prefers-reduced-motion: no-preference) {
-  [data-ani-episode-media-ready] {
+  [data-ani-episode-media-ready]:not([data-ani-episode-media-cached]) {
     --ani-episode-media-fade: 240ms ease-out both;
   }
-  [data-ani-episode-media-ready] > .ani-episode-frame > img:not([hidden]) {
+  [data-ani-episode-media-ready]:not([data-ani-episode-media-cached]) > .ani-episode-frame > img:not([hidden]) {
     animation: ani-episode-thumbnail-reveal var(--ani-episode-media-fade);
   }
-  [data-ani-episode-media-ready] > .ani-episode-card-glow > img,
-  [data-ani-episode-media-ready] > .ani-episode-frame :is(.ani-episode-card-progress, time[datetime]),
-  [data-ani-episode-media-ready] > .ani-episode-frame::after {
+  [data-ani-episode-media-ready]:not([data-ani-episode-media-cached]) > .ani-episode-card-glow > img,
+  [data-ani-episode-media-ready]:not([data-ani-episode-media-cached]) > .ani-episode-frame :is(.ani-episode-card-progress, time[datetime]),
+  [data-ani-episode-media-ready]:not([data-ani-episode-media-cached]) > .ani-episode-frame::after {
     animation: ani-episode-content-reveal var(--ani-episode-media-fade);
   }
-  .ani-episode-description-reveal::before,
-  .ani-episode-description-reveal .ani-episode-card-synopsis::before {
+  :not([data-ani-episode-media-cached]) > .ani-episode-description-reveal::before,
+  :not([data-ani-episode-media-cached]) > .ani-episode-description-reveal .ani-episode-card-synopsis::before {
     animation: ani-episode-content-reveal 240ms ease-out both;
   }
 }
@@ -2456,3 +2493,4 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
 @media (max-width: 520px) {
   html body.ani-ambientlight-page #BH_background .season ul.ani-ep-managed.ani-episode-cards { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
 }
+

@@ -41,6 +41,17 @@ function markReady(w, enhancements = false) {
   w.dispatchEvent(new w.Event(enhancements ? 'ani-enhancements-ui-ready' : 'ani-ui-ready'));
 }
 
+test('the native maintenance page dismisses the opening and skips redesign', t => {
+  const { w } = createPage(t);
+  w.document.body.innerHTML = '<h1>系統維修中</h1><p>請關閉頁面後稍後再試</p>';
+  w.eval(entry);
+  assert(w.document.documentElement.dataset.aniBooting);
+  w.eval(fs.readFileSync('src/content.js', 'utf8'));
+  assert.equal(w.document.documentElement.dataset.aniSiteMaintenance, 'true');
+  assert.equal(w.document.documentElement.dataset.aniBooting, undefined);
+  assert.equal(w.document.querySelector('.ani-home-intro, .ani-ambientlight-page'), null);
+});
+
 test('the project favicon replaces native tab icons after the head is parsed', async t => {
   const { w } = createPage(t);
   w.chrome = { runtime: { getURL: file => `chrome-extension://test-extension/${file}` } };
@@ -158,7 +169,7 @@ test('reload shows the full opening until the themed UI is ready even on an inte
 test('a missing readiness event cannot keep the opening overlay indefinitely', t => {
   const { w, fire } = createPage(t);
   w.eval(entry);
-  fire(900);
+  fire(250);
   assert(!w.document.documentElement.dataset.aniBooting);
   assert(w.document.querySelector('.ani-intro-reveal'));
 });

@@ -1,6 +1,16 @@
 (() => {
   'use strict';
 
+  // Bahamut can serve a standalone maintenance document at the normal URL.
+  const maintenanceText = document.body?.textContent || '';
+  if (!document.querySelector('#anime-search-sky, #ani_video, #blockVideoInSeason') &&
+      /系統維修中/.test(maintenanceText) &&
+      /請關閉頁面後稍後再試/.test(maintenanceText)) {
+    document.documentElement.dataset.aniSiteMaintenance = 'true';
+    window.dispatchEvent(new Event('ani-site-maintenance'));
+    return;
+  }
+
   // Only extension-owned enrichment requests use this gate; native requests are untouched.
   const aniFetch = globalThis.AniAmbientFetch || (globalThis.AniAmbientFetch = (() => {
     const pending = new Map(); let tail = Promise.resolve(), last = 0, blockedUntil = 0;
@@ -385,19 +395,38 @@
       syncSettingsPanel();
       markInitialUiReady();
     });
+    const enhancementOnlyKeys = new Set([
+      'episodeThumbnailGrid',
+      'episodeAutoGroup',
+      'showOffshelfAlert',
+      'spoilerBlurEnabled',
+      'spoilerBlurTags',
+      'spoilerBlurKeywords',
+    ]);
     (
       globalThis.AniAmbientStorage?.onChanged ||
       globalThis.chrome?.storage?.onChanged
     )?.addListener((changes, area) => {
       if (area !== 'sync') return;
       const updated = {};
-      for (const key of Object.keys(DEFAULTS))
-        if (changes[key]) updated[key] = changes[key].newValue;
+      let anyChanged = false;
+      let needsContentSync = false;
+      for (const key of Object.keys(DEFAULTS)) {
+        if (!changes[key]) continue;
+        updated[key] = changes[key].newValue;
+        if (changes[key].newValue !== settings[key]) {
+          anyChanged = true;
+          if (!enhancementOnlyKeys.has(key)) needsContentSync = true;
+        }
+      }
+      if (!anyChanged) return;
       Object.assign(settings, options.normalize(updated, settings));
       cacheResolvedSettings();
-      applyPageTheme();
-      active?.applySettings();
-      active?.refresh();
+      if (needsContentSync) {
+        applyPageTheme();
+        active?.applySettings();
+        active?.refresh();
+      }
       syncSettingsPanel();
     });
   } else {
@@ -808,6 +837,37 @@
     watchLayout.foldButton = button;
   }
 
+  function linkCommentUrls(node) {
+    const element = node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
+    if (!element) return;
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    if (node.nodeType === Node.TEXT_NODE) nodes.push(node);
+    else while (walker.nextNode()) nodes.push(walker.currentNode);
+    for (const text of nodes) {
+      const parent = text.parentElement;
+      if (!parent?.closest('.reply-content__cont') || parent.closest('a, button, code, pre, script, style, [contenteditable]')) continue;
+      const value = text.nodeValue;
+      const fragment = document.createDocumentFragment();
+      let end = 0;
+      for (const match of value.matchAll(/https?:\/\/[^\s<>"'，。！？、；：）】」』]+/gi)) {
+        const url = match[0].replace(/[.,!?;:]+$/, '');
+        if (!URL.canParse(url)) continue;
+        const link = document.createElement('a');
+        link.href = url;
+        link.textContent = url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        fragment.append(value.slice(end, match.index), link);
+        end = match.index + url.length;
+      }
+      if (end) {
+        fragment.append(value.slice(end));
+        text.replaceWith(fragment);
+      }
+    }
+  }
+
   function syncCollapsibleRegions() {
     const rearrangeInfo = settings.themeEnabled && settings.infoLayout;
     if (!rearrangeInfo && infoLinkPlacement) {
@@ -837,9 +897,16 @@
       '.commend-title .commend-segment-wrapper',
     );
     if (commentHeader && settings.themeEnabled && settings.commentsLayout) {
-      for (const menu of document.querySelectorAll('#w-post-box a.reply_menu:not(:has(.ani-report-flag))')) {
-        menu.setAttribute('aria-label', '留言操作與檢舉');
-        menu.insertAdjacentHTML('afterbegin','<svg class="ani-report-flag" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 21V4q4-3 8 0t7 0v10q-4 3-8 0t-7 0"/></svg>');
+      for (const menu of document.querySelectorAll('#w-post-box a.reply_menu:not(:has(.ani-comment-menu-icon))')) {
+        let actions;
+        try { actions = JSON.parse(menu.getAttribute('data-tippy-menu-comment')); } catch {}
+        const own = actions?.editable || (actions?.deletable && !actions?.accusable);
+        menu.closest('.c-reply__item')?.classList.toggle('ani-own-comment', Boolean(own));
+        menu.setAttribute('aria-label', own ? '留言操作' : '檢舉留言');
+        const glyph = own
+          ? '<path d="M5 12h.01M12 12h.01M19 12h.01" stroke-width="3" stroke-linecap="round"/>'
+          : '<path d="M5 21V4q4-3 8 0t7 0v10q-4 3-8 0t-7 0"/>';
+        menu.insertAdjacentHTML('afterbegin', '<svg class="ani-comment-menu-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">' + glyph + '</svg>');
       }
       for (const time of document.querySelectorAll('#w-post-box .reply_time')) {
         const formatted = time.textContent.replace(/(\d{1,2})月(\d{1,2})日/g, '$1/$2').replace(/(\d{4})-(\d{2})-(\d{2})/g,'$1/$2/$3');
@@ -910,6 +977,13 @@
       }
       if (list && !observedCommentLists.has(list)) {
         observedCommentLists.add(list);
+        linkCommentUrls(list);
+        new MutationObserver(records => {
+          for (const record of records) {
+            if (record.type === 'characterData') linkCommentUrls(record.target);
+            else for (const node of record.addedNodes) linkCommentUrls(node);
+          }
+        }).observe(list, { childList: true, subtree: true, characterData: true });
         let lastPage = '';
         const loadMore = () => {
           const more = list.querySelector(':scope > [data-evt-morecomment]');
@@ -1291,14 +1365,24 @@
     return scoreCacheStore;
   }
 
+  let scoreFlushQueued = false;
   function writeScoreCache(sn, scoreText) {
     const cache = readScoreCache();
     cache[sn] = { s: scoreText, t: Date.now() };
-    try {
-      const entries = Object.entries(cache).slice(-300);
-      scoreCacheStore = Object.fromEntries(entries);
-      localStorage.setItem(SCORE_CACHE_KEY, JSON.stringify(scoreCacheStore));
-    } catch {}
+    if (scoreFlushQueued) return;
+    scoreFlushQueued = true;
+    queueMicrotask(() => {
+      scoreFlushQueued = false;
+      try {
+        scoreCacheStore = Object.fromEntries(Object.entries(cache).slice(-300));
+        localStorage.setItem(SCORE_CACHE_KEY, JSON.stringify(scoreCacheStore));
+      } catch {}
+    });
+  }
+
+  function prependMemberLock(episodePill) {
+    if (episodePill.querySelector(':scope > .ani-member-lock')) return;
+    episodePill.insertAdjacentHTML('afterbegin', '<span class="ani-member-lock" title="付費會員限定" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="10" height="7" rx="2"/><path d="M5 7V5a3 3 0 0 1 6 0v2m-3 3v1"/></svg></span>');
   }
 
   function renderTopLeftScoreBadge(picBlock, scoreText) {
@@ -1708,6 +1792,8 @@
   let continueTimesSettled = false;
   const continueTimes = new Map();
   const continueDetailsRequested = new Set();
+  let continueDetailsObserver;
+  const observedContinueCards = new WeakMap();
   let continueSectionAnchor;
   const nextEpisodeGlyph = '<path fill="currentColor" stroke="none" d="M5 5.5a1.5 1.5 0 0 1 2.35-1.24l8.5 6.5a1.5 1.5 0 0 1 0 2.48l-8.5 6.5A1.5 1.5 0 0 1 5 18.5Z"/><rect fill="currentColor" stroke="none" x="18" y="4" width="3" height="16" rx="1.5"/>';
   const refreshContinueTitle = (target) => {
@@ -1858,6 +1944,20 @@
           }
         }).catch(() => {});
     };
+    const scheduleContinueDetails = (card, sn) => {
+      if (!sn || continueDetailsRequested.has(sn)) return;
+      if (typeof IntersectionObserver !== 'function') return queueContinueDetails(sn);
+      if (observedContinueCards.get(card) === sn) return;
+      observedContinueCards.set(card, sn);
+      continueDetailsObserver ||= new IntersectionObserver(entries => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          continueDetailsObserver.unobserve(entry.target);
+          queueContinueDetails(observedContinueCards.get(entry.target));
+        }
+      }, { rootMargin: '180px' });
+      continueDetailsObserver.observe(card);
+    };
     if (!continueTimesRequested) {
       continueTimesRequested = true;
       try {
@@ -1882,7 +1982,7 @@
         for (const card of section.querySelectorAll('.continue-watch-card')) {
           const sn = card.closest('[data-video-sn]')?.dataset.videoSn;
           syncContinueCardPosition(card, sn);
-          queueContinueDetails(sn);
+          scheduleContinueDetails(card, sn);
         }
       });
     }
@@ -1928,7 +2028,7 @@
       const picture = card.querySelector('.img-block');
       const cachedScore = readScoreCache()[sn]?.s;
       if (picture && cachedScore) renderTopLeftScoreBadge(picture, cachedScore);
-      if (continueTimesSettled) queueContinueDetails(sn);
+      if (continueTimesSettled) scheduleContinueDetails(card, sn);
       syncContinueCardPosition(card, sn);
     }
   }
@@ -1942,9 +2042,14 @@
     cover.alt = '';
     cover.loading = 'lazy';
     cover.decoding = 'async';
-    cover.onerror = () => { if (tile.dataset.aniCoverUrl === url) delete tile.dataset.aniCoverUrl; };
+    cover.onload = () => cover.classList.add('is-ready');
+    cover.onerror = () => {
+      cover.classList.remove('is-ready');
+      if (tile.dataset.aniCoverUrl === url) delete tile.dataset.aniCoverUrl;
+    };
     cover.src = url;
     if (!cover.parentNode) tile.prepend(cover);
+    if (cover.complete && cover.naturalWidth > 0) cover.classList.add('is-ready');
   }
 
   function fitPremiumCard() {
@@ -2244,8 +2349,9 @@
     episodeOrdinals.set(id,null);
     aniFetch(card.href,{credentials:'include',signal:AbortSignal.timeout(10000)}).then(r=>r.ok?r.text():'').then(html=>{
       const doc = new DOMParser().parseFromString(html,'text/html');
-      for (const season of doc.querySelectorAll('.season')) {
-        const labels = [...new Set([...season.querySelectorAll('li a')].map(a=>a.textContent.trim()).filter(t=>/^\d+$/.test(t)).map(Number))];
+      for (const track of doc.querySelectorAll('.season ul')) {
+        const labels = [...new Set([...track.querySelectorAll(':scope > li > a')].map(a=>a.textContent.trim()).filter(t=>/^\d+$/.test(t)).map(Number))]
+          .sort((a, b) => a - b);
         if (labels.length === Number(total) && labels.includes(episode)) {
           episodeOrdinals.set(id,new Map(labels.map((n,i)=>[n,i+1]))); break;
         }
@@ -2441,16 +2547,37 @@
         }
       }, { rootMargin: '180px 0px' })
     : null;
-  const measureWeekTitle = (title) => {
-    const track = title?.querySelector('.ani-week-marquee');
-    if (!track) return;
-    const style = getComputedStyle(title);
-    const available = title.clientWidth - (parseFloat(style.paddingLeft) || 0) - (parseFloat(style.paddingRight) || 0);
-    const distance = Math.max(0, track.scrollWidth - available);
-    title.classList.toggle('ani-week-overflow', available > 0 && distance > 2);
-    title.style.setProperty('--ani-week-travel', `-${distance}px`);
-    title.style.setProperty('--ani-week-duration', `${Math.max(2.5, distance / 30 + 1)}s`);
+  const measureWeekTitles = (titles) => {
+    const measurements = [];
+    for (const title of titles) {
+      const track = title?.querySelector('.ani-week-marquee');
+      if (!track) continue;
+      const style = getComputedStyle(title);
+      const available = title.clientWidth - (parseFloat(style.paddingLeft) || 0) - (parseFloat(style.paddingRight) || 0);
+      const distance = Math.max(0, track.scrollWidth - available);
+      if (available > 0) measurements.push({ title, overflow: distance > 2, distance });
+    }
+    for (const { title, overflow, distance } of measurements) {
+      title.classList.toggle('ani-week-overflow', overflow);
+      const travel = `-${distance}px`;
+      if (title.style.getPropertyValue('--ani-week-travel') !== travel) {
+        title.style.setProperty('--ani-week-travel', travel);
+        title.style.setProperty('--ani-week-duration', `${Math.max(2.5, distance / 30 + 1)}s`);
+      }
+    }
   };
+  const measureWeekTitle = (title) => measureWeekTitles([title]);
+  const pendingWeekTitles = new Set();
+  let weekTitlesMoving = false;
+  function finishWeekTitleMeasurements() {
+    weekTitlesMoving = false;
+    if (!pendingWeekTitles.size) return;
+    requestAnimationFrame(() => {
+      if (weekTitlesMoving) return;
+      measureWeekTitles(pendingWeekTitles);
+      pendingWeekTitles.clear();
+    });
+  }
   const weekMarqueeObserver = typeof ResizeObserver === 'function'
     ? new ResizeObserver((entries) => {
         const titles = new Set();
@@ -2458,12 +2585,34 @@
           const title = target.classList?.contains('text-anime-name') ? target : target.parentElement;
           if (title) titles.add(title);
         }
-        for (const title of titles) measureWeekTitle(title);
+        if (weekTitlesMoving) titles.forEach(title => pendingWeekTitles.add(title));
+        else measureWeekTitles(titles);
       })
     : null;
+  const coverLoadAnimations = new WeakMap();
+  function fadeHomeCover(image) {
+    if (!image.complete || !image.naturalWidth || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const previous = coverLoadAnimations.get(image);
+    if (previous?.source === image.currentSrc || (image.matches('.card-img') && getComputedStyle(image).visibility === 'hidden')) return;
+    previous?.animation?.cancel();
+    const animation = image.animate?.([{ opacity: 0 }, { opacity: 1 }], { duration: 400, easing: 'ease-in-out' });
+    coverLoadAnimations.set(image, { source: image.currentSrc, animation });
+  }
+
+  function onHomeCoverLoad(event) {
+    fadeHomeCover(event.currentTarget);
+  }
+
   function enhanceCardSurface(card) {
     if (!card.classList.contains('ani-card-surface')) card.classList.add('ani-card-surface');
     const glowImage = card.querySelector('img.card-img:not(.is-next),.anime-blocker img,.anime-pic-block img:not(.anime-clock-img):not([src$=".svg"]),.theme-img');
+    const covers = card.matches('#blockContinueWatch .continue-watch-card')
+      ? card.querySelectorAll('img.card-img')
+      : card.matches('#blockVideoInSeason .newanime-wrap .anime-card-block') && glowImage ? [glowImage] : [];
+    for (const cover of covers) {
+      cover.addEventListener('load', onHomeCoverLoad);
+      fadeHomeCover(cover);
+    }
     const glowUrl = glowImage?.dataset.src || glowImage?.getAttribute('src');
     if (glowUrl && /^https:\/\/(?:p2|i2|truth)\.bahamut\.com\.tw\//.test(glowUrl)) {
       const cover = `url("${glowUrl.replace(/["\\\n\r]/g, '')}")`;
@@ -2570,8 +2719,9 @@
     aniFetch(card.href, { timeoutMs: 8000 })
       .then(response => response.ok ? response.text() : '')
       .then(html => {
-        const score = parseScoreFromVideoHtml(html);
-        if (score && card.isConnected && section?.isConnected) {
+        const parsed = parseScoreFromVideoHtml(html);
+        if (parsed && card.isConnected && section?.isConnected) {
+          const score = Number(parsed).toFixed(2);
           card.dataset.aniRelatedScore = score;
           const image = card.querySelector('.theme-img-block');
           if (image && !image.querySelector('.ani-poster-score')) {
@@ -2585,7 +2735,19 @@
       }).catch(() => {});
   }
 
+  const pendingPosterTitleMeasures = new Set();
+  function queuePosterTitleMeasure(read) {
+    if (!pendingPosterTitleMeasures.size) requestAnimationFrame(() => {
+      const updates = [...pendingPosterTitleMeasures].map(measure => measure());
+      pendingPosterTitleMeasures.clear();
+      for (const update of updates) update?.();
+    });
+    pendingPosterTitleMeasures.add(read);
+  }
+
   function enhancePosterRails(sections) {
+    const movieCatalog = location.pathname === '/animeList.php' &&
+      new URLSearchParams(location.search).get('category') === '電影';
     let needsWatchHistory = false;
     for (const section of sections || document.querySelectorAll('#BH_background .animate-theme-list, #BH_background .old_list:not(:has(.search_result))')) {
       if (homeRailObserver && document.body.classList.contains('ani-home-page') && !preparedHomeRails.has(section)) {
@@ -2596,6 +2758,21 @@
       if (section.matches('.old_list')) section.classList.add('ani-related-list');
       const isRelated = section.matches('.old_list:not(:has(.search_result))');
       const isWish = section.matches('.animate-wish');
+      const browseList = ['/animeList.php', '/mygather.php'].includes(location.pathname);
+      if (browseList) {
+        const emptyMessage = /^沒有符合的動畫[，,]請重新選取篩選條件[。]?$/;
+        const list = section.querySelector('.theme-list-block');
+        for (const node of list?.childNodes || []) {
+          if (!emptyMessage.test(node.textContent.replace(/\s+/g, '').trim())) continue;
+          if (node instanceof Element) node.classList.add('ani-browse-empty-message');
+          else {
+            const message = document.createElement('p');
+            message.className = 'ani-browse-empty-message';
+            message.textContent = node.textContent.trim();
+            node.replaceWith(message);
+          }
+        }
+      }
       section.classList.toggle('ani-filtered-list', Boolean(section.querySelector(':scope > .filter-section')));
       const heading = section.querySelector('.theme-title, :scope > h2, .old_list-title > h2');
       if (isWish && heading && !heading.querySelector('.ani-section-icon')) {
@@ -2615,7 +2792,16 @@
       }
       for (const card of section.querySelectorAll('.theme-list-main')) {
         if (!card.classList.contains('ani-poster-card')) card.classList.add('ani-poster-card');
+        if (browseList && !section.matches('.ani-studio-row')) card.classList.add('ani-poster-title-marquee');
         enhanceCardSurface(card);
+        if (browseList) {
+          const cover = card.querySelector('img.theme-img');
+          if (cover) {
+            cover.decoding = 'async';
+            cover.addEventListener('load', onHomeCoverLoad);
+            fadeHomeCover(cover);
+          }
+        }
         if (isWish) {
           const cover = card.querySelector(':scope > .theme-wish-block');
           cover?.classList.add('theme-img-block');
@@ -2655,8 +2841,9 @@
         const id = card.getAttribute('href')?.match(/[?&]sn=(\d+)/)?.[1];
         const cached = starMapRatingCache[id];
         const freshScore = cached && Date.now() - cached.timestamp < (starMapLive.ttlHours ?? 24) * 3600000 ? cached.score : undefined;
-        const scoreText = score?.textContent.trim() || externalScore?.textContent.match(/(?:★\s*|^\s*)([0-5](?:\.\d+)?)(?=\s|\/|$)/)?.[1] ||
+        const rawScore = score?.textContent.trim() || externalScore?.textContent.match(/(?:★\s*|^\s*)([0-5](?:\.\d+)?)(?=\s|\/|$)/)?.[1] ||
           card.dataset.aniRelatedScore || card.dataset.ratingScore || freshScore;
+        const scoreText = rawScore && Number.isFinite(Number(rawScore)) ? Number(rawScore).toFixed(2) : '';
         if (!scoreText && image && starMapFetchMissing && starMapLive.enabled === true && !card.dataset.aniScoreRequested && card.matches('a[href]')) {
           if (!starMapScoreObserver && typeof IntersectionObserver === 'function') {
             starMapScoreObserver = new IntersectionObserver(entries => {
@@ -2710,15 +2897,33 @@
         }
         for(const label of card.querySelectorAll('span,div')){
           if(label.children.length||label.closest('.ani-age-restricted'))continue;const text=label.textContent.trim();
-          if(text==='年齡限制'){label.classList.add('ani-age-restricted');label.setAttribute('aria-label','年齡限制');label.innerHTML='<span class="ani-age-symbol" aria-hidden="true">18+</span>';}
+          if(/^(?:年齡限制|限制級|18禁|18\+)$/.test(text)){label.classList.add('ani-age-restricted');label.setAttribute('aria-label','年齡限制');label.title='年齡限制';label.innerHTML='<span class="ani-age-symbol" aria-hidden="true">18+</span>';}
           if(text==='連載中')label.classList.add('ani-serial-label');
         }
         const episodes = card.querySelector('.theme-number');
         card.classList.toggle('ani-age-anime',!!card.querySelector('.ani-age-restricted'));
-        for(const label of card.querySelectorAll('.label-edition'))if(/年齡限制|限制級|18禁/.test(label.textContent))label.classList.add('ani-age-restricted');
+        for (const label of card.querySelectorAll('.label-edition')) {
+          if (!/年齡限制|限制級|18禁/.test(label.textContent)) continue;
+          label.classList.add('ani-age-restricted');
+          label.title = '年齡限制';
+        }
         const paidLabels=[...card.querySelectorAll('.label-edition')].filter(el=>el.textContent.trim()==='付費會員');
         card.classList.toggle('ani-member-anime',paidLabels.length>0);
         for(const label of paidLabels)label.classList.add('ani-paid-label-source');
+        if (['/animeList.php', '/mygather.php'].includes(location.pathname) && image && episodes) {
+          const leftLabels = image.querySelector(':scope > .ani-poster-labels:not(.ani-poster-episode-labels)');
+          const episodeLabels = [...(leftLabels?.querySelectorAll('.label-edition, .ani-age-restricted') || [])]
+            .filter(label => label.matches('.ani-age-restricted') || /^(?:雙語|18\+)$/.test(label.textContent.trim()));
+          if (episodeLabels.length) {
+            let rightLabels = image.querySelector(':scope > .ani-poster-episode-labels');
+            if (!rightLabels) {
+              rightLabels = document.createElement('div');
+              rightLabels.className = 'ani-poster-labels ani-poster-episode-labels';
+              image.append(rightLabels);
+            }
+            rightLabels.append(...episodeLabels);
+          }
+        }
         if(episodes){
           episodes.classList.toggle('ani-member-episodes',paidLabels.length>0);
         }
@@ -2729,7 +2934,7 @@
           if(card.style.getPropertyValue('--ani-card-cover')!==value)card.style.setProperty('--ani-card-cover',value);
         }
         const imageProgress = card.querySelector('.ani-watch-progress-badge');
-        const totalMatch = episodes?.textContent.match(/(?:共\s*)?(\d+)\s*集/);
+        const totalMatch = episodes?.textContent.trim().match(/^(?:共\s*|(?:\d+|—)\s*\/\s*)?(\d+)\s*集$/);
         if (episodes && image) {
           if (totalMatch && (!episodes.dataset.aniTotalEpisodes || /^共/.test(episodes.textContent.trim()))) episodes.dataset.aniTotalEpisodes = totalMatch[1];
           const total = episodes.dataset.aniTotalEpisodes;
@@ -2742,14 +2947,14 @@
           const position = native === undefined && saved === undefined
             ? (watched ? Number(watched[1]) : undefined)
             : Math.max(native ?? 0, saved ?? 0);
-          if (position > Number(total)) mapSeasonEpisode(card,animeId,position,total);
           const normalized = episodeOrdinals.get(animeId)?.get(position);
-          const isMovie = isRelated && (relatedMovieSeriesIds.has(animeId)
+          const isMovie = (isRelated || browseList) && (movieCatalog || relatedMovieSeriesIds.has(animeId)
             || episodes.textContent.trim() === '電影'
             || /劇[場场]版|電影版/.test(title || '')
             || [...card.querySelectorAll('.label-edition')].some(badge => /^(電影|劇場版)$/.test(badge.textContent.trim())));
+          if (!isMovie && position > Number(total)) mapSeasonEpisode(card,animeId,position,total);
           const label = isMovie ? '電影'
-            : position !== undefined && total ? (position > Number(total) && normalized === undefined ? `已看第 ${position} 集` : `${normalized ?? position} / ${total} 集`)
+            : position !== undefined && total ? `${normalized ?? (position <= Number(total) ? position : '—')} / ${total} 集`
             : /尚未觀看/.test(original) && total ? `0 / ${total} 集`
             : total ? `共 ${total} 集` : '';
           if (label && episodes.textContent.trim() !== label) episodes.textContent = label;
@@ -2762,23 +2967,28 @@
           }
           if (!movieWatched && episodes.classList.contains('ani-movie-watched')) {
             episodes.classList.remove('ani-movie-watched');
-            episodes.querySelector('svg')?.remove();
+            episodes.querySelector(':scope > svg')?.remove();
             episodes.removeAttribute('title');
           }
           if (episodes.parentElement !== image) image.append(episodes);
         }
         if (episodes && paidLabels.length) {
+          prependMemberLock(episodes);
           episodes.setAttribute('aria-label', `付費會員限定，${episodes.textContent.trim()}${episodes.classList.contains('ani-movie-watched') ? '，已看過' : ''}`);
+        } else if (episodes?.querySelector(':scope > .ani-member-lock')) {
+          episodes.querySelector(':scope > .ani-member-lock').remove();
+          episodes.removeAttribute('aria-label');
         }
         const views = card.querySelector('.show-view-number');
         const marqueeTitle = card.querySelector('.theme-name');
         if(marqueeTitle&&!marqueeTitle.querySelector('.ani-title-marquee')){const text=marqueeTitle.textContent;const span=document.createElement('span');span.className='ani-title-marquee';span.textContent=text;marqueeTitle.replaceChildren(span);}
         if(marqueeTitle&&!marqueeTitle.dataset.aniMarquee){
           marqueeTitle.dataset.aniMarquee='true';
-          const measure = () => {
+          const read = () => {
+            if (!card.isConnected) return;
             const track = marqueeTitle.querySelector('.ani-title-marquee');
             // A wrapped title cannot be used to measure the collapsed single line.
-            if (!track || card.matches('.ani-card-has-overflow:is(:hover,:focus-within)')) return;
+            if (!track || card.matches('.ani-card-has-overflow:not(.ani-poster-title-marquee):is(:hover,:focus-within)')) return;
             const parent = marqueeTitle.parentElement;
             const style = getComputedStyle(parent);
             const padding = (parseFloat(style.paddingLeft) || 0) + (parseFloat(style.paddingRight) || 0);
@@ -2787,29 +2997,31 @@
             const travel = distance + (isRelated ? 0 : 16);
             const offset = `${-Math.ceil(travel)}px`;
             const duration = `${Math.max(5.5, travel / 14).toFixed(2)}s`;
-            if (marqueeTitle.style.getPropertyValue('--ani-marquee-dist') !== offset) {
-              marqueeTitle.style.setProperty('--ani-marquee-dist', offset);
-            }
-            if (marqueeTitle.style.getPropertyValue('--ani-marquee-dur') !== duration) {
-              marqueeTitle.style.setProperty('--ani-marquee-dur', duration);
-            }
-            marqueeTitle.classList.toggle('ani-title-overflow', distance > 2);
-            card.classList.toggle('ani-card-has-overflow', distance > 2);
+            return () => {
+              if (marqueeTitle.style.getPropertyValue('--ani-marquee-dist') !== offset) {
+                marqueeTitle.style.setProperty('--ani-marquee-dist', offset);
+              }
+              if (marqueeTitle.style.getPropertyValue('--ani-marquee-dur') !== duration) {
+                marqueeTitle.style.setProperty('--ani-marquee-dur', duration);
+              }
+              marqueeTitle.classList.toggle('ani-title-overflow', distance > 2);
+              card.classList.toggle('ani-card-has-overflow', distance > 2);
+            };
           };
+          const measure = () => queuePosterTitleMeasure(read);
           if (section.matches('.ani-studio-row')) {
             card.addEventListener('pointerenter', measure);
             card.addEventListener('focusin', measure);
           } else {
             let measuredWidth = -1;
-            const measureWidth = () => {
-              const width = marqueeTitle.clientWidth;
+            if (typeof ResizeObserver === 'function') new ResizeObserver(([entry]) => {
+              const width = entry?.contentRect.width;
               if (width === measuredWidth) return;
               measuredWidth = width;
               measure();
-            };
-            if (typeof ResizeObserver === 'function') new ResizeObserver(measureWidth).observe(marqueeTitle);
-            requestAnimationFrame(measureWidth);
-            document.fonts?.ready.then(measure);
+            }).observe(marqueeTitle);
+            measure();
+            if (document.fonts?.status === 'loading') document.fonts.ready.then(measure);
           }
           card.addEventListener('mouseleave', measure);
           card.addEventListener('focusout', () => requestAnimationFrame(measure));
@@ -4931,6 +5143,7 @@
     const counter = key === 'tags' ? document.createElement('span') : null;
     if (counter) heading.append(counter);
     const list = document.createElement('ul');
+    if (key === 'tags') list.classList.add('ani-multi-attributes');
     for (const value of ['全部', ...values.split(' ')]) {
       const item = document.createElement('li');
       const button = document.createElement('button');
@@ -4945,13 +5158,14 @@
         else if (value === '全部') selected.clear();
         else if (!selected.delete(value) && selected.size < 5) selected.add(value);
         sync();
-        loadCollectionCatalogMatches(state);
+        if (key === 'category') list.dispatchEvent(new Event('ani-native-category-selected'));
+        void loadCollectionCatalogMatches(state, () => list.dispatchEvent(new Event('ani-category-results', { bubbles: true })));
       });
     }
     function sync() {
       const selected = state.selected[key];
       if (counter) counter.textContent = `(${selected.size}/5)`;
-      for (const button of list.querySelectorAll('button')) {
+      for (const button of list.querySelectorAll('button:not([data-origin])')) {
         const chosen = key === 'tags'
           ? (button.value === '全部' ? !selected.size : selected.has(button.value))
           : button.value === selected;
@@ -4960,12 +5174,18 @@
         button.disabled = key === 'tags' && button.value !== '全部' && !chosen && selected.size >= 5;
       }
     }
+    if (key === 'category') list.addEventListener('ani-reset-native-category', () => {
+      if (state.selected.category === '全部') return;
+      state.selected.category = '全部';
+      sync();
+      void loadCollectionCatalogMatches(state);
+    });
     sync();
     row.append(heading, list);
     return row;
   }
 
-  async function loadCollectionCatalogMatches(state) {
+  async function loadCollectionCatalogMatches(state, showResults) {
     state.catalogRequest?.abort();
     const {tags, category, target} = state.selected;
     const active = tags.size || category !== '全部' || target !== '全部';
@@ -4975,6 +5195,7 @@
     state.catalogStatus = '';
     if (!active || state.catalogCache.has(cacheKey)) {
       state.apply();
+      showResults?.();
       return;
     }
 
@@ -5000,6 +5221,7 @@
           if (id) state.catalogMatches.add(id);
         }
         state.apply();
+        if (page === 1) showResults?.();
         if (!nextBrowsePage(doc, new URL(`/animeList.php?${params}`, location.href), page)) break;
       }
       if (request.signal.aborted) return;
@@ -5323,6 +5545,7 @@
     }
     const seen = new Set([...list.querySelectorAll('.theme-list-main')].map(c => new URL(c.getAttribute('href'),location.href).href));
     let dateFilter = {year: '', season: ''}, failed = false, originActive = false;
+    let catalogGeneration = 0;
     let resumeAt = 0;
     const hasDateFilter = () => Boolean(dateFilter.year || dateFilter.season);
     const shouldSearchAllPages = () => hasDateFilter() || originActive;
@@ -5376,9 +5599,32 @@
       originActive = event.detail;
       onFilterChange();
     });
+    list.addEventListener('ani-catalog-results-replaced', event => {
+      const { doc, url } = event.detail;
+      catalogGeneration++;
+      originActive = false;
+      busy = failed = false;
+      button.removeAttribute('aria-busy');
+      resumeAt = 0;
+      firstPageUrl.href = url;
+      firstPageUrl.searchParams.set('page', '1');
+      firstPageUrl.hash = '';
+      next = nextBrowsePage(doc, new URL(url), 1);
+      nextByPage.clear();
+      nextByPage.set(1, next);
+      seen.clear();
+      for (const card of list.querySelectorAll('.theme-list-main[href]')) seen.add(card.href);
+      if (pages) pages.replaceChildren(...(doc.querySelector('.page_control')?.children || []));
+      button.textContent = '繼續往下瀏覽';
+      button.disabled = !next;
+      enhancePosterRails([list.closest('.animate-theme-list')]);
+      onFilterChange();
+    });
     const load = async (manual = false) => {
       if (!list.isConnected || busy || !next || resumeAt > Date.now() || (!manual && failed)) return;
+      const generation = catalogGeneration;
       busy = true; failed = false; button.disabled = true; button.textContent = '載入動畫中…';
+      button.setAttribute('aria-busy', 'true');
       applyDates();
       let succeeded=false;
       try {
@@ -5387,7 +5633,7 @@
         const response = await aniFetch(url.href, { credentials: 'include', timeoutMs: 12000 });
         if (!response.ok) throw new Error('catalog unavailable');
         const doc = new DOMParser().parseFromString(await response.text(),'text/html');
-        if (!list.isConnected) return;
+        if (!list.isConnected || generation !== catalogGeneration) return;
         const cards = [...doc.querySelectorAll('.theme-list-block .theme-list-main')];
         if (!cards.length && !doc.querySelector('.theme-list-block')) throw new Error('catalog unavailable');
         const batch = document.createDocumentFragment();
@@ -5406,6 +5652,7 @@
         enhancePosterRails();
         enhanceCollectionFilters();
       } catch (error) {
+        if (generation !== catalogGeneration) return;
         console.warn('[AniAmbient] Catalog page load failed', next, error);
         failed = true;
         resumeAt = Number(sessionStorage.getItem('aniRequestCooldown')) || 0;
@@ -5415,7 +5662,8 @@
         }, resumeAt - Date.now() + 100);
       }
       finally {
-        busy = false; button.disabled = !next || resumeAt > Date.now(); applyDates();
+        if (generation !== catalogGeneration) return;
+        busy = false; button.removeAttribute('aria-busy'); button.disabled = !next || resumeAt > Date.now(); applyDates();
         if (succeeded && next) {
           if (shouldSearchAllPages()) setTimeout(function continueSearch() {
             if (!list.isConnected || !shouldSearchAllPages()) return;
@@ -6241,6 +6489,82 @@
 
   let playerOverlayDirty = true;
   let seasonWatchDirty = true;
+  function seasonDisclosure(host, content, stateClass, sync, afterOpen) {
+    const viewport = document.createElement('div');
+    viewport.className = 'ani-season-viewport';
+    content.before(viewport);
+    viewport.append(content);
+    let open = host.classList.contains(stateClass);
+    let motion;
+    let tileMotions = [];
+    for (const img of content.querySelectorAll('img.lazyload[data-src]')) {
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      if (img.dataset.srcset) img.srcset = img.dataset.srcset;
+      img.src = img.dataset.src;
+      img.classList.remove('lazyload');
+    }
+    const measureHeight = () => {
+      const height = Number.parseFloat(getComputedStyle(viewport).height);
+      return Number.isFinite(height) ? height : viewport.getBoundingClientRect().height;
+    };
+    return () => {
+      open = !open;
+      sync(open);
+      if (motion) {
+        for (const animation of [motion, ...tileMotions]) animation.reverse();
+        return;
+      }
+      const height = measureHeight();
+      const finish = () => {
+        host.classList.toggle(stateClass, open);
+        viewport.classList.remove('ani-season-moving', 'ani-season-sliding');
+        if (stateClass === 'ani-week-expanded') finishWeekTitleMeasurements();
+        motion = null;
+        if (open) afterOpen?.();
+      };
+      if (!height || !viewport.animate || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        finish();
+        return;
+      }
+      viewport.classList.add('ani-season-moving');
+      host.classList.toggle(stateClass, open);
+      const end = measureHeight();
+      if (Math.abs(height - end) < 1) {
+        finish();
+        return;
+      }
+      // Measure whole cards in the expanded layout. Closing plays the same track backwards.
+      host.classList.add(stateClass);
+      const closedHeight = open ? height : end;
+      const fullHeight = open ? end : height;
+      const bounds = viewport.getBoundingClientRect();
+      const scale = bounds.height / measureHeight() || 1;
+      const tiles = content.querySelectorAll(stateClass === 'ani-week-expanded'
+        ? '.ani-week-extra-shell' : ':scope > :is(.newanime-date-area, .premium-block):nth-of-type(n + 19)');
+      const growUntil = .72;
+      const timing = { duration: 440, easing: 'ease-in-out', direction: open ? 'normal' : 'reverse', fill: 'both' };
+      const offsets = Array.from(tiles, tile => {
+        const bottom = (tile.getBoundingClientRect().bottom - bounds.top) / scale;
+        return growUntil * Math.min(1, Math.max(0, (bottom - closedHeight) / (fullHeight - closedHeight)));
+      });
+      tileMotions = Array.from(tiles, (tile, i) => tile.animate([
+        { opacity: 0, offset: 0 }, { opacity: 0, offset: offsets[i] },
+        { opacity: 1, offset: offsets[i] + (1 - growUntil) }, { opacity: 1, offset: 1 },
+      ], timing));
+      viewport.classList.add('ani-season-sliding');
+      const current = viewport.animate([{ height: closedHeight + 'px', offset: 0 },
+        { height: fullHeight + 'px', offset: growUntil }, { height: fullHeight + 'px', offset: 1 }], timing);
+      motion = current;
+      current.onfinish = () => {
+        if (motion !== current) return;
+        finish();
+        current.cancel();
+        for (const tileMotion of tileMotions) tileMotion.cancel();
+        tileMotions = [];
+      };
+    };
+  }
   function enhanceWeeklySchedule(weekly) {
     if (!weekly) return;
     const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Taipei', year: 'numeric', month: 'numeric', day: 'numeric' });
@@ -6292,22 +6616,16 @@
       button.setAttribute('aria-expanded', 'false');
       button.innerHTML = '<span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
       const label = button.firstElementChild;
-      const sync = () => {
-        const open = weekly.classList.contains('ani-week-expanded');
+      const panel = weekly.querySelector('.programlist-wrap_block') || weekly.querySelector('.programlist-block');
+      if (!panel) return;
+      panel.after(button);
+      const sync = open => {
         button.setAttribute('aria-expanded', String(open));
         label.textContent = open ? '收合週期表' : '展開完整週期表';
       };
-      button.addEventListener('click', event => {
-        event.stopPropagation();
-        const open = !weekly.classList.contains('ani-week-expanded');
-        weekly.classList.toggle('ani-week-expanded', open);
-        sync();
-        if (open && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-          button.animate?.([{ opacity: 0.65 }, { opacity: 1 }], { duration: 150, easing: 'ease-out' });
-        }
-      });
-      sync();
-      (weekly.querySelector('.programlist-wrap_block') || weekly.querySelector('.programlist-block'))?.after(button);
+      sync(false);
+      const toggle = seasonDisclosure(weekly, panel, 'ani-week-expanded', sync);
+      button.addEventListener('click', event => { event.stopPropagation(); weekTitlesMoving = true; toggle(); });
     }
     const sourceByHref = new Map();
     const sourceByName = new Map();
@@ -6371,6 +6689,7 @@
         }
       }
     }
+    weekly.dataset.aniWeekReady = 'true';
   }
 
   function enhanceSiteControls() {
@@ -6409,6 +6728,13 @@
     if (weekly) {
       if (!weekly.dataset.aniScheduleTabs) {
         weekly.dataset.aniScheduleTabs = 'true';
+        let activeTabAnim = null;
+        let activeBarAnim = null;
+        let pendingPanelFrame = 0;
+        const weekTab = weekly.querySelector('.textpage-switch-page');
+        weekTab?.addEventListener('pointerenter', () => {
+          if (weekly.dataset.aniWeekReady !== 'true') enhanceWeeklySchedule(weekly);
+        }, { once: true, passive: true });
         weekly.addEventListener('click', event => {
           const tab = event.target.closest?.('.textpage-switch-page, .newanime-switch-page');
           if (!settings.themeEnabled || !tab) return;
@@ -6417,8 +6743,12 @@
           if (!week || !releases) return;
           event.stopPropagation();
           if (tab.classList.contains('nav-choose-segment')) return;
+          const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+          const prevTab = tab.parentElement.querySelector('.nav-segment-control.nav-choose-segment');
+          const prevBarRect = !reduceMotion ? prevTab?.querySelector('.ani-segment-bar')?.getBoundingClientRect() : null;
           const weeklyView = tab.matches('.textpage-switch-page');
-          if (weeklyView) enhanceWeeklySchedule(weekly);
+          const builtOnClick = weeklyView && weekly.dataset.aniWeekReady !== 'true';
+          if (builtOnClick) enhanceWeeklySchedule(weekly);
           releases.classList.toggle('ani-release-panel', weeklyView);
           for (const button of tab.parentElement.querySelectorAll('.nav-segment-control')) {
             button.classList.toggle('nav-choose-segment', button === tab);
@@ -6429,10 +6759,69 @@
           }
           const filter = weekly.querySelector('.btn-newanime-filter');
           if (filter) filter.style.display = weeklyView ? 'none' : 'flex';
+          if (!reduceMotion) {
+            const ease = 'cubic-bezier(0.16, 1, 0.3, 1)';
+            const nextBar = tab.querySelector('.ani-segment-bar');
+            const nextBarRect = nextBar?.getBoundingClientRect();
+            if (nextBar && typeof nextBar.animate === 'function' && prevBarRect?.width > 0 && nextBarRect?.width > 0) {
+              const dx = (prevBarRect.left + prevBarRect.width / 2) - (nextBarRect.left + nextBarRect.width / 2);
+              const sx = prevBarRect.width / nextBarRect.width;
+              try { activeBarAnim?.cancel(); } catch {}
+              nextBar.style.willChange = 'transform';
+              activeBarAnim = nextBar.animate(
+                [
+                  { transform: `translateX(calc(-50% + ${dx}px)) scaleX(${sx})` },
+                  { transform: 'translateX(-50%) scaleX(1)' },
+                ],
+                { duration: 340, easing: ease },
+              );
+              const clearBar = () => { nextBar.style.willChange = ''; };
+              activeBarAnim.onfinish = clearBar;
+              activeBarAnim.oncancel = clearBar;
+            }
+            const incoming = weeklyView ? week : releases;
+            if (typeof incoming.animate === 'function') {
+              const offset = weeklyView ? 10 : -10;
+              const firstReveal = builtOnClick || incoming.dataset.aniTabRevealed !== 'true';
+              cancelAnimationFrame(pendingPanelFrame);
+              try { activeTabAnim?.cancel(); } catch {}
+              const runPanelAnim = () => {
+                incoming.dataset.aniTabRevealed = 'true';
+                incoming.style.removeProperty('opacity');
+                incoming.style.willChange = 'transform, opacity';
+                activeTabAnim = incoming.animate(
+                  [
+                    { opacity: 0, transform: `translate3d(${offset}px, 0, 0) scale(0.994)` },
+                    { opacity: 1, transform: 'translate3d(0, 0, 0) scale(1)' },
+                  ],
+                  { duration: 380, easing: ease },
+                );
+                const clearPanel = () => { incoming.style.willChange = ''; };
+                activeTabAnim.onfinish = clearPanel;
+                activeTabAnim.oncancel = clearPanel;
+              };
+              if (firstReveal) {
+                incoming.style.opacity = '0';
+                pendingPanelFrame = requestAnimationFrame(runPanelAnim);
+              } else {
+                runPanelAnim();
+              }
+            }
+          }
         }, true);
       }
       if (!weekly.querySelector('.programlist-wrap')?.classList.contains('newanime-content-hide')) {
-        enhanceWeeklySchedule(weekly);
+        if (weekly.dataset.aniWeekReady !== 'true') enhanceWeeklySchedule(weekly);
+      } else if (!weekly.dataset.aniWeekPrewarm) {
+        weekly.dataset.aniWeekPrewarm = 'true';
+        setTimeout(() => {
+          const warm = () => {
+            if (!weekly.isConnected) return;
+            if (weekly.dataset.aniWeekReady !== 'true') enhanceWeeklySchedule(weekly);
+          };
+          if (typeof requestIdleCallback === 'function') requestIdleCallback(warm, { timeout: 2000 });
+          else warm();
+        }, 900);
       }
     }
     const continueRail = isHome || document.getElementById('continueWatch') ? document.querySelector('#continueWatch') : null;
@@ -6660,6 +7049,17 @@
         new MutationObserver(sync).observe(native, { childList: true, subtree: true, characterData: true });
       }
       const channelHeading = document.querySelector('#blockAnimePublisherChannel .theme-title');
+      for (const logo of document.querySelectorAll('#publisherList .trademark-logo img:not([data-ani-channel-logo])')) {
+        logo.dataset.aniChannelLogo = 'loading';
+        const reveal = () => {
+          if (logo.naturalWidth > 0) logo.dataset.aniChannelLogo = 'ready';
+        };
+        logo.addEventListener('load', reveal);
+        if (logo.dataset.src && logo.getAttribute('src') !== logo.dataset.src) {
+          logo.src = logo.dataset.src;
+        }
+        if (logo.complete) reveal();
+      }
       if (channelHeading && !channelHeading.querySelector('.ani-section-icon')) {
         const icon = document.createElement('span');
         icon.className = 'ani-section-icon';
@@ -6689,8 +7089,13 @@
       requestAnimationFrame(fitPremiumCard);
       const premiumGrid = weekly.querySelector('.newanime-block:has(> .premium-block)');
       if (premiumGrid && !premiumGridObserver && typeof ResizeObserver === 'function') {
+        let lastWidth = 0;
         premiumGridObserver = new ResizeObserver(([entry]) => {
-          if (entry.contentRect.width && !entry.target.closest('.newanime-content-hide')) fitPremiumCard();
+          const w = Math.round(entry.contentRect.width);
+          if (w && Math.abs(w - lastWidth) > 1 && !entry.target.closest('.newanime-content-hide')) {
+            lastWidth = w;
+            fitPremiumCard();
+          }
         });
         premiumGridObserver.observe(premiumGrid);
       }
@@ -6874,13 +7279,7 @@
       }
       if (isPaidMember && epBlock) {
         epBlock.title = '付費會員限定';
-        if (!epBlock.querySelector('.ani-member-lock')) {
-          const lock = document.createElement('span');
-          lock.className = 'ani-member-lock';
-          lock.setAttribute('aria-label', '付費會員限定');
-          lock.innerHTML = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="10" height="7" rx="2"/><path d="M5 7V5a3 3 0 0 1 6 0v2m-3 3v1"/></svg>';
-          epBlock.prepend(lock);
-        }
+        prependMemberLock(epBlock);
       }
       const favBtn = area.querySelector('.btn-card-block');
       if (favBtn) {
@@ -7047,21 +7446,28 @@
       '#blockVideoInSeason .anime-btn-show-more:not([data-ani-show-more])',
     )) {
       showMoreBtn.dataset.aniShowMore = 'true';
+      const wrap = showMoreBtn.closest('.newanime-wrap');
+      const block = wrap?.querySelector('.newanime-block');
+      const toggleReleases = block ? seasonDisclosure(wrap, block, 'ani-expanded',
+        open => showMoreBtn.setAttribute('aria-expanded', String(open)), () => {
+          const extraAreas = [...wrap.querySelectorAll('.newanime-block > :is(.newanime-date-area, .premium-block):nth-of-type(n + 19)')];
+          requestAnimationFrame(() => {
+            fitPremiumCard();
+            for (const area of extraAreas) {
+              for (const title of area.querySelectorAll('.anime-name:not(:has(.ani-marquee-track))')) {
+                delete title.dataset.aniMarqueeInit;
+                if (releaseTitles) releaseTitles.observe(title);
+                else measureReleaseTitle(title);
+              }
+            }
+          });
+        }) : null;
       showMoreBtn.addEventListener('click', (event) => {
-        const wrap = showMoreBtn.closest('.newanime-wrap');
-        if (!wrap) return;
+        if (!toggleReleases) return;
         event.preventDefault();
         event.stopPropagation();
-        wrap.classList.toggle('ani-expanded');
-        // Visibility changes do not trigger the child-list observer. Measure
-        // newly revealed titles after layout, rather than while still hidden.
-        requestAnimationFrame(() => {
-          for (const title of wrap.querySelectorAll('.anime-name:not(:has(.ani-marquee-track))')) {
-            delete title.dataset.aniMarqueeInit;
-          }
-          enhanceSiteControls();
-        });
-      });
+        toggleReleases();
+      }, true);
     }
     for (const heading of document.querySelectorAll(
       '#BH_background :is(.theme-title, .theme-title-block > h1, .theme-title-block > h2, .theme-title-block > h3)',
@@ -7076,6 +7482,15 @@
           '<svg viewBox="0 0 512 512" fill="currentColor"><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg>';
         heading.prepend(iconSpan);
       }
+    }
+    const schedule = document.getElementById('blockVideoInSeason');
+    const scheduleNav = schedule?.querySelector('.newanime-nav');
+    const scheduleHint = schedule?.querySelector('.programlist-wrap > .programlist-hint');
+    if (scheduleNav && scheduleHint && !scheduleNav.querySelector('.ani-week-notice')) {
+      const notice = document.createElement('p');
+      notice.className = 'ani-week-notice';
+      notice.textContent = scheduleHint.textContent;
+      scheduleNav.append(notice);
     }
     for (const seg of document.querySelectorAll(
       '#blockVideoInSeason .nav-segment-control:not([data-ani-seg-icon])',
@@ -9623,6 +10038,17 @@
   // ── 三、設定儲存與觀影選單 ──
   let layoutChangeId = 0;
   function updateSettings(values) {
+    const enhancementOnlyKeys = new Set([
+      'episodeThumbnailGrid',
+      'episodeAutoGroup',
+      'showOffshelfAlert',
+      'spoilerBlurEnabled',
+      'spoilerBlurTags',
+      'spoilerBlurKeywords',
+    ]);
+    const needsContentSync = Object.entries(values).some(
+      ([key, value]) => value !== settings[key] && !enhancementOnlyKeys.has(key),
+    );
     const changingLayout =
       values.showDanmu !== settings.showDanmu ||
       values.focusMode !== settings.focusMode;
@@ -9633,9 +10059,11 @@
     const changeId = ++layoutChangeId;
     Object.assign(settings, values);
     cacheResolvedSettings();
-    applyPageTheme();
-    active?.applySettings();
-    active?.refresh();
+    if (needsContentSync) {
+      applyPageTheme();
+      active?.applySettings();
+      active?.refresh();
+    }
     syncSettingsPanel();
     // 保住剛按下的觀看工具位置，避免原站重新計算播放器後整頁突然滑動。
     if (
@@ -10963,7 +11391,7 @@
       notice.classList.toggle('ani-settings-save-notice', /^設定(?:已(?:儲存|保存)|(?:儲存|保存)成功)$/.test(text));
     }
   }
-  const preloadNoiseSelector = '#ani_video, .video-js, .ani-ambientlight-page-glow, .ani-home-dash, .ani-hero, .ani-home-intro, .sub_list, .ani-danmu-list-wrap, .ani-danmu-tools-bar';
+  const preloadNoiseSelector = '#ani_video, .video-js, .ani-ambientlight-page-glow, .ani-home-dash, .ani-hero, .ani-home-intro, .sub_list, .ani-danmu-list-wrap, .ani-danmu-tools-bar, .ani-episode-shelf, .season';
   const preloadNoticeObserver = new MutationObserver((records) => {
     const isWatch = location.pathname === '/animeVideo.php';
     let watchInfoDirty = false;
@@ -11024,7 +11452,23 @@
         record.target.nodeType === 1
           ? record.target
           : record.target.parentElement;
-      if (target?.closest('.ani-view-settings-panel, .ani-nav-more-menu, .ani-week-expand, .ani-date-cursor, .ani-home-dash, .ani-hero, .ani-home-intro, .ani-studio-panel')) return false;
+      if (target?.closest('.ani-view-settings-panel, .ani-nav-more-menu, .ani-week-expand, .ani-date-cursor, .ani-home-dash, .ani-hero, .ani-home-intro, .ani-studio-panel, .programlist-wrap')) return false;
+      if (target?.closest('.ani-episode-shelf, .season')) {
+        const isReorder =
+          target.matches('.season ul') &&
+          record.addedNodes.length === record.removedNodes.length &&
+          [...record.addedNodes, ...record.removedNodes].every((node) => node.nodeType === 1 && node.matches('li'));
+        const isEnhancementMutation =
+          isReorder ||
+          [...record.addedNodes, ...record.removedNodes].every(
+            (node) =>
+              node.nodeType !== 1 ||
+              node.matches(
+                '.ani-ep-order-row, .ani-ep-group-bar, .ani-ep-list-expand, .ani-episode-track-choices, .ani-episode-frame, .ani-episode-card-metadata, .ani-episode-card-description, .ani-episode-card-glow, .ani-episode-original-label, .ani-upcoming-episode',
+              ),
+          );
+        if (isEnhancementMutation) return false;
+      }
       if (!target?.closest('.video-js,.videoframe')) return true;
       return [...record.addedNodes, ...record.removedNodes].some(
         (node) =>

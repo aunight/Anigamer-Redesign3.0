@@ -50,7 +50,7 @@ test('catalog retains native actions, sorts loaded and late scores, and folds fi
   assert.equal(d.querySelectorAll('.ani-hover-outline').length,2,'shared card outlines initialize on the first render');
   assert.equal(d.querySelectorAll('.ani-filter-toggle').length, 1);
   assert.equal(d.querySelectorAll('.ani-filter-body .class-header svg').length, 4);
-  assert.equal(d.querySelector('.ani-poster-score').textContent, '★ 5.0');
+  assert.equal(d.querySelector('.ani-poster-score').textContent, '★ 5.00');
   assert(d.querySelector('.theme-list-main').href.endsWith('sn=2'));
   const [nativeOrder, ratingOrder] = d.querySelectorAll('.ani-rating-sort');
   nativeOrder.click();
@@ -87,11 +87,43 @@ test('catalog retains native actions, sorts loaded and late scores, and folds fi
   assert.equal(d.querySelectorAll('.theme-list-main').length,3,'infinite loading deduplicates existing works');
   assert(d.querySelector('.ani-load-more').hidden);
   const seasonal = d.querySelector('a[href$="sn=3"]');
-  w.fetch = async () => ({ok:true,text:async()=>`<div class="season"><ul>${Array.from({length:10},(_,i)=>`<li><a>${41+i}</a></li>`).join('')}</ul></div>`});
+  w.fetch = async () => ({ok:true,text:async()=>`<div class="season"><ul>${Array.from({length:10},(_,i)=>`<li><a>${50-i}</a></li>`).join('')}</ul><ul><li><a>99</a></li></ul></div>`});
   seasonal.querySelector('.theme-number').textContent = '共10集';
   seasonal.querySelector('.ani-watch-progress-badge').textContent = '看到第 50 話（最新第 50 話）';
   await new Promise(resolve=>setTimeout(resolve,1800));
   assert.equal(seasonal.querySelector('.theme-number').textContent,'10 / 10 集','cross-season episode labels map to this season instead of 50/10');
+  seasonal.querySelector('.ani-watch-progress-badge').textContent = '看到第 99 話';
+  await new Promise(resolve=>setTimeout(resolve,1800));
+  assert.equal(seasonal.querySelector('.theme-number').textContent,'— / 10 集','an unmatched episode number cannot imply completion');
+});
+
+test('catalog attributes accumulate across rapid clicks and reset together', async t => {
+  const group = (label, values) => `<section class="class_list"><div class="class-header"><h3>${label}</h3></div><ul>${values.map(value => `<li><a href="?tags=${value}">${value}</a></li>`).join('')}</ul></section>`;
+  const dom = new JSDOM(`<div id="BH_background"><div class="animate-theme-list"><div class="filter-section">${group('屬性', ['全部', '動作', '奇幻'])}${group('類型', ['全部', '電影'])}</div><div class="theme-list-block"></div></div></div>`, {
+    url: 'https://ani.gamer.com.tw/animeList.php', runScripts: 'outside-only', pretendToBeVisual: true,
+  });
+  const w = dom.window;
+  t.after(() => w.close());
+  w.matchMedia = () => ({ matches: false, addEventListener() {} });
+  w.fetch = async () => ({ ok: true, text: async () => '<div class="theme-list-block"></div>' });
+  for (const file of ['settings.js', 'content.js', 'enhancements.js']) w.eval(fs.readFileSync(`src/${file}`, 'utf8'));
+  w.AniEnhancements.initBrowseFilters();
+  const [all, action, fantasy] = w.document.querySelectorAll('.ani-attribute-filter a');
+  action.click();
+  fantasy.click();
+  await new Promise(resolve => setTimeout(resolve, 0));
+  const tags = () => new URL(w.location.href).searchParams.get('tags');
+  assert.deepEqual(tags().split(','), ['動作', '奇幻']);
+  assert.equal(action.getAttribute('aria-pressed'), 'true');
+  assert.equal(fantasy.getAttribute('aria-pressed'), 'true');
+  assert.equal(all.closest('.class_list').querySelector('.class-header span').textContent, '(2/5)');
+  action.click();
+  await new Promise(resolve => setTimeout(resolve, 0));
+  assert.equal(tags(), '奇幻');
+  all.click();
+  await new Promise(resolve => setTimeout(resolve, 0));
+  assert.equal(tags(), '全部');
+  assert.equal(all.getAttribute('aria-pressed'), 'true');
 });
 
 test('catalog dates filter all pages and combine year with broadcast season', async t => {

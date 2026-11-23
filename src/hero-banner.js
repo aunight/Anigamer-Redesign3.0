@@ -54,6 +54,12 @@
         ? [{ image: src, href: url.href, seen: Date.now() }] : [];
     });
   }
+  function synopsisOnly(description) {
+    return String(description || '')
+      .replace(/^(?:\s*※\s*(?:第[一二三四五六七八九十\d]+季|[上下]半季)\s*[：:]\s*第?\s*[\d?？]+(?:\s*[-－～~–—至]\s*[\d?？]+)?\s*[集話]\s*[（(][^（）()\r\n]*[）)]\s*)+/u, '')
+      .split(/[<＜〈【〔\[]\s*(?:製作團隊|STAFF|CAST|聲優陣容)\s*[>＞〉】〕\]]|[-─—]{2,}\s*(?:STAFF|CAST)\b/iu, 1)[0]
+      .trim();
+  }
   function metadata(doc) {
     let video;
     for (const script of doc.querySelectorAll('script[type="application/ld+json"]')) {
@@ -68,14 +74,21 @@
     const favoriteButton = doc.querySelector('.anime_name button[onclick*="toggleGather"], button[onclick*="animefun.toggleGather"]');
     const favoriteIds = favoriteButton?.getAttribute('onclick')?.match(/toggleGather\(\s*(\d+)\s*,\s*(\d+)/);
     const rawTitle = video?.name || doc.querySelector('.anime_name h1, .anime_name')?.textContent || doc.title;
+    const nativeSynopsis = [...doc.querySelectorAll('section.data .data-intro > p')].map(paragraph => {
+      const copy = paragraph.cloneNode(true);
+      for (const br of copy.querySelectorAll('br')) br.replaceWith(' ');
+      return copy.textContent.trim();
+    }).filter(Boolean).join(' ');
+    const previewSynopsis = String(video?.description || doc.querySelector('meta[name="description"]')?.content || '')
+      .replace(/^.*?線上看[!！]?\s*/, '');
     return {
       title: String(rawTitle || '').replace(/\s*\[\d+(?:\.\d+)?\].*$/, '').replace(/\s*線上看.*$/, '').trim(),
-      description: String(video?.description || doc.querySelector('meta[name="description"]')?.content || '').replace(/^.*?線上看[!！]?\s*/, '').trim(),
+      description: synopsisOnly(nativeSynopsis) || synopsisOnly(previewSynopsis),
       score: number && Number.isFinite(Number(number)) ? Number(number).toFixed(1) : null,
       views: Number.isFinite(Number(count)) && Number(count) > 0 ? Number(count) : null,
       episodes: episodes.length ? new Set(episodes).size : null,
       favorite: favoriteIds ? { acgSn: favoriteIds[1], animeSn: favoriteIds[2], saved: favoriteButton.classList.contains('ordered') } : null,
-      version: 2, updated: Date.now(),
+      version: 3, updated: Date.now(),
     };
   }
   const compact = n => n >= 1e4 ? `${(n / 1e4).toFixed(1)}萬` : n.toLocaleString('zh-TW');
@@ -144,8 +157,41 @@
     const images = root.querySelector('.ani-hero-images'), dots = root.querySelector('.ani-hero-dots');
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
     let index = -1, timer, paused = reduced, hover = false, focused = false, renderVersion = 0;
-    const objectUrls = new Map(), loadingMetadata = new Map();
+    const objectUrls = new Map(), decodedImages = new Map(), preloadingImages = new Map(), loadingMetadata = new Map();
     let indexInfo;
+    const preloadEntry = (entry) => {
+      if (!entry?.image || decodedImages.has(entry.image) || preloadingImages.has(entry.image)) return;
+      const task = (async () => {
+        let src = objectUrls.get(entry.image);
+        if (!src) {
+          try { src = await cachedImage(entry.image); objectUrls.set(entry.image, src); } catch {}
+        }
+        const pre = new Image();
+        pre.alt = '';
+        pre.src = src || entry.image;
+        try {
+          if (!(pre.complete && pre.naturalWidth > 0)) await pre.decode();
+          decodedImages.set(entry.image, pre);
+        } catch {}
+      })().finally(() => preloadingImages.delete(entry.image));
+      preloadingImages.set(entry.image, task);
+    };
+    const preloadNeighbors = (currentIndex) => {
+      if (entries.length < 2) return;
+      const nextIdx = (currentIndex + 1) % entries.length;
+      const prevIdx = (currentIndex - 1 + entries.length) % entries.length;
+      preloadEntry(entries[nextIdx]);
+      if (prevIdx !== nextIdx) preloadEntry(entries[prevIdx]);
+      if (entries.length > 3) {
+        const rest = () => {
+          for (let offset = 2; offset < entries.length - 1; offset++) {
+            preloadEntry(entries[(currentIndex + offset) % entries.length]);
+          }
+        };
+        if (typeof requestIdleCallback === 'function') requestIdleCallback(rest, { timeout: 2500 });
+        else setTimeout(rest, 400);
+      }
+    };
     const getIndexInfo = () => indexInfo ||= getHomeIndex().then(result => {
         const rows = [], visit = value => {
           if (Array.isArray(value)) value.forEach(visit);
@@ -162,6 +208,51 @@
         timer = setTimeout(() => show(index + 1), 7000);
     }
     syncState = schedule;
+    const titleHeading = root.querySelector('h2');
+    const descriptionNode = root.querySelector('.ani-hero-description');
+    let measuredSynopsis = '';
+    let synopsisWidth = 0;
+    const fitSynopsis = () => {
+      const source = descriptionNode.title;
+      const width = descriptionNode.clientWidth;
+      if (source === measuredSynopsis && width === synopsisWidth) return;
+      measuredSynopsis = source;
+      synopsisWidth = width;
+      const fits = text => {
+        descriptionNode.textContent = text;
+        return descriptionNode.scrollHeight <= descriptionNode.clientHeight + 1;
+      };
+      if (fits(source)) return;
+      const excerpt = value => value.trimEnd().replace(/[…，、；：,;:.]+$/u, '') + '...';
+      const characters = Array.from(source);
+      let low = 0;
+      let high = characters.length;
+      while (low < high) {
+        const middle = Math.ceil((low + high) / 2);
+        if (fits(excerpt(characters.slice(0, middle).join('')))) low = middle;
+        else high = middle - 1;
+      }
+      descriptionNode.textContent = excerpt(characters.slice(0, low).join(''));
+    };
+    const titleTrack = document.createElement('span');
+    titleTrack.className = 'ani-hero-title-track';
+    titleHeading.append(titleTrack);
+    const measureTitle = () => {
+      const overflow = titleTrack.scrollWidth - titleHeading.clientWidth;
+      titleHeading.classList.toggle('ani-hero-title-overflow', titleHeading.clientWidth > 0 && overflow > 1);
+      if (overflow > 1) {
+        titleTrack.style.setProperty('--ani-marquee-dist', `-${overflow}px`);
+        titleTrack.style.setProperty('--ani-marquee-dur', `${Math.max(5, Math.min(11, 3 + overflow / 28))}s`);
+      }
+    };
+    if (typeof ResizeObserver === 'function') {
+      const titleObserver = new ResizeObserver(measureTitle);
+      titleObserver.observe(titleHeading);
+      titleObserver.observe(titleTrack);
+      const synopsisObserver = new ResizeObserver(fitSynopsis);
+      synopsisObserver.observe(descriptionNode);
+    }
+    document.fonts?.ready.then(() => { synopsisWidth = 0; fitSynopsis(); });
     function renderDots() {
       if (dots.children.length === entries.length) return;
       dots.replaceChildren();
@@ -170,11 +261,14 @@
     }
     function renderInfo(entry) {
       const info = entry.meta;
-      root.querySelector('h2').textContent = info?.title || '精選動畫';
-      root.querySelector('h2').title = info?.title || '精選動畫';
-      const description = info?.description || '';
-      root.querySelector('.ani-hero-description').textContent = description.length > 180 ? description.slice(0, 180).trimEnd() + '...' : description;
-      root.querySelector('.ani-hero-description').title = description;
+      const title = info?.title || '精選動畫';
+      if (titleTrack.textContent !== title) {
+        titleTrack.textContent = title;
+        titleTrack.getAnimations?.().forEach(animation => { animation.currentTime = 0; });
+      }
+      titleHeading.title = title;
+      const description = synopsisOnly(info?.description);
+      descriptionNode.title = description;
       const stats = root.querySelector('.ani-hero-stats'); stats.replaceChildren();
       const icons = {
         score: '<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/>',
@@ -200,9 +294,11 @@
         root.querySelector('.ani-hero-heading').append(favorite);
       }
       root.querySelector('.ani-hero-watch').href = entry.href;
+      measureTitle();
+      fitSynopsis();
     }
     async function loadMeta(entry) {
-      if (entry.meta?.version === 2 && entry.meta?.updated > Date.now() - TTL || loadingMetadata.has(entry.href)) return;
+      if (entry.meta?.version === 3 && entry.meta?.updated > Date.now() - TTL || loadingMetadata.has(entry.href)) return;
       const promise = aniFetch(entry.href, { credentials: 'same-origin', signal: AbortSignal.timeout(10000) }).then(r => { if (!r.ok) throw new Error('metadata'); return r.text(); })
         .then(async html => {
           entry.meta = metadata(new DOMParser().parseFromString(html, 'text/html'));
@@ -216,12 +312,51 @@
         }).catch(() => {}).finally(() => loadingMetadata.delete(entry.href));
       loadingMetadata.set(entry.href, promise); await promise;
     }
+    let cleanupTimer;
+    function commitImage(entry, img, firstPaint, panelAnimated) {
+      host.style.setProperty('--ani-hero-cover', 'url(' + JSON.stringify(img.src) + ')');
+      clearTimeout(cleanupTimer);
+      const previous = [...images.children];
+      const ambient = img.cloneNode(); ambient.className = 'ani-hero-ambient';
+      images.append(ambient, img);
+      host.classList.remove('ani-hero-pending');
+      host.classList.toggle('ani-hero-enabled', enabledPreview);
+      const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
+      if (!reduced) {
+        if (!panelAnimated) {
+          root.querySelector('.ani-hero-panel')?.animate?.(
+            [{ opacity: 0.45, transform: 'translateY(8px)' }, { opacity: 1, transform: 'translateY(0)' }],
+            { duration: 260, easing: ease, fill: 'both' },
+          );
+        }
+        previous.forEach(n => n.animate?.([{ opacity: 1 }, { opacity: 0 }], { duration: 260, easing: ease, fill: 'both' }));
+        if (!firstPaint) {
+          ambient.animate?.([{ opacity: 0 }, { opacity: 1 }], { duration: 260, easing: ease, fill: 'both' });
+          img.animate?.([{ opacity: 0 }, { opacity: 1 }], { duration: 260, easing: ease, fill: 'both' });
+        }
+      }
+      cleanupTimer = setTimeout(() => previous.forEach(n => n.remove()), 280);
+      loadMeta(entry); schedule();
+      setTimeout(() => preloadNeighbors(index), firstPaint ? 180 : 0);
+    }
     async function show(next) {
       if (!entries.length) return;
       index = (next + entries.length) % entries.length; const entry = entries[index], version = ++renderVersion;
       renderDots(); renderInfo(entry); [...dots.children].forEach((b, i) => b.setAttribute('aria-current', String(i === index)));
-      if (!reduced) root.querySelector('.ani-hero-panel')?.animate?.([{ opacity: 0.45, transform: 'translateY(8px)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 320, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'both' });
       const firstPaint = !images.children.length;
+      const readyImg = decodedImages.get(entry.image);
+      if (readyImg) {
+        const img = readyImg.cloneNode();
+        img.alt = '';
+        commitImage(entry, img, firstPaint, false);
+        return;
+      }
+      if (!reduced && firstPaint) {
+        root.querySelector('.ani-hero-panel')?.animate?.(
+          [{ opacity: 0.45, transform: 'translateY(8px)' }, { opacity: 1, transform: 'translateY(0)' }],
+          { duration: 260, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'both' },
+        );
+      }
       const img = new Image();
       img.alt = '';
       if (firstPaint) img.fetchPriority = 'high';
@@ -243,6 +378,7 @@
             await img.decode();
           }
         }
+        decodedImages.set(entry.image, img.cloneNode());
       } catch {
         if (version === renderVersion) {
           host.classList.remove('ani-hero-pending');
@@ -251,19 +387,7 @@
         return;
       }
       if (version !== renderVersion) return;
-      host.style.setProperty('--ani-hero-cover', 'url(' + JSON.stringify(img.src) + ')');
-      const previous = [...images.children];
-      const ambient = img.cloneNode(); ambient.className = 'ani-hero-ambient';
-      images.append(ambient, img);
-      host.classList.remove('ani-hero-pending');
-      host.classList.toggle('ani-hero-enabled', enabledPreview);
-      if (!reduced) previous.forEach(n => n.animate?.([{ opacity: 1 }, { opacity: 0 }], { duration: 450, fill: 'both' }));
-      if (!firstPaint && !reduced) {
-        ambient.animate?.([{ opacity: 0 }, { opacity: 1 }], { duration: 450, fill: 'both' });
-        img.animate?.([{ opacity: 0 }, { opacity: 1 }], { duration: 450, fill: 'both' });
-      }
-      setTimeout(() => previous.forEach(n => n.remove()), 500);
-      loadMeta(entry); schedule();
+      commitImage(entry, img, firstPaint, firstPaint);
     }
     root.addEventListener('mouseenter', () => { hover = true; schedule(); }); root.addEventListener('mouseleave', () => { hover = false; schedule(); });
     root.addEventListener('focusin', () => { focused = true; schedule(); }); root.addEventListener('focusout', e => { if (!root.contains(e.relatedTarget)) { focused = false; schedule(); } });

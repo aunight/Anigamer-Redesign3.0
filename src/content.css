@@ -595,7 +595,7 @@ body.ani-ambientlight-page #blockVideoInSeason .newanime-nav {
   width: 100% !important;
   padding: 0 8px !important;
   box-sizing: border-box !important;
-  margin-bottom: 22px !important;
+  margin-bottom: 12px !important;
 }
 body.ani-ambientlight-page #blockVideoInSeason .newanime-nav .filter-nav {
   margin-left: auto !important;
@@ -655,6 +655,7 @@ body.ani-ambientlight-page #blockVideoInSeason .nav-segment-control .ani-segment
 }
 body.ani-ambientlight-ui #blockVideoInSeason .nav-segment-control {
   color: var(--ani-muted) !important;
+  transition: color 120ms ease-out !important;
 }
 body.ani-ambientlight-page #blockVideoInSeason .segment-hover-line {
   display: none !important;
@@ -668,6 +669,9 @@ body.ani-ambientlight-ui #blockVideoInSeason .nav-choose-segment .ani-segment-ba
 body.ani-ambientlight-ui #blockVideoInSeason .nav-segment-control p {
   color: inherit !important;
   margin: 0 !important;
+}
+body.ani-ambientlight-ui #blockVideoInSeason .nav-segment-control :is(p, .ani-segment-icon, svg) {
+  transition: none !important;
 }
 body.ani-ambientlight-page #blockVideoInSeason .btn-newanime-filter .filter-items {
   opacity: 0 !important;
@@ -823,6 +827,8 @@ body.ani-ambientlight-page #blockVideoInSeason .newanime-date-area {
   float: none !important;
   position: relative !important;
   border: 0 !important;
+  /* Let boundary markers paint above the next column's timeline segment. */
+  contain: style;
 }
 body.ani-ambientlight-ui #blockVideoInSeason .newanime-date-area {
   background: transparent !important;
@@ -5607,8 +5613,8 @@ body.ani-ambientlight-ui #BH_background #blockVideoInSeason .newanime-date-area.
   color: #fff !important;
 }
 
-body.ani-ambientlight-ui #blockVideoInSeason .anime-episode .ani-member-lock,
-body.ani-ambientlight-ui #blockVideoInSeason .anime-episode .ani-member-lock svg {
+body.ani-ambientlight-ui :is(.anime-episode, .theme-number) > .ani-member-lock,
+body.ani-ambientlight-ui :is(.anime-episode, .theme-number) > .ani-member-lock svg {
   display: inline-flex;
   width: 12px !important;
   height: 12px !important;
@@ -6630,6 +6636,11 @@ body.ani-ambientlight-page #BH_background .ani-poster-rail::after {
 
 /* Publisher channels share the same frosted surfaces and carousel controls. */
 body.ani-ambientlight-ui #BH_background #blockAnimePublisherChannel .trademark-logo {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: auto !important;
+  aspect-ratio: 1;
   background: radial-gradient(ellipse at 30% 15%, #8badc52b, transparent 65%), linear-gradient(145deg, #253b4c99, #172332b3) !important;
   border: 1px solid #c4e1f52e !important;
   box-shadow: inset 0 1px 0 #ffffff24, 0 4px 16px #0002;
@@ -6637,6 +6648,26 @@ body.ani-ambientlight-ui #BH_background #blockAnimePublisherChannel .trademark-l
   -webkit-backdrop-filter: blur(16px) saturate(140%);
   box-sizing: border-box;
   transition: border-color .2s ease, background-color .2s ease;
+}
+body.ani-ambientlight-ui #BH_background #blockAnimePublisherChannel .trademark-logo > img {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain;
+  opacity: 0;
+}
+body.ani-ambientlight-ui #BH_background #blockAnimePublisherChannel .trademark-logo > img[data-ani-channel-logo='ready'] {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: no-preference) {
+  body.ani-ambientlight-ui #BH_background #blockAnimePublisherChannel .trademark-logo > img[data-ani-channel-logo='ready'] {
+    animation: aniChannelLogoIn 240ms ease-out;
+  }
+  @keyframes aniChannelLogoIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
 }
 body.ani-ambientlight-ui #BH_background #blockAnimePublisherChannel .trademark-logo:hover {
   border-color: var(--ani-accent, #3dafb6) !important;
