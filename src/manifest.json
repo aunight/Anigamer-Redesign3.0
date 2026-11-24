@@ -134,7 +134,7 @@
       "run_at": "document_end"
     }
   ],
-  "version_name": "3.3.0",
+  "version_name": "3.4.0",
   "background": {
     "service_worker": "hero-cache-worker.js"
   },
