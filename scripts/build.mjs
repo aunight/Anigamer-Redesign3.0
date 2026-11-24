@@ -138,8 +138,8 @@ const metadata = `// ==UserScript==
 // @description  動畫瘋環境光與沉浸重製介面：毛玻璃播放器、開場液態波紋、首頁足跡熱力圖＆天氣實況（靈感改作自 Hinataragi/anigamer-ambilight、jiuyang5354/bilibili-margin 與 GreatUI）。非官方。
 // @homepageURL  https://github.com/aunight/Anigamer-Redesign3.0
 // @supportURL   https://github.com/aunight/Anigamer-Redesign3.0/issues
-// @downloadURL  https://github.com/aunight/Anigamer-Redesign3.0/releases/latest/download/anigamer-redesign3.0.user.js
-// @updateURL    https://github.com/aunight/Anigamer-Redesign3.0/releases/latest/download/anigamer-redesign3.0.user.js
+// @downloadURL  https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/userscript/ani-ambilight.user.js
+// @updateURL    https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/userscript/ani-ambilight.meta.js
 // @license      MIT
 // @match        https://ani.gamer.com.tw/*
 // @run-at       document-start
@@ -185,7 +185,7 @@ const userscriptCore = core.replace(studioCatalog, userscriptStudioCatalog).repl
 const legacyGuard = `const reserve=()=>{if(!document.documentElement)return false;const marker=document.createElement('meta');marker.name='anigamer-ambilight-userscript';marker.dataset.aniPreview='installed';marker.dataset.aniV1='installed';document.documentElement.append(marker);return true;};if(!reserve()){const observer=new MutationObserver(()=>{if(reserve())observer.disconnect();});observer.observe(document,{childList:true,subtree:true});}`;
 const bundled =
   metadata +
-  `\n/* Inspired by WesselKroos/youtube-ambilight and iceorange-dev/bilibili-ambilight.\nhttps://github.com/WesselKroos/youtube-ambilight\nhttps://github.com/iceorange-dev/bilibili-ambilight\n${license}\n*/\n(()=>{\n'use strict';\n// 一、避免與舊版開發預覽重複執行\n${legacyGuard}\nGM_addStyle(${JSON.stringify(entryCss)});\n${entryScript}\nconst start=()=>{\n// 二、使用者設定儲存\n${bridge}\n// 三、主題與設定介面樣式\nconst resourceChanges=${JSON.stringify(resourceChanges)};\nconst readResource=(name)=>{\n  const text=GM_getResourceText(name);\n  const changes=resourceChanges[name];\n  if(!changes)return text;\n  const lines=text.replaceAll('\\r\\n','\\n').split('\\n');\n  for(const [start,count,added] of changes)lines.splice(start,count,...added);\n  return lines.join('\\n');\n};\nGM_addStyle(['ani_content_css','ani_effects_css','ani_settings_css','ani_hero_css','ani_dashboard_css','ani_repairs_css'].map(readResource).join('\\n') + '\\n' + ${styleLiteral});\n// 四、設定定義與表單\n${settingsModule}\n// 五、黑條辨識\n${blackBars}\n// 六、光暈渲染\n${renderer}\n// 七、頁面整合與生命週期\n${userscriptCore.replaceAll('__ANI_MEMBERSHIP_BACKGROUND__',membershipBackground)}\nGM_registerMenuCommand('設定',()=>document.querySelector('.ani-view-settings')?.click());\n};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();\n})();\n`;
+  `\n/* Inspired by WesselKroos/youtube-ambilight and iceorange-dev/bilibili-ambilight.\nhttps://github.com/WesselKroos/youtube-ambilight\nhttps://github.com/iceorange-dev/bilibili-ambilight\n${license}\n*/\n(()=>{\n'use strict';\n// 一、避免與舊版開發預覽重複執行\n${legacyGuard}\nGM_addStyle(${JSON.stringify(entryCss)});\n${entryScript}\n// 三、主題與設定介面樣式（於 document-start 預先注入以消除切換閃爍）\nconst resourceChanges=${JSON.stringify(resourceChanges)};\nconst readResource=(name)=>{\n  const text=GM_getResourceText(name)||'';\n  const changes=resourceChanges[name];\n  if(!changes)return text;\n  const lines=text.replaceAll('\\r\\n','\\n').split('\\n');\n  for(const [start,count,added] of changes)lines.splice(start,count,...added);\n  return lines.join('\\n');\n};\nGM_addStyle(['ani_content_css','ani_effects_css','ani_settings_css','ani_hero_css','ani_dashboard_css','ani_repairs_css'].map(readResource).join('\\n') + '\\n' + ${styleLiteral});\nconst start=()=>{\n// 二、使用者設定儲存\n${bridge}\n// 四、設定定義與表單\n${settingsModule}\n// 五、黑條辨識\n${blackBars}\n// 六、光暈渲染\n${renderer}\n// 七、頁面整合與生命週期\n${userscriptCore.replaceAll('__ANI_MEMBERSHIP_BACKGROUND__',membershipBackground)}\nGM_registerMenuCommand('設定',()=>document.querySelector('.ani-view-settings')?.click());\n};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();\n})();\n`;
 const formattedUserscript = await format(bundled, {
     parser: 'babel',
     singleQuote: true,
@@ -195,6 +195,7 @@ if (Buffer.byteLength(formattedUserscript, 'utf8') > 2_000_000) {
   throw new Error('Userscript exceeds Greasy Fork’s 2 MB limit.');
 }
 fs.writeFileSync(path.join(out, 'ani-ambilight.user.js'), formattedUserscript);
+fs.writeFileSync(path.join(out, 'ani-ambilight.meta.js'), metadata);
 
 const extension = path.join(out, 'extension');
 fs.mkdirSync(extension, { recursive: true });

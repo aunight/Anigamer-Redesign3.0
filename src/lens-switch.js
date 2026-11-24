@@ -212,11 +212,24 @@
       shown: initOn,
     };
 
+    let hovering = false;
+    let running = false;
+    let rafId = 0;
+    let isSettled = false;
+    const wake = () => {
+      if (!running && wrap.isConnected) {
+        running = true;
+        s.last = null;
+        rafId = requestAnimationFrame(loop);
+      }
+    };
+
     const setOn = (nextOn, silent = false) => {
       const target = nextOn ? 1 : 0;
       if (s.on === target) return;
       s.on = target;
       stage.setAttribute('aria-checked', target ? 'true' : 'false');
+      wake();
       if (!silent && typeof onToggle === 'function') onToggle(target === 1);
     };
 
@@ -235,15 +248,23 @@
         setOn(s.on ? 0 : 1, false);
       }
     });
+    wrap.addEventListener('pointerenter', () => {
+      hovering = true;
+      wake();
+    });
     wrap.addEventListener('pointermove', (e) => {
+      hovering = true;
       const r = stage.getBoundingClientRect();
       if (!r.width || !r.height) return;
       s.tmx = clamp((e.clientX - r.left) / r.width, 0, 1) * 2 - 1;
       s.tmy = clamp((e.clientY - r.top) / r.height, 0, 1) * 2 - 1;
+      wake();
     });
     wrap.addEventListener('pointerleave', () => {
+      hovering = false;
       s.tmx = 0;
       s.tmy = 0;
+      wake();
     });
 
     const widths = new WeakMap();
@@ -255,6 +276,7 @@
         } else widths.set(entry.target, entry.contentRect.width);
       }
       pixelsDirty = true;
+      wake();
     });
     if (sizes) {
       sizes.observe(member);
@@ -286,7 +308,6 @@
     }
 
     let checked = -1;
-    let rafId = 0;
     let settledFrameDrawn = false;
 
     function draw(f) {
@@ -368,11 +389,15 @@
       }
     }
 
-    const loop = (nowMs) => {
-      if (!wrap.isConnected) return;
+    function loop(nowMs) {
+      if (!wrap.isConnected) {
+        running = false;
+        rafId = 0;
+        return;
+      }
       const t = nowMs / 1000;
       const reduced = query.matches;
-      const dt = s.last === null ? 1 / 60 : Math.min(MAX_DT, t - s.last);
+      const rawDt = s.last === null ? 1 / 60 : Math.max(0, t - s.last);
       s.last = t;
 
       if (s.on !== s.shown) {
@@ -389,49 +414,106 @@
         s.tmx = 0;
         s.tmy = 0;
       } else {
-        s.spin += (RIM_K * (s.rimTarget - s.angle) - RIM_C * s.spin) * dt;
-        s.angle += s.spin * dt;
-        const a = SPRING_K * (s.on - s.pos) - SPRING_C * s.vel;
-        s.vel += a * dt;
-        s.pos += s.vel * dt;
+        const stepTotal = Math.min(0.5, rawDt);
+        const subSteps = Math.max(1, Math.ceil(stepTotal / 0.025));
+        const h = stepTotal / subSteps;
+        for (let i = 0; i < subSteps; i++) {
+          s.spin += (RIM_K * (s.rimTarget - s.angle) - RIM_C * s.spin) * h;
+          s.angle += s.spin * h;
+          const a = SPRING_K * (s.on - s.pos) - SPRING_C * s.vel;
+          s.vel += a * h;
+          s.pos += s.vel * h;
+        }
       }
-      s.glow += ((s.on ? 1 : 0) - s.glow) * Math.min(1, dt * (s.on ? WARM_RATE : COOL_RATE));
+      s.glow += ((s.on ? 1 : 0) - s.glow) * (1 - Math.exp(-rawDt * (s.on ? WARM_RATE : COOL_RATE)));
       const fl = reduced
         ? s.glow
         : s.glow * (1 - FLICKER * Math.max(0, Math.sin(t * FLICKER_SPEED)) * Math.max(0, 1 - s.glow * FLICKER_END));
 
-      s.mx += (s.tmx - s.mx) * Math.min(1, dt * FOLLOW_RATE);
-      s.my += (s.tmy - s.my) * Math.min(1, dt * FOLLOW_RATE);
+      const follow = 1 - Math.exp(-rawDt * FOLLOW_RATE);
+      s.mx += (s.tmx - s.mx) * follow;
+      s.my += (s.tmy - s.my) * follow;
       const ix = reduced ? s.mx : s.mx + Math.sin(t * SWAY_X_SPEED) * SWAY_X;
       const iy = reduced ? s.my : s.my + Math.cos(t * SWAY_Y_SPEED) * SWAY_Y;
       const kx = lerp(KNOB_X_OFF, KNOB_X_ON, s.pos);
       const kc = kx - TRACK_X + KNOB_D / 2;
       const sq = clamp(Math.abs(s.vel) / SQUASH_SPEED, 0, SQUASH_MAX);
 
-      const settled = Math.abs(s.pos - s.on) < 0.0001 && Math.abs(s.vel) < 0.001
-        && Math.abs(s.angle - s.rimTarget) < 0.001 && Math.abs(s.spin) < 0.001
-        && Math.abs(fl - s.on) < 0.0001 && t > s.morph.start + MORPH + MORPH_STAGGER;
-      if (!document.hidden) {
-        if (!settled || !settledFrameDrawn || pixelsDirty) {
-          draw({ on: s.on, pos: s.pos, fl, kx, kc, sq, angle: s.angle, dots: sample(s.morph, t, reduced), ix, iy });
-          settledFrameDrawn = settled;
-          pixelsDirty = false;
-        } else {
-          // Only the lens reflection sways once the glyph and rim have settled.
-          wrap.style.setProperty('--ix', String(ix));
-          wrap.style.setProperty('--iy', String(iy));
-        }
+      const settled = Math.abs(s.pos - s.on) < 0.002 && Math.abs(s.vel) < 0.01
+        && Math.abs(s.angle - s.rimTarget) < 0.1 && Math.abs(s.spin) < 0.1
+        && Math.abs(fl - s.on) < 0.015 && t > s.morph.start + MORPH + MORPH_STAGGER;
+      isSettled = settled;
+      let drawFl = fl;
+      let drawKx = kx;
+      let drawKc = kc;
+      let drawSq = sq;
+      if (settled) {
+        s.pos = s.on;
+        s.vel = 0;
+        s.angle = s.rimTarget;
+        s.spin = 0;
+        s.glow = s.on;
+        drawFl = s.on;
+        drawKx = lerp(KNOB_X_OFF, KNOB_X_ON, s.on);
+        drawKc = drawKx - TRACK_X + KNOB_D / 2;
+        drawSq = 0;
       }
+      if (document.hidden) {
+        if (settled && !hovering) {
+          running = false;
+          rafId = 0;
+          return;
+        }
+        rafId = requestAnimationFrame(loop);
+        return;
+      }
+      if (!settled || !settledFrameDrawn || pixelsDirty) {
+        const resting = settled && !hovering && Math.abs(s.mx) < 0.01 && Math.abs(s.my) < 0.01;
+        if (resting) {
+          s.mx = 0;
+          s.my = 0;
+        }
+        draw({ on: s.on, pos: s.pos, fl: drawFl, kx: drawKx, kc: drawKc, sq: drawSq, angle: s.angle, dots: sample(s.morph, t, reduced), ix: resting ? 0 : ix, iy: resting ? 0 : iy });
+        settledFrameDrawn = settled;
+        pixelsDirty = false;
+        if (resting) {
+          running = false;
+          rafId = 0;
+          return;
+        }
+        rafId = requestAnimationFrame(loop);
+        return;
+      }
+      if (!hovering && Math.abs(s.mx) < 0.01 && Math.abs(s.my) < 0.01) {
+        s.mx = 0;
+        s.my = 0;
+        wrap.style.setProperty('--ix', '0');
+        wrap.style.setProperty('--iy', '0');
+        running = false;
+        rafId = 0;
+        return;
+      }
+      // Only the lens reflection sways once the glyph and rim have settled while hovered.
+      wrap.style.setProperty('--ix', String(ix));
+      wrap.style.setProperty('--iy', String(iy));
       rafId = requestAnimationFrame(loop);
-    };
+    }
 
-    rafId = requestAnimationFrame(loop);
+    const onVisibilityChange = () => {
+      if (!document.hidden && (!isSettled || pixelsDirty)) wake();
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    wake();
     mounted = {
       wrap,
       setOn,
       destroy() {
+        document.removeEventListener('visibilitychange', onVisibilityChange);
         if (sizes) sizes.disconnect();
         cancelAnimationFrame(rafId);
+        running = false;
+        rafId = 0;
         wrap.remove();
         if (mounted?.wrap === wrap) mounted = null;
       },

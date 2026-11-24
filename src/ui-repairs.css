@@ -9239,6 +9239,7 @@ body.ani-ambientlight-ui .top_sky .user-setting-toolbox > :not(.ani-btn-glass) {
   z-index: 60 !important;
   pointer-events: auto !important;
   user-select: none;
+  contain: layout style;
 }
 .ani-lens-theme-wrap .stage {
   position: relative;
@@ -12706,4 +12707,11 @@ body.ani-ambientlight-ui #BH_background .theme-list-block > .ani-browse-empty-me
   white-space: nowrap !important;
   line-height: 1.6 !important;
   font-size: clamp(11px, 3vw, 18px);
+}
+/* Suppress all CSS transitions during dark/light mode flips so 1,100+ elements do not repaint simultaneously. */
+html.ani-theme-switching:not(#_a#_b#_c#_d),
+html.ani-theme-switching:not(#_a#_b#_c#_d) *,
+html.ani-theme-switching:not(#_a#_b#_c#_d) *::before,
+html.ani-theme-switching:not(#_a#_b#_c#_d) *::after {
+  transition: none !important;
 }

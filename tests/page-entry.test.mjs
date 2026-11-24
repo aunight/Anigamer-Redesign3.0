@@ -169,6 +169,7 @@ test('reload shows the full opening until the themed UI is ready even on an inte
 test('a missing readiness event cannot keep the opening overlay indefinitely', t => {
   const { w, fire } = createPage(t);
   w.eval(entry);
+  w.document.dispatchEvent(new w.Event('DOMContentLoaded'));
   fire(250);
   assert(!w.document.documentElement.dataset.aniBooting);
   assert(w.document.querySelector('.ani-intro-reveal'));
@@ -226,4 +227,30 @@ test('navigation to the homepage plays the opening again after a cached return',
   assert(intro().classList.contains('ani-intro-reveal'));
   fire(220);
   assert.equal(intro(), null);
+});
+
+test('light mode hint applies ani-light-mode at document_start and refreshes on cached return', t => {
+  const { w } = createPage(t, { path: '/animeList.php', referrer: 'https://ani.gamer.com.tw/' });
+  w.localStorage.setItem('aniLightMode', '1');
+  w.eval(entry);
+  assert.equal(w.document.documentElement.classList.contains('ani-light-mode'), true);
+  w.localStorage.setItem('aniLightMode', '0');
+  w.dispatchEvent(new w.PageTransitionEvent('pageshow', { persisted: true }));
+  assert.equal(w.document.documentElement.classList.contains('ani-light-mode'), false);
+});
+
+test('homepage loading waits for DOMContentLoaded before starting its fallback reveal timer', t => {
+  const { w, timers, fire } = createPage(t);
+  let state = 'loading';
+  Object.defineProperty(w.document, 'readyState', { configurable: true, get: () => state });
+  w.eval(entry);
+  assert.equal(w.document.documentElement.dataset.aniBooting, 'true');
+  assert.equal([...timers.values()].some(timer => timer.delay === 250), false);
+  assert.equal([...timers.values()].some(timer => timer.delay === 5000), true);
+  state = 'interactive';
+  w.document.dispatchEvent(new w.Event('DOMContentLoaded'));
+  assert.equal([...timers.values()].some(timer => timer.delay === 250), true);
+  fire(250);
+  assert(!w.document.documentElement.dataset.aniBooting);
+  assert(w.document.querySelector('.ani-intro-reveal'));
 });

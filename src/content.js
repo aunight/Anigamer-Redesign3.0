@@ -526,6 +526,65 @@
     document.body?.classList.toggle('ani-custom-font', Boolean(font));
   }
 
+  let themeSwitchTimer = 0;
+  let themeSwitchRaf = 0;
+  function withThemeTransitionSuppression(fn) {
+    const root = document.documentElement;
+    root.classList.add('ani-theme-switching');
+    try {
+      fn();
+    } finally {
+      clearTimeout(themeSwitchTimer);
+      if (themeSwitchRaf && typeof cancelAnimationFrame === 'function') cancelAnimationFrame(themeSwitchRaf);
+      themeSwitchTimer = 0;
+      themeSwitchRaf = 0;
+      const scheduleClear = () => {
+        themeSwitchTimer = setTimeout(() => {
+          themeSwitchTimer = 0;
+          root.classList.remove('ani-theme-switching');
+        }, 80);
+      };
+      if (typeof requestAnimationFrame === 'function') {
+        themeSwitchRaf = requestAnimationFrame(() => {
+          themeSwitchRaf = requestAnimationFrame(() => {
+            themeSwitchRaf = 0;
+            scheduleClear();
+          });
+        });
+      } else {
+        scheduleClear();
+      }
+    }
+  }
+  function readSavedLightMode() {
+    try { return localStorage.getItem('aniLightMode') === '1'; } catch { return false; }
+  }
+  function applyLightMode(isLight, { persist = false, syncSwitch = false } = {}) {
+    const target = Boolean(isLight);
+    const changed = document.documentElement.classList.contains('ani-light-mode') !== target
+      || (document.body ? document.body.classList.contains('ani-light-mode') !== target : false);
+    if (changed) {
+      withThemeTransitionSuppression(() => {
+        document.documentElement.classList.toggle('ani-light-mode', target);
+        document.body?.classList.toggle('ani-light-mode', target);
+      });
+    }
+    if (persist) {
+      try { localStorage.setItem('aniLightMode', target ? '1' : '0'); } catch {}
+    }
+    if (syncSwitch && globalThis.AniLensSwitch && document.querySelector('.ani-lens-theme-wrap')) {
+      globalThis.AniLensSwitch.mount({ initialLight: target });
+    }
+  }
+  if (typeof window !== 'undefined' && window.addEventListener) {
+    window.addEventListener('pageshow', (event) => {
+      if (event.persisted) applyLightMode(readSavedLightMode(), { syncSwitch: true });
+    });
+    window.addEventListener('storage', (event) => {
+      if (event.key === 'aniLightMode') applyLightMode(event.newValue === '1', { syncSwitch: true });
+    });
+  }
+
   function applyPageTheme() {
     // This theme owns both light and dark palettes. A second automatic
     // recoloring pass turns translucent white rims into dark opaque fills.
@@ -552,6 +611,7 @@
       const image = settings.pageBackgroundImage;
       document.body.style.setProperty('--ani-background-image', typeof image === 'string' && image.startsWith('https://') ? `url(${JSON.stringify(image)})` : 'none');
     }
+    applyLightMode(readSavedLightMode());
     document.body?.classList.toggle(
       'ani-controls-transparent',
       settings.controlStyle === 'transparent',
@@ -649,11 +709,12 @@
     document.body?.classList.toggle('ani-hide-episode-description', !settings.showEpisodeDescription);
     if (!settings.showInfo && document.querySelector('.subtitle .ani-tabs-link.is-active[href="#ani-tab-content-intro"]'))
       document.querySelector('.subtitle .ani-tabs-link[href="#ani-tab-content-1"]')?.click();
-    document.body?.classList.toggle(
-      'ani-theme-light',
+    const nextThemeLight =
       settings.appearance === 'light' ||
-        (settings.appearance === 'system' && systemAppearance.matches),
-    );
+      (settings.appearance === 'system' && systemAppearance.matches);
+    if (document.body && document.body.classList.contains('ani-theme-light') !== nextThemeLight) {
+      withThemeTransitionSuppression(() => document.body.classList.toggle('ani-theme-light', nextThemeLight));
+    }
     for (const key of [
       'headerOpacity',
       'headerTint',
@@ -7001,16 +7062,12 @@
       if (!document.querySelector('#BH_background .ani-home-dash')) globalThis.AniHomeDashboard?.mount(settings);
     }
     if (globalThis.AniLensSwitch) {
-      let savedLight = false;
-      try { savedLight = localStorage.getItem('aniLightMode') === '1'; } catch {}
-      document.documentElement.classList.toggle('ani-light-mode', savedLight);
-      document.body?.classList.toggle('ani-light-mode', savedLight);
+      const savedLight = readSavedLightMode();
+      applyLightMode(savedLight);
       globalThis.AniLensSwitch.mount({
         initialLight: savedLight,
         onToggle: (isLight) => {
-          document.documentElement.classList.toggle('ani-light-mode', isLight);
-          document.body?.classList.toggle('ani-light-mode', isLight);
-          try { localStorage.setItem('aniLightMode', isLight ? '1' : '0'); } catch {}
+          applyLightMode(isLight, { persist: true });
         },
       });
     }

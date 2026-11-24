@@ -38,9 +38,10 @@ jobs:
         run: |
           mkdir release
           cp dist/ani-ambilight.user.js release/anigamer-redesign3.0.user.js
+          cp dist/ani-ambilight.meta.js release/anigamer-redesign3.0.meta.js
           (cd dist/extension && zip -qr ../../release/anigamer-redesign3.0-chromium.zip .)
           (cd dist/extension-firefox && zip -qr ../../release/anigamer-redesign3.0-firefox.zip .)
-          (cd release && sha256sum *.user.js *.zip > SHA256SUMS.txt)
+          (cd release && sha256sum *.user.js *.meta.js *.zip > SHA256SUMS.txt)
       - uses: actions/upload-artifact@v4
         with:
           name: release-assets

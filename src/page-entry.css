@@ -1,5 +1,6 @@
 html[data-ani-booting='true'] { background:#111c2b !important;overflow:hidden !important; }
 html[data-ani-booting='true'] > body { opacity: 0 !important; }
+html.ani-light-mode[data-ani-booting='true'] { background:#eaf1f8 !important; }
 @media (prefers-reduced-motion: no-preference) {
   html:not([data-ani-booting]) > body.ani-home-page.ani-ambientlight-page #BH_background
     :is(.big_banner.ani-hero-enabled > .ani-hero, .ani-fp-card, .ani-wx-card, #continueWatch[data-ani-continue-sized], #blockVideoInSeason .newanime-wrap, .animate-theme-list) {
@@ -76,6 +77,10 @@ html[data-ani-episode-preview='true'] #BH_background .ani-season-more-btn {
 .ani-route-cover { position: fixed; inset: 0; z-index: 2147483000; pointer-events: none; background: #111c2b; transition: opacity 240ms cubic-bezier(.2,.65,.3,1); }
 .ani-route-visible { opacity: 0; }
 @media (prefers-reduced-motion: reduce) { .ani-route-cover { transition: none; } }
+html.ani-light-mode .ani-home-intro { background: radial-gradient(ellipse at center, #f6fafe, #e4eef7 72%); }
+html.ani-light-mode .ani-intro-caption { color: #142232; }
+html.ani-light-mode .ani-intro-credit { color: #526478; }
+html.ani-light-mode .ani-route-cover { background: #eaf1f8; }
 
 /* Native review stars have a viewBox, but no intrinsic width or height. */
 #acg_review .user-star-block svg.user-star {

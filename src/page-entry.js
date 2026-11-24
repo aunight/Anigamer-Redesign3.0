@@ -45,13 +45,45 @@
   const reload = navigation ? navigation.type === 'reload' : performance.navigation?.type === 1;
   const watchPage = location.pathname === '/animeVideo.php';
   const homePage = location.pathname === '/' || location.pathname === '/index.php';
+  const readLightHint = () => {
+    try {
+      const saved = localStorage.getItem('aniLightMode');
+      if (saved === '1') return true;
+      if (saved === '0') return false;
+      const appearance = JSON.parse(localStorage.getItem('aniSettingsBootCacheV1') || 'null')?.appearance;
+      if (appearance === 'light') return true;
+      if (appearance === 'system') return matchMedia('(prefers-color-scheme: light)').matches;
+    } catch {}
+    return false;
+  };
+  root.classList.toggle('ani-light-mode', readLightHint());
   if (reload) root.dataset.aniReloading = 'true';
   if (watchPage) root.dataset.aniEpisodePreview = 'true';
   const nextFrame = window.requestAnimationFrame?.bind(window) || (fn => setTimeout(fn, 16));
-  if (homePage && !restored && !reduced) {
+  if (!restored) {
     window.addEventListener('pageshow', event => {
-      if (event.persisted) nextFrame(() => mountIntro(true));
+      if (!event.persisted) return;
+      root.classList.toggle('ani-light-mode', readLightHint());
+      if (homePage && !reduced) nextFrame(() => mountIntro(true));
     });
+  }
+  if (!restored && !window.__aniNavMarkerBound) {
+    window.__aniNavMarkerBound = true;
+    document.addEventListener('click', event => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const link = event.target?.closest?.('a[href]');
+      if (!link || link.hasAttribute('download')) return;
+      const target = (link.getAttribute('target') || '').trim().toLowerCase();
+      if (target && target !== '_self') return;
+      const rawHref = (link.getAttribute('href') || '').trim();
+      if (!rawHref || rawHref.startsWith('#') || /^javascript:/i.test(rawHref)) return;
+      try {
+        const url = new URL(link.href, location.href);
+        if (url.origin === location.origin && url.href.split('#')[0] !== location.href.split('#')[0]) {
+          sessionStorage.setItem('aniInternalNav', String(Date.now()));
+        }
+      } catch {}
+    }, true);
   }
   const whenSettingsDisabled = (dismiss) => {
     const check = (saved) => { if (saved?.themeEnabled === false) dismiss(); };
@@ -84,13 +116,15 @@
       minimumElapsed = true;
       ready();
     }, 750);
-    const deadline = setTimeout(() => reveal(), homePage ? 250 : 5000);
+    let onDomReady = null;
+    let deadline = null;
     function reveal(immediate = false) {
       if (finished) return;
       finished = true;
       if (minimum !== null) clearTimeout(minimum);
       if (enhancementGrace !== null) clearTimeout(enhancementGrace);
       clearTimeout(deadline);
+      if (onDomReady) document.removeEventListener('DOMContentLoaded', onDomReady);
       window.removeEventListener('ani-ui-ready', ready);
       window.removeEventListener('ani-enhancements-ui-ready', ready);
       window.removeEventListener('pageshow', pageshow);
@@ -107,6 +141,17 @@
         if (event.target === cover && event.propertyName === 'opacity') cover.remove();
       });
       setTimeout(() => cover.remove(), fullOpening ? 220 : 280);
+    }
+    if (homePage && document.readyState === 'loading') {
+      deadline = setTimeout(() => reveal(), 5000);
+      onDomReady = () => {
+        if (finished) return;
+        clearTimeout(deadline);
+        deadline = setTimeout(() => reveal(), 250);
+      };
+      document.addEventListener('DOMContentLoaded', onDomReady, { once: true });
+    } else {
+      deadline = setTimeout(() => reveal(), homePage ? 250 : 5000);
     }
     window.addEventListener('ani-ui-ready', ready);
     window.addEventListener('ani-enhancements-ui-ready', ready);
@@ -135,7 +180,13 @@
     }
   } catch {}
   try {
-    const internal = document.referrer && new URL(document.referrer).origin === location.origin;
+    let markedInternal = false;
+    try {
+      const stamped = Number(sessionStorage.getItem('aniInternalNav') || 0);
+      sessionStorage.removeItem('aniInternalNav');
+      markedInternal = Number.isFinite(stamped) && stamped > 0 && Date.now() - stamped < 5000;
+    } catch {}
+    const internal = markedInternal || Boolean(document.referrer && new URL(document.referrer).origin === location.origin);
     if (internal && !reload && !homePage) {
       const cover = document.createElement('div');
       cover.className = 'ani-route-cover';
