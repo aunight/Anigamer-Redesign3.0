@@ -13,16 +13,16 @@
 // @run-at       document-start
 // @inject-into  content
 // @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
-// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/f260da4b00f43394eaf11a9ffd23e52281ecedff/src/studio-catalog.json
-// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/f260da4b00f43394eaf11a9ffd23e52281ecedff/src/studio-profiles.json
-// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/f260da4b00f43394eaf11a9ffd23e52281ecedff/src/studio-directory-icons.json
-// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/f260da4b00f43394eaf11a9ffd23e52281ecedff/src/studio-logos.json
-// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/f260da4b00f43394eaf11a9ffd23e52281ecedff/src/content.css
-// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/f260da4b00f43394eaf11a9ffd23e52281ecedff/src/effects.css
-// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/f260da4b00f43394eaf11a9ffd23e52281ecedff/src/settings-ui.css
-// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/f260da4b00f43394eaf11a9ffd23e52281ecedff/src/hero-banner.css
-// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/f260da4b00f43394eaf11a9ffd23e52281ecedff/src/home-dashboard.css
-// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/f260da4b00f43394eaf11a9ffd23e52281ecedff/src/ui-repairs.css
+// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/c907413f0dbc70a5f9a0786ae829a8a553976801/src/studio-catalog.json
+// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/c907413f0dbc70a5f9a0786ae829a8a553976801/src/studio-profiles.json
+// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/c907413f0dbc70a5f9a0786ae829a8a553976801/src/studio-directory-icons.json
+// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/c907413f0dbc70a5f9a0786ae829a8a553976801/src/studio-logos.json
+// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/c907413f0dbc70a5f9a0786ae829a8a553976801/src/content.css
+// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/c907413f0dbc70a5f9a0786ae829a8a553976801/src/effects.css
+// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/c907413f0dbc70a5f9a0786ae829a8a553976801/src/settings-ui.css
+// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/c907413f0dbc70a5f9a0786ae829a8a553976801/src/hero-banner.css
+// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/c907413f0dbc70a5f9a0786ae829a8a553976801/src/home-dashboard.css
+// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/c907413f0dbc70a5f9a0786ae829a8a553976801/src/ui-repairs.css
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -3925,6 +3925,10 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           '<button type="button" class="ani-pill-btn" data-action="export"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>匯出設定</span></button>' +
           '<button type="button" class="ani-pill-btn" data-action="import"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><span>匯入設定</span></button>' +
           '<input type="file" data-import-file accept="application/json,.json" hidden></div>';
+        const githubIcon =
+          '<svg aria-hidden="true" fill="currentColor" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M6.766 11.328c-2.063-.25-3.516-1.734-3.516-3.656 0-.781.281-1.625.75-2.188-.203-.515-.172-1.609.063-2.062.625-.078 1.468.25 1.968.703.594-.187 1.219-.281 1.985-.281.765 0 1.39.094 1.953.265.484-.437 1.344-.765 1.969-.687.218.422.25 1.515.046 2.047.5.593.766 1.39.766 2.203 0 1.922-1.453 3.375-3.547 3.64.531.344.89 1.094.89 1.954v1.625c0 .468.391.734.86.547C13.781 14.359 16 11.53 16 8.03 16 3.61 12.406 0 7.984 0 3.563 0 0 3.61 0 8.031a7.88 7.88 0 0 0 5.172 7.422c.422.156.828-.125.828-.547v-1.25c-.219.094-.5.156-.75.156-1.031 0-1.64-.562-2.078-1.609-.172-.422-.36-.672-.719-.719-.187-.015-.25-.093-.25-.187 0-.188.313-.328.625-.328.453 0 .844.281 1.25.86.313.452.64.655 1.031.655s.641-.14 1-.5c.266-.265.47-.5.657-.656" /></svg>';
+        const greasyForkIcon =
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 6-6 6 6 6m8-12 6 6-6 6m-2-15-4 18"/></svg>';
         const additionalCredits = [
           [
             '動畫瘋資訊+',
@@ -3966,7 +3970,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             '動畫瘋影片擷圖小工具',
             '播放器擷圖操作',
             'https://greasyfork.org/zh-TW/scripts/420561-%E5%B7%B4%E5%93%88%E5%A7%86%E7%89%B9%E5%8B%95%E7%95%AB%E7%98%8B%E5%BD%B1%E7%89%87%E6%93%B7%E5%9C%96%E5%B0%8F%E5%B7%A5%E5%85%B7',
-            'GreasyFork',
+            'Greasy Fork',
           ],
           [
             'youtube-ambilight',
@@ -3985,7 +3989,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         ]
           .map(
             ([name, description, url, platform]) =>
-              `<li><strong>${name}</strong><span>${description}</span><a class="ani-pill-btn ani-pill-sm" href="${url}" target="_blank" rel="noopener noreferrer">${platform}</a></li>`,
+              `<li><strong>${name}</strong><span>${description}</span><a class="ani-pill-btn ani-pill-sm" href="${url}" target="_blank" rel="noopener noreferrer">${platform === 'GitHub' ? githubIcon : greasyForkIcon}<span>${platform}</span></a></li>`,
           )
           .join('');
         const appVersion =
@@ -3998,16 +4002,16 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           `<div><h4 class="ani-credit-title">動畫瘋沉浸重製版 3.0</h4><p class="ani-credit-sub">Anigamer-Redesign 3.0 · v${appVersion} · MIT</p></div>` +
           '<div class="ani-credit-actions">' +
           '<button type="button" class="ani-pill-btn is-accent" data-action="check-update"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg><span>檢測更新</span></button>' +
-          '<a class="ani-pill-btn" href="https://github.com/aunight/Anigamer-Redesign3.0" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true" fill="currentColor" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path d="M6.766 11.328c-2.063-.25-3.516-1.734-3.516-3.656 0-.781.281-1.625.75-2.188-.203-.515-.172-1.609.063-2.062.625-.078 1.468.25 1.968.703.594-.187 1.219-.281 1.985-.281.765 0 1.39.094 1.953.265.484-.437 1.344-.765 1.969-.687.218.422.25 1.515.046 2.047.5.593.766 1.39.766 2.203 0 1.922-1.453 3.375-3.547 3.64.531.344.89 1.094.89 1.954v1.625c0 .468.391.734.86.547C13.781 14.359 16 11.53 16 8.03 16 3.61 12.406 0 7.984 0 3.563 0 0 3.61 0 8.031a7.88 7.88 0 0 0 5.172 7.422c.422.156.828-.125.828-.547v-1.25c-.219.094-.5.156-.75.156-1.031 0-1.64-.562-2.078-1.609-.172-.422-.36-.672-.719-.719-.187-.015-.25-.093-.25-.187 0-.188.313-.328.625-.328.453 0 .844.281 1.25.86.313.452.64.655 1.031.655s.641-.14 1-.5c.266-.265.47-.5.657-.656" /></svg><span>GitHub</span></a>' +
-          '<a class="ani-pill-btn" href="https://greasyfork.org/zh-TW/scripts/606071" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 6-6 6 6 6m8-12 6 6-6 6m-2-15-4 18"/></svg><span>Greasy Fork</span></a>' +
+          `<a class="ani-pill-btn" href="https://github.com/aunight/Anigamer-Redesign3.0" target="_blank" rel="noopener noreferrer">${githubIcon}<span>GitHub</span></a>` +
+          `<a class="ani-pill-btn" href="https://greasyfork.org/zh-TW/scripts/606071" target="_blank" rel="noopener noreferrer">${greasyForkIcon}<span>Greasy Fork</span></a>` +
           '<a class="ani-pill-btn" href="https://github.com/aunight/Anigamer-Redesign3.0/issues" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg><span>前往 Issues</span></a>' +
           '</div></div>' +
           '<p class="ani-credit-update-msg" data-update-status role="status"></p>' +
           '<h4 class="ani-settings-subheading">Credits</h4>' +
           '<ul class="ani-credit-list">' +
           '<li><strong>秋夜 AuNight</strong><span>重製與維護</span><a class="ani-pill-btn ani-pill-sm" href="https://www.aunight.pw/" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span>官方網站</span></a></li>' +
-          '<li><strong>anigamer-ambilight</strong><span>環境光基底</span><a class="ani-pill-btn ani-pill-sm" href="https://github.com/Hinataragi/anigamer-ambilight" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span>GitHub</span></a></li>' +
-          '<li><strong>bilibili-margin</strong><span>首頁足跡＆天氣卡片</span><a class="ani-pill-btn ani-pill-sm" href="https://github.com/jiuyang5354/bilibili-margin" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span>GitHub</span></a></li>' +
+          `<li><strong>anigamer-ambilight</strong><span>環境光基底</span><a class="ani-pill-btn ani-pill-sm" href="https://github.com/Hinataragi/anigamer-ambilight" target="_blank" rel="noopener noreferrer">${githubIcon}<span>GitHub</span></a></li>` +
+          `<li><strong>bilibili-margin</strong><span>首頁足跡＆天氣卡片</span><a class="ani-pill-btn ani-pill-sm" href="https://github.com/jiuyang5354/bilibili-margin" target="_blank" rel="noopener noreferrer">${githubIcon}<span>GitHub</span></a></li>` +
           '<li><strong>Liquid Ripple Shader</strong><span>開場動態波紋特效</span><a class="ani-pill-btn ani-pill-sm" href="https://21st.dev/@saurabh-2607/components/great-ui-liquid-ripple-shader" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span>21ST</span></a></li>' +
           '<li><strong>Lens Switch</strong><span>深淺模式鏡片開關</span><a class="ani-pill-btn ani-pill-sm" href="https://uberdesigner.ai/t/lens-switch" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span>uberdesigner</span></a></li>' +
           '<li><strong>動畫瘋·Plus</strong><span>Chrome 擴充版工具列整合</span><a class="ani-pill-btn ani-pill-sm" href="https://xu3u04u48.github.io/Anime_Crazy_Dot_Plus/" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span>官方網站</span></a></li>' +
