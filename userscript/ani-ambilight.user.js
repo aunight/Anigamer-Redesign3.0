@@ -2,27 +2,27 @@
 // @name         動畫瘋沉浸重製版 3.0｜Anigamer-Redesign 3.0
 // @namespace    https://ani.gamer.com.tw/ani-ambientlight
 // @author       秋夜
-// @version      3.3.0
+// @version      3.4.0
 // @description  動畫瘋環境光與沉浸重製介面：毛玻璃播放器、開場液態波紋、首頁足跡熱力圖＆天氣實況（靈感改作自 Hinataragi/anigamer-ambilight、jiuyang5354/bilibili-margin 與 GreatUI）。非官方。
 // @homepageURL  https://github.com/aunight/Anigamer-Redesign3.0
 // @supportURL   https://github.com/aunight/Anigamer-Redesign3.0/issues
-// @downloadURL  https://github.com/aunight/Anigamer-Redesign3.0/releases/latest/download/anigamer-redesign3.0.user.js
-// @updateURL    https://github.com/aunight/Anigamer-Redesign3.0/releases/latest/download/anigamer-redesign3.0.user.js
+// @downloadURL  https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/userscript/ani-ambilight.user.js
+// @updateURL    https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/userscript/ani-ambilight.meta.js
 // @license      MIT
 // @match        https://ani.gamer.com.tw/*
 // @run-at       document-start
 // @inject-into  content
 // @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
-// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/091cc03e35f56f6b626871256d2968b0e81c4d21/src/studio-catalog.json
-// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/091cc03e35f56f6b626871256d2968b0e81c4d21/src/studio-profiles.json
-// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/091cc03e35f56f6b626871256d2968b0e81c4d21/src/studio-directory-icons.json
-// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/091cc03e35f56f6b626871256d2968b0e81c4d21/src/studio-logos.json
-// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/091cc03e35f56f6b626871256d2968b0e81c4d21/src/content.css
-// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/091cc03e35f56f6b626871256d2968b0e81c4d21/src/effects.css
-// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/091cc03e35f56f6b626871256d2968b0e81c4d21/src/settings-ui.css
-// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/091cc03e35f56f6b626871256d2968b0e81c4d21/src/hero-banner.css
-// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/091cc03e35f56f6b626871256d2968b0e81c4d21/src/home-dashboard.css
-// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/091cc03e35f56f6b626871256d2968b0e81c4d21/src/ui-repairs.css
+// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/0eb920c14029524328090557f8f998dd0dc672d1/src/studio-catalog.json
+// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/0eb920c14029524328090557f8f998dd0dc672d1/src/studio-profiles.json
+// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/0eb920c14029524328090557f8f998dd0dc672d1/src/studio-directory-icons.json
+// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/0eb920c14029524328090557f8f998dd0dc672d1/src/studio-logos.json
+// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/0eb920c14029524328090557f8f998dd0dc672d1/src/content.css
+// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/0eb920c14029524328090557f8f998dd0dc672d1/src/effects.css
+// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/0eb920c14029524328090557f8f998dd0dc672d1/src/settings-ui.css
+// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/0eb920c14029524328090557f8f998dd0dc672d1/src/hero-banner.css
+// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/0eb920c14029524328090557f8f998dd0dc672d1/src/home-dashboard.css
+// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/0eb920c14029524328090557f8f998dd0dc672d1/src/ui-repairs.css
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -126,7 +126,7 @@ Additional section icons: film, newspaper, comments.
     observer.observe(document, { childList: true, subtree: true });
   }
   GM_addStyle(
-    '/*! Animate.css 4.1.1 | https://animate.style/\nThe MIT License (MIT)\n\nCopyright (c) 2020 Daniel Eden\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the "Software"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n*/\n:root {\n  --animate-duration: 1s;\n  --animate-delay: 1s;\n  --animate-repeat: 1;\n}\n\n.animate__animated {\n  animation-duration: var(--animate-duration);\n  animation-fill-mode: both;\n}\n\n.animate__animated.animate__infinite {\n  animation-iteration-count: infinite;\n}\n\n.animate__animated.animate__repeat-1 {\n  animation-iteration-count: var(--animate-repeat);\n}\n\n.animate__animated.animate__repeat-2 {\n  animation-iteration-count: calc(var(--animate-repeat) * 2);\n}\n\n.animate__animated.animate__repeat-3 {\n  animation-iteration-count: calc(var(--animate-repeat) * 3);\n}\n\n.animate__animated.animate__delay-1s {\n  animation-delay: var(--animate-delay);\n}\n\n.animate__animated.animate__delay-2s {\n  animation-delay: calc(var(--animate-delay) * 2);\n}\n\n.animate__animated.animate__delay-3s {\n  animation-delay: calc(var(--animate-delay) * 3);\n}\n\n.animate__animated.animate__delay-4s {\n  animation-delay: calc(var(--animate-delay) * 4);\n}\n\n.animate__animated.animate__delay-5s {\n  animation-delay: calc(var(--animate-delay) * 5);\n}\n\n.animate__animated.animate__faster {\n  animation-duration: calc(var(--animate-duration) / 2);\n}\n\n.animate__animated.animate__fast {\n  animation-duration: calc(var(--animate-duration) * 0.8);\n}\n\n.animate__animated.animate__slow {\n  animation-duration: calc(var(--animate-duration) * 2);\n}\n\n.animate__animated.animate__slower {\n  animation-duration: calc(var(--animate-duration) * 3);\n}\n\n@media print, (prefers-reduced-motion: reduce) {\n  .animate__animated {\n    animation-duration: 1ms !important;\n    transition-duration: 1ms !important;\n    animation-iteration-count: 1 !important;\n  }\n\n  .animate__animated[class*=\'Out\'] {\n    opacity: 0;\n  }\n}\n\n@keyframes fadeIn {\n  from {\n    opacity: 0;\n  }\n\n  to {\n    opacity: 1;\n  }\n}\n\n.animate__fadeIn {\n  animation-name: fadeIn;\n}\n\n@keyframes fadeOut {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n  }\n}\n\n.animate__fadeOut {\n  animation-name: fadeOut;\n}\n\nhtml[data-ani-booting=\'true\'] { background:#111c2b !important;overflow:hidden !important; }\r\nhtml[data-ani-booting=\'true\'] > body { opacity: 0 !important; }\r\n@media (prefers-reduced-motion: no-preference) {\r\n  html:not([data-ani-booting]) > body.ani-home-page.ani-ambientlight-page #BH_background\r\n    :is(.big_banner.ani-hero-enabled > .ani-hero, .ani-fp-card, .ani-wx-card, #continueWatch[data-ani-continue-sized], #blockVideoInSeason .newanime-wrap, .animate-theme-list) {\r\n    animation: aniHomeModuleIn 220ms ease-out;\r\n  }\r\n  body.ani-home-page.ani-ambientlight-page .ani-wx-card[data-ani-wx-ready] > :is(.ani-wx-sky, .ani-wx-side) {\r\n    animation: aniHomeModuleIn 220ms ease-out;\r\n  }\r\n  @keyframes aniHomeModuleIn {\r\n    from { opacity: 0; }\r\n    to { opacity: 1; }\r\n  }\r\n}\r\nhtml[data-ani-episode-preview=\'true\'] #BH_background .season ul:not([data-ani-ep-rendered]) > li:nth-of-type(n + 7),\r\nhtml[data-ani-episode-preview=\'true\'] #BH_background .ani-season-more-btn {\r\n  display: none !important;\r\n}\r\n/* The opaque intro covers the live page until the crossfade begins. */\r\n#ani_video .vjs-poster { filter:blur(6px); }\r\n.ani-home-intro {\r\n  position: fixed;\r\n  inset: 0;\r\n  z-index: 2147483000;\r\n  display: grid;\r\n  place-items: center;\r\n  overflow: hidden;\r\n  isolation: isolate;\r\n  pointer-events: none;\r\n  background: radial-gradient(ellipse at center, #244351, #111c2b 72%);\r\n  transition: opacity 180ms ease-out;\r\n}\r\n.ani-home-intro.ani-intro-reveal { opacity: 0; }\r\n.ani-home-intro::before, .ani-home-intro::after {\r\n  content: \'\';\r\n  position: absolute;\r\n  width: min(95vw, 125vh);\r\n  aspect-ratio: 1;\r\n  border-radius: 50%;\r\n  background: radial-gradient(closest-side, transparent 32%, #4db9c323 48%, #52d2d854 58%, transparent 80%);\r\n  animation: aniIntroRipple 2.6s ease-out infinite;\r\n  will-change: transform, opacity;\r\n}\r\n.ani-home-intro::after { animation-delay: -1.3s; }\r\n@keyframes aniIntroRipple {\r\n  from { transform: scale(.55); opacity: .95; }\r\n  to { transform: scale(1.7); opacity: 0; }\r\n}\r\n.ani-intro-plate {\r\n  position: relative;\r\n  z-index: 1;\r\n  display: grid;\r\n  justify-items: center;\r\n  gap: 16px;\r\n  max-width: calc(100vw - 40px);\r\n  text-align: center;\r\n}\r\n.ani-intro-logo { position: relative; width: min(220px, 65vw); aspect-ratio: 516 / 200; }\r\n.ani-logo-layer { position: absolute; inset: 0; animation: aniIntroHop 1.4s ease-in-out infinite; will-change: transform; }\r\n.ani-logo-layer-2 { animation-delay: -1.3s; }\r\n.ani-logo-layer-3 { animation-delay: -1.2s; }\r\n.ani-logo-layer svg { width: 100%; height: 100%; overflow: visible; }\r\n@keyframes aniIntroHop {\r\n  0%, 40%, 72%, 100% { transform: translateY(0); }\r\n  20% { transform: translateY(-9px); }\r\n  55% { transform: translateY(-5px); }\r\n  84% { transform: translateY(-2px); }\r\n}\r\n.ani-intro-caption { color: #e8f4fa; font: 600 clamp(28px,4vw,44px)/1.2 var(--ani-font,system-ui,sans-serif); }\r\n.ani-intro-credit { color: #aac4d0; font: 400 13px/1.6 var(--ani-font,system-ui,sans-serif); }\r\n@media (prefers-reduced-motion: reduce) {\r\n  .ani-home-intro { transition: none; }\r\n  .ani-logo-layer, .ani-home-intro::before, .ani-home-intro::after { animation: none; }\r\n}\r\n.ani-route-cover { position: fixed; inset: 0; z-index: 2147483000; pointer-events: none; background: #111c2b; transition: opacity 240ms cubic-bezier(.2,.65,.3,1); }\r\n.ani-route-visible { opacity: 0; }\r\n@media (prefers-reduced-motion: reduce) { .ani-route-cover { transition: none; } }\r\n\r\n/* Native review stars have a viewBox, but no intrinsic width or height. */\r\n#acg_review .user-star-block svg.user-star {\r\n  width: 24px;\r\n  height: 24px;\r\n  max-width: 32px;\r\n  max-height: 32px;\r\n  flex-shrink: 0;\r\n}\r\n\r\n/* Keep StarMap\'s launcher available to the settings category. */\r\nhtml[data-ani-rating-integrated]:has(#ani-view-settings-panel) .top_btn_rating_setting {\r\n  display: none !important;\r\n}\r\n\r\n/* The rating helper adds its controls before the themed sorter initializes. */\r\n#BH_background .theme-title-block label[style*="padding-left"]:has(> input[type="checkbox"][style*="1.5em"]),\r\n#BH_background .theme-title-block span[style*="padding-left"]:has(+ label[style*="padding-left"] > input[type="checkbox"][style*="1.5em"]),\r\n.ani-legacy-rating-progress {\r\n  display: none !important;\r\n}\r\n',
+    '/*! Animate.css 4.1.1 | https://animate.style/\nThe MIT License (MIT)\n\nCopyright (c) 2020 Daniel Eden\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the "Software"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n*/\n:root {\n  --animate-duration: 1s;\n  --animate-delay: 1s;\n  --animate-repeat: 1;\n}\n\n.animate__animated {\n  animation-duration: var(--animate-duration);\n  animation-fill-mode: both;\n}\n\n.animate__animated.animate__infinite {\n  animation-iteration-count: infinite;\n}\n\n.animate__animated.animate__repeat-1 {\n  animation-iteration-count: var(--animate-repeat);\n}\n\n.animate__animated.animate__repeat-2 {\n  animation-iteration-count: calc(var(--animate-repeat) * 2);\n}\n\n.animate__animated.animate__repeat-3 {\n  animation-iteration-count: calc(var(--animate-repeat) * 3);\n}\n\n.animate__animated.animate__delay-1s {\n  animation-delay: var(--animate-delay);\n}\n\n.animate__animated.animate__delay-2s {\n  animation-delay: calc(var(--animate-delay) * 2);\n}\n\n.animate__animated.animate__delay-3s {\n  animation-delay: calc(var(--animate-delay) * 3);\n}\n\n.animate__animated.animate__delay-4s {\n  animation-delay: calc(var(--animate-delay) * 4);\n}\n\n.animate__animated.animate__delay-5s {\n  animation-delay: calc(var(--animate-delay) * 5);\n}\n\n.animate__animated.animate__faster {\n  animation-duration: calc(var(--animate-duration) / 2);\n}\n\n.animate__animated.animate__fast {\n  animation-duration: calc(var(--animate-duration) * 0.8);\n}\n\n.animate__animated.animate__slow {\n  animation-duration: calc(var(--animate-duration) * 2);\n}\n\n.animate__animated.animate__slower {\n  animation-duration: calc(var(--animate-duration) * 3);\n}\n\n@media print, (prefers-reduced-motion: reduce) {\n  .animate__animated {\n    animation-duration: 1ms !important;\n    transition-duration: 1ms !important;\n    animation-iteration-count: 1 !important;\n  }\n\n  .animate__animated[class*=\'Out\'] {\n    opacity: 0;\n  }\n}\n\n@keyframes fadeIn {\n  from {\n    opacity: 0;\n  }\n\n  to {\n    opacity: 1;\n  }\n}\n\n.animate__fadeIn {\n  animation-name: fadeIn;\n}\n\n@keyframes fadeOut {\n  from {\n    opacity: 1;\n  }\n\n  to {\n    opacity: 0;\n  }\n}\n\n.animate__fadeOut {\n  animation-name: fadeOut;\n}\n\nhtml[data-ani-booting=\'true\'] { background:#111c2b !important;overflow:hidden !important; }\r\nhtml[data-ani-booting=\'true\'] > body { opacity: 0 !important; }\r\nhtml.ani-light-mode[data-ani-booting=\'true\'] { background:#eaf1f8 !important; }\r\n@media (prefers-reduced-motion: no-preference) {\r\n  html:not([data-ani-booting]) > body.ani-home-page.ani-ambientlight-page #BH_background\r\n    :is(.big_banner.ani-hero-enabled > .ani-hero, .ani-fp-card, .ani-wx-card, #continueWatch[data-ani-continue-sized], #blockVideoInSeason .newanime-wrap, .animate-theme-list) {\r\n    animation: aniHomeModuleIn 220ms ease-out;\r\n  }\r\n  body.ani-home-page.ani-ambientlight-page .ani-wx-card[data-ani-wx-ready] > :is(.ani-wx-sky, .ani-wx-side) {\r\n    animation: aniHomeModuleIn 220ms ease-out;\r\n  }\r\n  @keyframes aniHomeModuleIn {\r\n    from { opacity: 0; }\r\n    to { opacity: 1; }\r\n  }\r\n}\r\nhtml[data-ani-episode-preview=\'true\'] #BH_background .season ul:not([data-ani-ep-rendered]) > li:nth-of-type(n + 7),\r\nhtml[data-ani-episode-preview=\'true\'] #BH_background .ani-season-more-btn {\r\n  display: none !important;\r\n}\r\n/* The opaque intro covers the live page until the crossfade begins. */\r\n#ani_video .vjs-poster { filter:blur(6px); }\r\n.ani-home-intro {\r\n  position: fixed;\r\n  inset: 0;\r\n  z-index: 2147483000;\r\n  display: grid;\r\n  place-items: center;\r\n  overflow: hidden;\r\n  isolation: isolate;\r\n  pointer-events: none;\r\n  background: radial-gradient(ellipse at center, #244351, #111c2b 72%);\r\n  transition: opacity 180ms ease-out;\r\n}\r\n.ani-home-intro.ani-intro-reveal { opacity: 0; }\r\n.ani-home-intro::before, .ani-home-intro::after {\r\n  content: \'\';\r\n  position: absolute;\r\n  width: min(95vw, 125vh);\r\n  aspect-ratio: 1;\r\n  border-radius: 50%;\r\n  background: radial-gradient(closest-side, transparent 32%, #4db9c323 48%, #52d2d854 58%, transparent 80%);\r\n  animation: aniIntroRipple 2.6s ease-out infinite;\r\n  will-change: transform, opacity;\r\n}\r\n.ani-home-intro::after { animation-delay: -1.3s; }\r\n@keyframes aniIntroRipple {\r\n  from { transform: scale(.55); opacity: .95; }\r\n  to { transform: scale(1.7); opacity: 0; }\r\n}\r\n.ani-intro-plate {\r\n  position: relative;\r\n  z-index: 1;\r\n  display: grid;\r\n  justify-items: center;\r\n  gap: 16px;\r\n  max-width: calc(100vw - 40px);\r\n  text-align: center;\r\n}\r\n.ani-intro-logo { position: relative; width: min(220px, 65vw); aspect-ratio: 516 / 200; }\r\n.ani-logo-layer { position: absolute; inset: 0; animation: aniIntroHop 1.4s ease-in-out infinite; will-change: transform; }\r\n.ani-logo-layer-2 { animation-delay: -1.3s; }\r\n.ani-logo-layer-3 { animation-delay: -1.2s; }\r\n.ani-logo-layer svg { width: 100%; height: 100%; overflow: visible; }\r\n@keyframes aniIntroHop {\r\n  0%, 40%, 72%, 100% { transform: translateY(0); }\r\n  20% { transform: translateY(-9px); }\r\n  55% { transform: translateY(-5px); }\r\n  84% { transform: translateY(-2px); }\r\n}\r\n.ani-intro-caption { color: #e8f4fa; font: 600 clamp(28px,4vw,44px)/1.2 var(--ani-font,system-ui,sans-serif); }\r\n.ani-intro-credit { color: #aac4d0; font: 400 13px/1.6 var(--ani-font,system-ui,sans-serif); }\r\n@media (prefers-reduced-motion: reduce) {\r\n  .ani-home-intro { transition: none; }\r\n  .ani-logo-layer, .ani-home-intro::before, .ani-home-intro::after { animation: none; }\r\n}\r\n.ani-route-cover { position: fixed; inset: 0; z-index: 2147483000; pointer-events: none; background: #111c2b; transition: opacity 240ms cubic-bezier(.2,.65,.3,1); }\r\n.ani-route-visible { opacity: 0; }\r\n@media (prefers-reduced-motion: reduce) { .ani-route-cover { transition: none; } }\r\nhtml.ani-light-mode .ani-home-intro { background: radial-gradient(ellipse at center, #f6fafe, #e4eef7 72%); }\r\nhtml.ani-light-mode .ani-intro-caption { color: #142232; }\r\nhtml.ani-light-mode .ani-intro-credit { color: #526478; }\r\nhtml.ani-light-mode .ani-route-cover { background: #eaf1f8; }\r\n\r\n/* Native review stars have a viewBox, but no intrinsic width or height. */\r\n#acg_review .user-star-block svg.user-star {\r\n  width: 24px;\r\n  height: 24px;\r\n  max-width: 32px;\r\n  max-height: 32px;\r\n  flex-shrink: 0;\r\n}\r\n\r\n/* Keep StarMap\'s launcher available to the settings category. */\r\nhtml[data-ani-rating-integrated]:has(#ani-view-settings-panel) .top_btn_rating_setting {\r\n  display: none !important;\r\n}\r\n\r\n/* The rating helper adds its controls before the themed sorter initializes. */\r\n#BH_background .theme-title-block label[style*="padding-left"]:has(> input[type="checkbox"][style*="1.5em"]),\r\n#BH_background .theme-title-block span[style*="padding-left"]:has(+ label[style*="padding-left"] > input[type="checkbox"][style*="1.5em"]),\r\n.ani-legacy-rating-progress {\r\n  display: none !important;\r\n}\r\n',
   );
   (function setFavicon() {
     if (window.self !== window.top) return;
@@ -176,13 +176,62 @@ Additional section icons: film, newspaper, comments.
     const reload = navigation ? navigation.type === 'reload' : performance.navigation?.type === 1;
     const watchPage = location.pathname === '/animeVideo.php';
     const homePage = location.pathname === '/' || location.pathname === '/index.php';
+    const readLightHint = () => {
+      try {
+        const saved = localStorage.getItem('aniLightMode');
+        if (saved === '1') return true;
+        if (saved === '0') return false;
+        const appearance = JSON.parse(
+          localStorage.getItem('aniSettingsBootCacheV1') || 'null',
+        )?.appearance;
+        if (appearance === 'light') return true;
+        if (appearance === 'system') return matchMedia('(prefers-color-scheme: light)').matches;
+      } catch {}
+      return false;
+    };
+    root.classList.toggle('ani-light-mode', readLightHint());
     if (reload) root.dataset.aniReloading = 'true';
     if (watchPage) root.dataset.aniEpisodePreview = 'true';
     const nextFrame = window.requestAnimationFrame?.bind(window) || ((fn) => setTimeout(fn, 16));
-    if (homePage && !restored && !reduced) {
+    if (!restored) {
       window.addEventListener('pageshow', (event) => {
-        if (event.persisted) nextFrame(() => mountIntro(true));
+        if (!event.persisted) return;
+        root.classList.toggle('ani-light-mode', readLightHint());
+        if (homePage && !reduced) nextFrame(() => mountIntro(true));
       });
+    }
+    if (!restored && !window.__aniNavMarkerBound) {
+      window.__aniNavMarkerBound = true;
+      document.addEventListener(
+        'click',
+        (event) => {
+          if (
+            event.defaultPrevented ||
+            event.button !== 0 ||
+            event.metaKey ||
+            event.ctrlKey ||
+            event.shiftKey ||
+            event.altKey
+          )
+            return;
+          const link = event.target?.closest?.('a[href]');
+          if (!link || link.hasAttribute('download')) return;
+          const target = (link.getAttribute('target') || '').trim().toLowerCase();
+          if (target && target !== '_self') return;
+          const rawHref = (link.getAttribute('href') || '').trim();
+          if (!rawHref || rawHref.startsWith('#') || /^javascript:/i.test(rawHref)) return;
+          try {
+            const url = new URL(link.href, location.href);
+            if (
+              url.origin === location.origin &&
+              url.href.split('#')[0] !== location.href.split('#')[0]
+            ) {
+              sessionStorage.setItem('aniInternalNav', String(Date.now()));
+            }
+          } catch {}
+        },
+        true,
+      );
     }
     const whenSettingsDisabled = (dismiss) => {
       const check = (saved) => {
@@ -224,13 +273,15 @@ Additional section icons: film, newspaper, comments.
             minimumElapsed = true;
             ready();
           }, 750);
-      const deadline = setTimeout(() => reveal(), homePage ? 250 : 5000);
+      let onDomReady = null;
+      let deadline = null;
       function reveal(immediate = false) {
         if (finished) return;
         finished = true;
         if (minimum !== null) clearTimeout(minimum);
         if (enhancementGrace !== null) clearTimeout(enhancementGrace);
         clearTimeout(deadline);
+        if (onDomReady) document.removeEventListener('DOMContentLoaded', onDomReady);
         window.removeEventListener('ani-ui-ready', ready);
         window.removeEventListener('ani-enhancements-ui-ready', ready);
         window.removeEventListener('pageshow', pageshow);
@@ -247,6 +298,17 @@ Additional section icons: film, newspaper, comments.
           if (event.target === cover && event.propertyName === 'opacity') cover.remove();
         });
         setTimeout(() => cover.remove(), fullOpening ? 220 : 280);
+      }
+      if (homePage && document.readyState === 'loading') {
+        deadline = setTimeout(() => reveal(), 5000);
+        onDomReady = () => {
+          if (finished) return;
+          clearTimeout(deadline);
+          deadline = setTimeout(() => reveal(), 250);
+        };
+        document.addEventListener('DOMContentLoaded', onDomReady, { once: true });
+      } else {
+        deadline = setTimeout(() => reveal(), homePage ? 250 : 5000);
       }
       window.addEventListener('ani-ui-ready', ready);
       window.addEventListener('ani-enhancements-ui-ready', ready);
@@ -286,7 +348,15 @@ Additional section icons: film, newspaper, comments.
       }
     } catch {}
     try {
-      const internal = document.referrer && new URL(document.referrer).origin === location.origin;
+      let markedInternal = false;
+      try {
+        const stamped = Number(sessionStorage.getItem('aniInternalNav') || 0);
+        sessionStorage.removeItem('aniInternalNav');
+        markedInternal = Number.isFinite(stamped) && stamped > 0 && Date.now() - stamped < 5000;
+      } catch {}
+      const internal =
+        markedInternal ||
+        Boolean(document.referrer && new URL(document.referrer).origin === location.origin);
       if (internal && !reload && !homePage) {
         const cover = document.createElement('div');
         cover.className = 'ani-route-cover';
@@ -328,594 +398,29 @@ Additional section icons: film, newspaper, comments.
     coverUntilReady(curtain, true);
   })();
 
-  const start = () => {
-    // 二、使用者設定儲存
-
-    const listeners = new Set();
-    let cached = {};
-    const emit = (oldValue, newValue) => {
-      const changes = {};
-      for (const key of Object.keys(newValue))
-        if (oldValue[key] !== newValue[key])
-          changes[key] = { oldValue: oldValue[key], newValue: newValue[key] };
-      for (const listener of listeners) listener(changes, 'sync');
-    };
-    globalThis.AniAmbientStorage = {
-      get(defaults, callback) {
-        Promise.resolve(GM_getValue('aniAmbientSettingsV1', {})).then((saved) => {
-          cached = { ...defaults, ...saved };
-          callback(cached);
-        });
-      },
-      set(values) {
-        const before = cached;
-        cached = { ...cached, ...values };
-        Promise.resolve(GM_setValue('aniAmbientSettingsV1', cached)).then(() =>
-          emit(before, cached),
-        );
-      },
-      onChanged: {
-        addListener(listener) {
-          listeners.add(listener);
-        },
-      },
-    };
-    if (typeof GM_addValueChangeListener === 'function')
-      GM_addValueChangeListener('aniAmbientSettingsV1', (_key, oldValue, newValue, remote) => {
-        if (remote) {
-          cached = newValue || {};
-          emit(oldValue || {}, cached);
-        }
-      });
-
-    // 三、主題與設定介面樣式
-    const resourceChanges = {
-      ani_content_css: [
-        [
-          6640,
-          0,
-          [
-            'body.ani-ambientlight-ui #BH_background #blockAnimePublisherChannel .trademark-logo > img {',
-            '  position: absolute;',
-            '  inset: 0;',
-            '  width: 100% !important;',
-            '  height: 100% !important;',
-            '  object-fit: contain;',
-            '  opacity: 0;',
-            '}',
-            "body.ani-ambientlight-ui #BH_background #blockAnimePublisherChannel .trademark-logo > img[data-ani-channel-logo='ready'] {",
-            '  opacity: 1;',
-            '}',
-            '@media (prefers-reduced-motion: no-preference) {',
-            "  body.ani-ambientlight-ui #BH_background #blockAnimePublisherChannel .trademark-logo > img[data-ani-channel-logo='ready'] {",
-            '    animation: aniChannelLogoIn 240ms ease-out;',
-            '  }',
-            '  @keyframes aniChannelLogoIn {',
-            '    from { opacity: 0; }',
-            '    to { opacity: 1; }',
-            '  }',
-            '}',
-          ],
-        ],
-        [
-          6632,
-          0,
-          [
-            '  position: relative;',
-            '  display: block;',
-            '  width: 100%;',
-            '  height: auto !important;',
-            '  aspect-ratio: 1;',
-          ],
-        ],
-        [
-          5609,
-          2,
-          [
-            'body.ani-ambientlight-ui :is(.anime-episode, .theme-number) > .ani-member-lock,',
-            'body.ani-ambientlight-ui :is(.anime-episode, .theme-number) > .ani-member-lock svg {',
-          ],
-        ],
-        [
-          825,
-          0,
-          [
-            "  /* Let boundary markers paint above the next column's timeline segment. */",
-            '  contain: style;',
-          ],
-        ],
-        [
-          671,
-          0,
-          [
-            'body.ani-ambientlight-ui #blockVideoInSeason .nav-segment-control :is(p, .ani-segment-icon, svg) {',
-            '  transition: none !important;',
-            '}',
-          ],
-        ],
-        [657, 0, ['  transition: color 120ms ease-out !important;']],
-        [597, 1, ['  margin-bottom: 12px !important;']],
-      ],
-      ani_hero_css: [
-        [166, 1, []],
-        [76, 1, []],
-        [
-          57,
-          2,
-          [
-            'body.ani-ambientlight-page .ani-hero-description { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; block-size: 2lh; overflow: hidden; overflow-wrap: anywhere; margin: 12px 0 0; font-size: 13px; line-height: 1.8; color: #e2eaf2; }',
-          ],
-        ],
-      ],
-      ani_repairs_css: [
-        [
-          12415,
-          0,
-          [
-            '',
-            '/* YouTube-style muted read-more link with hover underline in comments. */',
-            'body.ani-layout-comments.ani-ambientlight-ui #BH_background #w-post-box .reply-content__cont a.more-text,',
-            'body.ani-layout-comments.ani-ambientlight-ui #BH_background #w-post-box .reply-content__cont a.more-text :is(b, span) {',
-            '  color: rgba(218, 229, 240, 0.58) !important;',
-            '  -webkit-text-fill-color: currentColor !important;',
-            '  font-size: 14px !important;',
-            '  font-weight: 500 !important;',
-            '  text-decoration: none !important;',
-            '}',
-            'body.ani-layout-comments.ani-ambientlight-ui #BH_background #w-post-box .reply-content__cont a.more-text {',
-            '  display: inline-block;',
-            '  width: fit-content;',
-            '  margin-top: 4px;',
-            '  line-height: 1.5;',
-            '  cursor: pointer;',
-            '}',
-            'body.ani-layout-comments.ani-ambientlight-ui #BH_background #w-post-box .reply-content__cont a.more-text:is(:hover, :focus-visible),',
-            'body.ani-layout-comments.ani-ambientlight-ui #BH_background #w-post-box .reply-content__cont a.more-text:is(:hover, :focus-visible) :is(b, span) {',
-            '  color: rgba(232, 240, 248, 0.78) !important;',
-            '  text-decoration: underline !important;',
-            '  text-underline-offset: 3px;',
-            '  text-decoration-thickness: 1px;',
-            '}',
-            'body:is(.ani-light-mode, .ani-theme-light).ani-layout-comments.ani-ambientlight-ui #BH_background #w-post-box .reply-content__cont a.more-text,',
-            'body:is(.ani-light-mode, .ani-theme-light).ani-layout-comments.ani-ambientlight-ui #BH_background #w-post-box .reply-content__cont a.more-text :is(b, span) {',
-            '  color: rgba(33, 57, 75, 0.62) !important;',
-            '  -webkit-text-fill-color: currentColor !important;',
-            '}',
-            'body:is(.ani-light-mode, .ani-theme-light).ani-layout-comments.ani-ambientlight-ui #BH_background #w-post-box .reply-content__cont a.more-text:is(:hover, :focus-visible),',
-            'body:is(.ani-light-mode, .ani-theme-light).ani-layout-comments.ani-ambientlight-ui #BH_background #w-post-box .reply-content__cont a.more-text:is(:hover, :focus-visible) :is(b, span) {',
-            '  color: rgba(33, 57, 75, 0.85) !important;',
-            '}',
-            '',
-            '/* Comment body links: colored accent and underline on hover, keeping read-more muted. */',
-            'body.ani-layout-comments.ani-ambientlight-ui #BH_background #w-post-box .reply-content__cont a:not(.more-text),',
-            'body.ani-layout-comments.ani-ambientlight-ui #BH_background #w-post-box .reply-content__cont a:not(.more-text) :is(b, span) {',
-            '  color: var(--ani-accent, #4cd3dc) !important;',
-            '  -webkit-text-fill-color: currentColor !important;',
-            '  text-decoration: none !important;',
-            '}',
-            'body.ani-layout-comments.ani-ambientlight-ui #BH_background #w-post-box .reply-content__cont a:not(.more-text):is(:hover, :focus-visible),',
-            'body.ani-layout-comments.ani-ambientlight-ui #BH_background #w-post-box .reply-content__cont a:not(.more-text):is(:hover, :focus-visible) :is(b, span) {',
-            '  color: var(--ani-accent-strong, #7ce5ec) !important;',
-            '  text-decoration: underline !important;',
-            '  text-underline-offset: 3px;',
-            '  text-decoration-thickness: 1.5px;',
-            '}',
-            'body:is(.ani-light-mode, .ani-theme-light).ani-layout-comments.ani-ambientlight-ui #BH_background #w-post-box .reply-content__cont a:not(.more-text),',
-            'body:is(.ani-light-mode, .ani-theme-light).ani-layout-comments.ani-ambientlight-ui #BH_background #w-post-box .reply-content__cont a:not(.more-text) :is(b, span) {',
-            '  color: #0b7a8a !important;',
-            '  -webkit-text-fill-color: currentColor !important;',
-            '}',
-            'body:is(.ani-light-mode, .ani-theme-light).ani-layout-comments.ani-ambientlight-ui #BH_background #w-post-box .reply-content__cont a:not(.more-text):is(:hover, :focus-visible),',
-            'body:is(.ani-light-mode, .ani-theme-light).ani-layout-comments.ani-ambientlight-ui #BH_background #w-post-box .reply-content__cont a:not(.more-text):is(:hover, :focus-visible) :is(b, span) {',
-            '  color: #075f6d !important;',
-            '  text-decoration: underline !important;',
-            '}',
-            '',
-            "/* Time capsule breathing room: slightly larger capsule padding and tighter divider gap around '/'. */",
-            'body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .control-bar-leftbtn > .ani-time-capsule:not(.vjs-hidden, [hidden]) {',
-            '  gap: 0 !important;',
-            '  padding: 0 20px !important;',
-            '  height: 44px !important;',
-            '}',
-            'body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .control-bar-leftbtn > .ani-time-capsule > .vjs-time-control {',
-            '  padding: 0 !important;',
-            '  width: auto !important;',
-            '  min-width: 0 !important;',
-            '}',
-            'body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .control-bar-leftbtn > .ani-time-capsule > .vjs-time-divider {',
-            '  padding: 0 4px !important;',
-            '  opacity: 0.72;',
-            '}',
-            '',
-            'body.ani-layout-comments.ani-ambientlight-ui .tippy-box:has(.morebtn_list_content:not([style*="display: none"]) > :is([data-w-menu="edit"], [data-w-menu="delete"])) {',
-            '  border: 1px solid var(--ani-line) !important;',
-            '  border-radius: 12px !important;',
-            '  background: color-mix(in srgb, var(--ani-panel, #182432) 80%, transparent) !important;',
-            '  backdrop-filter: blur(18px) saturate(140%);',
-            '  box-shadow: 0 10px 24px #0004;',
-            '}',
-            'body.ani-layout-comments.ani-ambientlight-ui .tippy-box:has(.morebtn_list_content:not([style*="display: none"]) > :is([data-w-menu="edit"], [data-w-menu="delete"])) .tippy-arrow { display: none; }',
-            'body.ani-layout-comments.ani-ambientlight-ui .tippy-box :is([data-w-menu="edit"], [data-w-menu="delete"]) {',
-            '  display: flex;',
-            '  align-items: center;',
-            '  gap: 9px;',
-            '  padding: 8px 12px;',
-            '  border-radius: 8px;',
-            '  background: transparent !important;',
-            '  color: var(--ani-text) !important;',
-            '}',
-            'body.ani-layout-comments.ani-ambientlight-ui .tippy-box .morebtn_list_content:has(:is([data-w-menu="edit"], [data-w-menu="delete"])) { background: transparent !important; }',
-            'body.ani-layout-comments.ani-ambientlight-ui .tippy-box :is([data-w-menu="edit"], [data-w-menu="delete"]):is(:hover,:focus-visible) {',
-            '  background: color-mix(in srgb, currentColor 12%, transparent) !important;',
-            '  color: var(--ani-accent) !important;',
-            '}',
-            'html body.ani-layout-comments.ani-ambientlight-ui .tippy-box .morebtn_list_content > a[data-w-menu="delete"]:is(:hover, :focus-visible) {',
-            '  background: rgb(238 65 82 / 18%) !important;',
-            '}',
-            'html body.ani-layout-comments.ani-ambientlight-ui .tippy-box .morebtn_list_content > a[data-w-menu="delete"]:is(:hover, :focus-visible),',
-            'html body.ani-layout-comments.ani-ambientlight-ui .tippy-box .morebtn_list_content > a[data-w-menu="delete"]:is(:hover, :focus-visible) * {',
-            '  color: #ff6978 !important;',
-            '  -webkit-text-fill-color: #ff6978 !important;',
-            '}',
-            'html body.ani-layout-comments.ani-ambientlight-ui .tippy-box .morebtn_list_content > a[data-w-menu="delete"]:is(:hover, :focus-visible)::before {',
-            '  background-color: #ff6978 !important;',
-            '}',
-            'body.ani-layout-comments.ani-ambientlight-ui .tippy-box :is([data-w-menu="edit"], [data-w-menu="delete"])::before {',
-            "  content: '';",
-            '  width: 16px;',
-            '  height: 16px;',
-            '  flex: none;',
-            '  background: currentColor;',
-            '  mask: var(--ani-comment-action-icon) center / contain no-repeat;',
-            '}',
-            'body.ani-layout-comments .tippy-box [data-w-menu="edit"] {',
-            "  --ani-comment-action-icon: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round'%3E%3Cpath d='m4 16-1 5 5-1L21 7l-4-4Z M14 6l4 4'/%3E%3C/svg%3E\");",
-            '}',
-            'body.ani-layout-comments .tippy-box [data-w-menu="delete"] {',
-            "  --ani-comment-action-icon: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 6h18M9 6V3h6v3m4 0-1 15H6L5 6m5 4v7m4-7v7'/%3E%3C/svg%3E\");",
-            '}',
-            '',
-            'body.ani-layout-comments.ani-ambientlight-ui #w-post-box :is(.reply-content__edit-submit, .reply-content__edit-cancel) {',
-            '  box-sizing: border-box;',
-            '  height: 36px !important;',
-            '  padding: 0 16px !important;',
-            '  border-radius: 999px !important;',
-            '  backdrop-filter: blur(14px);',
-            '}',
-            'body.ani-layout-comments.ani-ambientlight-ui #w-post-box .reply-content__edit-submit {',
-            '  border: 1px solid color-mix(in srgb, var(--ani-accent, #3dafb6) 52%, transparent) !important;',
-            '  border-radius: 999px !important;',
-            '  background: color-mix(in srgb, var(--ani-accent, #3dafb6) 23%, var(--ani-panel-soft, #182432) 60%) !important;',
-            '  backdrop-filter: blur(14px);',
-            '  color: var(--ani-text) !important;',
-            '}',
-            'body.ani-layout-comments.ani-ambientlight-ui #w-post-box .reply-content__edit-submit:is(:hover, :focus-visible) {',
-            '  background: color-mix(in srgb, var(--ani-accent, #3dafb6) 40%, var(--ani-panel-soft, #182432) 55%) !important;',
-            '}',
-            'body.ani-layout-comments.ani-ambientlight-ui #w-post-box .reply-content__edit-cancel {',
-            '  border: 1px solid var(--ani-line) !important;',
-            '  background: color-mix(in srgb, var(--ani-panel-soft) 45%, transparent) !important;',
-            '  color: var(--ani-muted) !important;',
-            '}',
-            'body.ani-layout-comments.ani-ambientlight-ui #w-post-box .reply-content__edit-cancel:is(:hover, :focus-visible) {',
-            '  background: color-mix(in srgb, var(--ani-text) 12%, var(--ani-panel-soft) 55%) !important;',
-            '  color: var(--ani-text) !important;',
-            '}',
-            '',
-            'body.ani-layout-comments #w-post-box .webview_commendlist > [id^="CBX"]:has(> .ani-own-comment[data-w-comment-row]) {',
-            '  display: flex;',
-            '  flex-direction: column;',
-            '}',
-            'body.ani-layout-comments #w-post-box .webview_commendlist > [id^="CBX"] > .ani-own-comment[data-w-comment-row] {',
-            '  order: -1;',
-            '}',
-            '',
-            '/* Keep the document viewport stable while the schedule below the pointer changes size. */',
-            'body.ani-home-page { overflow-anchor: none; }',
-            '.ani-season-viewport { display: flow-root; min-width: 0; }',
-            '.ani-season-viewport.ani-season-moving { overflow: clip; contain: layout paint; }',
-            'body.ani-ambientlight-ui #BH_background #blockVideoInSeason .ani-season-moving .ani-week-extra-shell {',
-            '  content-visibility: visible;',
-            '}',
-            '',
-            '@media (prefers-reduced-motion: no-preference) {',
-            '  body.ani-home-page #BH_background :is(.ani-score-badge-top-left:not([hidden]), .ani-continue-position, .ani-week-score),',
-            '  body.ani-home-page #blockContinueWatch .episode-block,',
-            '  body.ani-home-page #blockVideoInSeason :is(.text-anime-time, .text-anime-number) {',
-            '    animation: ani-home-badge-in 360ms ease-in-out;',
-            '  }',
-            '  @keyframes ani-home-badge-in { from { opacity: 0; } }',
-            '}',
-            '',
-            '/* The outer box moves the document; its card grid keeps its expanded layout. */',
-            '.ani-season-viewport.ani-season-sliding { position: relative; }',
-            '.ani-season-viewport.ani-season-sliding > :first-child {',
-            '  position: absolute !important;',
-            '  inset-inline: 0;',
-            '  top: 0;',
-            '}',
-            '',
-            'body.ani-ambientlight-ui #BH_background :is(.ani-member-lock, .ani-poster-card .ani-age-restricted) {',
-            '  pointer-events: auto;',
-            '}',
-            'html body.ani-ambientlight-ui #BH_background :is(.ani-poster-card .btn-favorite, #blockVideoInSeason .btn-favorite, #blockVideoInSeason .ani-week-favorite):is(:hover, :focus-visible),',
-            'html body.ani-ambientlight-ui #BH_background :is(.ani-poster-card .btn-favorite, #blockVideoInSeason .btn-favorite, #blockVideoInSeason .ani-week-favorite):is(:hover, :focus-visible) :is(svg, svg path) {',
-            '  opacity: 1 !important;',
-            '}',
-            'html body.ani-ambientlight-ui #BH_background :is(.ani-poster-card .btn-favorite, #blockVideoInSeason .btn-favorite, #blockVideoInSeason .ani-week-favorite):is(:hover, :focus-visible) :is(svg, svg path) {',
-            '  fill: currentColor !important;',
-            '}',
-            '',
-            ".ani-load-more[aria-busy='true'] {",
-            '  display: flex;',
-            '  align-items: center;',
-            '  gap: 8px;',
-            '}',
-            ".ani-load-more[aria-busy='true']::before {",
-            "  content: '';",
-            '  inline-size: 14px;',
-            '  block-size: 14px;',
-            '  border: 2px solid color-mix(in srgb, currentColor 28%, transparent);',
-            '  border-inline-end-color: currentColor;',
-            '  border-radius: 50%;',
-            '}',
-            '@media (prefers-reduced-motion: no-preference) {',
-            "  .ani-load-more[aria-busy='true']::before { animation: ani-catalog-spinner .7s linear infinite; }",
-            '}',
-            '@keyframes ani-catalog-spinner { to { transform: rotate(1turn); } }',
-            'body:is(.ani-catalog-page, .ani-collection-page) #BH_background .animate-theme-list:has(.theme-list-block[data-ani-infinite]) :is(.loading, .loading-block, .loading-img, img[src*="loading" i]):not(.theme-list-main *) {',
-            '  display: none !important;',
-            '}',
-            '',
-            'body.ani-ambientlight-ui #BH_background .theme-list-block > .ani-browse-empty-message {',
-            '  grid-column: 1 / -1;',
-            '  flex-basis: 100%;',
-            '  inline-size: 100% !important;',
-            '  max-inline-size: none !important;',
-            '  margin-inline: auto !important;',
-            '  text-align: center !important;',
-            '  white-space: nowrap !important;',
-            '  line-height: 1.6 !important;',
-            '  font-size: clamp(11px, 3vw, 18px);',
-            '}',
-          ],
-        ],
-        [
-          10860,
-          1,
-          [
-            '  a.reply_menu:is(:hover,:focus-visible,[aria-expanded="true"]) .ani-comment-menu-icon { color:var(--ani-accent) !important; }',
-          ],
-        ],
-        [
-          10855,
-          0,
-          [
-            '  :is(.reply-content__cont, .reply-content__cont p, .input-article-content) { font-size:17px !important; }',
-          ],
-        ],
-        [10790, 1, []],
-        [
-          10775,
-          3,
-          [
-            '  a.reply_menu:has(.ani-comment-menu-icon)::before { display:none !important; }',
-            '  a.reply_menu:has(.ani-comment-menu-icon) { background-image:none !important; }',
-            '  .ani-comment-menu-icon { color:var(--ani-text) !important; display:block; pointer-events:none; }',
-          ],
-        ],
-        [10196, 0, ['  z-index: 2;', '  pointer-events: auto;']],
-        [10174, 8, []],
-        [1755, 0, ['  z-index: 0 !important;']],
-        [1516, 1, []],
-        [
-          1501,
-          4,
-          [
-            'body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #blockVideoInSeason .ani-week-expand::before,',
-            'body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #blockVideoInSeason .ani-week-expand::after { background: var(--ani-line, #b6d2df50) !important; }',
-          ],
-        ],
-        [
-          1241,
-          0,
-          [
-            'body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #blockVideoInSeason .newanime-date-area,',
-            'body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #blockVideoInSeason .newanime-date-area .date-block {',
-            '  z-index: auto !important;',
-            '}',
-          ],
-        ],
-        [
-          1200,
-          0,
-          [
-            '}',
-            'body.ani-ambientlight-page #BH_background #blockVideoInSeason :is(.newanime-wrap, .newanime-block) {',
-          ],
-        ],
-        [
-          890,
-          0,
-          [
-            'body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .theme-list-main.ani-poster-card .theme-img-block > .ani-poster-episode-labels {',
-            '  left: auto !important;',
-            '  right: 8px !important;',
-            '  bottom: 39px !important;',
-            '  max-width: calc(100% - 16px);',
-            '  flex-wrap: wrap;',
-            '  justify-content: flex-end !important;',
-            '}',
-            'body.ani-ambientlight-ui #BH_background .ani-poster-card .theme-number.ani-member-episodes {',
-            '  display: inline-flex !important;',
-            '  align-items: center;',
-            '  gap: 4px;',
-            '}',
-          ],
-        ],
-        [
-          711,
-          2,
-          [
-            'body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #blockContinueWatch .continue-watch-card .info-row > :is(.episode-block,.ani-continue-position) { position: relative; z-index: 6; background: linear-gradient(135deg,rgba(97,159,188,.88),rgba(64,119,150,.82)) !important; color: #fff !important; opacity: 1; filter: none !important; }',
-            'body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #blockContinueWatch .info-row :is(.episode-watched,.ani-continue-position) { color: #fff !important; opacity: 1; filter: none !important; }',
-          ],
-        ],
-        [
-          705,
-          1,
-          [
-            '  .ani-poster-card.ani-poster-title-marquee .ani-title-overflow > .ani-title-marquee {',
-          ],
-        ],
-        [
-          683,
-          1,
-          [
-            'body.ani-ambientlight-ui #BH_background .ani-poster-card .ani-paid-label-source:not(.ani-poster-episode-labels > *) { display: none !important; }',
-          ],
-        ],
-        [
-          477,
-          1,
-          [
-            '#BH_background .ani-ep-list-expand:not([hidden]) { display: grid; grid-template-columns: minmax(0,1fr) 44px minmax(0,1fr); align-items: center; width: 100%; box-sizing: border-box; padding: 0; margin: 4px 0 16px; gap: 16px; border: 0; border-radius: 0; background: transparent; backdrop-filter: none; box-shadow: none; color: var(--ani-text, #edf5fa); cursor: pointer; }',
-          ],
-        ],
-        [
-          462,
-          0,
-          [
-            'body.ani-ambientlight-ui #BH_background #blockVideoInSeason .ani-week-extra-shell {',
-            '  content-visibility: auto;',
-            '  contain-intrinsic-block-size: auto 112px;',
-            '}',
-          ],
-        ],
-        [
-          443,
-          1,
-          [
-            'body.ani-ambientlight-ui #BH_background #blockVideoInSeason .ani-week-cover { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(3px); z-index: -2; pointer-events: none; opacity: 0; }',
-            'body.ani-ambientlight-ui #BH_background #blockVideoInSeason .ani-week-cover.is-ready { opacity: 1; }',
-            '@media (prefers-reduced-motion: no-preference) {',
-            '  body.ani-ambientlight-ui #BH_background #blockVideoInSeason .ani-week-cover.is-ready {',
-            '    animation: ani-week-cover-in 200ms ease-out;',
-            '  }',
-            '  @keyframes ani-week-cover-in { from { opacity: 0; } }',
-            '}',
-          ],
-        ],
-        [
-          438,
-          1,
-          [
-            '  position: relative !important; isolation: isolate; contain: layout style paint; display: flex !important; align-items: center; justify-content: center;',
-          ],
-        ],
-        [
-          413,
-          0,
-          [
-            'body.ani-ambientlight-ui #BH_background #blockVideoInSeason .today-list .day-title {',
-            '  color: #ffcf87 !important;',
-            '  background: rgba(239, 166, 68, 0.2) !important;',
-            '  border-color: rgba(239, 166, 68, 0.55) !important;',
-            '}',
-            'body.ani-ambientlight-ui #BH_background #blockVideoInSeason .today-list .text-anime-info {',
-            '  border-color: rgba(239, 166, 68, 0.36) !important;',
-            '}',
-          ],
-        ],
-        [411, 1, []],
-        [
-          409,
-          1,
-          [
-            'body.ani-ambientlight-ui #BH_background #blockVideoInSeason .today-list {',
-            '  padding: 12px 10px 8px !important;',
-            '  border: 1px solid rgba(239, 166, 68, 0.5) !important;',
-            '  border-radius: 16px !important;',
-            '  background: linear-gradient(180deg, rgba(239, 166, 68, 0.18) 0%, rgba(239, 166, 68, 0.07) 58%, rgba(239, 166, 68, 0.03) 100%) !important;',
-            '  box-shadow: inset 0 1px 0 rgba(255, 206, 138, 0.22), 0 8px 24px rgba(239, 166, 68, 0.08) !important;',
-            '}',
-          ],
-        ],
-        [
-          407,
-          1,
-          [
-            'body.ani-ambientlight-ui #BH_background #blockVideoInSeason .programlist-block { display: grid !important; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 16px; padding: 10px 0 4px; box-sizing: border-box; background: transparent !important; }',
-          ],
-        ],
-        [
-          400,
-          0,
-          [
-            '#blockVideoInSeason .newanime-nav > .ani-week-notice { display: none !important; }',
-            'body.ani-ambientlight-ui #blockVideoInSeason:has(.ani-week-notice) .programlist-wrap > .programlist-hint {',
-            '  display: none !important;',
-            '}',
-            'body.ani-ambientlight-ui #BH_background #blockVideoInSeason .newanime-nav:has(.textpage-switch-page.nav-choose-segment) > .ani-week-notice {',
-            '  display: block !important;',
-            '  min-width: 0;',
-            '  margin: 0 0 0 auto !important;',
-            '  padding: 0 !important;',
-            '  color: var(--ani-muted) !important;',
-            '  font-size: 13px !important;',
-            '  line-height: 1.4 !important;',
-            '  text-align: right !important;',
-            '}',
-            '@media (max-width: 760px) {',
-            '  body.ani-ambientlight-ui #BH_background #blockVideoInSeason .newanime-nav:has(.textpage-switch-page.nav-choose-segment) {',
-            '    flex-wrap: wrap !important;',
-            '    gap: 8px 16px !important;',
-            '  }',
-            '  body.ani-ambientlight-ui #BH_background #blockVideoInSeason .newanime-nav:has(.textpage-switch-page.nav-choose-segment) > .ani-week-notice {',
-            '    max-width: 100%;',
-            '  }',
-            '}',
-          ],
-        ],
-        [
-          121,
-          0,
-          [
-            '@media (prefers-reduced-motion: no-preference) {',
-            '  .ani-hero-title-track { display: inline-block; width: max-content; }',
-            '  body.ani-ambientlight-page .ani-hero-heading h2.ani-hero-title-overflow {',
-            '    text-overflow: clip;',
-            '    mask-image: linear-gradient(to right, transparent, #000 8px, #000 calc(100% - 14px), transparent);',
-            '  }',
-            '  .ani-hero-title-overflow > .ani-hero-title-track {',
-            '    animation: aniTitleMarquee var(--ani-marquee-dur, 7s) ease-in-out infinite;',
-            '  }',
-            '}',
-          ],
-        ],
-      ],
-    };
-    const readResource = (name) => {
-      const text = GM_getResourceText(name);
-      const changes = resourceChanges[name];
-      if (!changes) return text;
-      const lines = text.replaceAll('\r\n', '\n').split('\n');
-      for (const [start, count, added] of changes) lines.splice(start, count, ...added);
-      return lines.join('\n');
-    };
-    GM_addStyle(
-      [
-        'ani_content_css',
-        'ani_effects_css',
-        'ani_settings_css',
-        'ani_hero_css',
-        'ani_dashboard_css',
-        'ani_repairs_css',
-      ]
-        .map(readResource)
-        .join('\n') +
-        '\n' +
-        `/* Anigamer Redesign 3.0 Enhancements — Unified Rounded-Rectangle Filter Design, White SVG Icons, Official-Parity History Cards & Fullscreen Subtitle Marquee */
+  // 三、主題與設定介面樣式（於 document-start 預先注入以消除切換閃爍）
+  const resourceChanges = {};
+  const readResource = (name) => {
+    const text = GM_getResourceText(name) || '';
+    const changes = resourceChanges[name];
+    if (!changes) return text;
+    const lines = text.replaceAll('\r\n', '\n').split('\n');
+    for (const [start, count, added] of changes) lines.splice(start, count, ...added);
+    return lines.join('\n');
+  };
+  GM_addStyle(
+    [
+      'ani_content_css',
+      'ani_effects_css',
+      'ani_settings_css',
+      'ani_hero_css',
+      'ani_dashboard_css',
+      'ani_repairs_css',
+    ]
+      .map(readResource)
+      .join('\n') +
+      '\n' +
+      `/* Anigamer Redesign 3.0 Enhancements — Unified Rounded-Rectangle Filter Design, White SVG Icons, Official-Parity History Cards & Fullscreen Subtitle Marquee */
 
 /* ── Utility hiding classes (never overwrite card.hidden so native filters compose cleanly) ── */
 html body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.animate-theme-list, .old_list) .theme-list-main.ani-poster-card:is(.ani-col-status-hidden, .ani-catalog-excluded, .ani-exclude-hidden, .ani-origin-hidden),
@@ -3412,7 +2917,47 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
 }
 
 `,
-    );
+  );
+  const start = () => {
+    // 二、使用者設定儲存
+
+    const listeners = new Set();
+    let cached = {};
+    const emit = (oldValue, newValue) => {
+      const changes = {};
+      for (const key of Object.keys(newValue))
+        if (oldValue[key] !== newValue[key])
+          changes[key] = { oldValue: oldValue[key], newValue: newValue[key] };
+      for (const listener of listeners) listener(changes, 'sync');
+    };
+    globalThis.AniAmbientStorage = {
+      get(defaults, callback) {
+        Promise.resolve(GM_getValue('aniAmbientSettingsV1', {})).then((saved) => {
+          cached = { ...defaults, ...saved };
+          callback(cached);
+        });
+      },
+      set(values) {
+        const before = cached;
+        cached = { ...cached, ...values };
+        Promise.resolve(GM_setValue('aniAmbientSettingsV1', cached)).then(() =>
+          emit(before, cached),
+        );
+      },
+      onChanged: {
+        addListener(listener) {
+          listeners.add(listener);
+        },
+      },
+    };
+    if (typeof GM_addValueChangeListener === 'function')
+      GM_addValueChangeListener('aniAmbientSettingsV1', (_key, oldValue, newValue, remote) => {
+        if (remote) {
+          cached = newValue || {};
+          emit(oldValue || {}, cached);
+        }
+      });
+
     // 四、設定定義與表單
     (() => {
       'use strict';
@@ -9613,11 +9158,24 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           shown: initOn,
         };
 
+        let hovering = false;
+        let running = false;
+        let rafId = 0;
+        let isSettled = false;
+        const wake = () => {
+          if (!running && wrap.isConnected) {
+            running = true;
+            s.last = null;
+            rafId = requestAnimationFrame(loop);
+          }
+        };
+
         const setOn = (nextOn, silent = false) => {
           const target = nextOn ? 1 : 0;
           if (s.on === target) return;
           s.on = target;
           stage.setAttribute('aria-checked', target ? 'true' : 'false');
+          wake();
           if (!silent && typeof onToggle === 'function') onToggle(target === 1);
         };
 
@@ -9636,15 +9194,23 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             setOn(s.on ? 0 : 1, false);
           }
         });
+        wrap.addEventListener('pointerenter', () => {
+          hovering = true;
+          wake();
+        });
         wrap.addEventListener('pointermove', (e) => {
+          hovering = true;
           const r = stage.getBoundingClientRect();
           if (!r.width || !r.height) return;
           s.tmx = clamp((e.clientX - r.left) / r.width, 0, 1) * 2 - 1;
           s.tmy = clamp((e.clientY - r.top) / r.height, 0, 1) * 2 - 1;
+          wake();
         });
         wrap.addEventListener('pointerleave', () => {
+          hovering = false;
           s.tmx = 0;
           s.tmy = 0;
+          wake();
         });
 
         const widths = new WeakMap();
@@ -9661,6 +9227,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               } else widths.set(entry.target, entry.contentRect.width);
             }
             pixelsDirty = true;
+            wake();
           });
         if (sizes) {
           sizes.observe(member);
@@ -9694,7 +9261,6 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         }
 
         let checked = -1;
-        let rafId = 0;
         let settledFrameDrawn = false;
 
         function draw(f) {
@@ -9806,11 +9372,15 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           }
         }
 
-        const loop = (nowMs) => {
-          if (!wrap.isConnected) return;
+        function loop(nowMs) {
+          if (!wrap.isConnected) {
+            running = false;
+            rafId = 0;
+            return;
+          }
           const t = nowMs / 1000;
           const reduced = query.matches;
-          const dt = s.last === null ? 1 / 60 : Math.min(MAX_DT, t - s.last);
+          const rawDt = s.last === null ? 1 / 60 : Math.max(0, t - s.last);
           s.last = t;
 
           if (s.on !== s.shown) {
@@ -9833,13 +9403,19 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             s.tmx = 0;
             s.tmy = 0;
           } else {
-            s.spin += (RIM_K * (s.rimTarget - s.angle) - RIM_C * s.spin) * dt;
-            s.angle += s.spin * dt;
-            const a = SPRING_K * (s.on - s.pos) - SPRING_C * s.vel;
-            s.vel += a * dt;
-            s.pos += s.vel * dt;
+            const stepTotal = Math.min(0.5, rawDt);
+            const subSteps = Math.max(1, Math.ceil(stepTotal / 0.025));
+            const h = stepTotal / subSteps;
+            for (let i = 0; i < subSteps; i++) {
+              s.spin += (RIM_K * (s.rimTarget - s.angle) - RIM_C * s.spin) * h;
+              s.angle += s.spin * h;
+              const a = SPRING_K * (s.on - s.pos) - SPRING_C * s.vel;
+              s.vel += a * h;
+              s.pos += s.vel * h;
+            }
           }
-          s.glow += ((s.on ? 1 : 0) - s.glow) * Math.min(1, dt * (s.on ? WARM_RATE : COOL_RATE));
+          s.glow +=
+            ((s.on ? 1 : 0) - s.glow) * (1 - Math.exp(-rawDt * (s.on ? WARM_RATE : COOL_RATE)));
           const fl = reduced
             ? s.glow
             : s.glow *
@@ -9848,8 +9424,9 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
                   Math.max(0, Math.sin(t * FLICKER_SPEED)) *
                   Math.max(0, 1 - s.glow * FLICKER_END));
 
-          s.mx += (s.tmx - s.mx) * Math.min(1, dt * FOLLOW_RATE);
-          s.my += (s.tmy - s.my) * Math.min(1, dt * FOLLOW_RATE);
+          const follow = 1 - Math.exp(-rawDt * FOLLOW_RATE);
+          s.mx += (s.tmx - s.mx) * follow;
+          s.my += (s.tmy - s.my) * follow;
           const ix = reduced ? s.mx : s.mx + Math.sin(t * SWAY_X_SPEED) * SWAY_X;
           const iy = reduced ? s.my : s.my + Math.cos(t * SWAY_Y_SPEED) * SWAY_Y;
           const kx = lerp(KNOB_X_OFF, KNOB_X_ON, s.pos);
@@ -9857,44 +9434,95 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           const sq = clamp(Math.abs(s.vel) / SQUASH_SPEED, 0, SQUASH_MAX);
 
           const settled =
-            Math.abs(s.pos - s.on) < 0.0001 &&
-            Math.abs(s.vel) < 0.001 &&
-            Math.abs(s.angle - s.rimTarget) < 0.001 &&
-            Math.abs(s.spin) < 0.001 &&
-            Math.abs(fl - s.on) < 0.0001 &&
+            Math.abs(s.pos - s.on) < 0.002 &&
+            Math.abs(s.vel) < 0.01 &&
+            Math.abs(s.angle - s.rimTarget) < 0.1 &&
+            Math.abs(s.spin) < 0.1 &&
+            Math.abs(fl - s.on) < 0.015 &&
             t > s.morph.start + MORPH + MORPH_STAGGER;
-          if (!document.hidden) {
-            if (!settled || !settledFrameDrawn || pixelsDirty) {
-              draw({
-                on: s.on,
-                pos: s.pos,
-                fl,
-                kx,
-                kc,
-                sq,
-                angle: s.angle,
-                dots: sample(s.morph, t, reduced),
-                ix,
-                iy,
-              });
-              settledFrameDrawn = settled;
-              pixelsDirty = false;
-            } else {
-              // Only the lens reflection sways once the glyph and rim have settled.
-              wrap.style.setProperty('--ix', String(ix));
-              wrap.style.setProperty('--iy', String(iy));
-            }
+          isSettled = settled;
+          let drawFl = fl;
+          let drawKx = kx;
+          let drawKc = kc;
+          let drawSq = sq;
+          if (settled) {
+            s.pos = s.on;
+            s.vel = 0;
+            s.angle = s.rimTarget;
+            s.spin = 0;
+            s.glow = s.on;
+            drawFl = s.on;
+            drawKx = lerp(KNOB_X_OFF, KNOB_X_ON, s.on);
+            drawKc = drawKx - TRACK_X + KNOB_D / 2;
+            drawSq = 0;
           }
+          if (document.hidden) {
+            if (settled && !hovering) {
+              running = false;
+              rafId = 0;
+              return;
+            }
+            rafId = requestAnimationFrame(loop);
+            return;
+          }
+          if (!settled || !settledFrameDrawn || pixelsDirty) {
+            const resting = settled && !hovering && Math.abs(s.mx) < 0.01 && Math.abs(s.my) < 0.01;
+            if (resting) {
+              s.mx = 0;
+              s.my = 0;
+            }
+            draw({
+              on: s.on,
+              pos: s.pos,
+              fl: drawFl,
+              kx: drawKx,
+              kc: drawKc,
+              sq: drawSq,
+              angle: s.angle,
+              dots: sample(s.morph, t, reduced),
+              ix: resting ? 0 : ix,
+              iy: resting ? 0 : iy,
+            });
+            settledFrameDrawn = settled;
+            pixelsDirty = false;
+            if (resting) {
+              running = false;
+              rafId = 0;
+              return;
+            }
+            rafId = requestAnimationFrame(loop);
+            return;
+          }
+          if (!hovering && Math.abs(s.mx) < 0.01 && Math.abs(s.my) < 0.01) {
+            s.mx = 0;
+            s.my = 0;
+            wrap.style.setProperty('--ix', '0');
+            wrap.style.setProperty('--iy', '0');
+            running = false;
+            rafId = 0;
+            return;
+          }
+          // Only the lens reflection sways once the glyph and rim have settled while hovered.
+          wrap.style.setProperty('--ix', String(ix));
+          wrap.style.setProperty('--iy', String(iy));
           rafId = requestAnimationFrame(loop);
-        };
+        }
 
-        rafId = requestAnimationFrame(loop);
+        const onVisibilityChange = () => {
+          if (!document.hidden && (!isSettled || pixelsDirty)) wake();
+        };
+        document.addEventListener('visibilitychange', onVisibilityChange);
+
+        wake();
         mounted = {
           wrap,
           setOn,
           destroy() {
+            document.removeEventListener('visibilitychange', onVisibilityChange);
             if (sizes) sizes.disconnect();
             cancelAnimationFrame(rafId);
+            running = false;
+            rafId = 0;
             wrap.remove();
             if (mounted?.wrap === wrap) mounted = null;
           },
@@ -11137,6 +10765,78 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
         document.body?.classList.toggle('ani-custom-font', Boolean(font));
       }
 
+      let themeSwitchTimer = 0;
+      let themeSwitchRaf = 0;
+      function withThemeTransitionSuppression(fn) {
+        const root = document.documentElement;
+        root.classList.add('ani-theme-switching');
+        try {
+          fn();
+        } finally {
+          clearTimeout(themeSwitchTimer);
+          if (themeSwitchRaf && typeof cancelAnimationFrame === 'function')
+            cancelAnimationFrame(themeSwitchRaf);
+          themeSwitchTimer = 0;
+          themeSwitchRaf = 0;
+          const scheduleClear = () => {
+            themeSwitchTimer = setTimeout(() => {
+              themeSwitchTimer = 0;
+              root.classList.remove('ani-theme-switching');
+            }, 80);
+          };
+          if (typeof requestAnimationFrame === 'function') {
+            themeSwitchRaf = requestAnimationFrame(() => {
+              themeSwitchRaf = requestAnimationFrame(() => {
+                themeSwitchRaf = 0;
+                scheduleClear();
+              });
+            });
+          } else {
+            scheduleClear();
+          }
+        }
+      }
+      function readSavedLightMode() {
+        try {
+          return localStorage.getItem('aniLightMode') === '1';
+        } catch {
+          return false;
+        }
+      }
+      function applyLightMode(isLight, { persist = false, syncSwitch = false } = {}) {
+        const target = Boolean(isLight);
+        const changed =
+          document.documentElement.classList.contains('ani-light-mode') !== target ||
+          (document.body ? document.body.classList.contains('ani-light-mode') !== target : false);
+        if (changed) {
+          withThemeTransitionSuppression(() => {
+            document.documentElement.classList.toggle('ani-light-mode', target);
+            document.body?.classList.toggle('ani-light-mode', target);
+          });
+        }
+        if (persist) {
+          try {
+            localStorage.setItem('aniLightMode', target ? '1' : '0');
+          } catch {}
+        }
+        if (
+          syncSwitch &&
+          globalThis.AniLensSwitch &&
+          document.querySelector('.ani-lens-theme-wrap')
+        ) {
+          globalThis.AniLensSwitch.mount({ initialLight: target });
+        }
+      }
+      if (typeof window !== 'undefined' && window.addEventListener) {
+        window.addEventListener('pageshow', (event) => {
+          if (event.persisted) applyLightMode(readSavedLightMode(), { syncSwitch: true });
+        });
+        window.addEventListener('storage', (event) => {
+          if (event.key === 'aniLightMode')
+            applyLightMode(event.newValue === '1', { syncSwitch: true });
+        });
+      }
+
       function applyPageTheme() {
         // This theme owns both light and dark palettes. A second automatic
         // recoloring pass turns translucent white rims into dark opaque fills.
@@ -11207,6 +10907,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
               : 'none',
           );
         }
+        applyLightMode(readSavedLightMode());
         document.body?.classList.toggle(
           'ani-controls-transparent',
           settings.controlStyle === 'transparent',
@@ -11300,11 +11001,17 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
           )
         )
           document.querySelector('.subtitle .ani-tabs-link[href="#ani-tab-content-1"]')?.click();
-        document.body?.classList.toggle(
-          'ani-theme-light',
+        const nextThemeLight =
           settings.appearance === 'light' ||
-            (settings.appearance === 'system' && systemAppearance.matches),
-        );
+          (settings.appearance === 'system' && systemAppearance.matches);
+        if (
+          document.body &&
+          document.body.classList.contains('ani-theme-light') !== nextThemeLight
+        ) {
+          withThemeTransitionSuppression(() =>
+            document.body.classList.toggle('ani-theme-light', nextThemeLight),
+          );
+        }
         for (const key of [
           'headerOpacity',
           'headerTint',
@@ -20449,20 +20156,12 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > .a
             globalThis.AniHomeDashboard?.mount(settings);
         }
         if (globalThis.AniLensSwitch) {
-          let savedLight = false;
-          try {
-            savedLight = localStorage.getItem('aniLightMode') === '1';
-          } catch {}
-          document.documentElement.classList.toggle('ani-light-mode', savedLight);
-          document.body?.classList.toggle('ani-light-mode', savedLight);
+          const savedLight = readSavedLightMode();
+          applyLightMode(savedLight);
           globalThis.AniLensSwitch.mount({
             initialLight: savedLight,
             onToggle: (isLight) => {
-              document.documentElement.classList.toggle('ani-light-mode', isLight);
-              document.body?.classList.toggle('ani-light-mode', isLight);
-              try {
-                localStorage.setItem('aniLightMode', isLight ? '1' : '0');
-              } catch {}
+              applyLightMode(isLight, { persist: true });
             },
           });
         }
