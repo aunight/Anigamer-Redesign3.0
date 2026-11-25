@@ -13,16 +13,16 @@
 // @run-at       document-start
 // @inject-into  content
 // @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
-// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/484787e7a03b376962b08cbb64566c915a075059/src/studio-catalog.json
-// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/484787e7a03b376962b08cbb64566c915a075059/src/studio-profiles.json
-// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/484787e7a03b376962b08cbb64566c915a075059/src/studio-directory-icons.json
-// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/484787e7a03b376962b08cbb64566c915a075059/src/studio-logos.json
-// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/484787e7a03b376962b08cbb64566c915a075059/src/content.css
-// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/484787e7a03b376962b08cbb64566c915a075059/src/effects.css
-// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/484787e7a03b376962b08cbb64566c915a075059/src/settings-ui.css
-// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/484787e7a03b376962b08cbb64566c915a075059/src/hero-banner.css
-// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/484787e7a03b376962b08cbb64566c915a075059/src/home-dashboard.css
-// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/484787e7a03b376962b08cbb64566c915a075059/src/ui-repairs.css
+// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/9b3d250fec8b743a3f5936b42cd6f055c1c1ea67/src/studio-catalog.json
+// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/9b3d250fec8b743a3f5936b42cd6f055c1c1ea67/src/studio-profiles.json
+// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/9b3d250fec8b743a3f5936b42cd6f055c1c1ea67/src/studio-directory-icons.json
+// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/9b3d250fec8b743a3f5936b42cd6f055c1c1ea67/src/studio-logos.json
+// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/9b3d250fec8b743a3f5936b42cd6f055c1c1ea67/src/content.css
+// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/9b3d250fec8b743a3f5936b42cd6f055c1c1ea67/src/effects.css
+// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/9b3d250fec8b743a3f5936b42cd6f055c1c1ea67/src/settings-ui.css
+// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/9b3d250fec8b743a3f5936b42cd6f055c1c1ea67/src/hero-banner.css
+// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/9b3d250fec8b743a3f5936b42cd6f055c1c1ea67/src/home-dashboard.css
+// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/9b3d250fec8b743a3f5936b42cd6f055c1c1ea67/src/ui-repairs.css
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -6478,12 +6478,23 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           const bMatch = key && norm(b.title).includes(key) ? 1 : 0;
           if (aMatch !== bMatch) return bMatch - aMatch;
           if (a.isShort !== b.isShort) return a.isShort ? 1 : -1;
-          const aOfficial = /official|mv|ノンクレジット|opening|ending|主題歌/i.test(a.title)
-            ? 1
-            : 0;
-          const bOfficial = /official|mv|ノンクレジット|opening|ending|主題歌/i.test(b.title)
-            ? 1
-            : 0;
+          const aCover =
+            /piano|ピアノ|cover|歌ってみた|弾いてみた|譜面|楽譜|karaoke|カラオケ/i.test(a.title)
+              ? 1
+              : 0;
+          const bCover =
+            /piano|ピアノ|cover|歌ってみた|弾いてみた|譜面|楽譜|karaoke|カラオケ/i.test(b.title)
+              ? 1
+              : 0;
+          if (aCover !== bCover) return aCover - bCover;
+          const aOfficial =
+            /official|music\s*video|\bmv\b|ノンクレジット|opening|ending|主題歌/i.test(a.title)
+              ? 1
+              : 0;
+          const bOfficial =
+            /official|music\s*video|\bmv\b|ノンクレジット|opening|ending|主題歌/i.test(b.title)
+              ? 1
+              : 0;
           return bOfficial - aOfficial;
         });
         return ranked[0]?.id || '';
@@ -24674,7 +24685,10 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           const creditGroup = (text) => {
             const label = text
               .trim()
-              .replace(/^[<＜【\[─—–-]+\s*|\s*[>＞】\]─—–-]+$|[:：]$/g, '')
+              .replace(
+                /^[\s\p{Extended_Pictographic}\uFE0F<＜【\[「『─—–\-‧•・*★☆♦◆♪♫]+|[\s\p{Extended_Pictographic}\uFE0F>＞】\]」』─—–\-:：★☆♦◆♪♫]+$/gu,
+                '',
+              )
               .trim();
             if (/^(?:STAFF|製作團隊|製作人員)$/i.test(label)) return '製作團隊';
             if (/^(?:CAST|聲優(?:演員)?)$/i.test(label)) return '聲優';
@@ -24753,16 +24767,20 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
               );
             }
           };
-          const loadBangumiStaff = () => {
+          const loadBangumiStaff = (workTitle = '') => {
             if (creditsPending) return;
             const enhancement = globalThis.AniEnhancements;
             const href = enhancement?.bangumiWorkLink(document);
-            const id = href?.match(/^https:\/\/bgm\.tv\/subject\/(\d+)$/)?.[1];
-            if (!id || bangumiStaffKey === id) return;
-            bangumiStaffKey = id;
+            const id =
+              href?.match(/^https?:\/\/(?:bgm\.tv|bangumi\.tv|chii\.in)\/subject\/(\d+)/)?.[1] ||
+              '';
+            const cleanTitle = String(workTitle || '').trim();
+            const requestKey = id || cleanTitle;
+            if (!requestKey || bangumiStaffKey === requestKey) return;
+            bangumiStaffKey = requestKey;
             const applyStaff = (rows) => {
               if (
-                bangumiStaffKey !== id ||
+                bangumiStaffKey !== requestKey ||
                 !introPane.isConnected ||
                 !Array.isArray(rows) ||
                 !rows.length
@@ -24777,40 +24795,68 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
                 }));
               if (bangumiStaff.length) populateIntroPane();
             };
+            const mapPersons = (list) => {
+              if (!Array.isArray(list)) return [];
+              const byRole = new Map();
+              for (const item of list) {
+                const role = String(item?.relation || '').trim();
+                const name = String(item?.name_cn || item?.name || '').trim();
+                if (!role || !name) continue;
+                if (!byRole.has(role)) byRole.set(role, []);
+                const names = byRole.get(role);
+                if (!names.includes(name)) names.push(name);
+              }
+              return [...byRole.entries()].map(([title, names]) => ({
+                title,
+                val: names.join('、'),
+              }));
+            };
             if (typeof GM_xmlhttpRequest === 'function') {
-              GM_xmlhttpRequest({
-                method: 'GET',
-                url: `https://api.bgm.tv/v0/subjects/${id}/persons`,
-                headers: { Accept: 'application/json' },
-                anonymous: true,
-                timeout: 8000,
-                onload: (response) => {
-                  if (response.status !== 200) return;
-                  try {
-                    const list = JSON.parse(response.responseText);
-                    if (!Array.isArray(list)) return;
-                    const byRole = new Map();
-                    for (const item of list) {
-                      const role = String(item?.relation || '').trim();
-                      const name = String(item?.name_cn || item?.name || '').trim();
-                      if (!role || !name) continue;
-                      if (!byRole.has(role)) byRole.set(role, []);
-                      const names = byRole.get(role);
-                      if (!names.includes(name)) names.push(name);
-                    }
-                    applyStaff(
-                      [...byRole.entries()].map(([title, names]) => ({
-                        title,
-                        val: names.join('、'),
-                      })),
-                    );
-                  } catch {}
-                },
-              });
+              const gmJson = (url, method = 'GET', body) =>
+                new Promise((resolve) =>
+                  GM_xmlhttpRequest({
+                    method,
+                    url,
+                    headers: {
+                      Accept: 'application/json',
+                      ...(body ? { 'Content-Type': 'application/json' } : {}),
+                    },
+                    data: body,
+                    anonymous: true,
+                    timeout: 8000,
+                    onload: (r) => {
+                      try {
+                        resolve(r.status === 200 ? JSON.parse(r.responseText) : null);
+                      } catch {
+                        resolve(null);
+                      }
+                    },
+                    onerror: () => resolve(null),
+                    ontimeout: () => resolve(null),
+                  }),
+                );
+              (async () => {
+                let sid = id;
+                if (!sid && cleanTitle) {
+                  const s = await gmJson(
+                    'https://api.bgm.tv/v0/search/subjects',
+                    'POST',
+                    JSON.stringify({ keyword: cleanTitle, filter: { type: [2] } }),
+                  );
+                  const firstId = s?.data?.[0]?.id;
+                  if (/^\d+$/.test(String(firstId || ''))) sid = String(firstId);
+                }
+                if (!sid) return;
+                const list = await gmJson(`https://api.bgm.tv/v0/subjects/${sid}/persons`);
+                applyStaff(mapPersons(list));
+              })();
             } else if (globalThis.chrome?.runtime?.sendMessage) {
-              chrome.runtime.sendMessage({ type: 'ani-fetch-bangumi-staff', id }, (response) => {
-                if (!chrome.runtime.lastError) applyStaff(response?.staff);
-              });
+              chrome.runtime.sendMessage(
+                { type: 'ani-fetch-bangumi-staff', id, title: cleanTitle },
+                (response) => {
+                  if (!chrome.runtime.lastError) applyStaff(response?.staff);
+                },
+              );
             }
           };
           const themeVideoCache = new Map();
@@ -25049,7 +25095,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
             let synopsisCreditGroup;
             let previousCreditHeader;
             const staffKeyRe =
-              /^(?:原作性質|原作|原案|原作插畫|監督|助監督|導演|導演監督|總監督|系列構成|構成、腳本|劇本|劇本統籌|角色原案|角色設定|角色設計|人物設定|道具設計|物品設計|機械設定|音樂|動畫製作|製作|美術設定|色彩設計|編輯|剪輯|背景|2D作業．特殊効果|(?:總作畫|作畫|美術|攝影|音響|3D)監督)$/;
+              /^(?:原作性質|原作|原案|原作漫畫|漫畫|原作插畫|監督|助監督|導演|導演監督|總監督|系列構成|構成、腳本|劇本|劇本統籌|角色原案|角色設定|角色設計|人物設定|道具設計|物品設計|機械設定|音樂|動畫製作|製作|美術設定|色彩設計|編輯|剪輯|背景|2D作業．特殊効果|(?:總作畫|作畫|美術|攝影|音響|3D)監督)$/;
             const rawSegments = [];
             for (const rawLine of rawDescText.split(/\r?\n/)) {
               if (/[｜|][^｜|\n]{1,14}[：:]/.test(rawLine)) {
@@ -25377,6 +25423,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
                 );
               }
               const displayed = new Set();
+              const seenByTitle = new Map();
               for (const item of candidates) {
                 const title = isStaff ? normalizeStaffRole(item.title) : item.title;
                 if (
@@ -25386,10 +25433,27 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
                 )
                   continue;
                 const val = isStaff ? verifiedStaff?.[title] || item.val : item.val;
-                const key = `${title}|${isStaff && verifiedStaff?.[title] ? '' : normalizeStaffValue(val || '')}`;
+                const normVal = normalizeStaffValue(val || '');
+                const key = `${title}|${isStaff && verifiedStaff?.[title] ? '' : normVal}`;
                 if (!val || (isStaff && repeatsStudio({ title, val })) || displayed.has(key))
                   continue;
+                if (isStaff && seenByTitle.has(title)) {
+                  const prevIdx = seenByTitle.get(title);
+                  const prevVal = fields[prevIdx].val;
+                  const prevNorm = normalizeStaffValue(prevVal);
+                  if (
+                    normVal === prevNorm ||
+                    normVal.startsWith(prevNorm) ||
+                    (/[（(][^）)]*$/.test(prevVal) && val.length > prevVal.length)
+                  ) {
+                    fields[prevIdx] = { title, val };
+                    displayed.add(key);
+                    continue;
+                  }
+                  if (prevNorm.startsWith(normVal)) continue;
+                }
                 displayed.add(key);
+                seenByTitle.set(title, fields.length);
                 fields.push({ title, val });
               }
               if (isStaff) {
@@ -25424,7 +25488,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
                       : '';
                   if (studio) fields.push({ title: '動畫製作', val: studio });
                 }
-                if (fields.length < 8 && !bangumiStaff.length) loadBangumiStaff();
+                if (fields.length < 8 && !bangumiStaff.length) loadBangumiStaff(workTitle);
               }
               html += `<section class="ani-side-extra-block" data-credit-panel="${name}" ${name === selected ? '' : 'hidden'}>`;
               if (name === '主題曲') {
@@ -25565,6 +25629,16 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
                     実: '實',
                     会: '會',
                     弥: '彌',
+                    関: '關',
+                    桜: '櫻',
+                    亜: '亞',
+                    黒: '黑',
+                    広: '廣',
+                    辺: '邊',
+                    国: '國',
+                    遙: '遙',
+                    遥: '遙',
+                    斉: '齊',
                     すみれ: '堇',
                     ファイルーズあい: '菲魯茲藍',
                   };
@@ -25572,8 +25646,8 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
                   return (globalThis.AniEnhancements?.traditionalTitle(normalized) || normalized)
                     .replace(/[\p{White_Space}・·]/gu, '')
                     .replace(
-                      /ファイルーズあい|すみれ|[内沢恵聡渉斎実会弥]/g,
-                      (text) => variants[text],
+                      /ファイルーズあい|すみれ|[内沢恵聡渉斎実会弥関桜亜黒広辺国遥斉]/g,
+                      (text) => variants[text] || text,
                     );
                 };
                 const localizedByActor = new Map();

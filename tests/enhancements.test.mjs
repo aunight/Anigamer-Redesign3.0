@@ -1869,3 +1869,82 @@ test('theme song fallback cards resolve YouTube thumbnails asynchronously and ke
   assert.match(repairsCss, /\.ani-plus-danmu-count\s*>\s*:nth-child\(n\+2\)/);
   assert.match(repairsCss, /#sub_list:is\(\.ani-dm-loading,\s*:not\(\[data-tip\]\):empty\)::before/);
 });
+
+test('emoji-wrapped ACG staff/cast headers, Japanese kanji cast variants, and MV-over-cover ranking resolve cleanly', async t => {
+  const vm = await import('node:vm');
+  const originContext = vm.createContext({ URL, Number, String, Array, Object, Set, JSON });
+  vm.runInContext(fs.readFileSync('src/work-origin.js', 'utf8'), originContext);
+  const mvId = originContext.extractYoutubeThemeVideoId(
+    `<script>var ytInitialData = ${JSON.stringify({
+      contents: [
+        { videoRenderer: { videoId: 'SjhMBjgUPQo', title: { runs: [{ text: 'かなわない、/センチミリメンタル/ピアノソロ【楽譜】' }] }, lengthText: { simpleText: '3:50' } } },
+        { videoRenderer: { videoId: 'XuWrM94AYfQ', title: { runs: [{ text: 'センチミリメンタル 『かなわない、』 Music Video' }] }, lengthText: { simpleText: '3:45' } } },
+      ],
+    })};</script>`,
+    'かなわない、',
+  );
+  assert.equal(mvId, 'XuWrM94AYfQ');
+
+  const acgHtml = `<b>💐製作團隊🧪</b><ul>
+    <li>｜原作性質：輕小說（2019年04月）</li>
+    <li>｜角色原案：vient</li>
+    <li>｜原作漫畫：釜田（發行於「KADOKAWA《FLOS COMIC》」）</li>
+    <li>｜導演監督：草川啟造</li>
+    <li>｜動畫製作：diomedéa</li>
+  </ul>
+  <b>💐聲優演員🧪</b><ul>
+    <li>｜蘿賽：小松未可子</li>
+    <li>｜海利朱·亞茲：阿座上洋平</li>
+    <li>｜蹄炎·坤：下野紘</li>
+    <li>｜薇蘿拉：關根明良</li>
+  </ul>`;
+  const workerRegex = /<b>[^<\n]{0,16}?(?:製作團隊|製作人員|STAFF)[^<\n]{0,16}?<\/b>[\s\S]{1,32000}?(?=<script|$)/i;
+  assert.ok(workerRegex.test(acgHtml));
+
+  const dom = bootEnhancements(`<div id="BH_background">
+    <div id="ani-info">
+      <div class="grid cast">
+        <div>ロゼ</div><div>小松未可子</div><a href="https://ja.wikipedia.org/wiki/小松未可子">Wiki</a>
+        <div>ハリージュ</div><div>阿座上洋平</div><a href="https://ja.wikipedia.org/wiki/阿座上洋平">Wiki</a>
+        <div>ティエン</div><div>下野紘</div><a href="https://ja.wikipedia.org/wiki/下野紘">Wiki</a>
+        <div>ビッラウラ</div><div>関根明良</div><a href="https://ja.wikipedia.org/wiki/関根明良">Wiki</a>
+      </div>
+    </div>
+    <section class="data">
+      <div class="data-intro">
+        <p>苦澀戀愛物語。<br>💐製作團隊🧪<br>角色原案：vient<br>原作漫畫：釜田（發行於</p>
+        <a href="https://acg.gamer.com.tw/acgDetail.php?s=150359">作品資料</a>
+      </div>
+    </section>
+    <div class="anime_name"><h1>測試魔女作品 [1]</h1></div>
+    <div class="subtitle"><div class="ani-tabs"></div><div class="ani-tab-content"></div></div>
+  </div>`, '/animeVideo.php?sn=150359', {
+    chromeMock: {
+      runtime: {
+        lastError: null,
+        sendMessage(message, reply) {
+          if (message.type === 'ani-fetch-acg-credits') {
+            queueMicrotask(() => reply({ credits: acgHtml }));
+          } else {
+            queueMicrotask(() => reply({}));
+          }
+        },
+      },
+    },
+  });
+  t.after(() => dom.window.close());
+  const { document } = dom.window;
+  await new Promise(resolve => dom.window.setTimeout(resolve, 40));
+
+  assert.doesNotMatch(document.querySelector('.ani-side-synopsis').textContent, /製作團隊/);
+  const staffText = document.querySelector('[data-credit-panel="製作團隊"]').textContent;
+  assert.match(staffText, /釜田（發行於「KADOKAWA《FLOS COMIC》」）/);
+  assert.doesNotMatch(staffText, /釜田（發行於$/);
+  assert.match(staffText, /導演.*草川啟造/);
+  assert.match(staffText, /動畫製作.*diomedéa/);
+
+  const castText = document.querySelector('[data-credit-panel="聲優"]').textContent;
+  assert.match(castText, /蘿賽/);
+  assert.match(castText, /薇蘿拉/);
+  assert.doesNotMatch(castText, /ビッラウラ/);
+});

@@ -143,7 +143,7 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
             !/^\d+$/.test(url.searchParams.get('s') || '')) throw new Error('Invalid ACG page');
         const response = await fetch(url, { credentials: 'omit', signal: AbortSignal.timeout(8000) });
         const html = response.ok ? await response.text() : '';
-        const list = html.match(/<b>[＜<]\s*(?:製作團隊|製作人員|STAFF)[＞>]<\/b>[\s\S]{1,32000}?(?=<script|$)/i);
+        const list = html.match(/<b>[^<\n]{0,16}?(?:製作團隊|製作人員|STAFF)[^<\n]{0,16}?<\/b>[\s\S]{1,32000}?(?=<script|$)/i);
         const table = html.match(/<table\b[^>]*>\s*(?:<tbody\b[^>]*>\s*)?<tr\b[^>]*>\s*<t[dh]\b[^>]*>(?:\s*<[^/][^>]*>)*\s*[─—–-]+\s*(?:STAFF|製作團隊|製作人員)\s*[─—–-]+[\s\S]{1,32000}?<\/table>/i);
         const firstCredit = Math.min(list?.index ?? Infinity, table?.index ?? Infinity);
         const wiki = html.match(/<div\b[^>]*\bclass=["']wikiContent["'][^>]*>/i);
@@ -157,10 +157,30 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
   if (message?.type === 'ani-fetch-bangumi-staff') {
     (async () => {
       try {
-        if (!sender.tab?.url?.startsWith('https://ani.gamer.com.tw/') || !/^\d+$/.test(String(message.id || ''))) {
+        if (!sender.tab?.url?.startsWith('https://ani.gamer.com.tw/')) {
           return reply({});
         }
-        const res = await fetch(`https://api.bgm.tv/v0/subjects/${message.id}/persons`, {
+        let subjectId = /^\d+$/.test(String(message.id || '')) ? String(message.id) : '';
+        if (!subjectId && message.title) {
+          const searchRes = await fetch('https://api.bgm.tv/v0/search/subjects', {
+            method: 'POST',
+            credentials: 'omit',
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json',
+              'User-Agent': 'aunight/Anigamer-Redesign3.0 (https://github.com/aunight/Anigamer-Redesign3.0)',
+            },
+            signal: AbortSignal.timeout(8000),
+            body: JSON.stringify({ keyword: String(message.title).trim(), filter: { type: [2] } }),
+          });
+          if (searchRes.ok) {
+            const searchJson = await searchRes.json();
+            const firstId = searchJson?.data?.[0]?.id;
+            if (/^\d+$/.test(String(firstId || ''))) subjectId = String(firstId);
+          }
+        }
+        if (!subjectId) return reply({});
+        const res = await fetch(`https://api.bgm.tv/v0/subjects/${subjectId}/persons`, {
           credentials: 'omit',
           headers: { Accept: 'application/json' },
           signal: AbortSignal.timeout(8000),

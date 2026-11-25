@@ -45,8 +45,11 @@ function extractYoutubeThemeVideoId(html, songTitle) {
       const bMatch = key && norm(b.title).includes(key) ? 1 : 0;
       if (aMatch !== bMatch) return bMatch - aMatch;
       if (a.isShort !== b.isShort) return a.isShort ? 1 : -1;
-      const aOfficial = /official|mv|ノンクレジット|opening|ending|主題歌/i.test(a.title) ? 1 : 0;
-      const bOfficial = /official|mv|ノンクレジット|opening|ending|主題歌/i.test(b.title) ? 1 : 0;
+      const aCover = /piano|ピアノ|cover|歌ってみた|弾いてみた|譜面|楽譜|karaoke|カラオケ/i.test(a.title) ? 1 : 0;
+      const bCover = /piano|ピアノ|cover|歌ってみた|弾いてみた|譜面|楽譜|karaoke|カラオケ/i.test(b.title) ? 1 : 0;
+      if (aCover !== bCover) return aCover - bCover;
+      const aOfficial = /official|music\s*video|\bmv\b|ノンクレジット|opening|ending|主題歌/i.test(a.title) ? 1 : 0;
+      const bOfficial = /official|music\s*video|\bmv\b|ノンクレジット|opening|ending|主題歌/i.test(b.title) ? 1 : 0;
       return bOfficial - aOfficial;
     });
     return ranked[0]?.id || '';

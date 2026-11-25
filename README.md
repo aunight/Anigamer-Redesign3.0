@@ -3,7 +3,7 @@
 [下載安裝包 (Releases)](https://github.com/aunight/Anigamer-Redesign3.0/releases/latest) · [Userscript 直接安裝](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/userscript/ani-ambilight.user.js) · [附加腳本批次安裝](https://htmlpreview.github.io/?https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/plugins.html) · [問題回報 (Issues)](https://github.com/aunight/Anigamer-Redesign3.0/issues)
 
 [![Release](https://img.shields.io/github/v/release/aunight/Anigamer-Redesign3.0?style=flat-square&label=Release&color=3b82f6)](https://github.com/aunight/Anigamer-Redesign3.0/releases/latest)
-![Version](https://img.shields.io/badge/Version-3.4.0-1e293b?style=flat-square)
+![Version](https://img.shields.io/badge/Version-3.5.0-1e293b?style=flat-square)
 ![Platform](https://img.shields.io/badge/Platform-Chrome%20%7C%20Firefox%20%7C%20Userscript-1e293b?style=flat-square)
 [![CI](https://img.shields.io/github/actions/workflow/status/aunight/Anigamer-Redesign3.0/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/aunight/Anigamer-Redesign3.0/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-MIT-2563eb?style=flat-square)](LICENSE)
@@ -20,6 +20,18 @@
 > - **動態環境光引擎（WebGL 2 / Canvas）與基礎設定框架**：改作自原專案 **[Hinataragi/anigamer-ambilight](https://github.com/Hinataragi/anigamer-ambilight)**（MIT 授權），並承襲其參考自 [youtube-ambilight](https://github.com/WesselKroos/youtube-ambilight) 與 [bilibili-ambilight](https://github.com/iceorange-dev/bilibili-ambilight) 的取樣技術。  
 > - **首頁足跡熱力圖＆點陣天氣卡片**：移植並適配自 **[jiuyang5354/bilibili-margin](https://github.com/jiuyang5354/bilibili-margin)**（MIT 授權，含來自 21st `vijayksingh` 的點陣天氣天空概念），可於「一般」設定中獨立開關顯示，並支援動畫瘋觀影紀錄補全與即時天時統計。  
 > - **開場液態波紋著色器背景**：改寫自 **[Saurabh-2607/GreatUI](https://github.com/Saurabh-2607/GreatUI)** 的 `great-ui-liquid-ripple-shader`（MIT 授權），為巴哈動畫瘋主色系訂製的純原生 WebGL 迴圈動態波紋背景，隨頁面載入完成後平滑淡出。
+
+---
+
+## v3.5.0 更新日誌
+
+- **作品簡介／製作團隊／聲優／主題曲完整解析**：
+  - `creditGroup` 與 `hero-cache-worker.js`（`ani-fetch-acg-credits`）支援含 Emoji 裝飾的標題（如 `💐製作團隊🧪`、`💐聲優演員🧪`），不再殘留於簡介尾端或造成製作團隊重複，並自動以完整 ACG 資料覆寫遭截斷的條目。
+  - `loadBangumiStaff`／`ani-fetch-bangumi-staff` 新增無 `#bgmtv` 連結時以作品名稱查詢 Bangumi 的後備機制；`castKey` 補齊 `関→關` 等日文新字體轉繁中對照，讓聲優角色名完整對應繁中譯名。
+  - 僅提供搜尋連結的主題曲（OP／ED）透過 Background Worker 與 Userscript `GM_xmlhttpRequest` 非同步解析對應 YouTube 縮圖與內嵌播放器（優先官方 MV／無字幕映像、排除鋼琴翻彈譜面），並修回單層並排卡片樣式。
+- **播放器、留言區與彈幕體驗**：
+  - 移除彈幕列表原生 `彈幕為公共空間…` 提示，加入全高度空白骨架載入動畫、上方計數＋工具列先出現與 Plus 過濾文字無跳動淡入，以及「製作團隊／聲優／主題曲」滑動膠囊與無閃現內容切換動畫（圖示比例一併平衡）。
+  - 調整播放器左側時間膠囊內外間距、補上留言內網址連結色與 hover 底線，並修正留言區擴充主環境直接點擊發送按鈕無反應的問題。
 
 ---
 
