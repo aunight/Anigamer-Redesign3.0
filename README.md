@@ -3,7 +3,7 @@
 [下載安裝包 (Releases)](https://github.com/aunight/Anigamer-Redesign3.0/releases/latest) · [Userscript 直接安裝](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/userscript/ani-ambilight.user.js) · [附加腳本批次安裝](https://htmlpreview.github.io/?https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/plugins.html) · [問題回報 (Issues)](https://github.com/aunight/Anigamer-Redesign3.0/issues)
 
 [![Release](https://img.shields.io/github/v/release/aunight/Anigamer-Redesign3.0?style=flat-square&label=Release&color=3b82f6)](https://github.com/aunight/Anigamer-Redesign3.0/releases/latest)
-![Version](https://img.shields.io/badge/Version-3.5.0-1e293b?style=flat-square)
+![Version](https://img.shields.io/badge/Version-3.5.1-1e293b?style=flat-square)
 ![Platform](https://img.shields.io/badge/Platform-Chrome%20%7C%20Firefox%20%7C%20Userscript-1e293b?style=flat-square)
 [![CI](https://img.shields.io/github/actions/workflow/status/aunight/Anigamer-Redesign3.0/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/aunight/Anigamer-Redesign3.0/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-MIT-2563eb?style=flat-square)](LICENSE)
@@ -22,6 +22,12 @@
 > - **開場液態波紋著色器背景**：改寫自 **[Saurabh-2607/GreatUI](https://github.com/Saurabh-2607/GreatUI)** 的 `great-ui-liquid-ripple-shader`（MIT 授權），為巴哈動畫瘋主色系訂製的純原生 WebGL 迴圈動態波紋背景，隨頁面載入完成後平滑淡出。
 
 ---
+
+## v3.5.1 更新日誌
+
+- **製作團隊／作品簡介**：支援解析前後帶有表情符號與裝飾符號的標題（如 `💐製作團隊🧪`、`💐聲優演員🧪`），自動過濾簡介區重複段落並補齊遭截斷的 `原作漫畫` 等欄位。
+- **聲優翻譯與備援**：擴充日文新字體漢字對照（如 `関根明良` → `關根明良`），新增關聯角色後綴自動推導（如 `ロゼ母` → `蘿賽的母親`、`（幼少期）`），並在缺少 `#bgmtv` 連結時改以作品標題查詢 Bangumi。
+- **主題曲縮圖排序**：拆解雙語括號曲名與歌手名（如 `Kanawanai, (かなわない、)`），優先以日文原名搜尋並將 `female vocal`／`cover`／樂譜翻奏影片降權，確保優先顯示官方 MV／無字幕 OP・ED 縮圖。
 
 ## v3.5.0 更新日誌
 
