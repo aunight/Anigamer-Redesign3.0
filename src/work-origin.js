@@ -39,14 +39,22 @@ function extractYoutubeThemeVideoId(html, songTitle) {
     collect(data);
     if (!candidates.length) return '';
     const norm = (s) => String(s || '').normalize('NFKC').toLowerCase().replace(/[\s\p{P}\p{S}]/gu, '');
-    const key = norm(songTitle);
+    const splitTerms = (s) => {
+      const raw = String(s || '').replace(/^[「『]|[」』]$/g, '').trim();
+      const inner = [...raw.matchAll(/[（(]([^()（）]+)[）)]/g)].map((m) => m[1].trim()).filter(Boolean);
+      const outer = raw.replace(/[（(][^()（）]*[）)]/g, ' ').replace(/\s+/g, ' ').trim();
+      const hasJp = (v) => /[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]/u.test(v);
+      const ordered = [...inner, outer, raw].filter(Boolean);
+      return [...new Set([...ordered.filter(hasJp), ...ordered])];
+    };
+    const keys = splitTerms(songTitle).map(norm).filter(Boolean);
     const ranked = [...candidates].sort((a, b) => {
-      const aMatch = key && norm(a.title).includes(key) ? 1 : 0;
-      const bMatch = key && norm(b.title).includes(key) ? 1 : 0;
+      const aMatch = keys.some((k) => norm(a.title).includes(k)) ? 1 : 0;
+      const bMatch = keys.some((k) => norm(b.title).includes(k)) ? 1 : 0;
       if (aMatch !== bMatch) return bMatch - aMatch;
       if (a.isShort !== b.isShort) return a.isShort ? 1 : -1;
-      const aCover = /piano|ピアノ|cover|歌ってみた|弾いてみた|譜面|楽譜|karaoke|カラオケ/i.test(a.title) ? 1 : 0;
-      const bCover = /piano|ピアノ|cover|歌ってみた|弾いてみた|譜面|楽譜|karaoke|カラオケ/i.test(b.title) ? 1 : 0;
+      const aCover = /piano|ピアノ|cover|female\s*vocal|male\s*vocal|歌ってみた|弾いてみた|譜面|楽譜|karaoke|カラオケ|nightcore/i.test(a.title) ? 1 : 0;
+      const bCover = /piano|ピアノ|cover|female\s*vocal|male\s*vocal|歌ってみた|弾いてみた|譜面|楽譜|karaoke|カラオケ|nightcore/i.test(b.title) ? 1 : 0;
       if (aCover !== bCover) return aCover - bCover;
       const aOfficial = /official|music\s*video|\bmv\b|ノンクレジット|opening|ending|主題歌/i.test(a.title) ? 1 : 0;
       const bOfficial = /official|music\s*video|\bmv\b|ノンクレジット|opening|ending|主題歌/i.test(b.title) ? 1 : 0;
@@ -61,16 +69,21 @@ function extractYoutubeThemeVideoId(html, songTitle) {
 async function fetchYoutubeThemeVideoId(title, artist, request) {
   const cleanTitle = String(title || '').replace(/^[「『]|[」』]$/g, '').trim();
   if (!cleanTitle || typeof request !== 'function') return '';
-  const cleanArtist = String(artist || '')
-    .replace(/\b(?:feat|ft|cv)\.?(?=\s|$|\W)/gi, ' ')
-    .replace(/[()（）「」『』\[\]\/／]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-  const primaryArtist = cleanArtist.split(/\s+/)[0] || '';
+  const hasJp = (v) => /[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]/u.test(v);
+  const titleInners = [...cleanTitle.matchAll(/[（(]([^()（）]+)[）)]/g)].map((m) => m[1].trim()).filter(Boolean);
+  const titleOuter = cleanTitle.replace(/[（(][^()（）]*[）)]/g, ' ').replace(/\s+/g, ' ').trim();
+  const titleVariants = [...new Set([...titleInners.filter(hasJp), titleOuter, cleanTitle].filter(Boolean))];
+  const rawArtist = String(artist || '').replace(/\b(?:feat|ft|cv)\.?(?=\s|$|\W)/gi, ' ');
+  const artistInners = [...rawArtist.matchAll(/[（(]([^()（）]+)[）)]/g)].map((m) => m[1].trim()).filter(Boolean);
+  const artistOuter = rawArtist.replace(/[（(][^()（）]*[）)]/g, ' ').replace(/[()（）「」『』\[\]\/／]/g, ' ').replace(/\s+/g, ' ').trim();
+  const cleanArtist = rawArtist.replace(/[()（）「」『』\[\]\/／]/g, ' ').replace(/\s+/g, ' ').trim();
+  const primaryArtist = (artistInners.find(hasJp) || artistOuter || cleanArtist).split(/\s+/)[0] || '';
+  const hasBilingualTitle = titleInners.some(hasJp) && titleOuter !== cleanTitle;
   const queries = [...new Set([
+    ...(hasBilingualTitle ? titleVariants.map((t) => (primaryArtist ? `${t} ${primaryArtist}` : '')) : []),
     cleanArtist ? `${cleanTitle} ${cleanArtist}` : '',
     primaryArtist ? `${cleanTitle} ${primaryArtist}` : '',
-    cleanTitle,
+    ...titleVariants,
   ].filter(Boolean))];
   for (const query of queries) {
     try {

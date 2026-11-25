@@ -10223,7 +10223,30 @@
               if (localized) matchedCast.add(localized);
               const displayCharacter = !nativeCharacter || /[\p{Script=Hiragana}\p{Script=Katakana}]/u.test(nativeCharacter)
                 ? localized?.title || nativeCharacter : nativeCharacter;
-              return [displayCharacter, localized?.val || name, (link.matches('a') ? link : link.querySelector('a'))?.href, name];
+              return [displayCharacter, localized?.val || name, (link.matches('a') ? link : link.querySelector('a'))?.href, name, nativeCharacter];
+            });
+            const localizedCharByNative = new Map();
+            for (const [displayChar, , , , nativeChar] of rows) {
+              if (nativeChar && displayChar && displayChar !== nativeChar && !/[\p{Script=Hiragana}\p{Script=Katakana}]/u.test(displayChar)) {
+                localizedCharByNative.set(nativeChar, displayChar);
+              }
+            }
+            const relationLabels = { 母: '的母親', 父: '的父親', 兄: '的哥哥', 姉: '的姊姊', 妹: '的妹妹', 弟: '的弟弟', 祖父: '的祖父', 祖母: '的祖母' };
+            const eraLabels = { 幼少期: '幼年', 幼少: '幼年', 幼年期: '幼年', 少年期: '少年', 少女期: '少女' };
+            rows = rows.map(row => {
+              const [displayChar] = row;
+              if (!displayChar || !/[\p{Script=Hiragana}\p{Script=Katakana}]/u.test(displayChar)) return row;
+              const relMatch = displayChar.match(/^(.+?)(?:の)?(祖母|祖父|母|父|兄|姉|妹|弟)$/);
+              if (relMatch) {
+                const base = localizedCharByNative.get(relMatch[1].trim());
+                if (base) return [base + relationLabels[relMatch[2]], ...row.slice(1)];
+              }
+              const eraMatch = displayChar.match(/^(.+?)\s*[（(](幼少期|幼少|幼年期|少年期|少女期)[）)]$/);
+              if (eraMatch) {
+                const base = localizedCharByNative.get(eraMatch[1].trim());
+                if (base) return [`${base}（${eraLabels[eraMatch[2]]}）`, ...row.slice(1)];
+              }
+              return row;
             });
             for (const field of fields) {
               if (!matchedCast.has(field) && !rows.some(([character, actor]) => character === field.title && castKey(actor) === castKey(field.val))) {

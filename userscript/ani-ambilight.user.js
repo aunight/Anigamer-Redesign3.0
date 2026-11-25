@@ -13,16 +13,16 @@
 // @run-at       document-start
 // @inject-into  content
 // @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
-// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/9b3d250fec8b743a3f5936b42cd6f055c1c1ea67/src/studio-catalog.json
-// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/9b3d250fec8b743a3f5936b42cd6f055c1c1ea67/src/studio-profiles.json
-// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/9b3d250fec8b743a3f5936b42cd6f055c1c1ea67/src/studio-directory-icons.json
-// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/9b3d250fec8b743a3f5936b42cd6f055c1c1ea67/src/studio-logos.json
-// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/9b3d250fec8b743a3f5936b42cd6f055c1c1ea67/src/content.css
-// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/9b3d250fec8b743a3f5936b42cd6f055c1c1ea67/src/effects.css
-// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/9b3d250fec8b743a3f5936b42cd6f055c1c1ea67/src/settings-ui.css
-// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/9b3d250fec8b743a3f5936b42cd6f055c1c1ea67/src/hero-banner.css
-// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/9b3d250fec8b743a3f5936b42cd6f055c1c1ea67/src/home-dashboard.css
-// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/9b3d250fec8b743a3f5936b42cd6f055c1c1ea67/src/ui-repairs.css
+// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b374173d92c3ae37722189e48f6b9a4774d3d081/src/studio-catalog.json
+// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b374173d92c3ae37722189e48f6b9a4774d3d081/src/studio-profiles.json
+// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b374173d92c3ae37722189e48f6b9a4774d3d081/src/studio-directory-icons.json
+// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b374173d92c3ae37722189e48f6b9a4774d3d081/src/studio-logos.json
+// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b374173d92c3ae37722189e48f6b9a4774d3d081/src/content.css
+// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b374173d92c3ae37722189e48f6b9a4774d3d081/src/effects.css
+// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b374173d92c3ae37722189e48f6b9a4774d3d081/src/settings-ui.css
+// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b374173d92c3ae37722189e48f6b9a4774d3d081/src/hero-banner.css
+// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b374173d92c3ae37722189e48f6b9a4774d3d081/src/home-dashboard.css
+// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b374173d92c3ae37722189e48f6b9a4774d3d081/src/ui-repairs.css
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -6472,18 +6472,37 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
             .normalize('NFKC')
             .toLowerCase()
             .replace(/[\s\p{P}\p{S}]/gu, '');
-        const key = norm(songTitle);
+        const splitTerms = (s) => {
+          const raw = String(s || '')
+            .replace(/^[「『]|[」』]$/g, '')
+            .trim();
+          const inner = [...raw.matchAll(/[（(]([^()（）]+)[）)]/g)]
+            .map((m) => m[1].trim())
+            .filter(Boolean);
+          const outer = raw
+            .replace(/[（(][^()（）]*[）)]/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+          const hasJp = (v) => /[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]/u.test(v);
+          const ordered = [...inner, outer, raw].filter(Boolean);
+          return [...new Set([...ordered.filter(hasJp), ...ordered])];
+        };
+        const keys = splitTerms(songTitle).map(norm).filter(Boolean);
         const ranked = [...candidates].sort((a, b) => {
-          const aMatch = key && norm(a.title).includes(key) ? 1 : 0;
-          const bMatch = key && norm(b.title).includes(key) ? 1 : 0;
+          const aMatch = keys.some((k) => norm(a.title).includes(k)) ? 1 : 0;
+          const bMatch = keys.some((k) => norm(b.title).includes(k)) ? 1 : 0;
           if (aMatch !== bMatch) return bMatch - aMatch;
           if (a.isShort !== b.isShort) return a.isShort ? 1 : -1;
           const aCover =
-            /piano|ピアノ|cover|歌ってみた|弾いてみた|譜面|楽譜|karaoke|カラオケ/i.test(a.title)
+            /piano|ピアノ|cover|female\s*vocal|male\s*vocal|歌ってみた|弾いてみた|譜面|楽譜|karaoke|カラオケ|nightcore/i.test(
+              a.title,
+            )
               ? 1
               : 0;
           const bCover =
-            /piano|ピアノ|cover|歌ってみた|弾いてみた|譜面|楽譜|karaoke|カラオケ/i.test(b.title)
+            /piano|ピアノ|cover|female\s*vocal|male\s*vocal|歌ってみた|弾いてみた|譜面|楽譜|karaoke|カラオケ|nightcore/i.test(
+              b.title,
+            )
               ? 1
               : 0;
           if (aCover !== bCover) return aCover - bCover;
@@ -6508,18 +6527,42 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
         .replace(/^[「『]|[」』]$/g, '')
         .trim();
       if (!cleanTitle || typeof request !== 'function') return '';
-      const cleanArtist = String(artist || '')
-        .replace(/\b(?:feat|ft|cv)\.?(?=\s|$|\W)/gi, ' ')
+      const hasJp = (v) => /[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}]/u.test(v);
+      const titleInners = [...cleanTitle.matchAll(/[（(]([^()（）]+)[）)]/g)]
+        .map((m) => m[1].trim())
+        .filter(Boolean);
+      const titleOuter = cleanTitle
+        .replace(/[（(][^()（）]*[）)]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+      const titleVariants = [
+        ...new Set([...titleInners.filter(hasJp), titleOuter, cleanTitle].filter(Boolean)),
+      ];
+      const rawArtist = String(artist || '').replace(/\b(?:feat|ft|cv)\.?(?=\s|$|\W)/gi, ' ');
+      const artistInners = [...rawArtist.matchAll(/[（(]([^()（）]+)[）)]/g)]
+        .map((m) => m[1].trim())
+        .filter(Boolean);
+      const artistOuter = rawArtist
+        .replace(/[（(][^()（）]*[）)]/g, ' ')
         .replace(/[()（）「」『』\[\]\/／]/g, ' ')
         .replace(/\s+/g, ' ')
         .trim();
-      const primaryArtist = cleanArtist.split(/\s+/)[0] || '';
+      const cleanArtist = rawArtist
+        .replace(/[()（）「」『』\[\]\/／]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+      const primaryArtist =
+        (artistInners.find(hasJp) || artistOuter || cleanArtist).split(/\s+/)[0] || '';
+      const hasBilingualTitle = titleInners.some(hasJp) && titleOuter !== cleanTitle;
       const queries = [
         ...new Set(
           [
+            ...(hasBilingualTitle
+              ? titleVariants.map((t) => (primaryArtist ? `${t} ${primaryArtist}` : ''))
+              : []),
             cleanArtist ? `${cleanTitle} ${cleanArtist}` : '',
             primaryArtist ? `${cleanTitle} ${primaryArtist}` : '',
-            cleanTitle,
+            ...titleVariants,
           ].filter(Boolean),
         ),
       ];
@@ -25672,7 +25715,57 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
                     localized?.val || name,
                     (link.matches('a') ? link : link.querySelector('a'))?.href,
                     name,
+                    nativeCharacter,
                   ];
+                });
+                const localizedCharByNative = new Map();
+                for (const [displayChar, , , , nativeChar] of rows) {
+                  if (
+                    nativeChar &&
+                    displayChar &&
+                    displayChar !== nativeChar &&
+                    !/[\p{Script=Hiragana}\p{Script=Katakana}]/u.test(displayChar)
+                  ) {
+                    localizedCharByNative.set(nativeChar, displayChar);
+                  }
+                }
+                const relationLabels = {
+                  母: '的母親',
+                  父: '的父親',
+                  兄: '的哥哥',
+                  姉: '的姊姊',
+                  妹: '的妹妹',
+                  弟: '的弟弟',
+                  祖父: '的祖父',
+                  祖母: '的祖母',
+                };
+                const eraLabels = {
+                  幼少期: '幼年',
+                  幼少: '幼年',
+                  幼年期: '幼年',
+                  少年期: '少年',
+                  少女期: '少女',
+                };
+                rows = rows.map((row) => {
+                  const [displayChar] = row;
+                  if (
+                    !displayChar ||
+                    !/[\p{Script=Hiragana}\p{Script=Katakana}]/u.test(displayChar)
+                  )
+                    return row;
+                  const relMatch = displayChar.match(/^(.+?)(?:の)?(祖母|祖父|母|父|兄|姉|妹|弟)$/);
+                  if (relMatch) {
+                    const base = localizedCharByNative.get(relMatch[1].trim());
+                    if (base) return [base + relationLabels[relMatch[2]], ...row.slice(1)];
+                  }
+                  const eraMatch = displayChar.match(
+                    /^(.+?)\s*[（(](幼少期|幼少|幼年期|少年期|少女期)[）)]$/,
+                  );
+                  if (eraMatch) {
+                    const base = localizedCharByNative.get(eraMatch[1].trim());
+                    if (base) return [`${base}（${eraLabels[eraMatch[2]]}）`, ...row.slice(1)];
+                  }
+                  return row;
                 });
                 for (const field of fields) {
                   if (

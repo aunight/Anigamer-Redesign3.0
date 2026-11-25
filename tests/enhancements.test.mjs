@@ -1878,10 +1878,11 @@ test('emoji-wrapped ACG staff/cast headers, Japanese kanji cast variants, and MV
     `<script>var ytInitialData = ${JSON.stringify({
       contents: [
         { videoRenderer: { videoId: 'SjhMBjgUPQo', title: { runs: [{ text: 'かなわない、/センチミリメンタル/ピアノソロ【楽譜】' }] }, lengthText: { simpleText: '3:50' } } },
+        { videoRenderer: { videoId: 'fakeCovId01', title: { runs: [{ text: 'Kanawanai, (かなわない、) J-rock cover Female vocal' }] }, lengthText: { simpleText: '3:40' } } },
         { videoRenderer: { videoId: 'XuWrM94AYfQ', title: { runs: [{ text: 'センチミリメンタル 『かなわない、』 Music Video' }] }, lengthText: { simpleText: '3:45' } } },
       ],
     })};</script>`,
-    'かなわない、',
+    'Kanawanai, (かなわない、)',
   );
   assert.equal(mvId, 'XuWrM94AYfQ');
 
@@ -1908,6 +1909,7 @@ test('emoji-wrapped ACG staff/cast headers, Japanese kanji cast variants, and MV
         <div>ハリージュ</div><div>阿座上洋平</div><a href="https://ja.wikipedia.org/wiki/阿座上洋平">Wiki</a>
         <div>ティエン</div><div>下野紘</div><a href="https://ja.wikipedia.org/wiki/下野紘">Wiki</a>
         <div>ビッラウラ</div><div>関根明良</div><a href="https://ja.wikipedia.org/wiki/関根明良">Wiki</a>
+        <div>ロゼ母</div><div>茅野愛衣</div><a href="https://ja.wikipedia.org/wiki/茅野愛衣">Wiki</a>
       </div>
     </div>
     <section class="data">
@@ -1946,5 +1948,7 @@ test('emoji-wrapped ACG staff/cast headers, Japanese kanji cast variants, and MV
   const castText = document.querySelector('[data-credit-panel="聲優"]').textContent;
   assert.match(castText, /蘿賽/);
   assert.match(castText, /薇蘿拉/);
+  assert.match(castText, /蘿賽的母親/);
   assert.doesNotMatch(castText, /ビッラウラ/);
+  assert.doesNotMatch(castText, /ロゼ母/);
 });
