@@ -217,7 +217,12 @@ test('home page hides late legacy score pills inside hours block even when cache
   legacyPill.textContent = '4.81';
   hoursBlock.append(legacyPill);
 
-  await new Promise((resolve) => setTimeout(resolve, 250));
+  await Promise.resolve();
   assert.equal(legacyPill.style.display, 'none', 'late legacy rating pill inside hours block must be hidden');
   assert.notEqual(hoursBlock.style.display, 'none');
+
+  legacyPill.firstChild.data = '4.92';
+  await Promise.resolve();
+  assert.equal(badge.querySelector('.ani-score-value').textContent, '4.92');
+  assert.equal(d.querySelectorAll('.ani-score-badge-top-left').length, 1);
 });

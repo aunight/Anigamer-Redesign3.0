@@ -3124,6 +3124,9 @@
     if (location.pathname !== '/animeVideo.php') return;
     const subList = document.querySelector('#sub_list');
     if (!subList) return;
+    if (/彈幕為公共空間/.test(subList.getAttribute('data-tip') || '')) {
+      subList.removeAttribute('data-tip');
+    }
     const scrollWrap = subList.closest('.danmu-scroll');
 
     let mutedMap = await storageGet(LOCAL_MUTE_KEY, {});
@@ -3133,6 +3136,12 @@
     let sortKey = 'time';
     let sortDir = 'asc';
     let origCounter = 0;
+    const DM_SORT_ICONS = {
+      time: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+      length: '<path d="M4 7h16M4 12h12M4 17h8"/>',
+      sn: '<path d="M3 6h13M3 12h10M3 18h7"/><path d="m17 15 3 3 3-3M20 6v12"/>',
+    };
+    const DM_MUTE_ICON = '<path d="M11 5 6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>';
     let bar = document.querySelector('.ani-danmu-tools-bar');
     if (!bar) {
       bar = document.createElement('div');
@@ -3147,7 +3156,7 @@
           </div>
           <span class="ani-danmu-count" role="status"></span>
           <div class="ani-dm-muted-host">
-            <button type="button" class="ani-danmu-muted-pill" aria-expanded="false" title="已消音發送者">0 人</button>
+            <button type="button" class="ani-danmu-muted-pill" aria-expanded="false" title="已消音發送者">${enhIcon(DM_MUTE_ICON, 14)}<span>${Object.keys(mutedMap).length} 人</span></button>
             <div class="ani-danmu-muted-popover" hidden></div>
           </div>
           <button type="button" class="ani-dm-refresh-btn" title="重新載入彈幕" aria-label="重新載入彈幕">
@@ -3155,16 +3164,15 @@
           </button>
         </div>
         <div class="ani-danmu-sort-row" role="group" aria-label="彈幕排序">
-          <button type="button" class="ani-dm-sort-btn" data-dm-sort="time" aria-pressed="true">動畫時間 ↑</button>
-          <button type="button" class="ani-dm-sort-btn" data-dm-sort="length" aria-pressed="false">彈幕長度</button>
-          <button type="button" class="ani-dm-sort-btn" data-dm-sort="sn" aria-pressed="false">發送時間</button>
+          <button type="button" class="ani-dm-sort-btn" data-dm-sort="time" aria-pressed="true">${enhIcon(DM_SORT_ICONS.time, 13)}<span>動畫時間 ↑</span></button>
+          <button type="button" class="ani-dm-sort-btn" data-dm-sort="length" aria-pressed="false">${enhIcon(DM_SORT_ICONS.length, 13)}<span>彈幕長度</span></button>
+          <button type="button" class="ani-dm-sort-btn" data-dm-sort="sn" aria-pressed="false">${enhIcon(DM_SORT_ICONS.sn, 13)}<span>發送時間</span></button>
         </div>
       `;
       const tabContent = subList.closest('#ani-tab-content-1') || subList.closest('.ani-tab-content__item');
       if (tabContent && scrollWrap) {
         tabContent.classList.add('ani-has-dm-tools');
         scrollWrap.before(bar);
-        globalThis.aniBindSidebarToolbarBlur?.(bar, scrollWrap, 'ani-dm-toolbar-blur');
       } else {
         subList.before(bar);
       }
@@ -3206,13 +3214,6 @@
         }
       }
     };
-
-    const DM_SORT_ICONS = {
-      time: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
-      length: '<path d="M4 7h16M4 12h12M4 17h8"/>',
-      sn: '<path d="M3 6h13M3 12h10M3 18h7"/><path d="m17 15 3 3 3-3M20 6v12"/>',
-    };
-    const DM_MUTE_ICON = '<path d="M11 5 6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>';
 
     const renderMutedPopover = () => {
       const senders = Object.keys(mutedMap);
@@ -3257,6 +3258,7 @@
       dmBusy = true;
       try {
         const rows = [...subList.querySelectorAll('.sub-list-li')];
+        subList.classList.toggle('ani-dm-loading', rows.length === 0);
         if (!rows.length) {
           countEl.textContent = '0 / 0';
           renderMutedPopover();
@@ -3270,6 +3272,16 @@
           }
           const sender = row.dataset.aniSender || extractDanmuSender(row);
           if (sender) row.dataset.aniSender = sender;
+          const senderLabel = row.querySelector(':scope > div:nth-child(2) .name');
+          if (senderLabel && !senderLabel.querySelector('.ani-danmu-sender-icon')) {
+            const account = senderLabel.textContent.trim().replace(/^ID(?:\s*[:：]\s*|\s+)/i, '');
+            if (account) {
+              senderLabel.classList.add('ani-danmu-sender-label');
+              senderLabel.title = '彈幕發送者';
+              senderLabel.innerHTML = `<span class="ani-danmu-sender-icon">${enhIcon('<circle cx="12" cy="8" r="3.2"/><path d="M5 20v-1a6 6 0 0 1 6-6h2a6 6 0 0 1 6 6v1"/>', 18)}</span>`;
+              senderLabel.append(account);
+            }
+          }
           const nativeMute = row.querySelector('.edit.mute');
           if (sender && nativeMute && !nativeMute.dataset.aniMuteBound) {
             nativeMute.dataset.aniMuteBound = '1';
@@ -3345,7 +3357,7 @@
           }
           updateSortLabels();
           applyDanmuListState();
-          animateFilterSwitch(b, subList, '.sub-list-li');
+          animateFilterSwitch(b, subList, '.sub-list-li', 0.25);
         });
       }
       bar.querySelector('.ani-dm-refresh-btn')?.addEventListener('click', (e) => {
@@ -3678,7 +3690,7 @@
             ul.append(...items.reverse());
             ul.dataset.aniEpOrder = episodeOrder;
           }
-          const preview = ul.querySelector(':scope > .ani-upcoming-episode');
+          const preview = ul.querySelector(':scope > li > .ani-upcoming-episode');
           const latest = items[episodeOrder === 'asc' ? items.length - 1 : 0];
           if (preview && latest) placeUpcomingEpisode(latest, preview);
           const pendingCards = [];
@@ -4209,6 +4221,37 @@
       .trim();
   };
 
+  const getFullscreenEpisodeLabel = (playingLink) => {
+    const rawHeading = (document.querySelector('.anime_name h1')?.textContent || document.title || '').trim();
+    let rawEp = '';
+    if (playingLink) {
+      const origLabel = playingLink.querySelector(':scope > .ani-episode-original-label')?.textContent?.trim();
+      const frameLabel = playingLink.querySelector(':scope > .ani-episode-frame')?.dataset?.label?.trim();
+      if (origLabel) {
+        rawEp = origLabel;
+      } else if (frameLabel) {
+        rawEp = frameLabel;
+      } else {
+        const directText = Array.from(playingLink.childNodes)
+          .filter((n) => n.nodeType === 3)
+          .map((n) => n.textContent || '')
+          .join('')
+          .trim();
+        rawEp = directText || (playingLink.textContent || '').trim();
+      }
+    }
+    if (!rawEp) {
+      const match = rawHeading.match(/(?:\[\s*(\d+(?:\.\d+)?|特別篇|OAD|OVA)\s*\]|EP\.?\s*(\d+(?:\.\d+)?))/i);
+      rawEp = (match && (match[1] || match[2])) || '';
+    }
+    const clean = rawEp.replace(/\s+/g, ' ').trim();
+    if (!clean || /^(?:電影|劇場版)$/i.test(clean)) return '';
+    if (/^\d+(?:\.\d+)?$/.test(clean)) return `EP.${clean}`;
+    const epMatch = clean.match(/^EP\.?\s*(\d+(?:\.\d+)?)$/i);
+    if (epMatch) return `EP.${epMatch[1]}`;
+    return clean;
+  };
+
   const syncFullscreenSubtitleAndMarquee = () => {
     if (location.pathname !== '/animeVideo.php') return;
     const playerEl = document.querySelector('#ani_video');
@@ -4224,11 +4267,17 @@
     }
     if (!fsTitle) return;
 
+    let epBox = fsTitle.querySelector('.ani-fs-episode');
     let mainBox = fsTitle.querySelector('.ani-fs-title-main');
     let subBox = fsTitle.querySelector('.ani-fs-subtitle');
     if (!mainBox) {
       const initialTxt = animeTitleText || (fsTitle.textContent || '').trim();
       fsTitle.textContent = '';
+
+      epBox = document.createElement('div');
+      epBox.className = 'ani-fs-episode';
+      epBox.hidden = true;
+
       mainBox = document.createElement('div');
       mainBox.className = 'ani-fs-title-main';
       const mainTrack = document.createElement('span');
@@ -4243,13 +4292,32 @@
       subTrack.className = 'ani-marquee-track';
       subBox.append(subTrack);
 
-      fsTitle.append(mainBox, subBox);
-    } else if (animeTitleText) {
-      const mt = mainBox.querySelector('.ani-marquee-track');
-      if (mt && mt.textContent !== animeTitleText) mt.textContent = animeTitleText;
+      fsTitle.append(epBox, mainBox, subBox);
+    } else {
+      if (!epBox) {
+        epBox = document.createElement('div');
+        epBox.className = 'ani-fs-episode';
+        epBox.hidden = true;
+        fsTitle.insertBefore(epBox, mainBox);
+      }
+      if (animeTitleText) {
+        const mt = mainBox.querySelector('.ani-marquee-track');
+        if (mt && mt.textContent !== animeTitleText) mt.textContent = animeTitleText;
+      }
     }
 
     const playingLink = document.querySelector('.season li.playing a');
+    const epLabel = getFullscreenEpisodeLabel(playingLink);
+    if (epBox) {
+      if (epLabel) {
+        if (epBox.textContent !== epLabel) epBox.textContent = epLabel;
+        epBox.hidden = false;
+      } else {
+        if (epBox.textContent) epBox.textContent = '';
+        epBox.hidden = true;
+      }
+    }
+
     const epSub = playingLink?.dataset?.aniEpTitle || '';
     if (subBox) {
       const st = subBox.querySelector('.ani-marquee-track');
@@ -4280,6 +4348,117 @@
         ro.observe(mainBox);
       }
     }
+    bindFullscreenPausedIdle(playerEl);
+  };
+
+  const isPlayerFullscreenOrFullwindow = (playerEl) => Boolean(
+    playerEl && (
+      document.fullscreenElement ||
+      document.webkitFullscreenElement ||
+      document.body.classList.contains('ani-is-fullscreen') ||
+      playerEl.matches(':fullscreen, :-webkit-full-screen, .vjs-fullscreen, .vjs-fullwindow, .fullwindow') ||
+      playerEl.closest('.vjs-fullscreen, .vjs-fullwindow, .fullwindow')
+    ),
+  );
+
+  const bindFullscreenPausedIdle = (playerEl) => {
+    if (!playerEl || playerEl.dataset.aniPausedIdleBound) return;
+    playerEl.dataset.aniPausedIdleBound = '1';
+
+    let idleTimer = null;
+    const getDelayMs = () => {
+      const custom = Number(playerEl.dataset.aniPausedIdleDelay);
+      return Number.isFinite(custom) && custom > 0 ? custom : 2600;
+    };
+
+    const shouldAllowPausedIdle = () => {
+      if (!playerEl.isConnected || !isPlayerFullscreenOrFullwindow(playerEl)) return false;
+      if (playerEl.matches('.vjs-ad-playing, .vjs-ad-loading, .ani-postplay-active, .ani-postplay-exiting')) {
+        return false;
+      }
+      const video = playerEl.querySelector('video');
+      const isPlaying = playerEl.classList.contains('vjs-playing') || Boolean(video && !video.paused && !video.ended);
+      const isPaused = playerEl.classList.contains('vjs-paused') || Boolean(video && video.paused && !video.ended);
+      if (isPlaying || !isPaused) return false;
+      const hasStarted = playerEl.classList.contains('vjs-has-started') ||
+        playerEl.classList.contains('vjs-paused') ||
+        Boolean(video && video.currentTime > 0);
+      if (!hasStarted) return false;
+      if (playerEl.querySelector('.vjs-lock-showing, .ani-player-episodes-drawer.open, dialog[open]')) return false;
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName || '')) return false;
+      try {
+        if (playerEl.querySelector('.vjs-control-bar:hover, .ani-player-episodes-drawer:hover')) return false;
+      } catch {
+        // Ignore :hover unsupported in test DOMs
+      }
+      return true;
+    };
+
+    const clearTimer = () => {
+      if (idleTimer !== null) {
+        clearTimeout(idleTimer);
+        idleTimer = null;
+      }
+    };
+
+    const exitPausedIdle = () => {
+      clearTimer();
+      if (playerEl.classList.contains('ani-fs-paused-idle')) {
+        playerEl.classList.remove('ani-fs-paused-idle');
+      }
+    };
+
+    const schedulePausedIdle = () => {
+      clearTimer();
+      if (!shouldAllowPausedIdle()) {
+        exitPausedIdle();
+        return;
+      }
+      idleTimer = setTimeout(() => {
+        idleTimer = null;
+        if (shouldAllowPausedIdle() && !playerEl.classList.contains('ani-fs-paused-idle')) {
+          playerEl.classList.add('ani-fs-paused-idle');
+        }
+      }, getDelayMs());
+    };
+
+    const onUserActivity = () => {
+      exitPausedIdle();
+      schedulePausedIdle();
+    };
+
+    for (const evt of ['pointermove', 'mousemove', 'pointerdown', 'mousedown', 'touchstart', 'wheel']) {
+      playerEl.addEventListener(evt, onUserActivity, { passive: true });
+    }
+    for (const evt of ['play', 'playing', 'ended']) {
+      playerEl.addEventListener(evt, exitPausedIdle, true);
+    }
+    playerEl.addEventListener('pause', schedulePausedIdle, true);
+    playerEl.addEventListener('seeking', onUserActivity, true);
+    document.addEventListener('keydown', onUserActivity, { passive: true });
+    document.addEventListener('fullscreenchange', () => {
+      if (shouldAllowPausedIdle()) schedulePausedIdle();
+      else exitPausedIdle();
+    });
+    document.addEventListener('webkitfullscreenchange', () => {
+      if (shouldAllowPausedIdle()) schedulePausedIdle();
+      else exitPausedIdle();
+    });
+
+    if (typeof MutationObserver === 'function') {
+      const syncFromClassMutation = () => {
+        if (!shouldAllowPausedIdle()) {
+          exitPausedIdle();
+        } else if (!playerEl.classList.contains('ani-fs-paused-idle') && idleTimer === null) {
+          schedulePausedIdle();
+        }
+      };
+      const obs = new MutationObserver(syncFromClassMutation);
+      obs.observe(playerEl, { attributes: true, attributeFilter: ['class'] });
+      obs.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    }
+
+    if (shouldAllowPausedIdle()) schedulePausedIdle();
   };
 
   const getEpTooltipNode = () => {
@@ -4363,15 +4542,16 @@
   };
 
   function placeUpcomingEpisode(latest, preview) {
+    // Plus reads the native episode's adjacent list items as playable entries.
     if (latest.parentElement.dataset.aniEpOrder === 'desc') {
-      if (latest.previousElementSibling !== preview) latest.before(preview);
-    } else if (latest.nextElementSibling !== preview) {
-      latest.after(preview);
+      if (latest.firstElementChild !== preview) latest.prepend(preview);
+    } else if (latest.lastElementChild !== preview) {
+      latest.append(preview);
     }
   }
 
   const renderUpcomingEpisode = (latest, workTitle, number, metadata) => {
-    let preview = latest.parentElement.querySelector(':scope > .ani-upcoming-episode');
+    let preview = latest.parentElement.querySelector(':scope > li > .ani-upcoming-episode');
     let date = metadata?.airdate;
     const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Taipei' });
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date || '') || date < today) {
@@ -4379,7 +4559,7 @@
       return;
     }
     if (!preview) {
-      preview = document.createElement('li');
+      preview = document.createElement('div');
       preview.className = 'ani-upcoming-episode';
       preview.innerHTML = '<div class="ani-upcoming-episode-card"><span class="ani-episode-card-glow" aria-hidden="true"></span><div class="ani-episode-frame"><img alt="" hidden><span class="ani-upcoming-episode-status ani-episode-card-watch">即將更新</span><span class="ani-upcoming-episode-number" aria-hidden="true"></span><time><span></span></time></div><div class="ani-episode-card-metadata"><strong class="ani-episode-card-heading"><span class="ani-marquee-track"></span></strong></div><div class="ani-episode-card-description"></div></div>';
     }
@@ -4437,16 +4617,21 @@
     preview.dataset.coverWork = workTitle;
     const image = preview.querySelector('img');
     const card = image.closest('.ani-upcoming-episode-card');
-    const setCover = source => {
+    const setCover = (source, onResult) => {
       delete card.dataset.aniEpisodeMediaReady;
       card.querySelector('.ani-episode-card-glow').replaceChildren();
       image.hidden = true;
       const finish = async loaded => {
         if (!preview.isConnected || preview.dataset.coverWork !== workTitle) return;
         image.onload = image.onerror = null;
+        if (onResult && onResult(loaded, image)) return;
         const glow = loaded ? await decodeEpisodeGlow(image) : null;
         if (!preview.isConnected || preview.dataset.coverWork !== workTitle) return;
         if (loaded) {
+          image.classList.toggle(
+            'ani-episode-image-contain',
+            image.naturalWidth > 0 && image.naturalHeight > 0 && image.naturalWidth * 9 < image.naturalHeight * 16,
+          );
           if (glow) card.querySelector('.ani-episode-card-glow').replaceChildren(glow);
           image.hidden = false;
         }
@@ -4460,17 +4645,69 @@
       image.onerror = () => finish(false);
       image.src = source;
     };
-    const fallbackCover = [document.querySelector('#BH_background section.data img.data-img, #BH_background section.data .data-img > img')?.src,
-      document.querySelector('meta[property="og:image"]')?.content,
+    const isHttpsUrl = (url) => /^https:\/\//i.test(url || '');
+    const fallbackCovers = [
       document.querySelector('#ani_video video')?.poster,
-      latest.querySelector('.ani-episode-frame img')?.src].find(source => /^https:\/\//i.test(source || ''));
+      document.querySelector('meta[property="og:image"]')?.content,
+    ].filter(isHttpsUrl);
+    const fetchAniListBanner = async () => {
+      try {
+        const res = await fetch('https://graphql.anilist.co', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            query: 'query($search:String){Media(search:$search,type:ANIME){bannerImage}}',
+            variables: { search: workTitle },
+          }),
+          signal: AbortSignal.timeout(5000),
+        });
+        if (!res.ok) return '';
+        const json = await res.json();
+        const banner = json?.data?.Media?.bannerImage;
+        return isHttpsUrl(banner) ? banner : '';
+      } catch {
+        return '';
+      }
+    };
+    const tryCoverChain = (sources) => {
+      const list = [...new Set(sources.filter(isHttpsUrl))];
+      let aniListTried = false;
+      const probe = (idx) => {
+        if (idx >= list.length) {
+          if (!aniListTried) {
+            aniListTried = true;
+            void fetchAniListBanner().then((banner) => {
+              if (!preview.isConnected || preview.dataset.coverWork !== workTitle) return;
+              if (banner && !list.includes(banner)) {
+                list.push(banner);
+                probe(idx);
+              } else {
+                setCover('');
+              }
+            });
+            return;
+          }
+          setCover('');
+          return;
+        }
+        setCover(list[idx], (loaded, img) => {
+          const isPortrait = loaded && img.naturalWidth > 0 && img.naturalHeight > 0 && img.naturalWidth < img.naturalHeight;
+          if (!loaded || isPortrait) {
+            probe(idx + 1);
+            return true;
+          }
+          return false;
+        });
+      };
+      probe(0);
+    };
     const request = globalThis.AniAmbientFetch || fetch;
     request('/seasonal.php', { signal: AbortSignal.timeout(8000) })
       .then(response => response.ok ? response.text() : '')
       .then(html => {
         if (!preview.isConnected || preview.dataset.coverWork !== workTitle) return;
         if (!html) {
-          setCover(fallbackCover);
+          tryCoverChain(fallbackCovers);
           return;
         }
         const page = new DOMParser().parseFromString(html, 'text/html');
@@ -4479,9 +4716,9 @@
           normalizeTitle(card.querySelector('.title-row .title')?.textContent || '') === normalizeTitle(workTitle));
         const style = work?.querySelector('.theme-img-bg')?.style.backgroundImage || '';
         const source = style.match(/^url\(["']?(https:\/\/[^"')]+)["']?\)$/i)?.[1];
-        setCover(source || fallbackCover);
+        tryCoverChain([source, ...fallbackCovers]);
       }).catch(() => {
-        if (preview.isConnected && preview.dataset.coverWork === workTitle) setCover(fallbackCover);
+        if (preview.isConnected && preview.dataset.coverWork === workTitle) tryCoverChain(fallbackCovers);
       });
   };
 

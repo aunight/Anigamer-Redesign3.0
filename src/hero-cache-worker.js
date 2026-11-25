@@ -1,4 +1,39 @@
 chrome.runtime.onMessage.addListener((message, sender, reply) => {
+  if (message?.type === 'ani-read-ending-media') {
+    let page, url;
+    try {
+      page = new URL(sender.url || sender.tab?.url);
+      url = new URL(message.url);
+    } catch { return; }
+    if (sender.frameId !== 0 || page.origin !== 'https://ani.gamer.com.tw' ||
+        page.pathname !== '/animeVideo.php' || url.origin !== 'https://bahamut.akamaized.net' ||
+        url.username || url.password || !/\.(?:m3u8|m3u8key|ts)$/i.test(url.pathname)) return;
+    const limit = 4 * 1024 * 1024;
+    (async () => {
+      try {
+        const response = await fetch(url.href, {
+          credentials: 'omit', redirect: 'error', signal: AbortSignal.timeout(10000),
+        });
+        if (!response.ok || Number(response.headers.get('content-length')) > limit) return reply(null);
+        const reader = response.body.getReader();
+        let bytes = 0, binary = '';
+        while (true) {
+          const {value, done} = await reader.read();
+          if (done) break;
+          bytes += value.length;
+          if (bytes > limit) {
+            await reader.cancel();
+            return reply(null);
+          }
+          for (let start = 0; start < value.length; start += 16384) {
+            binary += String.fromCharCode(...value.subarray(start, start + 16384));
+          }
+        }
+        reply({base64: btoa(binary)});
+      } catch { reply(null); }
+    })();
+    return true;
+  }
   if (message?.type === 'ani-conan-related-news' && sender.tab?.url?.startsWith('https://ani.gamer.com.tw/')) {
     const id = String(message.articleId ?? '312186');
     if (!/^\d{1,9}$/.test(id)) return;
@@ -109,12 +144,40 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
         const response = await fetch(url, { credentials: 'omit', signal: AbortSignal.timeout(8000) });
         const html = response.ok ? await response.text() : '';
         const list = html.match(/<b>[＜<]\s*(?:製作團隊|製作人員|STAFF)[＞>]<\/b>[\s\S]{1,32000}?(?=<script|$)/i);
-        const table = html.match(/<table\b[^>]*>\s*(?:<tbody\b[^>]*>\s*)?<tr\b[^>]*>\s*<t[dh]\b[^>]*>(?:\s*<[^/][^>]*>)*\s*[─—–-]+\s*STAFF\s*[─—–-]+[\s\S]{1,32000}?<\/table>/i);
+        const table = html.match(/<table\b[^>]*>\s*(?:<tbody\b[^>]*>\s*)?<tr\b[^>]*>\s*<t[dh]\b[^>]*>(?:\s*<[^/][^>]*>)*\s*[─—–-]+\s*(?:STAFF|製作團隊|製作人員)\s*[─—–-]+[\s\S]{1,32000}?<\/table>/i);
         const firstCredit = Math.min(list?.index ?? Infinity, table?.index ?? Infinity);
         const wiki = html.match(/<div\b[^>]*\bclass=["']wikiContent["'][^>]*>/i);
         const synopsisHtml = wiki && firstCredit > wiki.index && firstCredit - wiki.index < 32000
           ? html.slice(wiki.index, firstCredit) + '</div>' : '';
         reply({ credits: (list?.[0] || '') + (table?.[0] || ''), synopsisHtml, identity: workSynopsisIdentity(html) });
+      } catch { reply({}); }
+    })();
+    return true;
+  }
+  if (message?.type === 'ani-fetch-bangumi-staff') {
+    (async () => {
+      try {
+        if (!sender.tab?.url?.startsWith('https://ani.gamer.com.tw/') || !/^\d+$/.test(String(message.id || ''))) {
+          return reply({});
+        }
+        const res = await fetch(`https://api.bgm.tv/v0/subjects/${message.id}/persons`, {
+          credentials: 'omit',
+          headers: { Accept: 'application/json' },
+          signal: AbortSignal.timeout(8000),
+        });
+        if (!res.ok) return reply({});
+        const list = await res.json();
+        if (!Array.isArray(list)) return reply({});
+        const byRole = new Map();
+        for (const item of list) {
+          const role = String(item?.relation || '').trim();
+          const name = String(item?.name_cn || item?.name || '').trim();
+          if (!role || !name) continue;
+          if (!byRole.has(role)) byRole.set(role, []);
+          const names = byRole.get(role);
+          if (!names.includes(name)) names.push(name);
+        }
+        reply({ staff: [...byRole.entries()].map(([title, names]) => ({ title, val: names.join('、') })) });
       } catch { reply({}); }
     })();
     return true;
@@ -199,6 +262,25 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
       ? message.names.filter(name => typeof name === 'string' && name.length > 0 && name.length <= 80 && !name.includes('|')).slice(0, 50)
       : [];
     resolveWikiCast(names.map(cv => ({ cv }))).then(reply, () => reply([]));
+    return true;
+  }
+  if (message?.type === 'ani-fetch-theme-video') {
+    (async () => {
+      try {
+        if (!sender.tab?.url?.startsWith('https://ani.gamer.com.tw/')) {
+          reply({ videoId: '' });
+          return;
+        }
+        const videoId = await fetchYoutubeThemeVideoId(
+          message.title,
+          message.artist,
+          (url, options) => fetch(url, { ...options, credentials: 'omit', signal: AbortSignal.timeout(8000) }),
+        );
+        reply({ videoId: videoId || '' });
+      } catch {
+        reply({ videoId: '' });
+      }
+    })();
     return true;
   }
   if (message?.type === 'ani-fetch-infoplus') {

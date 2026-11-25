@@ -105,6 +105,8 @@ const core = studioCatalog + "\n" + workOrigin + "\n" + opencc + "\n;" + episode
   '\n' +
   fs.readFileSync(path.join(source, 'topbar-bridge.js'), 'utf8') +
   '\n' +
+  fs.readFileSync(path.join(source, 'ending-audio.js'), 'utf8') +
+  '\n' +
   fs.readFileSync(path.join(source, 'content.js'), 'utf8') +
   '\n' +
   fs.readFileSync(path.join(source, 'enhancements.js'), 'utf8');
@@ -161,10 +163,13 @@ ${Object.entries(externalResources).map(([name, file]) => `// @resource     ${na
 // @connect      ja.wikipedia.org
 // @connect      api.bgm.tv
 // @connect      graphql.anilist.co
+// @connect      api.aniskip.com
 // @connect      api.mymemory.translated.net
 // @connect      www.aniplex.co.jp
+// @connect      www.youtube.com
 // @connect      myanimelist.net
 // @connect      api.gamer.com.tw
+// @connect      bahamut.akamaized.net
 // @connect      wall.gamer.com.tw
 // @connect      api.open-meteo.com
 // @connect      geocoding-api.open-meteo.com
@@ -208,6 +213,7 @@ for (const file of [
   'black-bars.js',
   'ambient-renderer.js',
   'content.js',
+  'ending-audio.js',
   'topbar-bridge.js',
   'hero-banner.js',
   'hero-banner.css',

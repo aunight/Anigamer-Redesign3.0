@@ -102,3 +102,9 @@ html[data-ani-rating-integrated]:has(#ani-view-settings-panel) .top_btn_rating_s
 .ani-legacy-rating-progress {
   display: none !important;
 }
+
+/* The clock contains only its icon and time. Rating helpers can append an inline pill here. */
+.ani-ambientlight-ui #blockVideoInSeason .newanime-date-area :is(.tm-acg-rating, .ani-custom-rating),
+.ani-ambientlight-ui #blockVideoInSeason .newanime-date-area .anime-hours-block > :not(.anime-clock-img, .anime-hours) {
+  display: none !important;
+}

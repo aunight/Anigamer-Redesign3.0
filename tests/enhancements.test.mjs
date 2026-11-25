@@ -632,7 +632,7 @@ test('Phase 4: danmu list search, multi-sort (time/length/sender freq), local pe
     </li>`;
   const html = `<div id="BH_background"><div class="container-player"><section class="player">
     <div id="ani_video"><video></video></div>
-    <div class="subtitle"><div id="ani-tab-content-1"><ul id="sub_list">
+    <div class="subtitle"><div id="ani-tab-content-1"><ul id="sub_list" data-tip="彈幕為公共空間，發表時須以不影響他人之觀看體驗為原則。">
       ${mkRow('01:20', '哈哈', 'userA')}
       ${mkRow('00:15', '這幕作畫太神了吧！！', 'userB')}
       ${mkRow('02:05', '來了', 'userA')}
@@ -646,6 +646,7 @@ test('Phase 4: danmu list search, multi-sort (time/length/sender freq), local pe
   await new Promise((r) => setTimeout(r, 40));
 
   const subList = d.querySelector('#sub_list');
+  assert.equal(subList.hasAttribute('data-tip'), false, 'removes Bahamut public-space danmu notice');
   const getTexts = () => [...subList.querySelectorAll('.sub-list-li')].map((li) => li.querySelector('.sub_content').textContent.trim());
 
   // Initial time asc sort -> 00:15, 00:40, 01:20, 02:05
@@ -873,9 +874,13 @@ test('Phase 5: long-series episode grouping, Bangumi/AniList episode title toolt
   assert.equal(ep33Link.dataset.aniEpDescription, '兩人決定尋找失散的隊友。');
   assert.equal(dW.querySelector('.season a[href="?sn=5034"]').dataset.aniEpDescription, '隊伍來到了新城市。');
   assert.equal(dW.querySelector('.season a[href="?sn=5035"]').dataset.aniEpDescription, undefined);
+  const fsEp = dW.querySelector('#ani_video .ani-fs-title .ani-fs-episode');
   const fsMain = dW.querySelector('#ani_video .ani-fs-title .ani-fs-title-main');
   const fsSub = dW.querySelector('#ani_video .ani-fs-title .ani-fs-subtitle');
-  assert(fsMain && fsSub, 'fullscreen title main and top-center subtitle elements exist');
+  assert(fsEp && fsMain && fsSub, 'fullscreen episode, title main, and top-center subtitle elements exist');
+  assert.equal(fsEp.nextElementSibling, fsMain);
+  assert.equal(fsEp.hidden, false);
+  assert.equal(fsEp.textContent, 'EP.33');
   assert.equal(fsSub.hidden, false);
   assert.equal(fsMain.textContent, '雙城之戰測試篇');
   assert.equal(fsSub.textContent, '命運的交會點');
@@ -1148,9 +1153,9 @@ test('Polar Opposites season two fills missing Traditional Chinese episode descr
 
 test('next episode uses a future schedule and the work widescreen cover', async t => {
   const dom = bootEnhancements(`<div id="BH_background">
-    <div class="anime-title"><div class="anime_name"><h1>連載測試 [1]</h1></div><div class="anime_info_detail">上架時間：2099/11/13 23:30</div></div>
-    <section class="season"><ul><li><a href="?sn=5001">1</a></li><li><a href="?sn=5002">2</a></li></ul></section>
-  </div>`, '/animeVideo.php?sn=5001', {
+    <div class="anime-title"><div class="anime_name"><h1>連載測試 [2]</h1></div><div class="anime_info_detail">上架時間：2099/11/13 23:30</div></div>
+    <section class="season"><ul><li><a href="?sn=5001">1</a></li><li class="playing"><a href="?sn=5002">2</a></li></ul></section>
+  </div>`, '/animeVideo.php?sn=5002', {
     chromeMock: { runtime: { lastError: null, sendMessage(message, done) {
       done(message.type === 'ani-fetch-episode-titles' ? {
         ok: true, episodes: { 3: { jp: '最終話', airdate: '2099-11-27', description: '旅程の終わり。\n\n兩人再次踏上旅程。\n腳本：測試' } },
@@ -1164,7 +1169,8 @@ test('next episode uses a future schedule and the work widescreen cover', async 
   await new Promise(resolve => setTimeout(resolve, 50));
   const preview = dom.window.document.querySelector('.ani-upcoming-episode');
   assert.equal(preview.querySelector('strong').textContent, '連載測試');
-  assert.equal(preview.previousElementSibling.querySelector('a').textContent, '2');
+  assert.equal(preview.previousElementSibling.textContent.trim(), '2');
+  assert.equal(dom.window.document.querySelector('.season .playing').nextElementSibling, null);
   assert.equal(preview.querySelector('.ani-upcoming-episode-status').textContent, '即將更新');
   assert.equal(preview.querySelector('time span').textContent, '11/27 23:30');
   assert.equal(preview.querySelector('time').dateTime, '2099-11-27T23:30:00+08:00');
@@ -1174,9 +1180,12 @@ test('next episode uses a future schedule and the work widescreen cover', async 
   assert.equal(preview.querySelector('.ani-episode-card-description').dataset.text, '兩人再次踏上旅程。');
   assert.equal(preview.querySelector('.ani-upcoming-hover-date'), null);
   const order = dom.window.document.querySelector('.ani-ep-order');
-  const episodes = () => [...preview.parentElement.children].map(row => row === preview ? 'EP.3' : row.querySelector('a')?.textContent.trim());
+  const episodes = () => [...preview.closest('ul').children].flatMap(row =>
+    [...row.children].filter(child => child === preview || child.matches('a'))
+      .map(child => child === preview ? 'EP.3' : child.textContent.trim()));
   order.click();
   assert.deepEqual(episodes(), ['EP.3', '2', '1']);
+  assert.equal(dom.window.document.querySelector('.season .playing').previousElementSibling, null);
   await new Promise(resolve => setTimeout(resolve, 0));
   assert.deepEqual(episodes(), ['EP.3', '2', '1']);
   order.click();
@@ -1305,6 +1314,8 @@ test('hovering the player episode button shows progress from all history pages',
   await new Promise(resolve => setTimeout(resolve, 40));
   const bars = [...w.document.querySelectorAll('.ani-ep-row progress')];
   assert.deepEqual(bars.map(bar => bar.position), [0.25, 0.5, 1, 0]);
+  assert.deepEqual(bars.map(bar => bar.closest('.ani-ep-row').hasAttribute('data-ani-episode-completed')),
+    [false, false, true, false]);
 });
 
 test('comment send button uses one native Enter event for the current reply editor without hovering comment images expanding layout', async t => {
@@ -1365,6 +1376,28 @@ test('comment send button uses one native Enter event for the current reply edit
   const out = new w.Event('pointerout', { bubbles: true });
   img.dispatchEvent(out);
   assert.equal(w.document.querySelector('.ani-comment-hover-zoom'), null);
+
+  const viewer = w.document.createElement('div');
+  viewer.className = 'pswp';
+  w.document.body.append(viewer);
+  Object.defineProperty(w, 'scrollY', { value: 250 });
+  let getBounds;
+  w.PhotoSwipe = class {
+    constructor(_viewer, _ui, _items, options) {
+      getBounds = options.getThumbBoundsFn;
+    }
+  };
+  img.addEventListener('click', () => new w.PhotoSwipe(viewer, null, [{ w: 400, h: 300 }], {}));
+  img.dispatchEvent(over);
+  const enlarged = w.document.querySelector('.ani-comment-hover-zoom');
+  enlarged.getBoundingClientRect = () => {
+    assert(enlarged.isConnected, 'capture the hover bounds before removing the overlay');
+    return { left: 36, top: 65, width: 235, height: 176.25 };
+  };
+  img.click();
+  assert.equal(w.document.querySelector('.ani-comment-hover-zoom'), null);
+  assert.deepEqual({ ...getBounds(0) }, { x: 36, y: 315, w: 235 });
+  assert.deepEqual({ ...getBounds(0) }, { x: 40, y: 330, w: 160 });
 
   const repairsCss = fs.readFileSync('src/ui-repairs.css', 'utf8');
   assert.match(repairsCss, /a\.more-text[\s\S]*text-decoration:\s*none/);
@@ -1636,4 +1669,203 @@ test('comment read-more and expand-replies trigger smooth entrance animations', 
   assert.equal(replyAnims[1].options.delay ?? 0, 0);
   assert.equal(replyAnims[1].options.duration, 180);
   assert(!replyList.lastElementChild.classList.contains('ani-reply-media-pending'));
+});
+
+test('sidebar strips truncated trailing staff label and enriches sparse staff from Bangumi and linked ACG credits', async t => {
+  const dom = bootEnhancements(`<div id="BH_background">
+    <div class="anime_name"><h1>冷淡的佐藤同學 [1]</h1><a id="bgmtv" href="https://bgm.tv/subject/555666">點格子</a></div>
+    <div class="subtitle"><div class="ani-tabs"></div><div class="ani-tab-content"></div></div>
+    <section class="data">
+      <ul class="type-list">
+        <li class="type"><span class="title">導演監督</span><span class="content">吉村文宏</span></li>
+        <li class="type"><span class="title">製作廠商</span><span class="content">手塚製作公司</span></li>
+      </ul>
+      <div class="data-intro">
+        <p>班上的高嶺之花・佐藤小春。<br>｜導演監督：</p>
+        <a href="https://acg.gamer.com.tw/acgDetail.php?s=99900">作品資料</a>
+      </div>
+    </section>
+  </div>`, '/animeVideo.php?sn=10838', {
+    chromeMock: {
+      runtime: {
+        lastError: null,
+        sendMessage(message, reply) {
+          if (message.type === 'ani-fetch-acg-credits') {
+            queueMicrotask(() => reply({
+              credits: '<b>＜製作團隊＞</b><li>｜劇本統籌：青島崇</li><li>｜音樂：<a href="#">成田旬</a></li>',
+            }));
+          } else if (message.type === 'ani-fetch-bangumi-staff') {
+            assert.equal(message.id, '555666');
+            queueMicrotask(() => reply({
+              staff: [
+                { title: '导演', val: '吉村文宏' },
+                { title: '系列构成', val: '青島崇' },
+                { title: '美术监督', val: '測試美術' },
+                { title: '色彩设计', val: '測試色彩' },
+                { title: '音响监督', val: '測試音響' },
+              ],
+            }));
+          }
+        },
+      },
+    },
+  });
+  t.after(() => dom.window.close());
+  const { document } = dom.window;
+  await new Promise(resolve => dom.window.setTimeout(resolve, 20));
+  assert.equal(document.querySelector('.ani-side-synopsis').textContent, '班上的高嶺之花・佐藤小春。');
+  const staffText = document.querySelector('[data-credit-panel="製作團隊"]').textContent;
+  assert.match(staffText, /劇本統籌.*青島崇/);
+  assert.match(staffText, /音樂.*成田旬/);
+  assert.match(staffText, /美術監督.*測試美術/);
+  assert.match(staffText, /色彩設計.*測試色彩/);
+  assert.match(staffText, /音響監督.*測試音響/);
+});
+
+test('fullscreen paused-idle centers title overlay after inactivity and clears on activity or play', async (t) => {
+  const dom = bootEnhancements(`
+    <div id="BH_background">
+      <div class="anime-title">
+        <div class="anime_name"><h1>測試動畫 [8]</h1></div>
+      </div>
+      <div id="ani_video" class="video-js vjs-fullscreen vjs-has-started vjs-paused" data-ani-paused-idle-delay="25">
+        <video></video>
+        <div class="vjs-control-bar"></div>
+      </div>
+      <section class="season">
+        <ul>
+          <li class="playing"><a href="?sn=9008">8</a></li>
+        </ul>
+      </section>
+    </div>
+  `, '/animeVideo.php?sn=9008', {
+    fetch: () => Promise.resolve({ ok: false, status: 404, json: async () => ({}) }),
+  });
+  t.after(() => dom.window.close());
+  const { window } = dom;
+  const { document } = window;
+  const player = document.getElementById('ani_video');
+
+  await new Promise((r) => setTimeout(r, 15));
+  assert.equal(player.querySelector('.ani-fs-episode')?.textContent, 'EP.8');
+  assert.equal(player.classList.contains('ani-fs-paused-idle'), false);
+
+  await new Promise((r) => setTimeout(r, 45));
+  assert.equal(player.classList.contains('ani-fs-paused-idle'), true);
+
+  player.dispatchEvent(new window.MouseEvent('mousemove', { bubbles: true }));
+  assert.equal(player.classList.contains('ani-fs-paused-idle'), false);
+
+  await new Promise((r) => setTimeout(r, 45));
+  assert.equal(player.classList.contains('ani-fs-paused-idle'), true);
+
+  player.classList.remove('vjs-paused');
+  player.classList.add('vjs-playing');
+  await new Promise((r) => setTimeout(r, 10));
+  assert.equal(player.classList.contains('ani-fs-paused-idle'), false);
+
+  player.classList.remove('vjs-playing', 'vjs-fullscreen');
+  player.classList.add('vjs-paused');
+  await new Promise((r) => setTimeout(r, 45));
+  assert.equal(player.classList.contains('ani-fs-paused-idle'), false);
+
+  const enhCss = fs.readFileSync('src/enhancements.css', 'utf8');
+  assert.match(enhCss, /#ani_video \.ani-fs-episode\s*\{[^}]*font-size:\s*18px;/);
+  assert.match(enhCss, /aniFsPausedCenterIn\s*\{\s*from\s*\{\s*transform:[^}]*\}\s*to\s*\{\s*transform:/);
+  assert.match(enhCss, /\.ani-fs-episode:not\(\[hidden\]\)\s*\{[^}]*-webkit-backdrop-filter:\s*blur\(24px\)/);
+  assert.match(enhCss, /\.ani-fs-subtitle:not\(\[hidden\]\)\s*\{[^}]*-webkit-backdrop-filter:\s*blur\(24px\)/);
+});
+
+test('legacy danmu refresh icon is hidden unconditionally before new danmu tools bar mounts', () => {
+  const uiCss = fs.readFileSync('src/ui-repairs.css', 'utf8');
+  const enhCss = fs.readFileSync('src/enhancements.css', 'utf8');
+  assert.match(uiCss, /#ani-tab-content-1\s+:is\([^\n]*button\.refresh[^\n]*\.ani-danmu-reload-pill[^\n]*\):not\(\.ani-dm-refresh-btn\)\s*\{\s*display:\s*none\s*!important;/);
+  assert.doesNotMatch(uiCss, /\.ani-danmu-count-box\s*>\s*button\.refresh\s*\{/);
+  assert.match(enhCss, /body\.ani-ambientlight-ui\s+#BH_background\s+\.subtitle\s+#ani-tab-content-1\s+:is\([^\n]*button\.refresh[^\n]*\):not\(\.ani-dm-refresh-btn\)/);
+});
+
+test('theme song fallback cards resolve YouTube thumbnails asynchronously and keep unified grid layout', async t => {
+  const vm = await import('node:vm');
+  const originContext = vm.createContext({ URL, Number, String, Array, Object, Set, JSON });
+  vm.runInContext(fs.readFileSync('src/work-origin.js', 'utf8'), originContext);
+  const sampleSearchHtml = `<html><script>var ytInitialData = ${JSON.stringify({
+    contents: [
+      { videoRenderer: { videoId: 'SHORT123456', title: { runs: [{ text: '初恋リプライ #shorts' }] }, lengthText: { simpleText: '0:28' } } },
+      { videoRenderer: { videoId: 'I1IWV7ZuQbM', title: { runs: [{ text: '【MV】初恋リプライ／HoneyWorks feat.星川サラ' }] }, lengthText: { simpleText: '3:52' } } },
+    ],
+  })};</script></html>`;
+  const requestedQueries = [];
+  const resolvedId = await originContext.fetchYoutubeThemeVideoId('「初恋リプライ」', 'HoneyWorks feat. 星川サラ', async (url) => {
+    requestedQueries.push(new URL(url).searchParams.get('search_query'));
+    return {
+      ok: requestedQueries.length >= 2,
+      text: async () => sampleSearchHtml,
+    };
+  });
+  assert.deepEqual(requestedQueries, ['初恋リプライ HoneyWorks 星川サラ', '初恋リプライ HoneyWorks']);
+  assert.equal(resolvedId, 'I1IWV7ZuQbM');
+
+  const dom = bootEnhancements(`<div id="BH_background">
+    <div id="ani-info">
+      <div class="grid song">
+        <div>OP「シュガーソルト」</div>
+        <div>オーイシマサヨシ</div>
+        <a href="https://www.youtube.com/results?search_query=sugar">YT</a>
+        <div>ED「初恋リプライ」</div>
+        <div>HoneyWorks feat. 星川サラ</div>
+        <a href="https://www.youtube.com/results?search_query=reply">YT</a>
+      </div>
+    </div>
+    <section class="data"><div class="data-intro"><p>測試作品簡介。</p></div></section>
+    <div class="anime_name"><h1>測試動畫 [1]</h1></div>
+    <div class="subtitle"><div class="ani-tabs"></div><div class="ani-tab-content"></div></div>
+  </div>`, '/animeVideo.php?sn=10839', {
+    chromeMock: {
+      runtime: {
+        lastError: null,
+        sendMessage(message, reply) {
+          if (message.type === 'ani-fetch-theme-video') {
+            const videoId = message.title.includes('シュガーソルト') ? '_7O9YnwO3d4' : 'I1IWV7ZuQbM';
+            queueMicrotask(() => reply({ videoId }));
+          }
+        },
+      },
+    },
+  });
+  t.after(() => dom.window.close());
+  const { document } = dom.window;
+  await new Promise(resolve => dom.window.setTimeout(resolve, 40));
+
+  const imgs = [...document.querySelectorAll('[data-credit-panel="主題曲"] .ani-theme-song-cover img')].map(img => img.getAttribute('src'));
+  assert.deepEqual(imgs, [
+    'https://i.ytimg.com/vi/_7O9YnwO3d4/mqdefault.jpg',
+    'https://i.ytimg.com/vi/I1IWV7ZuQbM/mqdefault.jpg',
+  ]);
+  const ytLinks = [...document.querySelectorAll('[data-credit-panel="主題曲"] .ani-theme-song-youtube')].map(a => a.getAttribute('href'));
+  assert.deepEqual(ytLinks, [
+    'https://www.youtube.com/watch?v=_7O9YnwO3d4',
+    'https://www.youtube.com/watch?v=I1IWV7ZuQbM',
+  ]);
+
+  const repairsCss = fs.readFileSync('src/ui-repairs.css', 'utf8');
+  assert.doesNotMatch(repairsCss, /:is\(\s*>/, 'avoids invalid relative combinators inside :is()');
+  assert.match(repairsCss, /\.ani-theme-song-row\s*>\s*details\s*\{[\s\S]*grid-area:\s*summary/);
+  assert.match(repairsCss, /\.ani-theme-song:not\(:has\(>\s*\.ani-theme-song-cover\)\)\s*\{[\s\S]*grid-template-columns:\s*minmax\(0,\s*1fr\)/);
+  assert.match(repairsCss, /@keyframes aniCreditPanelIn/);
+  assert.match(repairsCss, /\.ani-credit-switch button:is\(\[data-credit-choice="聲優"\], \[data-credit-choice="主題曲"\]\) > svg\s*\{\s*width:15px;\s*height:15px;\s*\}/);
+
+  const switcher = document.querySelector('.ani-credit-switch');
+  assert.equal(switcher.dataset.creditActive, '0');
+  const themeBtn = switcher.querySelector('[data-credit-choice="主題曲"]');
+  themeBtn.click();
+  assert.equal(switcher.dataset.creditActive, '2');
+  const themePanel = document.querySelector('[data-credit-panel="主題曲"]');
+  assert.equal(themePanel.hidden, false);
+  assert.equal(themePanel.classList.contains('is-credit-entering'), true);
+  assert.match(repairsCss, /@keyframes aniCreditPanelIn\s*\{\s*from\s*\{\s*opacity:\s*0\.25;\s*transform:\s*translateY\(8px\)/);
+  assert.doesNotMatch(repairsCss, /ani-credit-reveal/);
+  assert.match(repairsCss, /@keyframes aniDanmuFadeIn\s*\{\s*from\s*\{\s*opacity:\s*0\.2;\s*transform:\s*translateY\(8px\)/);
+  assert.match(repairsCss, /@keyframes aniDanmuSoftFade/);
+  assert.match(repairsCss, /\.ani-plus-danmu-count\s*>\s*:nth-child\(n\+2\)/);
+  assert.match(repairsCss, /#sub_list:is\(\.ani-dm-loading,\s*:not\(\[data-tip\]\):empty\)::before/);
 });

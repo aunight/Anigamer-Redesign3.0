@@ -305,9 +305,14 @@
     document.addEventListener('scroll', () => clearPreview(true), { passive: true, capture: true });
 
     document.addEventListener('click', (event) => {
+      const thumbnail = event.target.closest?.('#w-post-box img[data-evt-show-img], #w-post-box [data-evt-show-img] img');
+      // Read the painted rectangle before cancelling an in-flight hover zoom.
+      const hoverRect = thumbnail && thumbnail === activeThumbnail ? preview?.getBoundingClientRect() : null;
+      const hoverBounds = hoverRect?.width > 0 && hoverRect.height > 0
+        ? { x: hoverRect.left, y: hoverRect.top + window.scrollY, w: hoverRect.width }
+        : null;
       clearPreview(true);
       if (!document.body.classList.contains('ani-layout-comments')) return;
-      const thumbnail = event.target.closest?.('#w-post-box img[data-evt-show-img], #w-post-box [data-evt-show-img] img');
       const PhotoSwipe = window.PhotoSwipe;
       const viewer = document.querySelector('.pswp');
       if (!thumbnail || typeof PhotoSwipe !== 'function' || !viewer) return;
@@ -330,8 +335,15 @@
                 item.w = thumbnail.naturalWidth;
                 item.h = thumbnail.naturalHeight;
               }
+              let openingBounds = hoverBounds;
               options.getThumbBoundsFn = (activeIndex) => {
-                if (activeIndex !== index || !thumbnail.isConnected) return;
+                if (activeIndex !== index) return;
+                if (openingBounds) {
+                  const bounds = openingBounds;
+                  openingBounds = null;
+                  return bounds;
+                }
+                if (!thumbnail.isConnected) return;
                 const rect = thumbnail.getBoundingClientRect();
                 if (rect.width > 0) return { x: rect.left, y: rect.top + window.scrollY, w: rect.width };
               };

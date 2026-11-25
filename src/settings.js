@@ -955,7 +955,7 @@
     ].map(([name, description, url, platform]) =>
       `<li><strong>${name}</strong><span>${description}</span><a class="ani-pill-btn ani-pill-sm" href="${url}" target="_blank" rel="noopener noreferrer">${platform === 'GitHub' ? githubIcon : greasyForkIcon}<span>${platform}</span></a></li>`
     ).join('');
-    const appVersion = globalThis.chrome?.runtime?.getManifest?.()?.version || globalThis.GM_info?.script?.version || '3.4.0';
+    const appVersion = globalThis.chrome?.runtime?.getManifest?.()?.version || globalThis.GM_info?.script?.version || '3.5.0';
     const creditCard =
       '<div class="ani-credit-card">'
       + '<div class="ani-credit-head">'
