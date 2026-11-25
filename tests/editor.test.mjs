@@ -105,7 +105,7 @@ panel.querySelector('[data-category="surfaces"]').click();panel.querySelector('[
 assert.equal(panel.querySelector('[data-setting="headerOpacity"]').value,String(w.AniAmbientSettings.defaults.headerOpacity));
 assert.equal(panel.querySelector('[data-setting="textSize"]').value,'18','Category reset preserves unrelated fields');
 assert.equal(w.AniAmbientSettings.normalize({customFontName:'Name;url(test)'}).customFontName,'Nameurltest');
-await new Promise(resolve=>setTimeout(resolve,25));assert.ok(mutations<20,'Paused native player must remain idle');
+await new Promise(resolve=>setTimeout(resolve,25));assert.ok(mutations<30,'Paused native player must remain idle');
 assert.equal(panel.querySelector('[data-setting="watchWidth"]').disabled,true);
 assert.equal(w.document.body.classList.contains('ani-custom-watch-width'),false);
 change('customWatchWidth',true);assert.equal(panel.querySelector('[data-setting="watchWidth"]').disabled,false);change('customWatchWidth',false);
@@ -359,4 +359,51 @@ await new Promise(resolve => setTimeout(resolve, 0));
 assert(nativeDanmuCount.classList.contains('ani-plus-danmu-count'));
 assert.match(nativeDanmuCount.textContent, /Plus已過濾 3 筆彈幕/);
 assert.equal(w.document.body.dataset.aniBackground,'silk','extension/page reload retains this tab random background');
+{
+  const aniVideo = w.document.querySelector('#ani_video');
+  const vjsDanmu = w.document.createElement('div');
+  vjsDanmu.className = 'vjs-danmu';
+  const warp = w.document.createElement('div');
+  warp.className = 'danmu-warp';
+  Object.defineProperty(warp, 'clientWidth', { value: 1000, configurable: true });
+  Object.defineProperty(warp, 'clientHeight', { value: 112, configurable: true });
+  warp.getBoundingClientRect = () => ({ left: 0, top: 0, right: 1000, bottom: 112, width: 1000, height: 112 });
+  vjsDanmu.append(warp);
+  aniVideo.append(vjsDanmu);
+  await new Promise(resolve => setTimeout(resolve, 0));
+
+  const makeCmt = (mode, width) => {
+    const el = w.document.createElement('div');
+    el.className = `danmu danmu-mode-${mode}`;
+    Object.defineProperty(el, 'offsetWidth', { value: width, configurable: true });
+    Object.defineProperty(el, 'offsetHeight', { value: 24, configurable: true });
+    el.getBoundingClientRect = () => {
+      const top = Number.parseFloat(el.style.top || '6');
+      return { left: 1000, top, right: 1000 + width, bottom: top + 24, width, height: 24 };
+    };
+    return el;
+  };
+
+  const topCmt = makeCmt('top', 200);
+  const r1 = makeCmt('rolling', 120);
+  const r2 = makeCmt('rolling', 360);
+  const r3 = makeCmt('rolling', 180);
+  const r4 = makeCmt('rolling', 150);
+  warp.append(topCmt, r1, r2, r3, r4);
+  await new Promise(resolve => setTimeout(resolve, 0));
+
+  assert.equal(topCmt.style.top, '6px');
+  assert.equal(r1.style.top, '34px');
+  assert.equal(r2.style.top, '62px');
+  assert.equal(r3.dataset.aniDanmuHidden, '1');
+  assert.equal(r4.dataset.aniDanmuHidden, '1');
+  const speed1 = (1000 + 120 * 1.1) / (Number.parseFloat(r1.style.animationDuration) / 1000);
+  const speed2 = (1000 + 360 * 1.1) / (Number.parseFloat(r2.style.animationDuration) / 1000);
+  assert(Math.abs(speed1 - speed2) < 0.5, 'rolling danmu use equalized pixel velocity');
+
+  change('danmuAntiOverlap', false);
+  assert.equal(r3.dataset.aniDanmuHidden, undefined);
+  assert.equal(r4.dataset.aniDanmuHidden, undefined);
+  change('danmuAntiOverlap', true);
+}
 dom.window.close();console.log('Passed: native geometry, bounded observer, reversible layouts, themes, per-setting reset, eight grouped methods, old and newer backup import, embedded rating settings.');

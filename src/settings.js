@@ -102,6 +102,7 @@
     danmuWidth: 340,
     showDanmu: true,
     showDanmuHeat: true,
+    danmuAntiOverlap: true,
     cropBars: true,
     coverBars: false,
     barThreshold: 20,
@@ -295,6 +296,7 @@
         ['watchWidth', '劇院最大寬度', 1000, 2200, 40, ' px'],
         ['showDanmu', '顯示旁邊的彈幕列表', 'boolean'],
         ['showDanmuHeat', '顯示彈幕熱度', 'boolean'],
+        ['danmuAntiOverlap', '彈幕防重疊排版（等速防追撞）', 'boolean'],
       ],
     },
     {
@@ -496,6 +498,7 @@
       keys: [
         'showDanmu',
         'showDanmuHeat',
+        'danmuAntiOverlap',
         'showComments',
         ...contentFields
           .filter((f) => !f[0].startsWith('show'))
