@@ -13,16 +13,16 @@
 // @run-at       document-start
 // @inject-into  content
 // @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
-// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/13bd14145fcdce2ba8b63c4e6e0685888c3fd8bc/src/studio-catalog.json
-// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/13bd14145fcdce2ba8b63c4e6e0685888c3fd8bc/src/studio-profiles.json
-// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/13bd14145fcdce2ba8b63c4e6e0685888c3fd8bc/src/studio-directory-icons.json
-// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/13bd14145fcdce2ba8b63c4e6e0685888c3fd8bc/src/studio-logos.json
-// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/13bd14145fcdce2ba8b63c4e6e0685888c3fd8bc/src/content.css
-// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/13bd14145fcdce2ba8b63c4e6e0685888c3fd8bc/src/effects.css
-// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/13bd14145fcdce2ba8b63c4e6e0685888c3fd8bc/src/settings-ui.css
-// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/13bd14145fcdce2ba8b63c4e6e0685888c3fd8bc/src/hero-banner.css
-// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/13bd14145fcdce2ba8b63c4e6e0685888c3fd8bc/src/home-dashboard.css
-// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/13bd14145fcdce2ba8b63c4e6e0685888c3fd8bc/src/ui-repairs.css
+// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/65a23fae2f2d5b0d7e23fcbd75d24631940b50dd/src/studio-catalog.json
+// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/65a23fae2f2d5b0d7e23fcbd75d24631940b50dd/src/studio-profiles.json
+// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/65a23fae2f2d5b0d7e23fcbd75d24631940b50dd/src/studio-directory-icons.json
+// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/65a23fae2f2d5b0d7e23fcbd75d24631940b50dd/src/studio-logos.json
+// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/65a23fae2f2d5b0d7e23fcbd75d24631940b50dd/src/content.css
+// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/65a23fae2f2d5b0d7e23fcbd75d24631940b50dd/src/effects.css
+// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/65a23fae2f2d5b0d7e23fcbd75d24631940b50dd/src/settings-ui.css
+// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/65a23fae2f2d5b0d7e23fcbd75d24631940b50dd/src/hero-banner.css
+// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/65a23fae2f2d5b0d7e23fcbd75d24631940b50dd/src/home-dashboard.css
+// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/65a23fae2f2d5b0d7e23fcbd75d24631940b50dd/src/ui-repairs.css
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -11784,10 +11784,10 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
         }
         candidates.sort((a, b) => b.score - a.score);
         let best = candidates[0];
-        // Prefer a canonical ~90s ED near the episode end over earlier climax BGM.
+        // Prefer a tail ED near the episode end over earlier climax BGM.
         const isCanonicalTailEd = (c) => {
           const len = c.endTime - c.startTime;
-          return len >= 82 && len <= 96 && duration - c.endTime <= 20;
+          return len >= 52 && len <= 102 && duration - c.endTime <= 25;
         };
         const canonicalTail = candidates.find(isCanonicalTailEd);
         if (canonicalTail && best && !isCanonicalTailEd(best) && duration - best.endTime > 30) {
@@ -12507,6 +12507,13 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
         if (!detected && samples.length) {
           const stereoCount = samples.filter((s) => s.stereo > 0.045).length;
           const peakCount = samples.filter((s) => s.peak >= 0.045).length;
+          const buckets = [];
+          for (let i = 0; i < samples.length; i += 80) {
+            const chunk = samples.slice(i, i + 80);
+            const avgP = chunk.reduce((a, b) => a + b.peak, 0) / chunk.length;
+            const avgS = chunk.reduce((a, b) => a + b.stereo, 0) / chunk.length;
+            buckets.push(`${Math.round(chunk[0].time)}s:p${avgP.toFixed(2)}/s${avgS.toFixed(2)}`);
+          }
           console.info('[動畫瘋環境光][片尾偵測] 未找到符合區間', {
             duration: Math.round(video.duration),
             samples: samples.length,
@@ -12514,6 +12521,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
             to: Math.round(samples[samples.length - 1].time),
             stereoRatio: +(stereoCount / samples.length).toFixed(2),
             activeRatio: +(peakCount / samples.length).toFixed(2),
+            timeline: buckets.join(' '),
           });
         }
         return detected;
@@ -36252,11 +36260,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
             'pointermove',
             (e) => {
               if (tip.hidden || !activeLink) return;
-              if (
-                !activeLink.isConnected ||
-                (!activeLink.contains(e.target) && !activeLink.matches(':hover'))
-              )
-                hideTip();
+              if (!activeLink.isConnected || !activeLink.contains(e.target)) hideTip();
             },
             { passive: true },
           );

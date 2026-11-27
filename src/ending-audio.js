@@ -163,10 +163,10 @@
     }
     candidates.sort((a, b) => b.score - a.score);
     let best = candidates[0];
-    // Prefer a canonical ~90s ED near the episode end over earlier climax BGM.
+    // Prefer a tail ED near the episode end over earlier climax BGM.
     const isCanonicalTailEd = (c) => {
       const len = c.endTime - c.startTime;
-      return len >= 82 && len <= 96 && duration - c.endTime <= 20;
+      return len >= 52 && len <= 102 && duration - c.endTime <= 25;
     };
     const canonicalTail = candidates.find(isCanonicalTailEd);
     if (canonicalTail && best && !isCanonicalTailEd(best) && duration - best.endTime > 30) {
@@ -718,6 +718,13 @@
     if (!detected && samples.length) {
       const stereoCount = samples.filter(s => s.stereo > 0.045).length;
       const peakCount = samples.filter(s => s.peak >= 0.045).length;
+      const buckets = [];
+      for (let i = 0; i < samples.length; i += 80) {
+        const chunk = samples.slice(i, i + 80);
+        const avgP = chunk.reduce((a, b) => a + b.peak, 0) / chunk.length;
+        const avgS = chunk.reduce((a, b) => a + b.stereo, 0) / chunk.length;
+        buckets.push(`${Math.round(chunk[0].time)}s:p${avgP.toFixed(2)}/s${avgS.toFixed(2)}`);
+      }
       console.info('[動畫瘋環境光][片尾偵測] 未找到符合區間', {
         duration: Math.round(video.duration),
         samples: samples.length,
@@ -725,6 +732,7 @@
         to: Math.round(samples[samples.length - 1].time),
         stereoRatio: +(stereoCount / samples.length).toFixed(2),
         activeRatio: +(peakCount / samples.length).toFixed(2),
+        timeline: buckets.join(' '),
       });
     }
     return detected;
