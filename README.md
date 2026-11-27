@@ -120,6 +120,8 @@
 - **下架提醒**  
   ![下架提醒](docs/screenshots/08-episode-grouping-2.jpg)
 - **彈幕列表、右側欄三合一、留言區與新版分享模塊**  
+  ![側邊欄「作品簡介」與製作團隊](docs/screenshots/25-sidebar-intro.jpg)  
+  ![側邊欄「作品評分」與熱門評價](docs/screenshots/26-sidebar-rating.jpg)  
   ![側邊欄預覽 1](docs/screenshots/09-sidebar-1.jpg)  
   ![側邊欄預覽 2](docs/screenshots/10-sidebar-2.jpg)  
   ![側邊欄預覽 3](docs/screenshots/11-sidebar-3.jpg)  

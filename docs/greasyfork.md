@@ -83,6 +83,8 @@
   ![長篇集數折疊](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/07-episode-grouping-1.jpg)  
   ![下架提醒](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/08-episode-grouping-2.jpg)
 - **彈幕列表、右側欄三合一、留言區與新版分享模塊**  
+  ![側邊欄「作品簡介」與製作團隊](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/25-sidebar-intro.jpg)  
+  ![側邊欄「作品評分」與熱門評價](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/26-sidebar-rating.jpg)  
   ![側邊欄預覽 1](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/09-sidebar-1.jpg)  
   ![側邊欄預覽 2](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/10-sidebar-2.jpg)  
   ![側邊欄預覽 3](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/11-sidebar-3.jpg)  
