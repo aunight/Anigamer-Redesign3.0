@@ -13,16 +13,16 @@
 // @run-at       document-start
 // @inject-into  content
 // @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
-// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b392631b83ba59b72046962943db9e9ed9258a77/src/studio-catalog.json
-// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b392631b83ba59b72046962943db9e9ed9258a77/src/studio-profiles.json
-// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b392631b83ba59b72046962943db9e9ed9258a77/src/studio-directory-icons.json
-// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b392631b83ba59b72046962943db9e9ed9258a77/src/studio-logos.json
-// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b392631b83ba59b72046962943db9e9ed9258a77/src/content.css
-// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b392631b83ba59b72046962943db9e9ed9258a77/src/effects.css
-// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b392631b83ba59b72046962943db9e9ed9258a77/src/settings-ui.css
-// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b392631b83ba59b72046962943db9e9ed9258a77/src/hero-banner.css
-// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b392631b83ba59b72046962943db9e9ed9258a77/src/home-dashboard.css
-// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b392631b83ba59b72046962943db9e9ed9258a77/src/ui-repairs.css
+// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/80bf785de06e03ba9665318b2e226bb23c47b629/src/studio-catalog.json
+// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/80bf785de06e03ba9665318b2e226bb23c47b629/src/studio-profiles.json
+// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/80bf785de06e03ba9665318b2e226bb23c47b629/src/studio-directory-icons.json
+// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/80bf785de06e03ba9665318b2e226bb23c47b629/src/studio-logos.json
+// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/80bf785de06e03ba9665318b2e226bb23c47b629/src/content.css
+// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/80bf785de06e03ba9665318b2e226bb23c47b629/src/effects.css
+// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/80bf785de06e03ba9665318b2e226bb23c47b629/src/settings-ui.css
+// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/80bf785de06e03ba9665318b2e226bb23c47b629/src/hero-banner.css
+// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/80bf785de06e03ba9665318b2e226bb23c47b629/src/home-dashboard.css
+// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/80bf785de06e03ba9665318b2e226bb23c47b629/src/ui-repairs.css
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -417,6 +417,10 @@ Additional section icons: film, newspaper, comments.
           '}',
         ],
       ],
+    ],
+    ani_repairs_css: [
+      [4529, 1, ['  inset-block-end: calc(100% + 56px);']],
+      [4524, 1, ['  --ani-seek-tooltip-offset: 0px;']],
     ],
   };
   const readResource = (name) => {
@@ -2645,6 +2649,8 @@ body #BH_background .ani-ep-range-trigger:is(:hover, [aria-expanded='true']) {
   font-family: var(--ani-font, system-ui, sans-serif) !important;
   position: fixed;
   z-index: 99999;
+  display: flex;
+  flex-direction: column;
   max-width: min(320px, calc(100vw - 16px));
   padding: 12px 16px;
   border-radius: 10px;
@@ -2664,6 +2670,7 @@ body #BH_background .ani-ep-range-trigger:is(:hover, [aria-expanded='true']) {
 }
 #ani-ep-tooltip .ani-ep-tip-date {
   display: inline-flex;
+  align-self: flex-end;
   align-items: center;
   gap: 6px;
   padding: 3px 8px;
@@ -6701,7 +6708,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           .normalize('NFKC')
           .replace(/[\s\p{P}]/gu, '')
           .toLowerCase();
-      try {
+      const queryAniList = async (term) => {
         const response = await request('https://graphql.anilist.co', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -6716,12 +6723,13 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
             description(asHtml: false)
           } }
         }`,
-            variables: { search },
+            variables: { search: term },
           }),
         });
         const data = response.ok ? await response.json() : null;
-        const exact = normalize(search);
-        const matches = (data?.data?.Page?.media || []).filter(
+        const media = Array.isArray(data?.data?.Page?.media) ? data.data.Page.media : [];
+        const exact = normalize(term);
+        const matches = media.filter(
           (work) =>
             (!year || Number(year) === work.startDate?.year) &&
             (!movie || work.format === 'MOVIE') &&
@@ -6729,6 +6737,46 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
               (name) => normalize(name) === exact,
             ),
         );
+        return { media, matches };
+      };
+      try {
+        let { media, matches } = await queryAniList(search);
+        if (matches.length !== 1 && !media.length && !bangumiTitle && !nativeTitle && title) {
+          try {
+            const bgmRes = await request('https://api.bgm.tv/v0/search/subjects?limit=5', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'User-Agent':
+                  'aunight/Anigamer-Redesign3.0 (https://github.com/aunight/Anigamer-Redesign3.0)',
+              },
+              signal: AbortSignal.timeout(8000),
+              body: JSON.stringify({ keyword: String(title).trim(), filter: { type: [2] } }),
+            });
+            if (bgmRes.ok) {
+              const bgmJson = await bgmRes.json();
+              const list = Array.isArray(bgmJson?.data) ? bgmJson.data : [];
+              const normTitle = normalize(title);
+              const pick =
+                list.find(
+                  (item) =>
+                    (!year || Number((item?.date || '').slice(0, 4)) === Number(year)) &&
+                    (normalize(item?.name_cn) === normTitle || normalize(item?.name) === normTitle),
+                ) ||
+                list.find(
+                  (item) => !year || Number((item?.date || '').slice(0, 4)) === Number(year),
+                ) ||
+                list[0];
+              if (pick?.summary) {
+                const bgmSummary = await translateWorkSynopsis(pick.summary, request);
+                if (bgmSummary) return { summary: bgmSummary, source: 'Bangumi' };
+              }
+              if (pick?.name && normalize(pick.name) !== normTitle) {
+                ({ media, matches } = await queryAniList(String(pick.name).trim().slice(0, 240)));
+              }
+            }
+          } catch {}
+        }
         if (matches.length !== 1) return {};
         const summary = await translateWorkSynopsis(matches[0].description, request);
         return summary ? { summary, source: 'AniList' } : {};
@@ -6883,6 +6931,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
         } catch {}
       }
       const candidates = [...new Set([nativeTitle, cleanTitle].filter((s) => s.length >= 2))];
+      const resolvedJpTitles = [];
       let episodes = {};
 
       for (const kw of candidates) {
@@ -6928,6 +6977,8 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           }
           if (!subject && !nativeTitle && kw === cleanTitle && !strippedSeason)
             subject = sJson?.data?.[0];
+          if (subject?.name && !resolvedJpTitles.includes(subject.name))
+            resolvedJpTitles.push(subject.name);
           const subjectId = subject?.id;
           if (!subjectId) continue;
 
@@ -6973,7 +7024,9 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
         } catch {}
       }
 
-      for (const kw of candidates) {
+      for (const kw of [
+        ...new Set([nativeTitle, ...resolvedJpTitles, cleanTitle].filter((s) => s.length >= 2)),
+      ]) {
         try {
           const res = await request('https://graphql.anilist.co', {
             method: 'POST',

@@ -4522,12 +4522,12 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-mi
   display: none;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video:not(.vjs-ad-playing, .vjs-ad-loading) .vjs-control-bar:has(.ani-playback-seek-group) .control-bar-rightbtn {
-  --ani-seek-tooltip-offset: 54px;
+  --ani-seek-tooltip-offset: 0px;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video:not(.vjs-ad-playing, .vjs-ad-loading) .ani-playback-seek-group {
   position: absolute;
   inset-inline-end: clamp(12px, 2vw, 22px);
-  inset-block-end: calc(100% + 8px);
+  inset-block-end: calc(100% + 56px);
   z-index: 2;
   display: flex;
   gap: 12px;
