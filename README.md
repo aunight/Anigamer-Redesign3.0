@@ -3,7 +3,7 @@
 [下載安裝包 (Releases)](https://github.com/aunight/Anigamer-Redesign3.0/releases/latest) · [Userscript 直接安裝](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/userscript/ani-ambilight.user.js) · [附加腳本批次安裝](https://htmlpreview.github.io/?https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/plugins.html) · [問題回報 (Issues)](https://github.com/aunight/Anigamer-Redesign3.0/issues)
 
 [![Release](https://img.shields.io/github/v/release/aunight/Anigamer-Redesign3.0?style=flat-square&label=Release&color=3b82f6)](https://github.com/aunight/Anigamer-Redesign3.0/releases/latest)
-![Version](https://img.shields.io/badge/Version-3.5.1-1e293b?style=flat-square)
+![Version](https://img.shields.io/badge/Version-3.5.2-1e293b?style=flat-square)
 ![Platform](https://img.shields.io/badge/Platform-Chrome%20%7C%20Firefox%20%7C%20Userscript-1e293b?style=flat-square)
 [![CI](https://img.shields.io/github/actions/workflow/status/aunight/Anigamer-Redesign3.0/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/aunight/Anigamer-Redesign3.0/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-MIT-2563eb?style=flat-square)](LICENSE)
@@ -22,6 +22,10 @@
 > - **開場液態波紋著色器背景**：改寫自 **[Saurabh-2607/GreatUI](https://github.com/Saurabh-2607/GreatUI)** 的 `great-ui-liquid-ripple-shader`（MIT 授權），為巴哈動畫瘋主色系訂製的純原生 WebGL 迴圈動態波紋背景，隨頁面載入完成後平滑淡出。
 
 ---
+
+## v3.5.2 更新日誌
+
+- **選集抽屜播放圖示互動**：為播放器選集抽屜內的播放小圖示（`.ani-ep-play`）補上 `:hover`／`:focus-visible` 主題強調色與平滑過渡（包含收合狀態右上角按鈕與展開狀態縮圖中央按鈕）。
 
 ## v3.5.1 更新日誌
 

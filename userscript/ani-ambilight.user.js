@@ -2,7 +2,7 @@
 // @name         動畫瘋沉浸重製版 3.0｜Anigamer-Redesign 3.0
 // @namespace    https://ani.gamer.com.tw/ani-ambientlight
 // @author       秋夜
-// @version      3.5.1
+// @version      3.5.2
 // @description  動畫瘋環境光與沉浸重製介面：毛玻璃播放器、開場液態波紋、首頁足跡熱力圖＆天氣實況（靈感改作自 Hinataragi/anigamer-ambilight、jiuyang5354/bilibili-margin 與 GreatUI）。非官方。
 // @homepageURL  https://github.com/aunight/Anigamer-Redesign3.0
 // @supportURL   https://github.com/aunight/Anigamer-Redesign3.0/issues
@@ -13,16 +13,16 @@
 // @run-at       document-start
 // @inject-into  content
 // @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
-// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d3f2fda37b0d78919e7cff7b7cac0a5708f025ce/src/studio-catalog.json
-// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d3f2fda37b0d78919e7cff7b7cac0a5708f025ce/src/studio-profiles.json
-// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d3f2fda37b0d78919e7cff7b7cac0a5708f025ce/src/studio-directory-icons.json
-// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d3f2fda37b0d78919e7cff7b7cac0a5708f025ce/src/studio-logos.json
-// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d3f2fda37b0d78919e7cff7b7cac0a5708f025ce/src/content.css
-// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d3f2fda37b0d78919e7cff7b7cac0a5708f025ce/src/effects.css
-// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d3f2fda37b0d78919e7cff7b7cac0a5708f025ce/src/settings-ui.css
-// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d3f2fda37b0d78919e7cff7b7cac0a5708f025ce/src/hero-banner.css
-// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d3f2fda37b0d78919e7cff7b7cac0a5708f025ce/src/home-dashboard.css
-// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d3f2fda37b0d78919e7cff7b7cac0a5708f025ce/src/ui-repairs.css
+// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2d8fce4f75b31f7fdf2062a0bca1ddad7406b194/src/studio-catalog.json
+// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2d8fce4f75b31f7fdf2062a0bca1ddad7406b194/src/studio-profiles.json
+// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2d8fce4f75b31f7fdf2062a0bca1ddad7406b194/src/studio-directory-icons.json
+// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2d8fce4f75b31f7fdf2062a0bca1ddad7406b194/src/studio-logos.json
+// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2d8fce4f75b31f7fdf2062a0bca1ddad7406b194/src/content.css
+// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2d8fce4f75b31f7fdf2062a0bca1ddad7406b194/src/effects.css
+// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2d8fce4f75b31f7fdf2062a0bca1ddad7406b194/src/settings-ui.css
+// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2d8fce4f75b31f7fdf2062a0bca1ddad7406b194/src/hero-banner.css
+// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2d8fce4f75b31f7fdf2062a0bca1ddad7406b194/src/home-dashboard.css
+// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2d8fce4f75b31f7fdf2062a0bca1ddad7406b194/src/ui-repairs.css
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -402,40 +402,7 @@ Additional section icons: film, newspaper, comments.
   })();
 
   // 三、主題與設定介面樣式（於 document-start 預先注入以消除切換閃爍）
-  const resourceChanges = {
-    ani_repairs_css: [
-      [
-        7904,
-        0,
-        [
-          '  transition: color .16s ease, background-color .16s ease, box-shadow .16s ease;',
-          '}',
-          '#ani_video .ani-ep-row:has(> [aria-expanded="true"]) > .ani-ep-play:is(:hover, :focus-visible) svg {',
-          '  color: var(--ani-accent, #4cd3dc);',
-          '  background: color-mix(in srgb, var(--ani-accent, #4cd3dc) 22%, rgb(16 34 56 / 88%));',
-          '  box-shadow: 0 0 0 1px var(--ani-accent, #4cd3dc);',
-        ],
-      ],
-      [
-        7878,
-        0,
-        [
-          'body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep-row:has(> [aria-expanded="false"]) > .ani-ep-play:is(:hover, :focus-visible) {',
-          '  color: var(--ani-accent, #4cd3dc) !important;',
-          '  background: color-mix(in srgb, var(--ani-accent, #4cd3dc) 22%, rgb(16 34 56 / 88%)) !important;',
-          '  border-color: var(--ani-accent, #4cd3dc) !important;',
-          '}',
-        ],
-      ],
-      [
-        7870,
-        1,
-        [
-          '  transition: opacity .16s ease, color .16s ease, background-color .16s ease, border-color .16s ease;',
-        ],
-      ],
-    ],
-  };
+  const resourceChanges = {};
   const readResource = (name) => {
     const text = GM_getResourceText(name) || '';
     const changes = resourceChanges[name];
@@ -4280,7 +4247,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
         const appVersion =
           globalThis.chrome?.runtime?.getManifest?.()?.version ||
           globalThis.GM_info?.script?.version ||
-          '3.5.1';
+          '3.5.2';
         const creditCard =
           '<div class="ani-credit-card">' +
           '<div class="ani-credit-head">' +
