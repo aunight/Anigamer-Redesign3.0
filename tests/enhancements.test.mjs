@@ -1957,10 +1957,11 @@ test('emoji-wrapped ACG staff/cast headers, Japanese kanji cast variants, and MV
   assert.match(repairsCss, /\.ani-ep-row:has\(>\s*\[aria-expanded="true"\]\)\s*>\s*\.ani-ep-play:is\(:hover,\s*:focus-visible\)\s*svg\s*\{[^}]*color:\s*var\(--ani-accent/);
 });
 
-test('upcoming episode never reuses previous episode poster and resolves 16:9 AniList banner via Japanese title', async t => {
+test('upcoming episode never reuses previous episode poster and resolves 16:9 trailer thumbnail via Japanese title', async t => {
   const ep8Poster = 'https://p2.bahamut.com.tw/B/ep8-screenshot.jpg';
   const portraitSeasonal = 'https://p2.bahamut.com.tw/B/ACG/c/78/0000151278.JPG';
   const anilistBanner = 'https://s4.anilist.co/file/anilistcdn/media/anime/banner/211778-ZbXEhqfFkj62.jpg';
+  const trailerThumb = 'https://i.ytimg.com/vi/snJZD9vxfHY/maxresdefault.jpg';
   const future = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
   const dom = bootEnhancements(`<head><meta property="og:image" content="${ep8Poster}"></head><div id="BH_background">
     <div id="ani_video"><video poster="${ep8Poster}"></video></div>
@@ -1994,7 +1995,12 @@ test('upcoming episode never reuses previous episode poster and resolves 16:9 An
       if (target.includes('graphql.anilist.co')) {
         const body = JSON.parse(opts?.body || '{}');
         if (body?.variables?.search === '世界最強の魔女、始めました') {
-          return { ok: true, json: async () => ({ data: { Media: { bannerImage: anilistBanner } } }) };
+          return {
+            ok: true,
+            json: async () => ({
+              data: { Media: { bannerImage: anilistBanner, trailer: { id: 'snJZD9vxfHY', site: 'youtube' } } },
+            }),
+          };
         }
         return { ok: false };
       }
@@ -2006,11 +2012,11 @@ test('upcoming episode never reuses previous episode poster and resolves 16:9 An
   await new Promise((r) => dom.window.setTimeout(r, 30));
   const img = document.querySelector('.ani-upcoming-episode img');
   assert.ok(img, 'upcoming episode img renders');
-  Object.defineProperty(img, 'naturalWidth', { configurable: true, get: () => img.src === portraitSeasonal ? 700 : 1900 });
-  Object.defineProperty(img, 'naturalHeight', { configurable: true, get: () => img.src === portraitSeasonal ? 1000 : 400 });
+  Object.defineProperty(img, 'naturalWidth', { configurable: true, get: () => img.src === portraitSeasonal ? 700 : 1280 });
+  Object.defineProperty(img, 'naturalHeight', { configurable: true, get: () => img.src === portraitSeasonal ? 1000 : 720 });
   assert.equal(img.src, portraitSeasonal);
   img.onload?.();
   await new Promise((r) => dom.window.setTimeout(r, 40));
   assert.notEqual(img.src, ep8Poster);
-  assert.equal(img.src, anilistBanner);
+  assert.equal(img.src, trailerThumb);
 });

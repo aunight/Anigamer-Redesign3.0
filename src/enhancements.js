@@ -4628,10 +4628,8 @@
         const glow = loaded ? await decodeEpisodeGlow(image) : null;
         if (!preview.isConnected || preview.dataset.coverWork !== workTitle) return;
         if (loaded) {
-          image.classList.toggle(
-            'ani-episode-image-contain',
-            image.naturalWidth > 0 && image.naturalHeight > 0 && image.naturalWidth * 9 < image.naturalHeight * 16,
-          );
+          const ratio = image.naturalWidth > 0 && image.naturalHeight > 0 ? image.naturalWidth / image.naturalHeight : 16 / 9;
+          image.classList.toggle('ani-episode-image-contain', ratio < 1.35 || ratio > 2.4);
           if (glow) card.querySelector('.ani-episode-card-glow').replaceChildren(glow);
           image.hidden = false;
         }
@@ -4684,10 +4682,13 @@
           const media = json?.data?.Media;
           if (!media) continue;
           const results = [];
-          if (isHttpsUrl(media.bannerImage)) results.push(media.bannerImage);
           if (media.trailer?.site === 'youtube' && /^[A-Za-z0-9_-]{11}$/.test(media.trailer?.id || '')) {
-            results.push(`https://i.ytimg.com/vi/${media.trailer.id}/mqdefault.jpg`);
+            results.push(
+              `https://i.ytimg.com/vi/${media.trailer.id}/maxresdefault.jpg`,
+              `https://i.ytimg.com/vi/${media.trailer.id}/mqdefault.jpg`,
+            );
           }
+          if (isHttpsUrl(media.bannerImage)) results.push(media.bannerImage);
           if (results.length) return results;
         } catch {}
       }
@@ -4696,7 +4697,7 @@
     const tryCoverChain = (sources) => {
       const list = [...new Set(sources.filter(isHttpsUrl))];
       let aniListTried = false;
-      let portraitFallback = '';
+      let nonWideFallback = '';
       const probe = (idx) => {
         if (idx >= list.length) {
           if (!aniListTried) {
@@ -4707,21 +4708,27 @@
               if (additions.length) {
                 list.push(...additions);
                 probe(idx);
-              } else if (portraitFallback) {
-                setCover(portraitFallback);
+              } else if (nonWideFallback) {
+                setCover(nonWideFallback);
               } else {
                 setCover('');
               }
             });
             return;
           }
-          setCover(portraitFallback || '');
+          setCover(nonWideFallback || '');
           return;
         }
         setCover(list[idx], (loaded, img) => {
-          const isPortrait = loaded && img.naturalWidth > 0 && img.naturalHeight > 0 && img.naturalWidth < img.naturalHeight;
-          if (isPortrait && !portraitFallback) portraitFallback = list[idx];
-          if (!loaded || isPortrait) {
+          const w = img.naturalWidth;
+          const h = img.naturalHeight;
+          // YouTube maxresdefault placeholder is 120x90 when missing
+          const isMissingYtPlaceholder = loaded && w === 120 && h === 90 && /i\.ytimg\.com/.test(list[idx]);
+          const isMismatchRatio = loaded && w > 0 && h > 0 && (w < h || w > h * 2.4);
+          if (loaded && !isMissingYtPlaceholder && isMismatchRatio && !nonWideFallback) {
+            nonWideFallback = list[idx];
+          }
+          if (!loaded || isMissingYtPlaceholder || isMismatchRatio) {
             probe(idx + 1);
             return true;
           }
