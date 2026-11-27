@@ -95,6 +95,63 @@
 
 ---
 
+## 實機畫面預覽
+
+### 首頁足跡、天氣與新番時間軸
+![首頁主視覺與新版版面](docs/screenshots/01-home-hero.jpg)
+![首頁足跡熱力圖與點陣天氣](docs/screenshots/19-home-heatmap-weather.jpg)
+
+### 播放器與追番體驗
+| 即時環境光 | 單集大卡片（含即將更新） |
+| --- | --- |
+| ![即時環境光](docs/screenshots/02-ambilight-player.jpg) | ![單集大卡片](docs/screenshots/03-episode-cards.jpg) |
+
+| 全螢幕抬頭與快速選集抽屜 | 懸浮子母畫面（Mini Player） |
+| --- | --- |
+| ![全螢幕抬頭與選集](docs/screenshots/04-fullscreen-hud-1.jpg) | ![懸浮子母畫面](docs/screenshots/06-floating-pip.jpg) |
+
+<details>
+<summary>展開更多播放器、長篇集數折疊、下架提醒與側邊欄截圖</summary>
+
+- **全螢幕控制列與快轉按鈕**  
+  ![全螢幕控制列與快轉按鈕](docs/screenshots/05-fullscreen-hud-2.jpg)
+- **長篇集數折疊與下架提醒**  
+  ![長篇集數折疊](docs/screenshots/07-episode-grouping-1.jpg)  
+  ![下架提醒](docs/screenshots/08-episode-grouping-2.jpg)
+- **彈幕列表、右側欄三合一、留言區與新版分享模塊**  
+  ![側邊欄預覽 1](docs/screenshots/09-sidebar-1.jpg)  
+  ![側邊欄預覽 2](docs/screenshots/10-sidebar-2.jpg)  
+  ![側邊欄預覽 3](docs/screenshots/11-sidebar-3.jpg)  
+  ![側邊欄預覽 4](docs/screenshots/12-sidebar-4.jpg)  
+  ![側邊欄預覽 5](docs/screenshots/13-sidebar-5.jpg)
+
+</details>
+
+### 片庫目錄、製作組、追番狀態、觀看紀錄與全站頁面
+| 所有動畫片庫（排除標籤與原作分類） | 製作組動畫頁面 |
+| --- | --- |
+| ![片庫排除標籤與原作分類](docs/screenshots/20-catalog-filters.jpg) | ![製作組動畫頁面](docs/screenshots/21-studio-catalog.jpg) |
+
+| 我的動畫追番狀態標記 | 永久本地觀看紀錄 |
+| --- | --- |
+| ![我的動畫追番狀態 1](docs/screenshots/22-collection-status-1.jpg) | ![永久本地觀看紀錄](docs/screenshots/24-watch-history.png) |
+
+<details>
+<summary>展開更多追番狀態、付費方案與序號兌換頁面截圖</summary>
+
+- **我的動畫篩選檢視**  
+  ![我的動畫追番狀態 2](docs/screenshots/23-collection-status-2.jpg)
+- **全站頁面、付費方案與序號兌換**  
+  ![全站頁面 1](docs/screenshots/14-site-pages-1.jpg)  
+  ![全站頁面 2](docs/screenshots/15-site-pages-2.jpg)  
+  ![全站頁面 3](docs/screenshots/16-site-pages-3.png)  
+  ![全站頁面 4](docs/screenshots/17-site-pages-4.jpg)  
+  ![付費方案與序號兌換](docs/screenshots/18-membership-redeem.jpg)
+
+</details>
+
+---
+
 ## 安裝與建置
 
 需具備 Node.js（建議 v20 以上）與 npm：
