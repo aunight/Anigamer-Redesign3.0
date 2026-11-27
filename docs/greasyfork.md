@@ -64,6 +64,48 @@
 
 ---
 
+## 🖼️ 實機畫面預覽
+
+### 首頁足跡、天氣與新番時間軸
+![首頁主視覺與新版版面](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/01-home-hero.jpg)
+![首頁足跡熱力圖與點陣天氣](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/19-home-heatmap-weather.jpg)
+
+### 播放器與追番體驗
+- **即時環境光 & 單集大卡片（含即將更新）**  
+  ![即時環境光](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/02-ambilight-player.jpg)  
+  ![單集大卡片](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/03-episode-cards.jpg)
+- **全螢幕抬頭、快速選集抽屜與控制列快轉按鈕**  
+  ![全螢幕抬頭與選集](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/04-fullscreen-hud-1.jpg)  
+  ![全螢幕控制列與快轉按鈕](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/05-fullscreen-hud-2.jpg)
+- **懸浮子母畫面（Mini Player）**  
+  ![懸浮子母畫面](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/06-floating-pip.jpg)
+- **長篇集數折疊與下架提醒**  
+  ![長篇集數折疊](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/07-episode-grouping-1.jpg)  
+  ![下架提醒](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/08-episode-grouping-2.jpg)
+- **彈幕列表、右側欄三合一、留言區與新版分享模塊**  
+  ![側邊欄預覽 1](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/09-sidebar-1.jpg)  
+  ![側邊欄預覽 2](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/10-sidebar-2.jpg)  
+  ![側邊欄預覽 3](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/11-sidebar-3.jpg)  
+  ![側邊欄預覽 4](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/12-sidebar-4.jpg)  
+  ![側邊欄預覽 5](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/13-sidebar-5.jpg)
+
+### 片庫目錄、製作組、追番狀態、觀看紀錄與全站頁面
+- **所有動畫片庫（排除標籤與原作分類） & 製作組動畫頁面**  
+  ![片庫排除標籤與原作分類](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/20-catalog-filters.jpg)  
+  ![製作組動畫頁面](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/21-studio-catalog.jpg)
+- **我的動畫追番狀態 & 永久本地觀看紀錄**  
+  ![我的動畫追番狀態 1](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/22-collection-status-1.jpg)  
+  ![我的動畫追番狀態 2](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/23-collection-status-2.jpg)  
+  ![永久本地觀看紀錄](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/24-watch-history.png)
+- **全站頁面、付費方案與序號兌換**  
+  ![全站頁面 1](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/14-site-pages-1.jpg)  
+  ![全站頁面 2](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/15-site-pages-2.jpg)  
+  ![全站頁面 3](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/16-site-pages-3.png)  
+  ![全站頁面 4](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/17-site-pages-4.jpg)  
+  ![付費方案與序號兌換](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/18-membership-redeem.jpg)
+
+---
+
 ## 🔗 相關連結 & 問題回報
 
 - **主導開發與維護**：[秋夜](https://www.aunight.pw)
