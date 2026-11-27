@@ -3,7 +3,7 @@
 [下載安裝包 (Releases)](https://github.com/aunight/Anigamer-Redesign3.0/releases/latest) · [Userscript 直接安裝](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/userscript/ani-ambilight.user.js) · [附加腳本批次安裝](https://htmlpreview.github.io/?https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/plugins.html) · [問題回報 (Issues)](https://github.com/aunight/Anigamer-Redesign3.0/issues)
 
 [![Release](https://img.shields.io/github/v/release/aunight/Anigamer-Redesign3.0?style=flat-square&label=Release&color=3b82f6)](https://github.com/aunight/Anigamer-Redesign3.0/releases/latest)
-![Version](https://img.shields.io/badge/Version-3.5.2-1e293b?style=flat-square)
+![Version](https://img.shields.io/badge/Version-3.5.3-1e293b?style=flat-square)
 ![Platform](https://img.shields.io/badge/Platform-Chrome%20%7C%20Firefox%20%7C%20Userscript-1e293b?style=flat-square)
 [![CI](https://img.shields.io/github/actions/workflow/status/aunight/Anigamer-Redesign3.0/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/aunight/Anigamer-Redesign3.0/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-MIT-2563eb?style=flat-square)](LICENSE)
@@ -22,6 +22,12 @@
 > - **開場液態波紋著色器背景**：改寫自 **[Saurabh-2607/GreatUI](https://github.com/Saurabh-2607/GreatUI)** 的 `great-ui-liquid-ripple-shader`（MIT 授權），為巴哈動畫瘋主色系訂製的純原生 WebGL 迴圈動態波紋背景，隨頁面載入完成後平滑淡出。
 
 ---
+
+## v3.5.3 更新日誌
+
+- **AniSkip 片頭／片尾與低 CPU 最佳化**：從 Bangumi 自動轉換繁體中文標題取得日文原名後查詢 AniList／AniSkip，補齊「跳過片頭」與「跳過片尾」API 支援；僅在 AniSkip 無 ED 資料且播放進入尾聲時才啟動音訊分析，並保留純音訊偵測僅提供「跳過片尾」按鈕不自動中斷或縮小高潮演出。
+- **跨 API 日文標題備援**：修正片庫原作分類（`fetchAniListWorkMetaBatch`）、作品簡介（`fetchWorkSynopsis`）、單集標題（`fetchEpisodeTitles`）與 Bangumi 製作團隊查詢直接以中文送查或誤選劇場版的問題，並維持所有畫面輸出轉為台灣繁體中文。
+- **播放器與介面細節**：修正快轉／倒轉按鈕層級高於控制列 Tooltip、通知 Toast 寬度與內距、續播尾聲工具列互動、集數提示框日期靠右對齊，以及即將更新縮圖優先選用 16:9 預告片而非誤用上一集封面。
 
 ## v3.5.2 更新日誌
 
