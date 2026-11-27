@@ -114,6 +114,8 @@
 | --- | --- |
 | ![懸浮子母畫面](docs/screenshots/06-floating-pip.jpg) | ![長篇集數折疊](docs/screenshots/07-episode-grouping-1.jpg) |
 
+![片尾無縫接續（Endscreen）](docs/screenshots/endscreen.jpg)
+
 <details>
 <summary>展開更多下架提醒與側邊欄截圖</summary>
 

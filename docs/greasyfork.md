@@ -79,6 +79,8 @@
   ![全螢幕控制列與快轉按鈕](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/05-fullscreen-hud-2.jpg)
 - **懸浮子母畫面（Mini Player）**  
   ![懸浮子母畫面](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/06-floating-pip.jpg)
+- **片尾無縫接續（Endscreen）**  
+  ![片尾無縫接續（Endscreen）](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/endscreen.jpg)
 - **長篇集數折疊與下架提醒**  
   ![長篇集數折疊](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/07-episode-grouping-1.jpg)  
   ![下架提醒](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/08-episode-grouping-2.jpg)
