@@ -208,7 +208,7 @@
             // Climax BGM merged into ED: locate strongest stereo/energy jump around ~90s before runEnd.
             const win = 8 * perSecond;
             let bestJump = 0, bestIdx = -1;
-            const minIdx = Math.max(runStart + win, endIdx - Math.round(100 * perSecond));
+            const minIdx = Math.max(runStart + win, endIdx - Math.round(102 * perSecond));
             const maxIdx = Math.min(endIdx - Math.round(78 * perSecond), endIdx - win);
             for (let idx = minIdx; idx <= maxIdx; idx += perSecond) {
               let beforeS = 0, afterS = 0, beforeP = 0, afterP = 0;
@@ -224,13 +224,35 @@
                 bestIdx = idx;
               }
             }
-            if (bestIdx >= 0 && bestJump >= 0.06) {
+            if (bestIdx >= 0 && bestJump >= 0.025) {
               const tailSec = samples.slice(bestIdx, endIdx);
               const stereo = tailSec.filter(item => item.stereo > stereoMin).length / tailSec.length;
               const levels = tailSec.filter(item => item.peak >= activePeakMin).length / tailSec.length;
-              if (stereo >= 0.68 && levels >= 0.78) {
+              if (stereo >= 0.55 && levels >= 0.70) {
                 best = { startTime: samples[bestIdx].time, endTime: runEnd, score: stereo + levels };
                 break;
+              }
+            }
+            // If climax BGM seamlessly hands off to a ~90s ED with similar volume, pick lowest energy/stereo dip around 84-96s before runEnd.
+            if (!best && duration - runEnd <= 15) {
+              const dipStart = Math.max(runStart, endIdx - Math.round(96 * perSecond));
+              const dipEnd = Math.min(endIdx - Math.round(84 * perSecond), endIdx - 1);
+              let minScore = Infinity, dipIdx = -1;
+              for (let idx = dipStart; idx <= dipEnd; idx++) {
+                const sc = samples[idx].peak + samples[idx].stereo;
+                if (sc < minScore) {
+                  minScore = sc;
+                  dipIdx = idx;
+                }
+              }
+              if (dipIdx >= 0) {
+                const tailSec = samples.slice(dipIdx, endIdx);
+                const stereo = tailSec.filter(item => item.stereo > stereoMin).length / tailSec.length;
+                const levels = tailSec.filter(item => item.peak >= activePeakMin).length / tailSec.length;
+                if (stereo >= 0.52 && levels >= 0.70) {
+                  best = { startTime: samples[dipIdx].time, endTime: runEnd, score: stereo + levels };
+                  break;
+                }
               }
             }
           }
@@ -243,7 +265,7 @@
     }
     // Trim a quiet lead-in or score that briefly rises before the sustained song.
     const onset = samples.findIndex(sample => sample.time >= best.startTime);
-    const findStableStart = (windowSeconds) => {
+    const findStableStart = (windowSeconds, minStereoShare) => {
       for (let index = onset; index < onset + onsetSearchSeconds * perSecond && index + windowSeconds * perSecond <= samples.length; index++) {
         if (samples[index].stereo <= stereoMin) continue;
         let stable = true;
@@ -252,8 +274,8 @@
           const secondSamples = samples.slice(first, first + perSecond);
           const active = secondSamples.filter(sample => sample.peak >= activePeakMin);
           // Loud dialogue can precede the song without sharing its stereo profile.
-          if (active.length < 0.75 * perSecond ||
-              active.filter(sample => sample.stereo > stereoMin).length < 0.5 * perSecond) {
+          if (active.length < 0.70 * perSecond ||
+              active.filter(sample => sample.stereo > stereoMin).length < minStereoShare * perSecond) {
             stable = false;
             break;
           }
@@ -262,7 +284,7 @@
       }
       return undefined;
     };
-    const startTime = findStableStart(8) ?? findStableStart(4);
+    const startTime = findStableStart(8, 0.5) ?? findStableStart(4, 0.25) ?? best.startTime;
     const endTime = Math.min(best.endTime, duration);
     if (startTime === undefined || endTime - startTime < 48) return null;
     const followingAudio = samples.filter(sample => sample.time >= endTime + 0.5 && sample.peak >= 0.022);

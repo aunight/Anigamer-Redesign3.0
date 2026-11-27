@@ -13,16 +13,16 @@
 // @run-at       document-start
 // @inject-into  content
 // @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
-// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/816687eabb4e8e0480111a0ccde9cc16db7f148b/src/studio-catalog.json
-// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/816687eabb4e8e0480111a0ccde9cc16db7f148b/src/studio-profiles.json
-// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/816687eabb4e8e0480111a0ccde9cc16db7f148b/src/studio-directory-icons.json
-// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/816687eabb4e8e0480111a0ccde9cc16db7f148b/src/studio-logos.json
-// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/816687eabb4e8e0480111a0ccde9cc16db7f148b/src/content.css
-// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/816687eabb4e8e0480111a0ccde9cc16db7f148b/src/effects.css
-// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/816687eabb4e8e0480111a0ccde9cc16db7f148b/src/settings-ui.css
-// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/816687eabb4e8e0480111a0ccde9cc16db7f148b/src/hero-banner.css
-// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/816687eabb4e8e0480111a0ccde9cc16db7f148b/src/home-dashboard.css
-// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/816687eabb4e8e0480111a0ccde9cc16db7f148b/src/ui-repairs.css
+// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/089bf5f2978a0a0fc3a06dafb92b601b6552d130/src/studio-catalog.json
+// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/089bf5f2978a0a0fc3a06dafb92b601b6552d130/src/studio-profiles.json
+// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/089bf5f2978a0a0fc3a06dafb92b601b6552d130/src/studio-directory-icons.json
+// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/089bf5f2978a0a0fc3a06dafb92b601b6552d130/src/studio-logos.json
+// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/089bf5f2978a0a0fc3a06dafb92b601b6552d130/src/content.css
+// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/089bf5f2978a0a0fc3a06dafb92b601b6552d130/src/effects.css
+// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/089bf5f2978a0a0fc3a06dafb92b601b6552d130/src/settings-ui.css
+// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/089bf5f2978a0a0fc3a06dafb92b601b6552d130/src/hero-banner.css
+// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/089bf5f2978a0a0fc3a06dafb92b601b6552d130/src/home-dashboard.css
+// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/089bf5f2978a0a0fc3a06dafb92b601b6552d130/src/ui-repairs.css
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -11817,7 +11817,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
                 const win = 8 * perSecond;
                 let bestJump = 0,
                   bestIdx = -1;
-                const minIdx = Math.max(runStart + win, endIdx - Math.round(100 * perSecond));
+                const minIdx = Math.max(runStart + win, endIdx - Math.round(102 * perSecond));
                 const maxIdx = Math.min(endIdx - Math.round(78 * perSecond), endIdx - win);
                 for (let idx = minIdx; idx <= maxIdx; idx += perSecond) {
                   let beforeS = 0,
@@ -11836,19 +11836,48 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
                     bestIdx = idx;
                   }
                 }
-                if (bestIdx >= 0 && bestJump >= 0.06) {
+                if (bestIdx >= 0 && bestJump >= 0.025) {
                   const tailSec = samples.slice(bestIdx, endIdx);
                   const stereo =
                     tailSec.filter((item) => item.stereo > stereoMin).length / tailSec.length;
                   const levels =
                     tailSec.filter((item) => item.peak >= activePeakMin).length / tailSec.length;
-                  if (stereo >= 0.68 && levels >= 0.78) {
+                  if (stereo >= 0.55 && levels >= 0.7) {
                     best = {
                       startTime: samples[bestIdx].time,
                       endTime: runEnd,
                       score: stereo + levels,
                     };
                     break;
+                  }
+                }
+                // If climax BGM seamlessly hands off to a ~90s ED with similar volume, pick lowest energy/stereo dip around 84-96s before runEnd.
+                if (!best && duration - runEnd <= 15) {
+                  const dipStart = Math.max(runStart, endIdx - Math.round(96 * perSecond));
+                  const dipEnd = Math.min(endIdx - Math.round(84 * perSecond), endIdx - 1);
+                  let minScore = Infinity,
+                    dipIdx = -1;
+                  for (let idx = dipStart; idx <= dipEnd; idx++) {
+                    const sc = samples[idx].peak + samples[idx].stereo;
+                    if (sc < minScore) {
+                      minScore = sc;
+                      dipIdx = idx;
+                    }
+                  }
+                  if (dipIdx >= 0) {
+                    const tailSec = samples.slice(dipIdx, endIdx);
+                    const stereo =
+                      tailSec.filter((item) => item.stereo > stereoMin).length / tailSec.length;
+                    const levels =
+                      tailSec.filter((item) => item.peak >= activePeakMin).length / tailSec.length;
+                    if (stereo >= 0.52 && levels >= 0.7) {
+                      best = {
+                        startTime: samples[dipIdx].time,
+                        endTime: runEnd,
+                        score: stereo + levels,
+                      };
+                      break;
+                    }
                   }
                 }
               }
@@ -11861,7 +11890,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
         }
         // Trim a quiet lead-in or score that briefly rises before the sustained song.
         const onset = samples.findIndex((sample) => sample.time >= best.startTime);
-        const findStableStart = (windowSeconds) => {
+        const findStableStart = (windowSeconds, minStereoShare) => {
           for (
             let index = onset;
             index < onset + onsetSearchSeconds * perSecond &&
@@ -11876,8 +11905,9 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
               const active = secondSamples.filter((sample) => sample.peak >= activePeakMin);
               // Loud dialogue can precede the song without sharing its stereo profile.
               if (
-                active.length < 0.75 * perSecond ||
-                active.filter((sample) => sample.stereo > stereoMin).length < 0.5 * perSecond
+                active.length < 0.7 * perSecond ||
+                active.filter((sample) => sample.stereo > stereoMin).length <
+                  minStereoShare * perSecond
               ) {
                 stable = false;
                 break;
@@ -11887,7 +11917,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           }
           return undefined;
         };
-        const startTime = findStableStart(8) ?? findStableStart(4);
+        const startTime = findStableStart(8, 0.5) ?? findStableStart(4, 0.25) ?? best.startTime;
         const endTime = Math.min(best.endTime, duration);
         if (startTime === undefined || endTime - startTime < 48) return null;
         const followingAudio = samples.filter(
