@@ -136,6 +136,7 @@
     // Look for sustained music between distinct pauses. Ambiguous sections are left alone.
     const onsetSearchSeconds = 20;
     const activePeakMin = 0.045;
+    const stereoMin = 0.045;
     const candidates = [];
     for (const threshold of [0.012, 0.022, 0.035, 0.055]) {
       let start = 0, quiet = 0;
@@ -150,7 +151,7 @@
           const length = endTime - first.time;
           if (length >= 52 && length <= 115 && duration - endTime <= 185) {
             const section = samples.slice(start, end);
-            const stereo = section.filter(item => item.stereo > 0.07).length / section.length;
+            const stereo = section.filter(item => item.stereo > stereoMin).length / section.length;
             const levels = section.filter(item => item.peak >= activePeakMin).length / section.length;
             if (stereo >= 0.45 && levels >= 0.68) {
               candidates.push({startTime: first.time, endTime, score: stereo + levels - Math.abs(length - 90) / 90});
@@ -173,7 +174,7 @@
       let runStart = -1, lastMusic = -1, gap = 0;
       for (let i = 0; i <= samples.length; i++) {
         const s = samples[i];
-        const isMusic = s && s.peak >= activePeakMin && s.stereo > 0.07;
+        const isMusic = s && s.peak >= activePeakMin && s.stereo > stereoMin;
         if (isMusic) {
           if (runStart < 0) runStart = i;
           lastMusic = i;
@@ -187,7 +188,7 @@
           const runEnd = samples[lastMusic].time + step;
           if (runLen >= 72 && runLen <= 105 && duration - runEnd <= 185) {
             const section = samples.slice(runStart, endIdx);
-            const stereo = section.filter(item => item.stereo > 0.07).length / section.length;
+            const stereo = section.filter(item => item.stereo > stereoMin).length / section.length;
             const levels = section.filter(item => item.peak >= activePeakMin).length / section.length;
             if (stereo >= 0.62 && levels >= 0.72) {
               best = { startTime: samples[runStart].time, endTime: runEnd, score: stereo + levels };
@@ -203,26 +204,26 @@
     }
     // Trim a quiet lead-in or score that briefly rises before the sustained song.
     const onset = samples.findIndex(sample => sample.time >= best.startTime);
-    let startTime;
-    for (let index = onset; index < onset + onsetSearchSeconds * perSecond && index + 8 * perSecond <= samples.length; index++) {
-      if (samples[index].stereo <= 0.07) continue;
-      let stable = true;
-      for (let second = 0; second < 8; second++) {
-        const first = index + second * perSecond;
-        const secondSamples = samples.slice(first, first + perSecond);
-        const active = secondSamples.filter(sample => sample.peak >= activePeakMin);
-        // Loud dialogue can precede the song without sharing its stereo profile.
-        if (active.length < 0.75 * perSecond ||
-            active.filter(sample => sample.stereo > 0.07).length < 0.5 * perSecond) {
-          stable = false;
-          break;
+    const findStableStart = (windowSeconds) => {
+      for (let index = onset; index < onset + onsetSearchSeconds * perSecond && index + windowSeconds * perSecond <= samples.length; index++) {
+        if (samples[index].stereo <= stereoMin) continue;
+        let stable = true;
+        for (let second = 0; second < windowSeconds; second++) {
+          const first = index + second * perSecond;
+          const secondSamples = samples.slice(first, first + perSecond);
+          const active = secondSamples.filter(sample => sample.peak >= activePeakMin);
+          // Loud dialogue can precede the song without sharing its stereo profile.
+          if (active.length < 0.75 * perSecond ||
+              active.filter(sample => sample.stereo > stereoMin).length < 0.5 * perSecond) {
+            stable = false;
+            break;
+          }
         }
+        if (stable) return samples[index].time;
       }
-      if (stable) {
-        startTime = samples[index].time;
-        break;
-      }
-    }
+      return undefined;
+    };
+    const startTime = findStableStart(8) ?? findStableStart(4);
     const endTime = Math.min(best.endTime, duration);
     if (startTime === undefined || endTime - startTime < 48) return null;
     const followingAudio = samples.filter(sample => sample.time >= endTime + 0.5 && sample.peak >= 0.022);
@@ -522,7 +523,20 @@
       samples.push(...(await analyzeSegment(playlist.segments[i])));
       await new Promise(resolve => setTimeout(resolve, 60));
     }
-    return findEnding(samples, video.duration);
+    const detected = findEnding(samples, video.duration);
+    if (!detected && samples.length) {
+      const stereoCount = samples.filter(s => s.stereo > 0.045).length;
+      const peakCount = samples.filter(s => s.peak >= 0.045).length;
+      console.info('[動畫瘋環境光][片尾偵測] 未找到符合區間', {
+        duration: Math.round(video.duration),
+        samples: samples.length,
+        from: Math.round(samples[0].time),
+        to: Math.round(samples[samples.length - 1].time),
+        stereoRatio: +(stereoCount / samples.length).toFixed(2),
+        activeRatio: +(peakCount / samples.length).toFixed(2),
+      });
+    }
+    return detected;
   }
 
   async function analyze(video, signal, since) {

@@ -13,16 +13,16 @@
 // @run-at       document-start
 // @inject-into  content
 // @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
-// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d19a5337f8b89f5fddb9580c0cd65eb6efa55e9e/src/studio-catalog.json
-// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d19a5337f8b89f5fddb9580c0cd65eb6efa55e9e/src/studio-profiles.json
-// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d19a5337f8b89f5fddb9580c0cd65eb6efa55e9e/src/studio-directory-icons.json
-// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d19a5337f8b89f5fddb9580c0cd65eb6efa55e9e/src/studio-logos.json
-// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d19a5337f8b89f5fddb9580c0cd65eb6efa55e9e/src/content.css
-// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d19a5337f8b89f5fddb9580c0cd65eb6efa55e9e/src/effects.css
-// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d19a5337f8b89f5fddb9580c0cd65eb6efa55e9e/src/settings-ui.css
-// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d19a5337f8b89f5fddb9580c0cd65eb6efa55e9e/src/hero-banner.css
-// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d19a5337f8b89f5fddb9580c0cd65eb6efa55e9e/src/home-dashboard.css
-// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d19a5337f8b89f5fddb9580c0cd65eb6efa55e9e/src/ui-repairs.css
+// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b2e20ec03e40ea5271b235da8cfb47630d3c7020/src/studio-catalog.json
+// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b2e20ec03e40ea5271b235da8cfb47630d3c7020/src/studio-profiles.json
+// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b2e20ec03e40ea5271b235da8cfb47630d3c7020/src/studio-directory-icons.json
+// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b2e20ec03e40ea5271b235da8cfb47630d3c7020/src/studio-logos.json
+// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b2e20ec03e40ea5271b235da8cfb47630d3c7020/src/content.css
+// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b2e20ec03e40ea5271b235da8cfb47630d3c7020/src/effects.css
+// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b2e20ec03e40ea5271b235da8cfb47630d3c7020/src/settings-ui.css
+// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b2e20ec03e40ea5271b235da8cfb47630d3c7020/src/hero-banner.css
+// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b2e20ec03e40ea5271b235da8cfb47630d3c7020/src/home-dashboard.css
+// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b2e20ec03e40ea5271b235da8cfb47630d3c7020/src/ui-repairs.css
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -946,6 +946,30 @@ Additional section icons: film, newspaper, comments.
           '  color: color-mix(in srgb, var(--ani-accent, #3dafb6) 82%, white) !important;',
         ],
       ],
+      [
+        8651,
+        1,
+        [
+          '  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.26), 0 4px 12px rgba(0, 0, 0, 0.22) !important;',
+        ],
+      ],
+      [8649, 1, ['  background: rgba(48, 62, 80, 0.92) !important;']],
+      [
+        8631,
+        3,
+        [
+          '  background: rgba(34, 46, 62, 0.84) !important;',
+          '  backdrop-filter: none !important;',
+          '  -webkit-backdrop-filter: none !important;',
+        ],
+      ],
+      [
+        8624,
+        1,
+        [
+          '  body.ani-ambientlight-page.ani-ambientlight-ui #BH_background :is(.ani-merch-section .store_item, .ani-merch-section .store_wrapper li, .ani-review-card, .ani-ep-row, .ani-ep-play, .ani-player-episodes-drawer, .ani-ep-drawer-panel, .ani-player-settings-body, .ani-player-settings-body::before, .ani-player-settings-toggle, .ani-ps-text, .ani-ps-chevron, .plus_button_box, .plus_button, .ani-tool-hover-label) {',
+        ],
+      ],
       [8466, 1, ['  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.22) !important;']],
       [
         8458,
@@ -1014,6 +1038,86 @@ Additional section icons: film, newspaper, comments.
         ],
       ],
       [7119, 1, ['  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.14) !important;']],
+      [6460, 1, ['  margin-top: 10px !important;', '  margin-bottom: 14px !important;']],
+      [
+        6455,
+        1,
+        [
+          '  contain: layout style !important;',
+          '  transition: grid-template-rows 0.2s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.18s ease, margin-top 0.2s cubic-bezier(0.22, 1, 0.36, 1), margin-bottom 0.2s cubic-bezier(0.22, 1, 0.36, 1), transform 0.2s cubic-bezier(0.22, 1, 0.36, 1) !important;',
+        ],
+      ],
+      [6453, 1, ['  transform: translateY(-6px) !important;']],
+      [6446, 1, ['  margin-bottom: 0 !important;', '  padding: 0 !important;']],
+      [6433, 1, []],
+      [6431, 1, []],
+      [6428, 1, []],
+      [6426, 1, []],
+      [
+        6423,
+        1,
+        [
+          '  transition: opacity 0.16s ease, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1) !important;',
+        ],
+      ],
+      [6421, 1, ['  justify-self: end !important;']],
+      [6416, 1, ['  width: 16px !important;', '  min-width: 0 !important;']],
+      [6413, 1, ['  transition: opacity 0.16s ease !important;']],
+      [
+        6407,
+        2,
+        [
+          '  display: block !important;',
+          '  min-width: 0 !important;',
+          '  max-width: none !important;',
+        ],
+      ],
+      [
+        6388,
+        2,
+        [
+          '  grid-template-columns: 17px 1fr 16px !important;',
+          '  gap: 6px !important;',
+          '  padding: 0 13px 0 11px !important;',
+          '  background: rgba(40, 54, 72, 0.92) !important;',
+        ],
+      ],
+      [
+        6385,
+        1,
+        [
+          '  contain: layout style !important;',
+          '  transition: grid-template-columns 0.2s cubic-bezier(0.22, 1, 0.36, 1), gap 0.2s cubic-bezier(0.22, 1, 0.36, 1), padding 0.2s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease !important;',
+        ],
+      ],
+      [
+        6378,
+        3,
+        [
+          '  background: rgba(24, 34, 48, 0.84) !important;',
+          '  backdrop-filter: none !important;',
+          '  -webkit-backdrop-filter: none !important;',
+        ],
+      ],
+      [6377, 0, ['  overflow: hidden !important;']],
+      [6375, 1, ['  padding: 0 8.5px !important;']],
+      [
+        6371,
+        1,
+        [
+          '  display: inline-grid !important;',
+          '  grid-auto-flow: column !important;',
+          '  grid-template-columns: 17px 0fr 0px !important;',
+        ],
+      ],
+      [6356, 1, []],
+      [
+        6354,
+        1,
+        [
+          'body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .ani-player-settings-drawer.has-toolbar-host {',
+        ],
+      ],
       [6329, 1, ['  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.28) !important;']],
       [
         6322,
@@ -1074,7 +1178,39 @@ Additional section icons: film, newspaper, comments.
           '  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.65) !important;',
         ],
       ],
+      [
+        4370,
+        1,
+        [
+          '  transition: max-width 0.2s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.16s ease, margin-left 0.2s cubic-bezier(0.22, 1, 0.36, 1) !important;',
+        ],
+      ],
+      [
+        4344,
+        1,
+        [
+          '  interpolate-size: allow-keywords;',
+          '  transition: width 0.2s cubic-bezier(0.22, 1, 0.36, 1), padding 0.2s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.16s ease, color 0.16s ease !important;',
+        ],
+      ],
       [4204, 1, ['  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.72) !important;']],
+      [
+        4201,
+        1,
+        [
+          '  contain: layout style !important;',
+          '  transition: border-color 0.16s ease, background-color 0.16s ease, opacity 0.2s ease !important;',
+        ],
+      ],
+      [
+        4196,
+        3,
+        [
+          '  background: rgba(23, 35, 50, 0.82) !important;',
+          '  backdrop-filter: none !important;',
+          '  -webkit-backdrop-filter: none !important;',
+        ],
+      ],
       [
         4169,
         2,
@@ -11586,6 +11722,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
         // Look for sustained music between distinct pauses. Ambiguous sections are left alone.
         const onsetSearchSeconds = 20;
         const activePeakMin = 0.045;
+        const stereoMin = 0.045;
         const candidates = [];
         for (const threshold of [0.012, 0.022, 0.035, 0.055]) {
           let start = 0,
@@ -11601,7 +11738,8 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
               const length = endTime - first.time;
               if (length >= 52 && length <= 115 && duration - endTime <= 185) {
                 const section = samples.slice(start, end);
-                const stereo = section.filter((item) => item.stereo > 0.07).length / section.length;
+                const stereo =
+                  section.filter((item) => item.stereo > stereoMin).length / section.length;
                 const levels =
                   section.filter((item) => item.peak >= activePeakMin).length / section.length;
                 if (stereo >= 0.45 && levels >= 0.68) {
@@ -11638,7 +11776,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
             gap = 0;
           for (let i = 0; i <= samples.length; i++) {
             const s = samples[i];
-            const isMusic = s && s.peak >= activePeakMin && s.stereo > 0.07;
+            const isMusic = s && s.peak >= activePeakMin && s.stereo > stereoMin;
             if (isMusic) {
               if (runStart < 0) runStart = i;
               lastMusic = i;
@@ -11652,7 +11790,8 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
               const runEnd = samples[lastMusic].time + step;
               if (runLen >= 72 && runLen <= 105 && duration - runEnd <= 185) {
                 const section = samples.slice(runStart, endIdx);
-                const stereo = section.filter((item) => item.stereo > 0.07).length / section.length;
+                const stereo =
+                  section.filter((item) => item.stereo > stereoMin).length / section.length;
                 const levels =
                   section.filter((item) => item.peak >= activePeakMin).length / section.length;
                 if (stereo >= 0.62 && levels >= 0.72) {
@@ -11673,32 +11812,33 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
         }
         // Trim a quiet lead-in or score that briefly rises before the sustained song.
         const onset = samples.findIndex((sample) => sample.time >= best.startTime);
-        let startTime;
-        for (
-          let index = onset;
-          index < onset + onsetSearchSeconds * perSecond && index + 8 * perSecond <= samples.length;
-          index++
-        ) {
-          if (samples[index].stereo <= 0.07) continue;
-          let stable = true;
-          for (let second = 0; second < 8; second++) {
-            const first = index + second * perSecond;
-            const secondSamples = samples.slice(first, first + perSecond);
-            const active = secondSamples.filter((sample) => sample.peak >= activePeakMin);
-            // Loud dialogue can precede the song without sharing its stereo profile.
-            if (
-              active.length < 0.75 * perSecond ||
-              active.filter((sample) => sample.stereo > 0.07).length < 0.5 * perSecond
-            ) {
-              stable = false;
-              break;
+        const findStableStart = (windowSeconds) => {
+          for (
+            let index = onset;
+            index < onset + onsetSearchSeconds * perSecond &&
+            index + windowSeconds * perSecond <= samples.length;
+            index++
+          ) {
+            if (samples[index].stereo <= stereoMin) continue;
+            let stable = true;
+            for (let second = 0; second < windowSeconds; second++) {
+              const first = index + second * perSecond;
+              const secondSamples = samples.slice(first, first + perSecond);
+              const active = secondSamples.filter((sample) => sample.peak >= activePeakMin);
+              // Loud dialogue can precede the song without sharing its stereo profile.
+              if (
+                active.length < 0.75 * perSecond ||
+                active.filter((sample) => sample.stereo > stereoMin).length < 0.5 * perSecond
+              ) {
+                stable = false;
+                break;
+              }
             }
+            if (stable) return samples[index].time;
           }
-          if (stable) {
-            startTime = samples[index].time;
-            break;
-          }
-        }
+          return undefined;
+        };
+        const startTime = findStableStart(8) ?? findStableStart(4);
         const endTime = Math.min(best.endTime, duration);
         if (startTime === undefined || endTime - startTime < 48) return null;
         const followingAudio = samples.filter(
@@ -12077,7 +12217,20 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           samples.push(...(await analyzeSegment(playlist.segments[i])));
           await new Promise((resolve) => setTimeout(resolve, 60));
         }
-        return findEnding(samples, video.duration);
+        const detected = findEnding(samples, video.duration);
+        if (!detected && samples.length) {
+          const stereoCount = samples.filter((s) => s.stereo > 0.045).length;
+          const peakCount = samples.filter((s) => s.peak >= 0.045).length;
+          console.info('[動畫瘋環境光][片尾偵測] 未找到符合區間', {
+            duration: Math.round(video.duration),
+            samples: samples.length,
+            from: Math.round(samples[0].time),
+            to: Math.round(samples[samples.length - 1].time),
+            stereoRatio: +(stereoCount / samples.length).toFixed(2),
+            activeRatio: +(peakCount / samples.length).toFixed(2),
+          });
+        }
+        return detected;
       }
 
       async function analyze(video, signal, since) {
@@ -24326,6 +24479,8 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           let decoratingGrid = false;
           const decorateSettingsPanel = (panelEl) => {
             if (!panelEl) return;
+            if (panelEl.dataset.aniDecorated === '1' && panelEl.dataset.aniNeedsDecorate !== '1')
+              return;
             decoratingGrid = true;
             try {
               const formatLabel = [...panelEl.querySelectorAll('.ani-setting-label__mian')].find(
@@ -24509,8 +24664,9 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
                 }
               }
               for (const iconSvg of panelEl.querySelectorAll(
-                'svg:not(.ani-sec-icon svg):not(.ani-info-i-icon):not(.ani-row-icon svg):not(.ani-plus-refresh-svg):not(.ani-plus-add-svg):not(.ani-plus-gear-svg):not(.ani-plus-action-svg), :is(i, span).material-icons, :is(i, span)[class*="material" i]',
+                'svg:not(.ani-sec-icon svg):not(.ani-info-i-icon):not(.ani-row-icon svg):not(.ani-plus-refresh-svg):not(.ani-plus-add-svg):not(.ani-plus-gear-svg):not(.ani-plus-action-svg):not([data-ani-svg-checked]), :is(i, span).material-icons:not([data-ani-svg-checked]), :is(i, span)[class*="material" i]:not([data-ani-svg-checked])',
               )) {
+                iconSvg.dataset.aniSvgChecked = '1';
                 if (
                   iconSvg.closest(
                     '.ani-sec-icon, .ani-row-icon, .ani-info-badge-host, .ani-hidden-glyph, .ani-danmu-position-btn, .ani-plus-pill-btn, .ani-plus-refresh-btn, .ani-plus-add-icon-btn, .ani-plus-gear-btn, .ani-plus-icon-action, .tooltip, [role="tooltip"], [class*="tooltip" i]',
@@ -24534,8 +24690,20 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
                     continue;
                   }
                 }
-                const rect = iconSvg.getBoundingClientRect();
-                if (rect.width > 24 || rect.height > 24) continue;
+                const attrW = Number(iconSvg.getAttribute('width'));
+                const attrH = Number(iconSvg.getAttribute('height'));
+                const knownOversized =
+                  (Number.isFinite(attrW) && attrW > 24) || (Number.isFinite(attrH) && attrH > 24);
+                if (knownOversized) continue;
+                if (
+                  !Number.isFinite(attrW) ||
+                  !Number.isFinite(attrH) ||
+                  attrW === 0 ||
+                  attrH === 0
+                ) {
+                  const rect = iconSvg.getBoundingClientRect();
+                  if (rect.width > 24 || rect.height > 24) continue;
+                }
                 const pathTxt = iconSvg.innerHTML || '';
                 const metaTxt = `${pathTxt} ${iconSvg.className?.baseVal || ''} ${iconSvg.getAttribute('aria-label') || ''} ${iconSvg.parentElement?.className || ''}`;
                 const isGearOrAction =
@@ -25810,6 +25978,8 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
                 filterRow.before(filterGroup);
                 filterGroup.append(filterRow, sourceRow);
               }
+              panelEl.dataset.aniDecorated = '1';
+              delete panelEl.dataset.aniNeedsDecorate;
             } finally {
               decoratingGrid = false;
             }
@@ -25822,6 +25992,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
               clearTimeout(gridTimer);
               gridTimer = setTimeout(() => {
                 for (const p of unifiedGridEl.querySelectorAll('.ani-drawer-slot > *')) {
+                  p.dataset.aniNeedsDecorate = '1';
                   try {
                     decorateSettingsPanel(p);
                   } catch {}
@@ -25850,24 +26021,26 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
                 '<span class="ani-ps-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.6.85 1 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg></span><span class="ani-ps-text">播放器設定</span><svg class="ani-ps-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
               btn.addEventListener('click', () => {
                 const opening = !bodyWrap.classList.contains('is-open');
-                for (const s of bodyWrap.querySelectorAll(
-                  '.ani-drawer-slot[data-ani-source-triggered="false"]',
-                )) {
-                  const link = s._aniSourceLink;
-                  if (link && s.textContent.trim() === '') {
-                    s.dataset.aniSourceTriggered = 'true';
-                    try {
-                      link.click();
-                    } catch {}
+                if (opening) {
+                  for (const s of bodyWrap.querySelectorAll(
+                    '.ani-drawer-slot[data-ani-source-triggered="false"]',
+                  )) {
+                    const link = s._aniSourceLink;
+                    if (link && s.textContent.trim() === '') {
+                      s.dataset.aniSourceTriggered = 'true';
+                      try {
+                        link.click();
+                      } catch {}
+                    }
                   }
+                  for (const p of bodyWrap.querySelectorAll('.ani-drawer-slot > *'))
+                    decorateSettingsPanel(p);
                 }
                 btn.setAttribute('aria-expanded', String(opening));
                 btn.classList.toggle('is-open', opening);
                 bodyWrap.classList.toggle('is-open', opening);
                 bodyWrap.setAttribute('aria-hidden', String(!opening));
                 drawer.classList.toggle('is-open', opening);
-                for (const p of bodyWrap.querySelectorAll('.ani-drawer-slot > *'))
-                  decorateSettingsPanel(p);
               });
               const plusBox = document.querySelector('#BH_background .plus_imagetool_box');
               if (plusBox) {
