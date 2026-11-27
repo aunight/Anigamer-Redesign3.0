@@ -316,3 +316,22 @@ test('lookupSkipTimes falls back to Anime-Skip when AniSkip lacks ED timestamps'
   assert.equal(res.ed?.endTime, 1550);
   assert.equal(res.ed?.hasFollowingScene, false);
 });
+
+test('detects 90s tail ED even when a 2-second quiet bridge splits the song', () => {
+  const step = 0.125;
+  const duration = 1420;
+  const samples = [];
+  for (let t = 1180; t < duration; t += step) {
+    const inEd = t >= 1329 && t < 1419;
+    const inBridge = t >= 1360 && t < 1362.2;
+    samples.push({
+      time: t,
+      peak: inEd ? (inBridge ? 0.02 : 0.18) : 0.09,
+      stereo: inEd && !inBridge ? 0.22 : 0.02,
+    });
+  }
+  const result = findEnding(samples, duration);
+  assert.ok(result, 'tail window catches 90s ED across 2.2s quiet bridge');
+  assert.ok(result.startTime >= 1328 && result.startTime <= 1332);
+  assert.ok(result.endTime >= 1418.5 && result.endTime <= 1420);
+});

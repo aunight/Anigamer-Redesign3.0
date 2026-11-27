@@ -179,6 +179,20 @@
         (Math.abs(best.endTime - other.endTime) > 2 ||
           Math.abs(best.startTime - other.startTime) > onsetSearchSeconds))) return null;
     const perSecond = Math.round(1 / step);
+    if (best && best.endTime - best.startTime < 72 && duration - best.endTime <= 20) {
+      // A quiet mid-ED bridge may have split a ~90s tail ED into a shorter trailing fragment.
+      const lastTailIdx = samples.findLastIndex(item => item.time < best.endTime);
+      const tailEndIdx = lastTailIdx >= 0 ? lastTailIdx + 1 : samples.length;
+      const fullStartIdx = Math.max(0, tailEndIdx - Math.round(90 * perSecond));
+      const fullTail = samples.slice(fullStartIdx, tailEndIdx);
+      const preWin = samples.slice(Math.max(0, fullStartIdx - 16 * perSecond), fullStartIdx);
+      const stereo = fullTail.length ? fullTail.filter(item => item.stereo > stereoMin).length / fullTail.length : 0;
+      const levels = fullTail.length ? fullTail.filter(item => item.peak >= activePeakMin).length / fullTail.length : 0;
+      const preStereo = preWin.length ? preWin.filter(item => item.stereo > stereoMin).length / preWin.length : 0;
+      if (stereo >= 0.50 && levels >= 0.72 && (preWin.length < 8 * perSecond || stereo - preStereo >= 0.08)) {
+        best = { startTime: samples[fullStartIdx].time, endTime: best.endTime, score: stereo + levels };
+      }
+    }
     if (!best) {
       // Fallback for seamless EDs without a preceding silence pause, tolerating brief vocal/piano dips.
       let runStart = -1, lastMusic = -1, gap = 0;
@@ -259,6 +273,39 @@
           runStart = -1;
           lastMusic = -1;
           gap = 0;
+        }
+      }
+      if (!best && samples.length >= Math.round(90 * perSecond)) {
+        // Fallback if a >1.5s mid-ED vocal/piano bridge split the 90s ED into <72s fragments.
+        const lastActiveIdx = samples.findLastIndex(s => s && s.peak >= activePeakMin && s.stereo > stereoMin);
+        if (lastActiveIdx >= 0) {
+          const tailEndIdx = lastActiveIdx + 1;
+          const tailEnd = samples[lastActiveIdx].time + step;
+          if (duration - tailEnd <= 20) {
+            let bestStartIdx = -1, bestScore = -1;
+            const winStartMin = Math.max(0, tailEndIdx - Math.round(98 * perSecond));
+            const winStartMax = Math.max(0, tailEndIdx - Math.round(82 * perSecond));
+            for (let idx = winStartMin; idx <= winStartMax; idx += perSecond) {
+              const tailSec = samples.slice(idx, tailEndIdx);
+              if (tailSec.length < 75 * perSecond) continue;
+              const stereo = tailSec.filter(item => item.stereo > stereoMin).length / tailSec.length;
+              const levels = tailSec.filter(item => item.peak >= activePeakMin).length / tailSec.length;
+              if (stereo < 0.50 || levels < 0.72) continue;
+              const preWin = samples.slice(Math.max(0, idx - 16 * perSecond), idx);
+              const preStereo = preWin.length
+                ? preWin.filter(item => item.stereo > stereoMin).length / preWin.length
+                : 0;
+              if (preWin.length >= 8 * perSecond && stereo - preStereo < 0.08) continue;
+              const sc = stereo + levels - Math.abs(tailEnd - samples[idx].time - 90) / 90;
+              if (sc > bestScore) {
+                bestScore = sc;
+                bestStartIdx = idx;
+              }
+            }
+            if (bestStartIdx >= 0) {
+              best = { startTime: samples[bestStartIdx].time, endTime: tailEnd, score: bestScore };
+            }
+          }
         }
       }
       if (!best) return null;

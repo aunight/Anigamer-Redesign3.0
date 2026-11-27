@@ -13,16 +13,16 @@
 // @run-at       document-start
 // @inject-into  content
 // @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
-// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/089bf5f2978a0a0fc3a06dafb92b601b6552d130/src/studio-catalog.json
-// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/089bf5f2978a0a0fc3a06dafb92b601b6552d130/src/studio-profiles.json
-// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/089bf5f2978a0a0fc3a06dafb92b601b6552d130/src/studio-directory-icons.json
-// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/089bf5f2978a0a0fc3a06dafb92b601b6552d130/src/studio-logos.json
-// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/089bf5f2978a0a0fc3a06dafb92b601b6552d130/src/content.css
-// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/089bf5f2978a0a0fc3a06dafb92b601b6552d130/src/effects.css
-// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/089bf5f2978a0a0fc3a06dafb92b601b6552d130/src/settings-ui.css
-// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/089bf5f2978a0a0fc3a06dafb92b601b6552d130/src/hero-banner.css
-// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/089bf5f2978a0a0fc3a06dafb92b601b6552d130/src/home-dashboard.css
-// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/089bf5f2978a0a0fc3a06dafb92b601b6552d130/src/ui-repairs.css
+// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/13bd14145fcdce2ba8b63c4e6e0685888c3fd8bc/src/studio-catalog.json
+// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/13bd14145fcdce2ba8b63c4e6e0685888c3fd8bc/src/studio-profiles.json
+// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/13bd14145fcdce2ba8b63c4e6e0685888c3fd8bc/src/studio-directory-icons.json
+// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/13bd14145fcdce2ba8b63c4e6e0685888c3fd8bc/src/studio-logos.json
+// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/13bd14145fcdce2ba8b63c4e6e0685888c3fd8bc/src/content.css
+// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/13bd14145fcdce2ba8b63c4e6e0685888c3fd8bc/src/effects.css
+// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/13bd14145fcdce2ba8b63c4e6e0685888c3fd8bc/src/settings-ui.css
+// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/13bd14145fcdce2ba8b63c4e6e0685888c3fd8bc/src/hero-banner.css
+// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/13bd14145fcdce2ba8b63c4e6e0685888c3fd8bc/src/home-dashboard.css
+// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/13bd14145fcdce2ba8b63c4e6e0685888c3fd8bc/src/ui-repairs.css
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -1153,6 +1153,34 @@ Additional section icons: film, newspaper, comments.
         ],
       ],
       [5327, 1, ['  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.72) !important;']],
+      [
+        5152,
+        1,
+        [
+          '/* AniGamer Plus screenshot preview card: comfortable larger preview size + crisp 4 circular navy-blue action buttons */',
+          'body.ani-ambientlight-ui #BH_background .image_tool .ani-plus-capture-card,',
+          'body.ani-ambientlight-ui #BH_background .image_tool #ct_output {',
+          '  width: clamp(340px, 30vw, 480px) !important;',
+          '  min-width: min(340px, 100%) !important;',
+          '  max-width: 100% !important;',
+          '  height: auto !important;',
+          '  max-height: none !important;',
+          '  border-radius: 12px !important;',
+          '  overflow: hidden !important;',
+          '  flex: 0 0 auto !important;',
+          '}',
+          'body.ani-ambientlight-ui #BH_background .image_tool :is(.ani-plus-capture-card, #ct_output) :is(img, canvas, video):not(.ani-plus-capture-actions *) {',
+          '  display: block !important;',
+          '  width: 100% !important;',
+          '  min-width: 0 !important;',
+          '  max-width: 100% !important;',
+          '  height: auto !important;',
+          '  max-height: none !important;',
+          '  aspect-ratio: auto !important;',
+          '  object-fit: contain !important;',
+          '}',
+        ],
+      ],
       [
         4711,
         2,
@@ -11779,6 +11807,34 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
         )
           return null;
         const perSecond = Math.round(1 / step);
+        if (best && best.endTime - best.startTime < 72 && duration - best.endTime <= 20) {
+          // A quiet mid-ED bridge may have split a ~90s tail ED into a shorter trailing fragment.
+          const lastTailIdx = samples.findLastIndex((item) => item.time < best.endTime);
+          const tailEndIdx = lastTailIdx >= 0 ? lastTailIdx + 1 : samples.length;
+          const fullStartIdx = Math.max(0, tailEndIdx - Math.round(90 * perSecond));
+          const fullTail = samples.slice(fullStartIdx, tailEndIdx);
+          const preWin = samples.slice(Math.max(0, fullStartIdx - 16 * perSecond), fullStartIdx);
+          const stereo = fullTail.length
+            ? fullTail.filter((item) => item.stereo > stereoMin).length / fullTail.length
+            : 0;
+          const levels = fullTail.length
+            ? fullTail.filter((item) => item.peak >= activePeakMin).length / fullTail.length
+            : 0;
+          const preStereo = preWin.length
+            ? preWin.filter((item) => item.stereo > stereoMin).length / preWin.length
+            : 0;
+          if (
+            stereo >= 0.5 &&
+            levels >= 0.72 &&
+            (preWin.length < 8 * perSecond || stereo - preStereo >= 0.08)
+          ) {
+            best = {
+              startTime: samples[fullStartIdx].time,
+              endTime: best.endTime,
+              score: stereo + levels,
+            };
+          }
+        }
         if (!best) {
           // Fallback for seamless EDs without a preceding silence pause, tolerating brief vocal/piano dips.
           let runStart = -1,
@@ -11884,6 +11940,48 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
               runStart = -1;
               lastMusic = -1;
               gap = 0;
+            }
+          }
+          if (!best && samples.length >= Math.round(90 * perSecond)) {
+            // Fallback if a >1.5s mid-ED vocal/piano bridge split the 90s ED into <72s fragments.
+            const lastActiveIdx = samples.findLastIndex(
+              (s) => s && s.peak >= activePeakMin && s.stereo > stereoMin,
+            );
+            if (lastActiveIdx >= 0) {
+              const tailEndIdx = lastActiveIdx + 1;
+              const tailEnd = samples[lastActiveIdx].time + step;
+              if (duration - tailEnd <= 20) {
+                let bestStartIdx = -1,
+                  bestScore = -1;
+                const winStartMin = Math.max(0, tailEndIdx - Math.round(98 * perSecond));
+                const winStartMax = Math.max(0, tailEndIdx - Math.round(82 * perSecond));
+                for (let idx = winStartMin; idx <= winStartMax; idx += perSecond) {
+                  const tailSec = samples.slice(idx, tailEndIdx);
+                  if (tailSec.length < 75 * perSecond) continue;
+                  const stereo =
+                    tailSec.filter((item) => item.stereo > stereoMin).length / tailSec.length;
+                  const levels =
+                    tailSec.filter((item) => item.peak >= activePeakMin).length / tailSec.length;
+                  if (stereo < 0.5 || levels < 0.72) continue;
+                  const preWin = samples.slice(Math.max(0, idx - 16 * perSecond), idx);
+                  const preStereo = preWin.length
+                    ? preWin.filter((item) => item.stereo > stereoMin).length / preWin.length
+                    : 0;
+                  if (preWin.length >= 8 * perSecond && stereo - preStereo < 0.08) continue;
+                  const sc = stereo + levels - Math.abs(tailEnd - samples[idx].time - 90) / 90;
+                  if (sc > bestScore) {
+                    bestScore = sc;
+                    bestStartIdx = idx;
+                  }
+                }
+                if (bestStartIdx >= 0) {
+                  best = {
+                    startTime: samples[bestStartIdx].time,
+                    endTime: tailEnd,
+                    score: bestScore,
+                  };
+                }
+              }
             }
           }
           if (!best) return null;
@@ -19710,8 +19808,14 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
         for (const scope of captureRoots) {
           for (const box of scope.querySelectorAll('div, ul, nav')) {
             if (
+              box.matches(
+                '.plus_imagetool_box, .ani-drawer-toggles, .ani-player-settings-drawer, .ani-unified-settings-grid, .ani-capture-moved, .ani-plus-capture-card',
+              )
+            )
+              continue;
+            if (
               box.closest(
-                '#ani_video, .plus_button_box, .ani-watch-tools, .anime-title, .subtitle, .ani-plus-dark-drawer, .data_acgbox, #acg_review, section.data, .ACG-box, .acg-score-user',
+                '#ani_video, .plus_button_box, .plus_imagetool_box, .ani-watch-tools, .anime-title, .subtitle, .ani-plus-dark-drawer, .ani-player-settings-drawer, .data_acgbox, #acg_review, section.data, .ACG-box, .acg-score-user',
               )
             )
               continue;
@@ -19719,13 +19823,40 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
               (el) => el.nodeType === 1 && !el.matches('img, video, canvas'),
             );
             if (btns.length !== 4) continue;
+            if (
+              !btns.every(
+                (el) =>
+                  el.matches('button, a, [role="button"], [title], [aria-label]') ||
+                  el.querySelector('svg, i, img, [class*="icon" i], [class*="material" i]'),
+              )
+            )
+              continue;
             const card = box.parentElement;
             if (!card) continue;
-            const hasMedia = Boolean(card.querySelector('img, video, canvas'));
-            const hasCapText = /第\s*\d+(?:\.\d+)?\s*集\s*\d+\s*[:：]\s*\d+/.test(
-              card.textContent || '',
-            );
-            if (!hasCapText) continue;
+            const outsideMedia = (el) =>
+              [...el.querySelectorAll('img, video, canvas')].filter((m) => !box.contains(m));
+            const isCardCandidate = (el) =>
+              Boolean(el) &&
+              el !== scope &&
+              el !== plusToolBox &&
+              !el.matches(
+                '.image_tool, .plus_imagetool_box, .container-player, .ani-player-settings-drawer, .ani-capture-moved',
+              );
+            const previewCard =
+              isCardCandidate(card) && outsideMedia(card).length > 0
+                ? card
+                : isCardCandidate(card.parentElement) && outsideMedia(card.parentElement).length > 0
+                  ? card.parentElement
+                  : null;
+            const hasMedia = Boolean(previewCard);
+            const hasCapText =
+              /(?:第\s*\d+(?:\.\d+)?\s*集|\d{1,2}\/\d{1,2})?\s*\d{1,2}\s*[:：]\s*\d{2}/.test(
+                (previewCard || card).textContent || '',
+              );
+            if (!hasMedia && !hasCapText) continue;
+            if (previewCard && outsideMedia(previewCard).length === 1) {
+              previewCard.classList.add('ani-plus-capture-card');
+            }
             box.classList.add('ani-plus-capture-actions');
             btns.forEach((btn, idx) => {
               btn.classList.add('ani-plus-capture-btn');
@@ -36049,11 +36180,17 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
         const tip = getEpTooltipNode();
         if (!season.dataset.aniEpTipWired) {
           season.dataset.aniEpTipWired = '1';
+          let activeLink = null;
+          const hideTip = () => {
+            activeLink = null;
+            tip.hidden = true;
+          };
           const showTip = (link) => {
+            activeLink = link;
             synopsisJobs.get(link)?.run();
             link.removeAttribute('title');
             if (link.closest('.ani-episode-cards')) {
-              tip.hidden = true;
+              hideTip();
               return;
             }
             const epTitle = link.dataset.aniEpTitle;
@@ -36067,7 +36204,9 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           ${airdate ? `<time class="ani-ep-tip-date" datetime="${escapeHtml(airdate.replaceAll('/', '-'))}">${escapeHtml(airdate)}</time>` : ''}
         `;
             tip.hidden = !epTitle && !synopsis && !airdate;
-            if (!tip.hidden) {
+            if (tip.hidden) {
+              activeLink = null;
+            } else {
               const rect = link.getBoundingClientRect();
               const box = tip.getBoundingClientRect();
               const left = Math.max(
@@ -36085,12 +36224,13 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
               globalThis.aniGetEpisodeDetails?.(sn).then((data) => {
                 if (data?.date) {
                   link.dataset.aniUploadDate = data.date;
-                  if (link.matches(':hover') || link === document.activeElement) showTip(link);
+                  if (
+                    activeLink === link &&
+                    (link.matches(':hover') || link === document.activeElement)
+                  )
+                    showTip(link);
                 }
               });
-          };
-          const hideTip = () => {
-            tip.hidden = true;
           };
           season.addEventListener('mouseover', (e) => {
             const a = e.target.closest('li a');
@@ -36104,8 +36244,24 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
             const a = e.target.closest('li a');
             if (a && !a.contains(e.relatedTarget)) hideTip();
           });
+          season.addEventListener('mouseleave', hideTip);
+          season.addEventListener('pointerleave', hideTip);
           season.addEventListener('focusout', hideTip);
+          season.addEventListener('scroll', hideTip, { passive: true, capture: true });
+          document.addEventListener(
+            'pointermove',
+            (e) => {
+              if (tip.hidden || !activeLink) return;
+              if (
+                !activeLink.isConnected ||
+                (!activeLink.contains(e.target) && !activeLink.matches(':hover'))
+              )
+                hideTip();
+            },
+            { passive: true },
+          );
           window.addEventListener('scroll', hideTip, { passive: true });
+          window.addEventListener('blur', hideTip);
         }
 
         const cache = readJsonLocal(EP_TITLES_CACHE_KEY, {});
