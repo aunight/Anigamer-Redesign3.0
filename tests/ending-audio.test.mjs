@@ -200,3 +200,23 @@ test('lookupSkipTimes resolves Japanese title via Bangumi before querying AniLis
   assert.equal(res.ed, null);
   assert.equal(requests.some(r => r.url.includes('api.aniskip.com') && r.url.includes('types=op') && r.url.includes('types=ed')), true);
 });
+
+test('seamless ED fallback bridges brief mid-song vocal or piano dips without losing detection', () => {
+  const step = 0.125;
+  const duration = 1420;
+  const samples = [];
+  for (let t = 1220; t < duration; t += step) {
+    // Non-silent dialogue/BGM up to 1320s, then 90s ED (1320-1410) with two 0.5s mid-song dips
+    const inEd = t >= 1320 && t < 1410;
+    const inDip = (t >= 1352 && t < 1352.5) || (t >= 1384 && t < 1384.5);
+    samples.push({
+      time: t,
+      peak: inEd ? (inDip ? 0.03 : 0.18) : 0.08,
+      stereo: inEd && !inDip ? 0.24 : 0.02,
+    });
+  }
+  const result = findEnding(samples, duration);
+  assert.ok(result, 'seamless ED with brief dips is detected');
+  assert.ok(result.startTime >= 1319.5 && result.startTime <= 1321);
+  assert.ok(result.endTime >= 1409.5 && result.endTime <= 1410.5);
+});

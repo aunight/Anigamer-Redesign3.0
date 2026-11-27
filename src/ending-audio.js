@@ -169,28 +169,34 @@
           Math.abs(best.startTime - other.startTime) > onsetSearchSeconds))) return null;
     const perSecond = Math.round(1 / step);
     if (!best) {
-      // Fallback for seamless EDs without a preceding silence pause.
-      let runStart = -1;
+      // Fallback for seamless EDs without a preceding silence pause, tolerating brief vocal/piano dips.
+      let runStart = -1, lastMusic = -1, gap = 0;
       for (let i = 0; i <= samples.length; i++) {
         const s = samples[i];
         const isMusic = s && s.peak >= activePeakMin && s.stereo > 0.07;
         if (isMusic) {
           if (runStart < 0) runStart = i;
+          lastMusic = i;
+          gap = 0;
           continue;
         }
+        if (runStart >= 0 && s && ++gap <= 12) continue;
         if (runStart >= 0) {
-          const runLen = (i - runStart) * step;
-          const runEnd = samples[i - 1].time + step;
+          const endIdx = lastMusic + 1;
+          const runLen = (endIdx - runStart) * step;
+          const runEnd = samples[lastMusic].time + step;
           if (runLen >= 72 && runLen <= 105 && duration - runEnd <= 185) {
-            const section = samples.slice(runStart, i);
+            const section = samples.slice(runStart, endIdx);
             const stereo = section.filter(item => item.stereo > 0.07).length / section.length;
             const levels = section.filter(item => item.peak >= activePeakMin).length / section.length;
-            if (stereo >= 0.65 && levels >= 0.75) {
+            if (stereo >= 0.62 && levels >= 0.72) {
               best = { startTime: samples[runStart].time, endTime: runEnd, score: stereo + levels };
               break;
             }
           }
           runStart = -1;
+          lastMusic = -1;
+          gap = 0;
         }
       }
       if (!best) return null;

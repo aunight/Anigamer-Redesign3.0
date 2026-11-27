@@ -13,16 +13,16 @@
 // @run-at       document-start
 // @inject-into  content
 // @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
-// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/4cf44153f1864f57c38c02d32c1356818ace4650/src/studio-catalog.json
-// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/4cf44153f1864f57c38c02d32c1356818ace4650/src/studio-profiles.json
-// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/4cf44153f1864f57c38c02d32c1356818ace4650/src/studio-directory-icons.json
-// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/4cf44153f1864f57c38c02d32c1356818ace4650/src/studio-logos.json
-// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/4cf44153f1864f57c38c02d32c1356818ace4650/src/content.css
-// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/4cf44153f1864f57c38c02d32c1356818ace4650/src/effects.css
-// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/4cf44153f1864f57c38c02d32c1356818ace4650/src/settings-ui.css
-// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/4cf44153f1864f57c38c02d32c1356818ace4650/src/hero-banner.css
-// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/4cf44153f1864f57c38c02d32c1356818ace4650/src/home-dashboard.css
-// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/4cf44153f1864f57c38c02d32c1356818ace4650/src/ui-repairs.css
+// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d19a5337f8b89f5fddb9580c0cd65eb6efa55e9e/src/studio-catalog.json
+// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d19a5337f8b89f5fddb9580c0cd65eb6efa55e9e/src/studio-profiles.json
+// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d19a5337f8b89f5fddb9580c0cd65eb6efa55e9e/src/studio-directory-icons.json
+// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d19a5337f8b89f5fddb9580c0cd65eb6efa55e9e/src/studio-logos.json
+// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d19a5337f8b89f5fddb9580c0cd65eb6efa55e9e/src/content.css
+// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d19a5337f8b89f5fddb9580c0cd65eb6efa55e9e/src/effects.css
+// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d19a5337f8b89f5fddb9580c0cd65eb6efa55e9e/src/settings-ui.css
+// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d19a5337f8b89f5fddb9580c0cd65eb6efa55e9e/src/hero-banner.css
+// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d19a5337f8b89f5fddb9580c0cd65eb6efa55e9e/src/home-dashboard.css
+// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d19a5337f8b89f5fddb9580c0cd65eb6efa55e9e/src/ui-repairs.css
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -532,6 +532,301 @@ Additional section icons: film, newspaper, comments.
           '  :is(.reply-content__cont, .reply-content__cont p, .input-article-content) { font-size: var(--ani-text-size, 17px) !important; }',
         ],
       ],
+      [
+        10504,
+        1,
+        [
+          'body:is(.ani-light-mode, .ani-theme-light) .share-button-img { filter: brightness(.25) !important; }',
+        ],
+      ],
+      [
+        10501,
+        2,
+        [
+          '/* 淺色模式：播放器分集清單抽屜高對比適配 */',
+          'body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-player-episodes-drawer {',
+          '  .ani-ep-drawer-panel {',
+          '    background: rgba(248, 251, 255, 0.94) !important;',
+          '    border-color: rgba(18, 38, 60, 0.14) !important;',
+          '    box-shadow: -12px 0 38px rgba(20, 40, 68, 0.14) !important;',
+          '    color: #142232 !important;',
+          '  }',
+          '  .ani-ep-drawer-tabs {',
+          '    border-bottom-color: rgba(18, 38, 60, 0.12) !important;',
+          '  }',
+          '  .ani-ep-drawer-tab {',
+          '    background: rgba(18, 38, 60, 0.06) !important;',
+          '    border-color: rgba(18, 38, 60, 0.16) !important;',
+          '    color: #3c4e63 !important;',
+          '  }',
+          '  .ani-ep-drawer-tab:hover {',
+          '    background: rgba(18, 38, 60, 0.12) !important;',
+          '    border-color: rgba(18, 38, 60, 0.24) !important;',
+          '    color: #142232 !important;',
+          '  }',
+          '  .ani-ep-drawer-tab.is-active {',
+          '    background: rgba(20, 147, 156, 0.18) !important;',
+          '    border-color: rgba(20, 147, 156, 0.55) !important;',
+          '    color: #0b5e65 !important;',
+          '  }',
+          '  .ani-ep-row {',
+          '    background: rgba(255, 255, 255, 0.92) !important;',
+          '    border-color: rgba(18, 38, 60, 0.12) !important;',
+          '    color: #142232 !important;',
+          '  }',
+          '  .ani-ep-meta strong {',
+          '    color: #4b5e73 !important;',
+          '  }',
+          '  .ani-ep-name {',
+          '    color: #142232 !important;',
+          '  }',
+          '  .ani-ep-time,',
+          '  .ani-ep-description {',
+          '    color: #4b5e73 !important;',
+          '  }',
+          '  .ani-ep-playback progress {',
+          '    background: rgba(18, 38, 60, 0.12) !important;',
+          '  }',
+          '  .ani-ep-stats > :not(:empty) {',
+          '    background: rgba(18, 38, 60, 0.07) !important;',
+          '    color: #3c4e63 !important;',
+          '  }',
+          '  .ani-ep-row:has(> [aria-expanded="false"]) > .ani-ep-play {',
+          '    background: rgba(255, 255, 255, 0.9) !important;',
+          '    border-color: rgba(18, 38, 60, 0.18) !important;',
+          '    color: #142232 !important;',
+          '  }',
+          '}',
+          '/* 淺色模式：留言區圓角保持透明外框並由 .webview_commendlist 裁切，修正次要文字與排序按鈕對比 */',
+          'body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui #BH_background #w-post-box .main-container_wall-post {',
+          '  background: transparent !important;',
+          '}',
+          'body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui #BH_background #w-post-box .webview_commendlist {',
+          '  background: rgba(255, 255, 255, 0.92) !important;',
+          '  border: 1px solid rgba(18, 38, 60, 0.12) !important;',
+          '  border-radius: 16px !important;',
+          '  overflow: clip !important;',
+          '  box-shadow: 0 10px 26px rgba(22, 42, 66, 0.06) !important;',
+          '}',
+          'body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui #BH_background #w-post-box .webview_commendlist > .c-reply__editor {',
+          '  background: rgba(244, 248, 251, 0.96) !important;',
+          '  border-top: 1px solid rgba(18, 38, 60, 0.1) !important;',
+          '}',
+          'body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui #w-post-box :is(.reply-input, .input-article-content) {',
+          '  background: rgba(18, 38, 60, 0.05) !important;',
+          '  border-color: rgba(18, 38, 60, 0.16) !important;',
+          '}',
+          'body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui #BH_background #w-post-box .c-more-msg {',
+          '  background: rgba(18, 38, 60, 0.05) !important;',
+          '  color: #3c4e63 !important;',
+          '}',
+          'body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui #BH_background #w-post-box .c-more-msg:is(:hover, :focus-visible) {',
+          '  background: rgba(18, 38, 60, 0.09) !important;',
+          '  color: #142232 !important;',
+          '}',
+          'body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui #w-post-box :is(p, span, a, button, textarea, strong, h2, h3) {',
+          '  color: #1c2e42 !important;',
+          '}',
+          'body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui #BH_background #w-post-box :is(.reply-content__gpbp p, .reply_time, .c-msg__time) {',
+          '  color: #4b5e73 !important;',
+          '}',
+          'body:is(.ani-light-mode, .ani-theme-light).ani-layout-comments #BH_background .commend-title .ani-comment-sort {',
+          '  background: rgba(18, 38, 60, 0.07) !important;',
+          '  border-color: rgba(18, 38, 60, 0.15) !important;',
+          '}',
+          'body:is(.ani-light-mode, .ani-theme-light).ani-layout-comments #BH_background .commend-title .ani-comment-sort::before {',
+          '  background: #1d394b !important;',
+          '  border-color: transparent !important;',
+          '}',
+          'body:is(.ani-light-mode, .ani-theme-light).ani-layout-comments #BH_background .commend-title .ani-comment-sort button {',
+          '  color: #3c4e63 !important;',
+          '}',
+          "body:is(.ani-light-mode, .ani-theme-light).ani-layout-comments #BH_background .commend-title .ani-comment-sort button[aria-pressed='true'] {",
+          '  color: #ffffff !important;',
+          '}',
+          'body:is(.ani-light-mode, .ani-theme-light).ani-layout-comments .ani-comment-recommendations :is(.ani-rec-facts > span, .ani-rec-genres, small) {',
+          '  color: #4b5e73 !important;',
+        ],
+      ],
+      [
+        10498,
+        2,
+        [
+          '/* 淺色模式：右側邊欄（作品簡介、作品評分）高對比適配 */',
+          'body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle {',
+          '  .ani-sidebar-scroll {',
+          '    color: #142232 !important;',
+          '  }',
+          '  .ani-side-pill {',
+          '    background: rgba(20, 147, 156, 0.13) !important;',
+          '    border-color: rgba(20, 147, 156, 0.36) !important;',
+          '    color: #0b5e65 !important;',
+          '    -webkit-text-fill-color: #0b5e65 !important;',
+          '    box-shadow: none !important;',
+          '  }',
+          '  .ani-side-pill svg {',
+          '    color: #0b5e65 !important;',
+          '  }',
+          '  .ani-side-meta-val,',
+          '  .ani-side-extra-block .grid,',
+          '  .ani-staff-list dd,',
+          '  .ani-side-cast > li > span {',
+          '    color: #142232 !important;',
+          '  }',
+          '  .ani-side-synopsis {',
+          '    color: #24384e !important;',
+          '  }',
+          '  .ani-side-divider {',
+          '    background: rgba(18, 38, 60, 0.12) !important;',
+          '  }',
+          '  .ani-side-extra-block .grid > div:nth-child(3n+2),',
+          '  .ani-staff-list dt,',
+          '  .ani-side-cast > li > span + span {',
+          '    color: #4b5e73 !important;',
+          '  }',
+          '  .ani-side-extra-block a,',
+          '  .ani-side-meta-val a {',
+          '    color: #0b757d !important;',
+          '  }',
+          '  .ani-credit-switch {',
+          '    background: rgba(18, 38, 60, 0.07) !important;',
+          '    border-color: rgba(18, 38, 60, 0.12) !important;',
+          '  }',
+          '  .ani-credit-switch::before {',
+          '    background: rgba(255, 255, 255, 0.94) !important;',
+          '    border-color: rgba(18, 38, 60, 0.14) !important;',
+          '    box-shadow: 0 2px 6px rgba(20, 40, 68, 0.08) !important;',
+          '  }',
+          '  .ani-credit-switch button {',
+          '    color: #3c4e63 !important;',
+          '  }',
+          '  .ani-credit-switch button[aria-pressed=true] {',
+          '    color: #0b757d !important;',
+          '  }',
+          '  .ani-theme-song-row,',
+          '  [data-credit-panel] .ani-theme-song {',
+          '    background: rgba(255, 255, 255, 0.78) !important;',
+          '    border-color: rgba(18, 38, 60, 0.13) !important;',
+          '    color: #142232 !important;',
+          '  }',
+          '  .ani-theme-song-row:is(:hover, :focus-within, :has(> [aria-expanded="true"])),',
+          '  [data-credit-panel] .ani-theme-song:is(:hover, [aria-expanded="true"]) {',
+          '    border-color: rgba(20, 147, 156, 0.55) !important;',
+          '  }',
+          '  .ani-theme-song-row > details > summary.ani-theme-song {',
+          '    background: transparent !important;',
+          '  }',
+          '  .ani-theme-song-info :is(small, span),',
+          '  .ani-theme-song-search,',
+          '  .ani-theme-song-youtube,',
+          '  .ani-theme-song-unavailable {',
+          '    color: #4b5e73 !important;',
+          '  }',
+          '  .ani-ring-center strong,',
+          '  .ani-rating-bar-pct,',
+          '  .ani-my-rating-label,',
+          '  .ani-reviews-title-row,',
+          '  .ani-rev-author {',
+          '    color: #142232 !important;',
+          '    -webkit-text-fill-color: currentColor !important;',
+          '  }',
+          '  .ani-ring-center span,',
+          '  .ani-my-rating-arrow,',
+          '  .ani-my-rating-status,',
+          '  .ani-rev-likes {',
+          '    color: #4b5e73 !important;',
+          '    -webkit-text-fill-color: currentColor !important;',
+          '  }',
+          '  .ani-rev-body {',
+          '    color: #24384e !important;',
+          '    -webkit-text-fill-color: currentColor !important;',
+          '  }',
+          '  .ani-rating-bar-track {',
+          '    background: rgba(18, 38, 60, 0.12) !important;',
+          '  }',
+          '  .ani-my-star-btn:not(.is-filled) svg {',
+          '    stroke: rgba(18, 38, 60, 0.34) !important;',
+          '  }',
+          '  .ani-my-rating-clear {',
+          '    background: rgba(18, 38, 60, 0.06) !important;',
+          '    border-color: rgba(18, 38, 60, 0.16) !important;',
+          '    color: #3c4e63 !important;',
+          '  }',
+          '  .ani-my-write-review-btn {',
+          '    background: rgba(18, 38, 60, 0.07) !important;',
+          '    border-color: rgba(18, 38, 60, 0.18) !important;',
+          '    color: #142232 !important;',
+          '    -webkit-text-fill-color: currentColor !important;',
+          '  }',
+          '  .ani-my-write-review-btn:is(:hover, :focus-visible) {',
+          '    background: rgba(20, 147, 156, 0.16) !important;',
+          '    border-color: rgba(20, 147, 156, 0.52) !important;',
+          '    color: #0b5e65 !important;',
+          '  }',
+          '  .ani-reviews-all-link {',
+          '    color: #0b757d !important;',
+          '  }',
+          '  .ani-review-card {',
+          '    background: rgba(255, 255, 255, 0.88) !important;',
+          '    border-color: rgba(18, 38, 60, 0.12) !important;',
+          '    color: #142232 !important;',
+          '  }',
+          '  .ani-review-card:hover {',
+          '    background: #ffffff !important;',
+          '    border-color: rgba(20, 147, 156, 0.45) !important;',
+          '  }',
+          '  .ani-review-card.is-mine {',
+          '    background: rgba(20, 147, 156, 0.09) !important;',
+          '    border-color: rgba(20, 147, 156, 0.42) !important;',
+          '  }',
+          '  .ani-rev-mine-badge {',
+          '    background: rgba(20, 147, 156, 0.14) !important;',
+          '    color: #0b5e65 !important;',
+          '  }',
+          '  .ani-rating-more-btn {',
+          '    background: rgba(20, 147, 156, 0.14) !important;',
+          '    border-color: rgba(20, 147, 156, 0.44) !important;',
+          '    color: #0b5e65 !important;',
+          '    -webkit-text-fill-color: currentColor !important;',
+          '  }',
+          '  .ani-rating-more-btn:hover {',
+          '    background: rgba(20, 147, 156, 0.22) !important;',
+          '    color: #08484e !important;',
+          '  }',
+          '}',
+          'body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui #BH_background :is(#ani-info, #ani-tab-content-intro) {',
+          '  .ani-wiki-link {',
+          '    background: rgba(18, 38, 60, 0.06) !important;',
+          '    border-color: rgba(18, 38, 60, 0.16) !important;',
+          '    color: #24384e !important;',
+          '  }',
+          '  .ani-wiki-link:hover {',
+          '    background: rgba(20, 147, 156, 0.16) !important;',
+          '    border-color: rgba(20, 147, 156, 0.48) !important;',
+          '    color: #0b5e65 !important;',
+          '  }',
+          '  .ani-info-pill-svg {',
+          '    color: #0b5e65 !important;',
+          '  }',
+          '  svg:is(.ani-wiki-svg, .ani-yt-svg) {',
+          '    color: #24384e !important;',
+          '  }',
+        ],
+      ],
+      [
+        10493,
+        2,
+        [
+          'html body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui .user-setting-toolbox :is(.user-info, .user-info *, .user-id, .region-switch span) {',
+        ],
+      ],
+      [
+        10178,
+        1,
+        [
+          'body.ani-layout-comments:is(.ani-light-mode, .ani-theme-light) #BH_background .commend-title #w-anime-comment-count {color:#4d6478 !important}',
+        ],
+      ],
       [10025, 1, []],
       [
         9952,
@@ -541,6 +836,48 @@ Additional section icons: film, newspaper, comments.
           '  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), .65) !important;',
         ],
       ],
+      [
+        9750,
+        2,
+        [
+          'body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui #BH_background section.player .subtitle .ani-tabs.ani-segmented-tabs .ani-tabs-link.is-active :is(span, svg, .ani-seg-tab-icon),',
+          'body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui #BH_background section.player .subtitle .ani-tabs-link.is-active :is(span, svg, .ani-seg-tab-icon) {',
+        ],
+      ],
+      [
+        9742,
+        2,
+        [
+          'body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui #BH_background section.player .subtitle .ani-tabs.ani-segmented-tabs .ani-tabs-link:hover {',
+          '  background: rgba(255, 255, 255, 0.55) !important;',
+          '  color: #142232 !important;',
+          '}',
+          'body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui #BH_background section.player .subtitle .ani-tabs.ani-segmented-tabs .ani-tabs-link:hover :is(span, svg, .ani-seg-tab-icon) {',
+          '  color: #142232 !important;',
+          '  -webkit-text-fill-color: #142232 !important;',
+          '}',
+          'body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui #BH_background section.player .subtitle .ani-tabs.ani-segmented-tabs .ani-tabs-link.is-active,',
+          'body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui #BH_background section.player .subtitle .ani-tabs-link.is-active {',
+        ],
+      ],
+      [
+        9737,
+        2,
+        [
+          'body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui #BH_background section.player .subtitle .ani-tabs.ani-segmented-tabs .ani-tabs-link,',
+          'body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui #BH_background section.player .subtitle .ani-tabs.ani-segmented-tabs .ani-tabs-link :is(span, svg, .ani-seg-tab-icon) {',
+        ],
+      ],
+      [
+        9731,
+        2,
+        [
+          'body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui #BH_background section.player .subtitle .ani-tabs,',
+          'body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui #BH_background section.player .subtitle .ani-tabs.ani-segmented-tabs,',
+          "body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-page.ani-ambientlight-ui #BH_background section.player .subtitle:has(.ani-sidebar-intro[data-ani-tab-active='true']) .ani-segmented-tabs {",
+        ],
+      ],
+      [9409, 1, ['body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui {']],
       [
         9367,
         1,
@@ -3311,18 +3648,50 @@ body.ani-light-mode.ani-ambientlight-ui .ani-page-elevator {
   background: rgba(255, 255, 255, 0.88) !important;
   border-color: rgba(18, 38, 60, 0.14) !important;
 }
-body.ani-light-mode.ani-ambientlight-ui #BH_background .ani-danmu-tools-bar {
-  --ani-danmu-control-ink: #2e4a60;
-  --ani-filter-pill-selected-text: #213d54;
-  --ani-danmu-glass: linear-gradient(145deg, #ffffffa8, #c6e0ee45), #edf5fa80;
+body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui #BH_background .ani-danmu-tools-bar {
+  --ani-danmu-control-ink: #1c2e42;
+  --ani-filter-pill-bg: rgba(18, 38, 60, 0.06);
+  --ani-filter-pill-border: rgba(18, 38, 60, 0.16);
+  --ani-filter-pill-selected-bg: rgba(20, 147, 156, 0.16);
+  --ani-filter-pill-selected-text: #0b5e65;
+  --ani-danmu-glass: linear-gradient(145deg, #ffffffc4, #dcebf566), #edf5fa99;
   border-color: rgba(18, 38, 60, 0.14) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72), 0 8px 20px rgba(20, 40, 68, 0.08) !important;
 }
-body.ani-light-mode.ani-ambientlight-ui #BH_background :is(.ani-perm-search-capsule, .ani-exclude-search-capsule),
-body.ani-light-mode.ani-ambientlight-ui .ani-page-input,
-body.ani-light-mode.ani-ambientlight-ui .ani-danmu-search {
+body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui #BH_background .ani-danmu-search-capsule {
+  background: rgba(18, 38, 60, 0.06) !important;
+  border-color: rgba(18, 38, 60, 0.18) !important;
+}
+body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui #BH_background :is(.ani-perm-search-capsule, .ani-exclude-search-capsule),
+body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui .ani-page-input {
   background: rgba(18, 38, 60, 0.06) !important;
   border-color: rgba(18, 38, 60, 0.18) !important;
   color: #142232 !important;
+}
+body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui #BH_background .ani-danmu-search-capsule > .ani-danmu-search {
+  background: transparent !important;
+  color: #142232 !important;
+}
+body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui #BH_background .ani-danmu-search-capsule > .ani-danmu-search::placeholder {
+  color: #526478 !important;
+  opacity: 1;
+}
+body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui #BH_background .ani-danmu-search-capsule > button.ani-danmu-search-icon {
+  color: #24384e !important;
+  border-left-color: rgba(18, 38, 60, 0.15) !important;
+}
+body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui #BH_background .ani-danmu-tools-bar .ani-danmu-count {
+  color: #3c4e63 !important;
+}
+body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui #BH_background .ani-danmu-tools-bar .ani-dm-sort-btn[aria-pressed='true'] {
+  background: rgba(20, 147, 156, 0.16) !important;
+  border-color: rgba(20, 147, 156, 0.48) !important;
+  color: #0b5e65 !important;
+}
+body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui #BH_background .ani-danmu-tools-bar .ani-danmu-muted-pill[aria-expanded='true'] {
+  background: rgba(220, 38, 38, 0.1) !important;
+  border-color: rgba(220, 38, 38, 0.42) !important;
+  color: #991b1b !important;
 }
 body.ani-light-mode.ani-ambientlight-ui #BH_background :is(.ani-perm-search-capsule, .ani-exclude-search-capsule) > input {
   color: #142232 !important;
@@ -4219,23 +4588,14 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
         },
         {
           id: 'surfaces',
-          name: '透明度與按鈕',
-          description: '調整背景濃淡，讓光暈透出',
+          name: '透明度與光暈',
+          description: '調整面板不透明度與卡片光暈',
           keys: [
-            'controlStyle',
             'settingsOpacity',
+            'commentOpacity',
             'footerGlow',
             'cardGlowEnabled',
             'cardGlowIntensity',
-            'buttonOpacity',
-            'headerOpacity',
-            'headerTint',
-            'panelOpacity',
-            'panelTint',
-            'infoOpacity',
-            'relatedOpacity',
-            'newsOpacity',
-            'commentOpacity',
           ],
         },
         {
@@ -4253,7 +4613,9 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
             'showDanmuHeat',
             'danmuAntiOverlap',
             'showComments',
-            ...contentFields.filter((f) => !f[0].startsWith('show')).map((f) => f[0]),
+            ...contentFields
+              .filter((f) => !f[0].startsWith('show') && f[0] !== 'foldInfo')
+              .map((f) => f[0]),
           ],
         },
         {
@@ -4359,13 +4721,6 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
             colorTheme: 'slate',
             accentHue: 185,
             accentStrength: 50,
-            headerOpacity: 0,
-            headerTint: 0,
-            panelOpacity: 0,
-            panelTint: 0,
-            infoOpacity: 80,
-            relatedOpacity: 85,
-            newsOpacity: 85,
             commentOpacity: 90,
             textSize: 16,
             textLeading: 175,
@@ -4381,13 +4736,6 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
             colorTheme: 'neutral',
             accentHue: 40,
             accentStrength: 20,
-            headerOpacity: 0,
-            headerTint: 0,
-            panelOpacity: 0,
-            panelTint: 0,
-            infoOpacity: 85,
-            relatedOpacity: 90,
-            newsOpacity: 90,
             commentOpacity: 95,
             textSize: 16,
             textLeading: 175,
@@ -4403,13 +4751,6 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
             colorTheme: 'paper',
             accentHue: 20,
             accentStrength: 55,
-            headerOpacity: 0,
-            headerTint: 0,
-            panelOpacity: 0,
-            panelTint: 0,
-            infoOpacity: 90,
-            relatedOpacity: 95,
-            newsOpacity: 95,
             commentOpacity: 100,
             textSize: 16,
             textLeading: 175,
@@ -4425,13 +4766,6 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
             colorTheme: 'forest',
             accentHue: 145,
             accentStrength: 35,
-            headerOpacity: 0,
-            headerTint: 0,
-            panelOpacity: 0,
-            panelTint: 0,
-            infoOpacity: 85,
-            relatedOpacity: 90,
-            newsOpacity: 90,
             commentOpacity: 95,
             textSize: 16,
             textLeading: 175,
@@ -4447,13 +4781,6 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
             colorTheme: 'violet',
             accentHue: 270,
             accentStrength: 45,
-            headerOpacity: 0,
-            headerTint: 0,
-            panelOpacity: 0,
-            panelTint: 0,
-            infoOpacity: 85,
-            relatedOpacity: 90,
-            newsOpacity: 90,
             commentOpacity: 95,
             textSize: 16,
             textLeading: 175,
@@ -4469,13 +4796,6 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
             colorTheme: 'slate',
             accentHue: 210,
             accentStrength: 70,
-            headerOpacity: 85,
-            headerTint: 0,
-            panelOpacity: 95,
-            panelTint: 0,
-            infoOpacity: 100,
-            relatedOpacity: 100,
-            newsOpacity: 100,
             commentOpacity: 100,
             textSize: 18,
             textLeading: 190,
@@ -4680,15 +5000,14 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           themes: { colorTheme: '自訂配色' },
           light: { intensity: '亮度與色彩', blur: '畫面細節' },
           surfaces: {
-            headerOpacity: '頁首',
-            panelOpacity: '彈幕列表',
-            infoOpacity: '其他資訊區',
+            settingsOpacity: '透明度',
+            footerGlow: '光暈效果',
           },
           layout: { watchLayout: '分區重排', customWatchWidth: '寬度與間距' },
           content: {
             showDanmu: '顯示哪些資訊',
             focusMode: '快速整理頁面',
-            foldInfo: '個別收合按鈕',
+            foldRelated: '個別收合按鈕',
             episodeStyle: '集數與留言',
           },
           performance: { adaptiveQuality: '自動畫質', fps: '更新與同步' },
@@ -4852,7 +5171,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           const input = root.querySelector(`[data-setting="${key}"]`);
           if (input) input.closest('.ani-setting-row').hidden = methodKeys[values.method] !== key;
         }
-        for (const key of ['foldInfo', 'foldRelated', 'foldNews']) {
+        for (const key of ['foldRelated', 'foldNews']) {
           const input = root.querySelector(`[data-setting="${key}"]`);
           if (input) input.closest('.ani-setting-row').hidden = Boolean(values.quickCollapse);
         }
@@ -11313,24 +11632,30 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           return null;
         const perSecond = Math.round(1 / step);
         if (!best) {
-          // Fallback for seamless EDs without a preceding silence pause.
-          let runStart = -1;
+          // Fallback for seamless EDs without a preceding silence pause, tolerating brief vocal/piano dips.
+          let runStart = -1,
+            lastMusic = -1,
+            gap = 0;
           for (let i = 0; i <= samples.length; i++) {
             const s = samples[i];
             const isMusic = s && s.peak >= activePeakMin && s.stereo > 0.07;
             if (isMusic) {
               if (runStart < 0) runStart = i;
+              lastMusic = i;
+              gap = 0;
               continue;
             }
+            if (runStart >= 0 && s && ++gap <= 12) continue;
             if (runStart >= 0) {
-              const runLen = (i - runStart) * step;
-              const runEnd = samples[i - 1].time + step;
+              const endIdx = lastMusic + 1;
+              const runLen = (endIdx - runStart) * step;
+              const runEnd = samples[lastMusic].time + step;
               if (runLen >= 72 && runLen <= 105 && duration - runEnd <= 185) {
-                const section = samples.slice(runStart, i);
+                const section = samples.slice(runStart, endIdx);
                 const stereo = section.filter((item) => item.stereo > 0.07).length / section.length;
                 const levels =
                   section.filter((item) => item.peak >= activePeakMin).length / section.length;
-                if (stereo >= 0.65 && levels >= 0.75) {
+                if (stereo >= 0.62 && levels >= 0.72) {
                   best = {
                     startTime: samples[runStart].time,
                     endTime: runEnd,
@@ -11340,6 +11665,8 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
                 }
               }
               runStart = -1;
+              lastMusic = -1;
+              gap = 0;
             }
           }
           if (!best) return null;
@@ -12512,15 +12839,50 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           return false;
         }
       }
+      let syncedAppearance = null;
+      function hexToRgbTriplet(hex) {
+        const clean = String(hex || '')
+          .trim()
+          .replace(/^#/, '');
+        if (!/^[0-9a-f]{6}$/i.test(clean)) return '61, 175, 182';
+        return `${parseInt(clean.slice(0, 2), 16)}, ${parseInt(clean.slice(2, 4), 16)}, ${parseInt(clean.slice(4, 6), 16)}`;
+      }
+      function hslToHexAndRgb(h, s, l) {
+        const hue = ((Number(h) % 360) + 360) % 360;
+        const sat = Math.max(0, Math.min(100, Number(s))) / 100;
+        const lit = Math.max(0, Math.min(100, Number(l))) / 100;
+        const c = (1 - Math.abs(2 * lit - 1)) * sat;
+        const x = c * (1 - Math.abs(((hue / 60) % 2) - 1));
+        const m = lit - c / 2;
+        let r = 0,
+          g = 0,
+          b = 0;
+        if (hue < 60) [r, g, b] = [c, x, 0];
+        else if (hue < 120) [r, g, b] = [x, c, 0];
+        else if (hue < 180) [r, g, b] = [0, c, x];
+        else if (hue < 240) [r, g, b] = [0, x, c];
+        else if (hue < 300) [r, g, b] = [x, 0, c];
+        else [r, g, b] = [c, 0, x];
+        const ch = (v) => Math.round((v + m) * 255);
+        const R = ch(r),
+          G = ch(g),
+          B = ch(b);
+        const hex = '#' + [R, G, B].map((v) => v.toString(16).padStart(2, '0')).join('');
+        return { hex, rgb: `${R}, ${G}, ${B}` };
+      }
       function applyLightMode(isLight, { persist = false, syncSwitch = false } = {}) {
         const target = Boolean(isLight);
         const changed =
           document.documentElement.classList.contains('ani-light-mode') !== target ||
-          (document.body ? document.body.classList.contains('ani-light-mode') !== target : false);
+          (document.body
+            ? document.body.classList.contains('ani-light-mode') !== target ||
+              document.body.classList.contains('ani-theme-light') !== target
+            : false);
         if (changed) {
           withThemeTransitionSuppression(() => {
             document.documentElement.classList.toggle('ani-light-mode', target);
             document.body?.classList.toggle('ani-light-mode', target);
+            document.body?.classList.toggle('ani-theme-light', target);
           });
         }
         if (persist) {
@@ -12616,7 +12978,26 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
               : 'none',
           );
         }
-        applyLightMode(readSavedLightMode());
+        const nextThemeLight =
+          settings.appearance === 'light' ||
+          (settings.appearance === 'system' && systemAppearance.matches);
+        if (syncedAppearance === null) {
+          let savedLightAttr = null;
+          try {
+            savedLightAttr = localStorage.getItem('aniLightMode');
+          } catch {}
+          applyLightMode(
+            savedLightAttr === '1' || savedLightAttr === '0'
+              ? savedLightAttr === '1'
+              : nextThemeLight,
+          );
+          syncedAppearance = settings.appearance;
+        } else if (syncedAppearance !== settings.appearance) {
+          syncedAppearance = settings.appearance;
+          applyLightMode(nextThemeLight, { persist: true, syncSwitch: true });
+        } else {
+          applyLightMode(readSavedLightMode());
+        }
         document.body?.classList.toggle(
           'ani-controls-transparent',
           settings.controlStyle === 'transparent',
@@ -12711,15 +13092,13 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           )
         )
           document.querySelector('.subtitle .ani-tabs-link[href="#ani-tab-content-1"]')?.click();
-        const nextThemeLight =
-          settings.appearance === 'light' ||
-          (settings.appearance === 'system' && systemAppearance.matches);
+        const resolvedThemeLight = document.documentElement.classList.contains('ani-light-mode');
         if (
           document.body &&
-          document.body.classList.contains('ani-theme-light') !== nextThemeLight
+          document.body.classList.contains('ani-theme-light') !== resolvedThemeLight
         ) {
           withThemeTransitionSuppression(() =>
-            document.body.classList.toggle('ani-theme-light', nextThemeLight),
+            document.body.classList.toggle('ani-theme-light', resolvedThemeLight),
           );
         }
         for (const key of [
@@ -12749,8 +13128,16 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
         }))
           document.body?.style.setProperty(`--ani-${name}`, String(value));
         const light =
+          document.documentElement.classList.contains('ani-light-mode') ||
           settings.appearance === 'light' ||
           (settings.appearance === 'system' && systemAppearance.matches);
+        document.body?.classList.toggle(
+          'ani-theme-tinted',
+          Boolean(
+            settings.uiEffectsEnabled &&
+              (settings.customPalette || settings.colorTheme !== 'slate'),
+          ),
+        );
         const palettes = {
           slate: {
             dark: ['#0f1621', '23,35,50', '#1e2d40', '#e2eaf2', '#94a6ba'],
@@ -12791,16 +13178,43 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           ['base', 'surface-rgb', 'soft', 'text', 'muted'].forEach((key, index) =>
             document.body?.style.setProperty(`--ani-${key}`, palette[index]),
           );
-          const accentColor = settings.customPalette
-            ? settings.customAccent
-            : !light && settings.accentHue === 185 && settings.accentStrength === 50
-              ? '#3dafb6'
-              : `hsl(${settings.accentHue} ${settings.accentStrength}% ${light ? 30 : 72}%)`;
+          let accentColor;
+          let accentRgb;
+          if (settings.customPalette) {
+            accentColor = settings.customAccent;
+            accentRgb = hexToRgbTriplet(accentColor);
+          } else if (settings.accentHue === 185 && settings.accentStrength === 50) {
+            accentColor = light ? '#14939c' : '#3dafb6';
+            accentRgb = light ? '20, 147, 156' : '61, 175, 182';
+          } else {
+            const converted = hslToHexAndRgb(
+              settings.accentHue,
+              settings.accentStrength,
+              light ? 36 : 62,
+            );
+            accentColor = converted.hex;
+            accentRgb = converted.rgb;
+          }
+          document.documentElement.style.setProperty('--ani-accent', accentColor);
+          document.documentElement.style.setProperty('--ani-accent-rgb', accentRgb);
           document.body?.style.setProperty('--ani-accent', accentColor);
+          document.body?.style.setProperty('--ani-accent-rgb', accentRgb);
           document.body?.style.setProperty('--ani-line', light ? '#2a425738' : '#b7c7d330');
-        } else
-          for (const key of ['base', 'surface-rgb', 'soft', 'text', 'muted', 'accent', 'line'])
+        } else {
+          document.documentElement.style.removeProperty('--ani-accent');
+          document.documentElement.style.removeProperty('--ani-accent-rgb');
+          for (const key of [
+            'base',
+            'surface-rgb',
+            'soft',
+            'text',
+            'muted',
+            'accent',
+            'accent-rgb',
+            'line',
+          ])
             document.body?.style.removeProperty(`--ani-${key}`);
+        }
         arrangeWatchPage();
         arrangeNavigation();
         syncCollapsibleRegions();
@@ -23173,7 +23587,9 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           globalThis.AniLensSwitch.mount({
             initialLight: savedLight,
             onToggle: (isLight) => {
+              syncedAppearance = isLight ? 'light' : 'dark';
               applyLightMode(isLight, { persist: true });
+              updateSetting('appearance', syncedAppearance);
             },
           });
         }
