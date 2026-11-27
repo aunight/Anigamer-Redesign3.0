@@ -567,14 +567,40 @@
   function readSavedLightMode() {
     try { return localStorage.getItem('aniLightMode') === '1'; } catch { return false; }
   }
+  let syncedAppearance = null;
+  function hexToRgbTriplet(hex) {
+    const clean = String(hex || '').trim().replace(/^#/, '');
+    if (!/^[0-9a-f]{6}$/i.test(clean)) return '61, 175, 182';
+    return `${parseInt(clean.slice(0, 2), 16)}, ${parseInt(clean.slice(2, 4), 16)}, ${parseInt(clean.slice(4, 6), 16)}`;
+  }
+  function hslToHexAndRgb(h, s, l) {
+    const hue = ((Number(h) % 360) + 360) % 360;
+    const sat = Math.max(0, Math.min(100, Number(s))) / 100;
+    const lit = Math.max(0, Math.min(100, Number(l))) / 100;
+    const c = (1 - Math.abs(2 * lit - 1)) * sat;
+    const x = c * (1 - Math.abs(((hue / 60) % 2) - 1));
+    const m = lit - c / 2;
+    let r = 0, g = 0, b = 0;
+    if (hue < 60) [r, g, b] = [c, x, 0];
+    else if (hue < 120) [r, g, b] = [x, c, 0];
+    else if (hue < 180) [r, g, b] = [0, c, x];
+    else if (hue < 240) [r, g, b] = [0, x, c];
+    else if (hue < 300) [r, g, b] = [x, 0, c];
+    else [r, g, b] = [c, 0, x];
+    const ch = (v) => Math.round((v + m) * 255);
+    const R = ch(r), G = ch(g), B = ch(b);
+    const hex = '#' + [R, G, B].map(v => v.toString(16).padStart(2, '0')).join('');
+    return { hex, rgb: `${R}, ${G}, ${B}` };
+  }
   function applyLightMode(isLight, { persist = false, syncSwitch = false } = {}) {
     const target = Boolean(isLight);
     const changed = document.documentElement.classList.contains('ani-light-mode') !== target
-      || (document.body ? document.body.classList.contains('ani-light-mode') !== target : false);
+      || (document.body ? document.body.classList.contains('ani-light-mode') !== target || document.body.classList.contains('ani-theme-light') !== target : false);
     if (changed) {
       withThemeTransitionSuppression(() => {
         document.documentElement.classList.toggle('ani-light-mode', target);
         document.body?.classList.toggle('ani-light-mode', target);
+        document.body?.classList.toggle('ani-theme-light', target);
       });
     }
     if (persist) {
@@ -619,7 +645,20 @@
       const image = settings.pageBackgroundImage;
       document.body.style.setProperty('--ani-background-image', typeof image === 'string' && image.startsWith('https://') ? `url(${JSON.stringify(image)})` : 'none');
     }
-    applyLightMode(readSavedLightMode());
+    const nextThemeLight =
+      settings.appearance === 'light' ||
+      (settings.appearance === 'system' && systemAppearance.matches);
+    if (syncedAppearance === null) {
+      let savedLightAttr = null;
+      try { savedLightAttr = localStorage.getItem('aniLightMode'); } catch {}
+      applyLightMode(savedLightAttr === '1' || savedLightAttr === '0' ? savedLightAttr === '1' : nextThemeLight);
+      syncedAppearance = settings.appearance;
+    } else if (syncedAppearance !== settings.appearance) {
+      syncedAppearance = settings.appearance;
+      applyLightMode(nextThemeLight, { persist: true, syncSwitch: true });
+    } else {
+      applyLightMode(readSavedLightMode());
+    }
     document.body?.classList.toggle(
       'ani-controls-transparent',
       settings.controlStyle === 'transparent',
@@ -718,11 +757,9 @@
     document.body?.classList.toggle('ani-hide-episode-description', !settings.showEpisodeDescription);
     if (!settings.showInfo && document.querySelector('.subtitle .ani-tabs-link.is-active[href="#ani-tab-content-intro"]'))
       document.querySelector('.subtitle .ani-tabs-link[href="#ani-tab-content-1"]')?.click();
-    const nextThemeLight =
-      settings.appearance === 'light' ||
-      (settings.appearance === 'system' && systemAppearance.matches);
-    if (document.body && document.body.classList.contains('ani-theme-light') !== nextThemeLight) {
-      withThemeTransitionSuppression(() => document.body.classList.toggle('ani-theme-light', nextThemeLight));
+    const resolvedThemeLight = document.documentElement.classList.contains('ani-light-mode');
+    if (document.body && document.body.classList.contains('ani-theme-light') !== resolvedThemeLight) {
+      withThemeTransitionSuppression(() => document.body.classList.toggle('ani-theme-light', resolvedThemeLight));
     }
     for (const key of [
       'headerOpacity',
@@ -756,8 +793,13 @@
     }))
       document.body?.style.setProperty(`--ani-${name}`, String(value));
     const light =
+      document.documentElement.classList.contains('ani-light-mode') ||
       settings.appearance === 'light' ||
       (settings.appearance === 'system' && systemAppearance.matches);
+    document.body?.classList.toggle(
+      'ani-theme-tinted',
+      Boolean(settings.uiEffectsEnabled && (settings.customPalette || settings.colorTheme !== 'slate')),
+    );
     const palettes = {
       slate: {
         dark: ['#0f1621', '23,35,50', '#1e2d40', '#e2eaf2', '#94a6ba'],
@@ -798,17 +840,30 @@
       ['base', 'surface-rgb', 'soft', 'text', 'muted'].forEach((key, index) =>
         document.body?.style.setProperty(`--ani-${key}`, palette[index]),
       );
-      const accentColor = settings.customPalette
-        ? settings.customAccent
-        : !light && settings.accentHue === 185 && settings.accentStrength === 50
-          ? '#3dafb6'
-          : `hsl(${settings.accentHue} ${settings.accentStrength}% ${light ? 30 : 72}%)`;
+      let accentColor;
+      let accentRgb;
+      if (settings.customPalette) {
+        accentColor = settings.customAccent;
+        accentRgb = hexToRgbTriplet(accentColor);
+      } else if (settings.accentHue === 185 && settings.accentStrength === 50) {
+        accentColor = light ? '#14939c' : '#3dafb6';
+        accentRgb = light ? '20, 147, 156' : '61, 175, 182';
+      } else {
+        const converted = hslToHexAndRgb(settings.accentHue, settings.accentStrength, light ? 36 : 62);
+        accentColor = converted.hex;
+        accentRgb = converted.rgb;
+      }
+      document.documentElement.style.setProperty('--ani-accent', accentColor);
+      document.documentElement.style.setProperty('--ani-accent-rgb', accentRgb);
       document.body?.style.setProperty('--ani-accent', accentColor);
+      document.body?.style.setProperty('--ani-accent-rgb', accentRgb);
       document.body?.style.setProperty(
         '--ani-line',
         light ? '#2a425738' : '#b7c7d330',
       );
-    } else
+    } else {
+      document.documentElement.style.removeProperty('--ani-accent');
+      document.documentElement.style.removeProperty('--ani-accent-rgb');
       for (const key of [
         'base',
         'surface-rgb',
@@ -816,9 +871,11 @@
         'text',
         'muted',
         'accent',
+        'accent-rgb',
         'line',
       ])
         document.body?.style.removeProperty(`--ani-${key}`);
+    }
     arrangeWatchPage();
     arrangeNavigation();
     syncCollapsibleRegions();
@@ -2196,7 +2253,7 @@
         });
       }
       const hasFollowingScene = ending?.hasFollowingScene ?? (ending && ending.endTime < duration - 0.1);
-      const trustedEnding = Boolean(ending && (verifiedInterval || ending.source === 'aniskip' || (allowAudioEstimate && ending !== analysis?.interval)));
+      const trustedEnding = Boolean(ending && (verifiedInterval || ending.source === 'aniskip' || ending.source === 'animeskip' || (allowAudioEstimate && ending !== analysis?.interval)));
       if (ending && !hasFollowingScene && trustedEnding && !overlay && dismissedVideo !== video && !video.paused) {
         show(video, player);
       }
@@ -8076,7 +8133,9 @@
       globalThis.AniLensSwitch.mount({
         initialLight: savedLight,
         onToggle: (isLight) => {
+          syncedAppearance = isLight ? 'light' : 'dark';
           applyLightMode(isLight, { persist: true });
+          updateSetting('appearance', syncedAppearance);
         },
       });
     }
@@ -8665,6 +8724,7 @@
       let decoratingGrid = false;
       const decorateSettingsPanel = (panelEl) => {
         if (!panelEl) return;
+        if (panelEl.dataset.aniDecorated === '1' && panelEl.dataset.aniNeedsDecorate !== '1') return;
         decoratingGrid = true;
         try {
         const formatLabel = [...panelEl.querySelectorAll('.ani-setting-label__mian')]
@@ -8762,7 +8822,8 @@
             attachInfoIcon(leafTxtEl);
           }
         }
-        for (const iconSvg of panelEl.querySelectorAll('svg:not(.ani-sec-icon svg):not(.ani-info-i-icon):not(.ani-row-icon svg):not(.ani-plus-refresh-svg):not(.ani-plus-add-svg):not(.ani-plus-gear-svg):not(.ani-plus-action-svg), :is(i, span).material-icons, :is(i, span)[class*="material" i]')) {
+        for (const iconSvg of panelEl.querySelectorAll('svg:not(.ani-sec-icon svg):not(.ani-info-i-icon):not(.ani-row-icon svg):not(.ani-plus-refresh-svg):not(.ani-plus-add-svg):not(.ani-plus-gear-svg):not(.ani-plus-action-svg):not([data-ani-svg-checked]), :is(i, span).material-icons:not([data-ani-svg-checked]), :is(i, span)[class*="material" i]:not([data-ani-svg-checked])')) {
+          iconSvg.dataset.aniSvgChecked = '1';
           if (iconSvg.closest('.ani-sec-icon, .ani-row-icon, .ani-info-badge-host, .ani-hidden-glyph, .ani-danmu-position-btn, .ani-plus-pill-btn, .ani-plus-refresh-btn, .ani-plus-add-icon-btn, .ani-plus-gear-btn, .ani-plus-icon-action, .tooltip, [role="tooltip"], [class*="tooltip" i]')) continue;
           if (iconSvg.closest('.ani-plus-info-trigger, .qa-icon')) {
             iconSvg.classList.add('ani-hidden-glyph');
@@ -8775,8 +8836,14 @@
               continue;
             }
           }
-          const rect = iconSvg.getBoundingClientRect();
-          if (rect.width > 24 || rect.height > 24) continue;
+          const attrW = Number(iconSvg.getAttribute('width'));
+          const attrH = Number(iconSvg.getAttribute('height'));
+          const knownOversized = (Number.isFinite(attrW) && attrW > 24) || (Number.isFinite(attrH) && attrH > 24);
+          if (knownOversized) continue;
+          if (!Number.isFinite(attrW) || !Number.isFinite(attrH) || attrW === 0 || attrH === 0) {
+            const rect = iconSvg.getBoundingClientRect();
+            if (rect.width > 24 || rect.height > 24) continue;
+          }
           const pathTxt = iconSvg.innerHTML || '';
           const metaTxt = `${pathTxt} ${iconSvg.className?.baseVal || ''} ${iconSvg.getAttribute('aria-label') || ''} ${iconSvg.parentElement?.className || ''}`;
           const isGearOrAction = /M19\.14|15\.18|19\.4|14\.7|12 15\.5|gear|cog|wrench|tool|refresh|reset|clear|trash|play|M12 5v14|M5 12h14/i.test(metaTxt) || Boolean(iconSvg.closest('button, a, .ani-plus-add-icon-btn, .ani-plus-icon-action'));
@@ -9533,6 +9600,8 @@
           filterRow.before(filterGroup);
           filterGroup.append(filterRow, sourceRow);
         }
+        panelEl.dataset.aniDecorated = '1';
+        delete panelEl.dataset.aniNeedsDecorate;
         } finally {
           decoratingGrid = false;
         }
@@ -9545,6 +9614,7 @@
           clearTimeout(gridTimer);
           gridTimer = setTimeout(() => {
             for (const p of unifiedGridEl.querySelectorAll('.ani-drawer-slot > *')) {
+              p.dataset.aniNeedsDecorate = '1';
               try { decorateSettingsPanel(p); } catch {}
             }
           }, 40);
@@ -9568,19 +9638,21 @@
           btn.innerHTML = '<span class="ani-ps-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.6.85 1 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg></span><span class="ani-ps-text">播放器設定</span><svg class="ani-ps-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
           btn.addEventListener('click', () => {
             const opening = !bodyWrap.classList.contains('is-open');
-            for (const s of bodyWrap.querySelectorAll('.ani-drawer-slot[data-ani-source-triggered="false"]')) {
-              const link = s._aniSourceLink;
-              if (link && s.textContent.trim() === '') {
-                s.dataset.aniSourceTriggered = 'true';
-                try { link.click(); } catch {}
+            if (opening) {
+              for (const s of bodyWrap.querySelectorAll('.ani-drawer-slot[data-ani-source-triggered="false"]')) {
+                const link = s._aniSourceLink;
+                if (link && s.textContent.trim() === '') {
+                  s.dataset.aniSourceTriggered = 'true';
+                  try { link.click(); } catch {}
+                }
               }
+              for (const p of bodyWrap.querySelectorAll('.ani-drawer-slot > *')) decorateSettingsPanel(p);
             }
             btn.setAttribute('aria-expanded', String(opening));
             btn.classList.toggle('is-open', opening);
             bodyWrap.classList.toggle('is-open', opening);
             bodyWrap.setAttribute('aria-hidden', String(!opening));
             drawer.classList.toggle('is-open', opening);
-            for (const p of bodyWrap.querySelectorAll('.ani-drawer-slot > *')) decorateSettingsPanel(p);
           });
           const plusBox = document.querySelector('#BH_background .plus_imagetool_box');
           if (plusBox) {

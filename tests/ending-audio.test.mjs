@@ -252,3 +252,67 @@ test('prefers canonical 90s tail ED over earlier climax BGM and handles merged c
   assert.ok(res2.startTime >= 1319 && res2.startTime <= 1321);
   assert.ok(res2.endTime >= 1409.5 && res2.endTime <= 1410.5);
 });
+
+test('lookupSkipTimes falls back to Anime-Skip when AniSkip lacks ED timestamps', async () => {
+  const ctx = {
+    location: { pathname: '/animeVideo.php', search: '?sn=99999' },
+    window: { addEventListener() {} },
+    document: { querySelector: (sel) => (sel.includes('h1') ? { textContent: '葬送的芙莉蓮 [1]' } : null) },
+    URL,
+    AbortSignal,
+    fetch: async (url, opts) => {
+      const target = String(url);
+      if (target.includes('api.bgm.tv')) {
+        return { ok: true, json: async () => ({ data: [{ name: '葬送のフリーレン', name_cn: '葬送的芙莉莲' }] }) };
+      }
+      if (target.includes('graphql.anilist.co')) {
+        return {
+          ok: true,
+          json: async () => ({
+            data: { Media: { idMal: 52991, title: { english: "Frieren: Beyond Journey's End", romaji: 'Sousou no Frieren' } } },
+          }),
+        };
+      }
+      if (target.includes('api.aniskip.com')) {
+        return {
+          ok: true,
+          json: async () => ({ found: true, results: [{ skipType: 'op', interval: { startTime: 0, endTime: 90 } }] }),
+        };
+      }
+      if (target.includes('api.anime-skip.com')) {
+        return {
+          ok: true,
+          json: async () => ({
+            data: {
+              searchShows: [{
+                id: 'show-1',
+                name: "Frieren: Beyond Journey's End",
+                episodes: [{
+                  number: '1',
+                  baseDuration: 1559.8,
+                  timestamps: [
+                    { at: 0, type: { name: 'New Intro' } },
+                    { at: 90, type: { name: 'Canon' } },
+                    { at: 1460, type: { name: 'New Credits' } },
+                    { at: 1550, type: { name: 'Preview' } },
+                  ],
+                }],
+              }],
+            },
+          }),
+        };
+      }
+      return { ok: false, status: 404 };
+    },
+  };
+  const api = runInNewContext(
+    source.replace('globalThis.AniEndingAudio = {analyze, analyzeAudio, lookupSkipTimes, streamUrls};', 'return { lookupSkipTimes };'),
+    ctx,
+  );
+  const res = await api.lookupSkipTimes({ duration: 1560 });
+  assert.equal(res.op?.source, 'aniskip');
+  assert.equal(res.ed?.source, 'animeskip');
+  assert.equal(res.ed?.startTime, 1460);
+  assert.equal(res.ed?.endTime, 1550);
+  assert.equal(res.ed?.hasFollowingScene, false);
+});

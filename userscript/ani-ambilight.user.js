@@ -13,16 +13,16 @@
 // @run-at       document-start
 // @inject-into  content
 // @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
-// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d323b202c190b37281dc28abb53b575eb6005127/src/studio-catalog.json
-// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d323b202c190b37281dc28abb53b575eb6005127/src/studio-profiles.json
-// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d323b202c190b37281dc28abb53b575eb6005127/src/studio-directory-icons.json
-// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d323b202c190b37281dc28abb53b575eb6005127/src/studio-logos.json
-// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d323b202c190b37281dc28abb53b575eb6005127/src/content.css
-// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d323b202c190b37281dc28abb53b575eb6005127/src/effects.css
-// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d323b202c190b37281dc28abb53b575eb6005127/src/settings-ui.css
-// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d323b202c190b37281dc28abb53b575eb6005127/src/hero-banner.css
-// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d323b202c190b37281dc28abb53b575eb6005127/src/home-dashboard.css
-// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d323b202c190b37281dc28abb53b575eb6005127/src/ui-repairs.css
+// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/816687eabb4e8e0480111a0ccde9cc16db7f148b/src/studio-catalog.json
+// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/816687eabb4e8e0480111a0ccde9cc16db7f148b/src/studio-profiles.json
+// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/816687eabb4e8e0480111a0ccde9cc16db7f148b/src/studio-directory-icons.json
+// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/816687eabb4e8e0480111a0ccde9cc16db7f148b/src/studio-logos.json
+// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/816687eabb4e8e0480111a0ccde9cc16db7f148b/src/content.css
+// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/816687eabb4e8e0480111a0ccde9cc16db7f148b/src/effects.css
+// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/816687eabb4e8e0480111a0ccde9cc16db7f148b/src/settings-ui.css
+// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/816687eabb4e8e0480111a0ccde9cc16db7f148b/src/hero-banner.css
+// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/816687eabb4e8e0480111a0ccde9cc16db7f148b/src/home-dashboard.css
+// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/816687eabb4e8e0480111a0ccde9cc16db7f148b/src/ui-repairs.css
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -12093,6 +12093,94 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
         return candidates;
       }
 
+      function parseAnimeSkipEpisode(ep, duration) {
+        const raw = Array.isArray(ep?.timestamps) ? ep.timestamps : [];
+        if (!raw.length) return { op: null, ed: null };
+        const total =
+          Number.isFinite(duration) && duration > 0 ? duration : Number(ep?.baseDuration || 0);
+        if (
+          Number.isFinite(duration) &&
+          duration > 0 &&
+          Number(ep?.baseDuration) > 0 &&
+          Math.abs(Number(ep.baseDuration) - duration) > 25
+        ) {
+          return { op: null, ed: null };
+        }
+        const list = raw
+          .map((item) => ({ at: Number(item?.at), name: String(item?.type?.name || '') }))
+          .filter((item) => Number.isFinite(item.at) && item.at >= 0)
+          .sort((a, b) => a.at - b.at);
+        let op = null,
+          ed = null;
+        for (let i = 0; i < list.length; i++) {
+          const cur = list[i];
+          const nextAt = i + 1 < list.length ? list[i + 1].at : total;
+          if (!op && /intro/i.test(cur.name) && nextAt - cur.at >= 20 && nextAt - cur.at <= 150) {
+            op = { startTime: cur.at, endTime: nextAt, skipType: 'op', source: 'animeskip' };
+          } else if (
+            !ed &&
+            /credits|ending|outro/i.test(cur.name) &&
+            nextAt - cur.at >= 25 &&
+            nextAt - cur.at <= 150
+          ) {
+            const endTime = total > 0 ? Math.min(nextAt, total) : nextAt;
+            const hasFollowingScene = total > 0 ? total - endTime >= 25 : false;
+            ed = { startTime: cur.at, endTime, hasFollowingScene, source: 'animeskip' };
+          }
+        }
+        return { op, ed };
+      }
+
+      const animeSkipShowCache = new Map();
+      async function lookupAnimeSkip(titles, episode, duration, signal) {
+        const queries = [
+          ...new Set((titles || []).map((t) => String(t || '').trim()).filter(Boolean)),
+        ];
+        if (!queries.length || !episode) return { op: null, ed: null };
+        const cacheKey = queries[0];
+        let episodes = animeSkipShowCache.get(cacheKey);
+        if (episodes === undefined) {
+          episodes = null;
+          for (const search of queries) {
+            signal?.throwIfAborted?.();
+            try {
+              const res = await fetch('https://api.anime-skip.com/graphql', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Accept: 'application/json',
+                  'X-Client-ID': 'th2oogUKrgOf1J8w0XATzuNPlcrTfId1',
+                },
+                body: JSON.stringify({
+                  query:
+                    'query($s:String!){searchShows(search:$s){id name episodes{number baseDuration timestamps{at type{name}}}}}',
+                  variables: { s: search },
+                }),
+                signal,
+              });
+              if (!res.ok) continue;
+              const json = await res.json();
+              const show = json?.data?.searchShows?.find(
+                (item) => Array.isArray(item?.episodes) && item.episodes.length,
+              );
+              if (show) {
+                episodes = show.episodes;
+                break;
+              }
+            } catch (error) {
+              if (signal?.aborted) throw error;
+            }
+          }
+          animeSkipShowCache.set(cacheKey, episodes);
+        }
+        if (!Array.isArray(episodes)) return { op: null, ed: null };
+        const epNum = String(episode).replace(/^0+(?=\d)/, '');
+        const match = episodes.find(
+          (item) => String(item?.number || '').replace(/^0+(?=\d)/, '') === epNum,
+        );
+        return match ? parseAnimeSkipEpisode(match, duration) : { op: null, ed: null };
+      }
+
       async function lookupSkipTimes(video, signal) {
         try {
           const { title, episode } = readEpisodeAndTitle();
@@ -12101,12 +12189,14 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           const cacheKey = `${title}#${episode}`;
           if (skipCache.has(cacheKey)) {
             const cached = skipCache.get(cacheKey);
-            const parsed = parseAniSkipSegments(cached.data, video?.duration);
+            const parsed = cached.merged || parseAniSkipSegments(cached.data, video?.duration);
             return { ...parsed, idMal: cached.idMal, found: Boolean(parsed.op || parsed.ed) };
           }
 
-          let idMal = malIdCache.get(title);
-          if (idMal === undefined) {
+          let meta = malIdCache.get(title);
+          if (meta === undefined) {
+            let idMal = null;
+            const altTitles = [];
             const searchTitles = await resolveSearchTitles(title, signal);
             for (const search of searchTitles) {
               signal?.throwIfAborted?.();
@@ -12114,34 +12204,53 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
                 body: JSON.stringify({
-                  query: 'query($search:String){Media(search:$search,type:ANIME){idMal}}',
+                  query:
+                    'query($search:String){Media(search:$search,type:ANIME){idMal title{english romaji native}}}',
                   variables: { search },
                 }),
                 signal,
               });
               if (!res.ok) continue;
               const json = await res.json();
-              idMal = json?.data?.Media?.idMal || null;
-              if (idMal) break;
+              const media = json?.data?.Media;
+              if (media?.idMal) {
+                idMal = media.idMal;
+                if (media.title?.english) altTitles.push(media.title.english);
+                if (media.title?.romaji) altTitles.push(media.title.romaji);
+                if (media.title?.native) altTitles.push(media.title.native);
+                break;
+              }
             }
-            malIdCache.set(title, idMal || null);
+            meta = { idMal, altTitles };
+            malIdCache.set(title, meta);
           }
-          if (!idMal) return { op: null, ed: null, idMal: null, found: false };
-
-          const epLen =
-            Number.isFinite(video?.duration) && video.duration > 0 ? Math.round(video.duration) : 0;
-          const skipRes = await fetch(
-            `https://api.aniskip.com/v2/skip-times/${idMal}/${encodeURIComponent(episode)}?types=op&types=mixed-op&types=ed&types=mixed-ed&episodeLength=${epLen}`,
-            { signal },
-          );
-          if (!skipRes.ok) {
-            const empty = { found: false, results: [] };
-            if (skipRes.status === 404) skipCache.set(cacheKey, { data: empty, idMal });
-            return { op: null, ed: null, idMal, found: false };
+          const idMal = meta?.idMal || null;
+          let parsed = { op: null, ed: null };
+          let data = { found: false, results: [] };
+          if (idMal) {
+            const epLen =
+              Number.isFinite(video?.duration) && video.duration > 0
+                ? Math.round(video.duration)
+                : 0;
+            const skipRes = await fetch(
+              `https://api.aniskip.com/v2/skip-times/${idMal}/${encodeURIComponent(episode)}?types=op&types=mixed-op&types=ed&types=mixed-ed&episodeLength=${epLen}`,
+              { signal },
+            );
+            if (skipRes.ok) {
+              data = await skipRes.json();
+              parsed = parseAniSkipSegments(data, video?.duration);
+            }
           }
-          const data = await skipRes.json();
-          skipCache.set(cacheKey, { data, idMal });
-          const parsed = parseAniSkipSegments(data, video?.duration);
+          if ((!parsed.op || !parsed.ed) && meta?.altTitles?.length) {
+            const fallback = await lookupAnimeSkip(
+              meta.altTitles,
+              episode,
+              video?.duration,
+              signal,
+            );
+            parsed = { op: parsed.op || fallback.op, ed: parsed.ed || fallback.ed };
+          }
+          skipCache.set(cacheKey, { data, idMal, merged: parsed });
           return { ...parsed, idMal, found: Boolean(parsed.op || parsed.ed) };
         } catch (error) {
           if (signal?.aborted) throw error;
@@ -15089,6 +15198,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
             ending &&
               (verifiedInterval ||
                 ending.source === 'aniskip' ||
+                ending.source === 'animeskip' ||
                 (allowAudioEstimate && ending !== analysis?.interval)),
           );
           if (
