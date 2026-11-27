@@ -2,7 +2,7 @@
 // @name         動畫瘋沉浸重製版 3.0｜Anigamer-Redesign 3.0
 // @namespace    https://ani.gamer.com.tw/ani-ambientlight
 // @author       秋夜
-// @version      3.5.2
+// @version      3.5.3
 // @description  動畫瘋環境光與沉浸重製介面：毛玻璃播放器、開場液態波紋、首頁足跡熱力圖＆天氣實況（靈感改作自 Hinataragi/anigamer-ambilight、jiuyang5354/bilibili-margin 與 GreatUI）。非官方。
 // @homepageURL  https://github.com/aunight/Anigamer-Redesign3.0
 // @supportURL   https://github.com/aunight/Anigamer-Redesign3.0/issues
@@ -13,16 +13,16 @@
 // @run-at       document-start
 // @inject-into  content
 // @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
-// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/80bf785de06e03ba9665318b2e226bb23c47b629/src/studio-catalog.json
-// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/80bf785de06e03ba9665318b2e226bb23c47b629/src/studio-profiles.json
-// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/80bf785de06e03ba9665318b2e226bb23c47b629/src/studio-directory-icons.json
-// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/80bf785de06e03ba9665318b2e226bb23c47b629/src/studio-logos.json
-// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/80bf785de06e03ba9665318b2e226bb23c47b629/src/content.css
-// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/80bf785de06e03ba9665318b2e226bb23c47b629/src/effects.css
-// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/80bf785de06e03ba9665318b2e226bb23c47b629/src/settings-ui.css
-// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/80bf785de06e03ba9665318b2e226bb23c47b629/src/hero-banner.css
-// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/80bf785de06e03ba9665318b2e226bb23c47b629/src/home-dashboard.css
-// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/80bf785de06e03ba9665318b2e226bb23c47b629/src/ui-repairs.css
+// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8921637e85d5574e917f5fe456ca2f16a861fbd8/src/studio-catalog.json
+// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8921637e85d5574e917f5fe456ca2f16a861fbd8/src/studio-profiles.json
+// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8921637e85d5574e917f5fe456ca2f16a861fbd8/src/studio-directory-icons.json
+// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8921637e85d5574e917f5fe456ca2f16a861fbd8/src/studio-logos.json
+// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8921637e85d5574e917f5fe456ca2f16a861fbd8/src/content.css
+// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8921637e85d5574e917f5fe456ca2f16a861fbd8/src/effects.css
+// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8921637e85d5574e917f5fe456ca2f16a861fbd8/src/settings-ui.css
+// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8921637e85d5574e917f5fe456ca2f16a861fbd8/src/hero-banner.css
+// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8921637e85d5574e917f5fe456ca2f16a861fbd8/src/home-dashboard.css
+// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8921637e85d5574e917f5fe456ca2f16a861fbd8/src/ui-repairs.css
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -402,27 +402,7 @@ Additional section icons: film, newspaper, comments.
   })();
 
   // 三、主題與設定介面樣式（於 document-start 預先注入以消除切換閃爍）
-  const resourceChanges = {
-    ani_content_css: [
-      [7205, 1, ['  inset: auto 36% max(11%, 92px) 3%;']],
-      [
-        7203,
-        0,
-        [
-          '#ani_video:is(.ani-postplay-active, .ani-postplay-exiting) .vjs-control-bar {',
-          '  z-index: 35 !important;',
-          '  opacity: 1 !important;',
-          '  visibility: visible !important;',
-          '  pointer-events: auto !important;',
-          '}',
-        ],
-      ],
-    ],
-    ani_repairs_css: [
-      [4529, 1, ['  inset-block-end: calc(100% + 56px);']],
-      [4524, 1, ['  --ani-seek-tooltip-offset: 0px;']],
-    ],
-  };
+  const resourceChanges = {};
   const readResource = (name) => {
     const text = GM_getResourceText(name) || '';
     const changes = resourceChanges[name];
@@ -4271,7 +4251,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
         const appVersion =
           globalThis.chrome?.runtime?.getManifest?.()?.version ||
           globalThis.GM_info?.script?.version ||
-          '3.5.2';
+          '3.5.3';
         const creditCard =
           '<div class="ani-credit-card">' +
           '<div class="ani-credit-head">' +
@@ -13971,9 +13951,16 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           }
           const hasFollowingScene =
             ending?.hasFollowingScene ?? (ending && ending.endTime < duration - 0.1);
+          const trustedEnding = Boolean(
+            ending &&
+              (verifiedInterval ||
+                ending.source === 'aniskip' ||
+                (allowAudioEstimate && ending !== analysis?.interval)),
+          );
           if (
             ending &&
             !hasFollowingScene &&
+            trustedEnding &&
             !overlay &&
             dismissedVideo !== video &&
             !video.paused
@@ -14019,7 +14006,8 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
             player.append(skipIntro);
           }
 
-          if (!hasFollowingScene || !endingSkipEnabled() || overlay) {
+          const showEndingSkipPill = Boolean(ending && (hasFollowingScene || !trustedEnding));
+          if (!showEndingSkipPill || !endingSkipEnabled() || overlay) {
             skip?.remove();
             skip = null;
             return;
@@ -14031,18 +14019,22 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           pill.className = 'ani-ending-skip ani-skip-intro-pill';
           const button = action(pill, '跳過片尾', () => {
             const chapter = getEnding();
-            if (
-              chapter &&
-              endingSkipEnabled() &&
-              (chapter.hasFollowingScene ?? chapter.endTime < duration - 0.1)
-            ) {
+            if (!chapter || !endingSkipEnabled()) return;
+            const following = chapter.hasFollowingScene ?? chapter.endTime < duration - 0.1;
+            if (following) {
               video.currentTime = chapter.endTime;
-              skip?.remove();
-              skip = null;
+            } else {
+              if (Number.isFinite(duration) && duration > 0) video.currentTime = duration;
+              if (!overlay && dismissedVideo !== video) show(video, player);
             }
+            skip?.remove();
+            skip = null;
           });
           button.className = 'ani-ending-action';
-          button.setAttribute('aria-description', '跳到彩蛋開頭');
+          button.setAttribute(
+            'aria-description',
+            hasFollowingScene ? '跳到彩蛋開頭' : '跳到片尾結束',
+          );
           const close = action(pill, '×', () => {
             dismissedCue = ending;
             skip?.remove();
