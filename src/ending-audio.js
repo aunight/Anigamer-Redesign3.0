@@ -283,8 +283,9 @@
           const tailEnd = samples[lastActiveIdx].time + step;
           if (duration - tailEnd <= 20) {
             let bestStartIdx = -1, bestScore = -1;
-            const winStartMin = Math.max(0, tailEndIdx - Math.round(98 * perSecond));
-            const winStartMax = Math.max(0, tailEndIdx - Math.round(82 * perSecond));
+            const win = 8 * perSecond;
+            const winStartMin = Math.max(0, tailEndIdx - Math.round(100 * perSecond));
+            const winStartMax = Math.max(0, tailEndIdx - Math.round(80 * perSecond));
             for (let idx = winStartMin; idx <= winStartMax; idx += perSecond) {
               const tailSec = samples.slice(idx, tailEndIdx);
               if (tailSec.length < 75 * perSecond) continue;
@@ -295,8 +296,18 @@
               const preStereo = preWin.length
                 ? preWin.filter(item => item.stereo > stereoMin).length / preWin.length
                 : 0;
-              if (preWin.length >= 8 * perSecond && stereo - preStereo < 0.08) continue;
-              const sc = stereo + levels - Math.abs(tailEnd - samples[idx].time - 90) / 90;
+              let stereoJump = 0;
+              if (idx >= win && idx + win <= samples.length) {
+                let beforeS = 0, afterS = 0;
+                for (let k = 0; k < win; k++) {
+                  beforeS += samples[idx - win + k].stereo;
+                  afterS += samples[idx + k].stereo;
+                }
+                stereoJump = (afterS - beforeS) / win;
+              }
+              // Accept either a jump from mono dialogue OR a stereo-width jump from climax BGM.
+              if (preWin.length >= 8 * perSecond && stereo - preStereo < 0.08 && stereoJump < 0.05) continue;
+              const sc = stereo + levels + stereoJump * 2 - Math.abs(tailEnd - samples[idx].time - 90) / 90;
               if (sc > bestScore) {
                 bestScore = sc;
                 bestStartIdx = idx;

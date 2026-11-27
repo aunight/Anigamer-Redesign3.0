@@ -335,3 +335,32 @@ test('detects 90s tail ED even when a 2-second quiet bridge splits the song', ()
   assert.ok(result.startTime >= 1328 && result.startTime <= 1332);
   assert.ok(result.endTime >= 1418.5 && result.endTime <= 1420);
 });
+
+test('detects ED from real sn=52896 climax-BGM-to-ED waveform profile', () => {
+  const step = 0.125;
+  const duration = 1420;
+  // Measured 10s buckets from sn=52896 (世界最強的魔女，就此開始 EP.8, ED at 22:09 = 1329s)
+  const buckets = [
+    [1178, 0.21, 0.08], [1188, 0.17, 0.15], [1198, 0.07, 0.18], [1208, 0.11, 0.12],
+    [1218, 0.12, 0.14], [1228, 0.17, 0.18], [1239, 0.12, 0.03], [1249, 0.11, 0.28],
+    [1259, 0.16, 0.51], [1269, 0.09, 0.60], [1279, 0.10, 0.35], [1289, 0.14, 0.27],
+    [1299, 0.14, 0.40], [1309, 0.18, 0.35], [1319, 0.14, 0.31], [1329, 0.11, 0.52],
+    [1339, 0.16, 0.50], [1349, 0.18, 0.20], [1359, 0.17, 0.09], [1369, 0.21, 0.11],
+    [1379, 0.20, 0.22], [1389, 0.21, 0.25], [1399, 0.26, 0.35], [1409, 0.08, 0.96],
+    [1419, 0.00, 0.00],
+  ];
+  const samples = [];
+  for (let b = 0; b < buckets.length; b++) {
+    const [start, p, s] = buckets[b];
+    const end = b + 1 < buckets.length ? buckets[b + 1][0] : duration;
+    for (let t = start; t < end; t += step) {
+      // Simulate realistic mid-verse mono vocal dips around 1359s..1372s
+      const dip = t >= 1359 && t < 1362 ? 0.02 : s;
+      samples.push({ time: t, peak: p, stereo: dip });
+    }
+  }
+  const result = findEnding(samples, duration);
+  assert.ok(result, 'detects sn=52896 ED');
+  assert.ok(result.startTime >= 1325 && result.startTime <= 1335, `expected ~1329, got ${result.startTime}`);
+  assert.ok(result.endTime >= 1418 && result.endTime <= 1420);
+});

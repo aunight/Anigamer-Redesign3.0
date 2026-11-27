@@ -13,16 +13,16 @@
 // @run-at       document-start
 // @inject-into  content
 // @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
-// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/65a23fae2f2d5b0d7e23fcbd75d24631940b50dd/src/studio-catalog.json
-// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/65a23fae2f2d5b0d7e23fcbd75d24631940b50dd/src/studio-profiles.json
-// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/65a23fae2f2d5b0d7e23fcbd75d24631940b50dd/src/studio-directory-icons.json
-// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/65a23fae2f2d5b0d7e23fcbd75d24631940b50dd/src/studio-logos.json
-// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/65a23fae2f2d5b0d7e23fcbd75d24631940b50dd/src/content.css
-// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/65a23fae2f2d5b0d7e23fcbd75d24631940b50dd/src/effects.css
-// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/65a23fae2f2d5b0d7e23fcbd75d24631940b50dd/src/settings-ui.css
-// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/65a23fae2f2d5b0d7e23fcbd75d24631940b50dd/src/hero-banner.css
-// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/65a23fae2f2d5b0d7e23fcbd75d24631940b50dd/src/home-dashboard.css
-// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/65a23fae2f2d5b0d7e23fcbd75d24631940b50dd/src/ui-repairs.css
+// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/773a4dbdf212fcb0764a10ba9085aadc527953c1/src/studio-catalog.json
+// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/773a4dbdf212fcb0764a10ba9085aadc527953c1/src/studio-profiles.json
+// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/773a4dbdf212fcb0764a10ba9085aadc527953c1/src/studio-directory-icons.json
+// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/773a4dbdf212fcb0764a10ba9085aadc527953c1/src/studio-logos.json
+// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/773a4dbdf212fcb0764a10ba9085aadc527953c1/src/content.css
+// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/773a4dbdf212fcb0764a10ba9085aadc527953c1/src/effects.css
+// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/773a4dbdf212fcb0764a10ba9085aadc527953c1/src/settings-ui.css
+// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/773a4dbdf212fcb0764a10ba9085aadc527953c1/src/hero-banner.css
+// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/773a4dbdf212fcb0764a10ba9085aadc527953c1/src/home-dashboard.css
+// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/773a4dbdf212fcb0764a10ba9085aadc527953c1/src/ui-repairs.css
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -11953,8 +11953,9 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
               if (duration - tailEnd <= 20) {
                 let bestStartIdx = -1,
                   bestScore = -1;
-                const winStartMin = Math.max(0, tailEndIdx - Math.round(98 * perSecond));
-                const winStartMax = Math.max(0, tailEndIdx - Math.round(82 * perSecond));
+                const win = 8 * perSecond;
+                const winStartMin = Math.max(0, tailEndIdx - Math.round(100 * perSecond));
+                const winStartMax = Math.max(0, tailEndIdx - Math.round(80 * perSecond));
                 for (let idx = winStartMin; idx <= winStartMax; idx += perSecond) {
                   const tailSec = samples.slice(idx, tailEndIdx);
                   if (tailSec.length < 75 * perSecond) continue;
@@ -11967,8 +11968,28 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
                   const preStereo = preWin.length
                     ? preWin.filter((item) => item.stereo > stereoMin).length / preWin.length
                     : 0;
-                  if (preWin.length >= 8 * perSecond && stereo - preStereo < 0.08) continue;
-                  const sc = stereo + levels - Math.abs(tailEnd - samples[idx].time - 90) / 90;
+                  let stereoJump = 0;
+                  if (idx >= win && idx + win <= samples.length) {
+                    let beforeS = 0,
+                      afterS = 0;
+                    for (let k = 0; k < win; k++) {
+                      beforeS += samples[idx - win + k].stereo;
+                      afterS += samples[idx + k].stereo;
+                    }
+                    stereoJump = (afterS - beforeS) / win;
+                  }
+                  // Accept either a jump from mono dialogue OR a stereo-width jump from climax BGM.
+                  if (
+                    preWin.length >= 8 * perSecond &&
+                    stereo - preStereo < 0.08 &&
+                    stereoJump < 0.05
+                  )
+                    continue;
+                  const sc =
+                    stereo +
+                    levels +
+                    stereoJump * 2 -
+                    Math.abs(tailEnd - samples[idx].time - 90) / 90;
                   if (sc > bestScore) {
                     bestScore = sc;
                     bestStartIdx = idx;
