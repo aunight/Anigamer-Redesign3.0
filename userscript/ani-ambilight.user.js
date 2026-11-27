@@ -13,16 +13,16 @@
 // @run-at       document-start
 // @inject-into  content
 // @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
-// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b2e20ec03e40ea5271b235da8cfb47630d3c7020/src/studio-catalog.json
-// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b2e20ec03e40ea5271b235da8cfb47630d3c7020/src/studio-profiles.json
-// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b2e20ec03e40ea5271b235da8cfb47630d3c7020/src/studio-directory-icons.json
-// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b2e20ec03e40ea5271b235da8cfb47630d3c7020/src/studio-logos.json
-// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b2e20ec03e40ea5271b235da8cfb47630d3c7020/src/content.css
-// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b2e20ec03e40ea5271b235da8cfb47630d3c7020/src/effects.css
-// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b2e20ec03e40ea5271b235da8cfb47630d3c7020/src/settings-ui.css
-// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b2e20ec03e40ea5271b235da8cfb47630d3c7020/src/hero-banner.css
-// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b2e20ec03e40ea5271b235da8cfb47630d3c7020/src/home-dashboard.css
-// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b2e20ec03e40ea5271b235da8cfb47630d3c7020/src/ui-repairs.css
+// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d323b202c190b37281dc28abb53b575eb6005127/src/studio-catalog.json
+// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d323b202c190b37281dc28abb53b575eb6005127/src/studio-profiles.json
+// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d323b202c190b37281dc28abb53b575eb6005127/src/studio-directory-icons.json
+// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d323b202c190b37281dc28abb53b575eb6005127/src/studio-logos.json
+// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d323b202c190b37281dc28abb53b575eb6005127/src/content.css
+// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d323b202c190b37281dc28abb53b575eb6005127/src/effects.css
+// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d323b202c190b37281dc28abb53b575eb6005127/src/settings-ui.css
+// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d323b202c190b37281dc28abb53b575eb6005127/src/hero-banner.css
+// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d323b202c190b37281dc28abb53b575eb6005127/src/home-dashboard.css
+// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/d323b202c190b37281dc28abb53b575eb6005127/src/ui-repairs.css
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -11756,6 +11756,15 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
         }
         candidates.sort((a, b) => b.score - a.score);
         let best = candidates[0];
+        // Prefer a canonical ~90s ED near the episode end over earlier climax BGM.
+        const isCanonicalTailEd = (c) => {
+          const len = c.endTime - c.startTime;
+          return len >= 82 && len <= 96 && duration - c.endTime <= 20;
+        };
+        const canonicalTail = candidates.find(isCanonicalTailEd);
+        if (canonicalTail && best && !isCanonicalTailEd(best) && duration - best.endTime > 30) {
+          best = canonicalTail;
+        }
         // Nearby onsets with the same skip target are usually the same song
         // found at different silence thresholds.
         if (
@@ -11763,6 +11772,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           candidates.some(
             (other) =>
               best.score - other.score < 0.25 &&
+              !(isCanonicalTailEd(best) && duration - other.endTime > 30) &&
               (Math.abs(best.endTime - other.endTime) > 2 ||
                 Math.abs(best.startTime - other.startTime) > onsetSearchSeconds),
           )
@@ -11801,6 +11811,45 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
                     score: stereo + levels,
                   };
                   break;
+                }
+              } else if (runLen > 105 && duration - runEnd <= 25) {
+                // Climax BGM merged into ED: locate strongest stereo/energy jump around ~90s before runEnd.
+                const win = 8 * perSecond;
+                let bestJump = 0,
+                  bestIdx = -1;
+                const minIdx = Math.max(runStart + win, endIdx - Math.round(100 * perSecond));
+                const maxIdx = Math.min(endIdx - Math.round(78 * perSecond), endIdx - win);
+                for (let idx = minIdx; idx <= maxIdx; idx += perSecond) {
+                  let beforeS = 0,
+                    afterS = 0,
+                    beforeP = 0,
+                    afterP = 0;
+                  for (let k = 0; k < win; k++) {
+                    beforeS += samples[idx - win + k].stereo;
+                    beforeP += samples[idx - win + k].peak;
+                    afterS += samples[idx + k].stereo;
+                    afterP += samples[idx + k].peak;
+                  }
+                  const jump = ((afterS - beforeS) * 2 + (afterP - beforeP)) / win;
+                  if (jump > bestJump) {
+                    bestJump = jump;
+                    bestIdx = idx;
+                  }
+                }
+                if (bestIdx >= 0 && bestJump >= 0.06) {
+                  const tailSec = samples.slice(bestIdx, endIdx);
+                  const stereo =
+                    tailSec.filter((item) => item.stereo > stereoMin).length / tailSec.length;
+                  const levels =
+                    tailSec.filter((item) => item.peak >= activePeakMin).length / tailSec.length;
+                  if (stereo >= 0.68 && levels >= 0.78) {
+                    best = {
+                      startTime: samples[bestIdx].time,
+                      endTime: runEnd,
+                      score: stereo + levels,
+                    };
+                    break;
+                  }
                 }
               }
               runStart = -1;

@@ -220,3 +220,35 @@ test('seamless ED fallback bridges brief mid-song vocal or piano dips without lo
   assert.ok(result.startTime >= 1319.5 && result.startTime <= 1321);
   assert.ok(result.endTime >= 1409.5 && result.endTime <= 1410.5);
 });
+
+test('prefers canonical 90s tail ED over earlier climax BGM and handles merged climax+ED runs', () => {
+  const step = 0.125;
+  const duration = 1420;
+  // Case 1: two distinct blocks — 85s climax BGM (1200-1285) + 90s ED (1315-1405)
+  const twoBlocks = [];
+  for (let t = 1180; t < duration; t += step) {
+    const inBgm = t >= 1200 && t < 1285;
+    const inEd = t >= 1315 && t < 1405;
+    twoBlocks.push({ time: t, peak: inBgm || inEd ? 0.2 : 0, stereo: inBgm || inEd ? 0.22 : 0 });
+  }
+  const res1 = findEnding(twoBlocks, duration);
+  assert.ok(res1, 'canonical 90s tail ED selected over climax BGM');
+  assert.equal(res1.startTime, 1315);
+  assert.equal(res1.endTime, 1405);
+
+  // Case 2: continuous merged 190s run (climax BGM 1220-1320 + louder/wider ED 1320-1410)
+  const merged = [];
+  for (let t = 1180; t < duration; t += step) {
+    const inBgm = t >= 1220 && t < 1320;
+    const inEd = t >= 1320 && t < 1410;
+    merged.push({
+      time: t,
+      peak: inEd ? 0.24 : inBgm ? 0.12 : 0.01,
+      stereo: inEd ? 0.28 : inBgm ? 0.08 : 0.01,
+    });
+  }
+  const res2 = findEnding(merged, duration);
+  assert.ok(res2, 'merged climax+ED run finds ED onset via stereo/energy jump');
+  assert.ok(res2.startTime >= 1319 && res2.startTime <= 1321);
+  assert.ok(res2.endTime >= 1409.5 && res2.endTime <= 1410.5);
+});
