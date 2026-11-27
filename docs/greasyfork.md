@@ -68,7 +68,7 @@
 
 ### 首頁足跡、天氣與新番時間軸
 ![首頁主視覺與新版版面](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/01-home-hero.jpg)
-![首頁足跡熱力圖與點陣天氣](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/19-home-heatmap-weather.jpg)
+![首頁足跡熱力圖與點陣天氣](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/18-membership-redeem.jpg)
 
 ### 播放器與追番體驗
 - **即時環境光 & 單集大卡片（含即將更新）**  
@@ -91,18 +91,18 @@
 
 ### 片庫目錄、製作組、追番狀態、觀看紀錄與全站頁面
 - **所有動畫片庫（排除標籤與原作分類） & 製作組動畫頁面**  
-  ![片庫排除標籤與原作分類](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/20-catalog-filters.jpg)  
-  ![製作組動畫頁面](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/21-studio-catalog.jpg)
-- **我的動畫追番狀態 & 永久本地觀看紀錄**  
-  ![我的動畫追番狀態 1](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/22-collection-status-1.jpg)  
-  ![我的動畫追番狀態 2](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/23-collection-status-2.jpg)  
-  ![永久本地觀看紀錄](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/24-watch-history.png)
-- **全站頁面、付費方案與序號兌換**  
+  ![片庫排除標籤與原作分類](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/19-home-heatmap-weather.jpg)  
+  ![製作組動畫頁面](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/20-catalog-filters.jpg)
+- **我的動畫（追番狀態標記） & 觀看紀錄／永久本地觀看紀錄**  
+  ![我的動畫追番狀態](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/21-studio-catalog.jpg)  
+  ![最近看過（觀看紀錄）](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/22-collection-status-1.jpg)  
+  ![永久本地觀看紀錄](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/23-collection-status-2.jpg)
+- **避雷遮罩開關、全站頁面、付費方案與年齡驗證**  
+  ![避雷遮罩開關](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/24-watch-history.png)  
   ![全站頁面 1](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/14-site-pages-1.jpg)  
   ![全站頁面 2](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/15-site-pages-2.jpg)  
   ![全站頁面 3](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/16-site-pages-3.png)  
-  ![全站頁面 4](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/17-site-pages-4.jpg)  
-  ![付費方案與序號兌換](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/18-membership-redeem.jpg)
+  ![年齡驗證頁面](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/screenshots/17-site-pages-4.jpg)
 
 ---
 
