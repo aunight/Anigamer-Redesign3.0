@@ -399,7 +399,7 @@ body.ani-ambientlight-ui #BH_background .animate-theme-list:has(> [data-ani-regi
 .ani-bgm-toast > .ani-bgm-toast-icon {
   width: 17px !important;
   height: 17px !important;
-  color: #5ee2ea !important;
+  color: color-mix(in srgb, var(--ani-accent, #3dafb6) 82%, white) !important;
   flex: none;
 }
 
@@ -765,7 +765,7 @@ body #BH_background .ani-perm-btn.is-danger.is-armed {
 }
 #BH_background .ani-col-status-chip[data-status='watching'] {
   background: rgba(16, 62, 68, 0.9) !important;
-  border-color: rgba(94, 226, 234, 0.78) !important;
+  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.78) !important;
   color: #aef7fc !important;
 }
 #BH_background .ani-col-status-chip[data-status='completed'] {
@@ -1767,6 +1767,9 @@ body #BH_background .ani-danmu-search-capsule {
   border-radius: 999px !important;
   border: 1px solid var(--ani-filter-pill-border, rgba(255, 255, 255, 0.2)) !important;
   background: var(--ani-filter-pill-bg, rgba(48, 71, 93, 0.42)) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
   overflow: hidden !important;
 }
 body #BH_background .ani-danmu-search-capsule > .ani-danmu-search {
@@ -1776,6 +1779,9 @@ body #BH_background .ani-danmu-search-capsule > .ani-danmu-search {
   padding: 0 12px 0 16px !important;
   border: 0 !important;
   background: transparent !important;
+  background-color: transparent !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
   color: #f0f6fc !important;
   font-size: 13.5px !important;
   outline: none !important;

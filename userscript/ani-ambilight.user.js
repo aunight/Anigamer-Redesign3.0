@@ -13,16 +13,16 @@
 // @run-at       document-start
 // @inject-into  content
 // @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
-// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8921637e85d5574e917f5fe456ca2f16a861fbd8/src/studio-catalog.json
-// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8921637e85d5574e917f5fe456ca2f16a861fbd8/src/studio-profiles.json
-// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8921637e85d5574e917f5fe456ca2f16a861fbd8/src/studio-directory-icons.json
-// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8921637e85d5574e917f5fe456ca2f16a861fbd8/src/studio-logos.json
-// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8921637e85d5574e917f5fe456ca2f16a861fbd8/src/content.css
-// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8921637e85d5574e917f5fe456ca2f16a861fbd8/src/effects.css
-// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8921637e85d5574e917f5fe456ca2f16a861fbd8/src/settings-ui.css
-// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8921637e85d5574e917f5fe456ca2f16a861fbd8/src/hero-banner.css
-// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8921637e85d5574e917f5fe456ca2f16a861fbd8/src/home-dashboard.css
-// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/8921637e85d5574e917f5fe456ca2f16a861fbd8/src/ui-repairs.css
+// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/4cf44153f1864f57c38c02d32c1356818ace4650/src/studio-catalog.json
+// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/4cf44153f1864f57c38c02d32c1356818ace4650/src/studio-profiles.json
+// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/4cf44153f1864f57c38c02d32c1356818ace4650/src/studio-directory-icons.json
+// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/4cf44153f1864f57c38c02d32c1356818ace4650/src/studio-logos.json
+// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/4cf44153f1864f57c38c02d32c1356818ace4650/src/content.css
+// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/4cf44153f1864f57c38c02d32c1356818ace4650/src/effects.css
+// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/4cf44153f1864f57c38c02d32c1356818ace4650/src/settings-ui.css
+// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/4cf44153f1864f57c38c02d32c1356818ace4650/src/hero-banner.css
+// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/4cf44153f1864f57c38c02d32c1356818ace4650/src/home-dashboard.css
+// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/4cf44153f1864f57c38c02d32c1356818ace4650/src/ui-repairs.css
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -402,7 +402,519 @@ Additional section icons: film, newspaper, comments.
   })();
 
   // 三、主題與設定介面樣式（於 document-start 預先注入以消除切換閃爍）
-  const resourceChanges = {};
+  const resourceChanges = {
+    ani_content_css: [
+      [6673, 1, ['  background-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.1) !important;']],
+      [
+        6385,
+        1,
+        [
+          '  box-shadow: 0 3px 10px #0003, inset 0 0 0 1px rgba(var(--ani-accent-rgb, 61, 175, 182), 0.2) !important;',
+        ],
+      ],
+      [
+        5441,
+        1,
+        [
+          '  50% { opacity: 1; box-shadow: 0 0 10px 1px rgba(var(--ani-accent-rgb, 61, 175, 182), 0.5); }',
+        ],
+      ],
+      [5436, 1, ['  box-shadow: 0 0 8px rgba(var(--ani-accent-rgb, 61, 175, 182), 0.3);']],
+      [
+        4961,
+        1,
+        ['  border: 1px solid rgba(var(--ani-accent-rgb, 61, 175, 182), 0.42) !important;'],
+      ],
+      [
+        4850,
+        1,
+        ['  border: 1px solid rgba(var(--ani-accent-rgb, 61, 175, 182), 0.34) !important;'],
+      ],
+      [4847, 1, ['  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.14) !important;']],
+      [3527, 1, ['  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.16) !important;']],
+      [3516, 1, ['  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.14) !important;']],
+      [3013, 1, ['  outline: 2px solid var(--ani-accent, #3dafb6);']],
+      [2961, 1, ['  accent-color: var(--ani-accent, #3dafb6);']],
+      [2954, 1, ['  color: var(--ani-accent, #3dafb6);']],
+      [2922, 1, ['  accent-color: var(--ani-accent, #3dafb6);']],
+      [2907, 1, ['  accent-color: var(--ani-accent, #3dafb6);']],
+      [2900, 1, ['  color: var(--ani-accent, #3dafb6);']],
+      [514, 1, ['  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.2) !important;']],
+    ],
+    ani_settings_css: [
+      [
+        415,
+        2,
+        [
+          '  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.22) !important;',
+          '  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.56) !important;',
+        ],
+      ],
+      [
+        410,
+        2,
+        [
+          '  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.22) !important;',
+          '  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.65) !important;',
+        ],
+      ],
+    ],
+    ani_dashboard_css: [
+      [
+        581,
+        2,
+        [
+          '  border: 1px solid rgba(var(--ani-accent-rgb, 61, 175, 182), 0.56);',
+          '  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.22);',
+        ],
+      ],
+      [
+        567,
+        1,
+        [
+          'body.ani-ambientlight-ui #BH_background .ani-wx-city-opt:hover { background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.24); color: #ffffff; }',
+        ],
+      ],
+      [534, 1, ['  border: 1px solid rgba(var(--ani-accent-rgb, 61, 175, 182), 0.45);']],
+      [
+        496,
+        1,
+        [
+          'body.ani-ambientlight-ui #BH_background .ani-wx-glyph .i-rain { fill: color-mix(in srgb, var(--ani-accent, #3dafb6) 82%, white); }',
+        ],
+      ],
+      [
+        391,
+        1,
+        [
+          'body.ani-ambientlight-ui #BH_background .ani-wx-sky .s-rain { fill: color-mix(in srgb, var(--ani-accent, #3dafb6) 82%, white); }',
+        ],
+      ],
+      [
+        383,
+        1,
+        [
+          'body.ani-ambientlight-ui #BH_background .ani-wx-sky .s-hill { fill: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.24); }',
+        ],
+      ],
+      [
+        347,
+        2,
+        [
+          "body.ani-ambientlight-ui #BH_background .ani-fp-day-b[data-l='1'] { border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.45); }",
+          "body.ani-ambientlight-ui #BH_background .ani-fp-day-b[data-l='2'] { border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.68); }",
+        ],
+      ],
+      [275, 1, ['  border: 1px solid rgba(var(--ani-accent-rgb, 61, 175, 182), 0.45);']],
+      [
+        237,
+        2,
+        [
+          '  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.26);',
+          '  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.72);',
+        ],
+      ],
+      [
+        201,
+        3,
+        [
+          "body.ani-ambientlight-ui #BH_background .ani-fp-cell[data-l='1'] { background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.3); }",
+          "body.ani-ambientlight-ui #BH_background .ani-fp-cell[data-l='2'] { background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.54); }",
+          "body.ani-ambientlight-ui #BH_background .ani-fp-cell[data-l='3'] { background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.78); }",
+        ],
+      ],
+    ],
+    ani_repairs_css: [
+      [
+        10950,
+        1,
+        [
+          '  :is(.reply-content__cont, .reply-content__cont p, .input-article-content) { font-size: var(--ani-text-size, 17px) !important; }',
+        ],
+      ],
+      [10025, 1, []],
+      [
+        9952,
+        2,
+        [
+          '  background: rgba(var(--ani-accent-rgb, 61, 175, 182), .20) !important;',
+          '  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), .65) !important;',
+        ],
+      ],
+      [
+        9367,
+        1,
+        ['    inset calc(1.5 * var(--u)) 0 0 rgba(var(--ani-accent-rgb, 61, 175, 182), 0.25),'],
+      ],
+      [9244, 1, ['  --focus: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.72);']],
+      [9241, 1, ['  --rim-cold-glow: var(--ani-accent, #3dafb6);']],
+      [
+        9202,
+        1,
+        [
+          '  --knob-glass: linear-gradient(180deg, rgba(255, 255, 255, 0) 36%, rgba(var(--ani-accent-rgb, 61, 175, 182), 0.08) 50%, rgba(255, 255, 255, 0) 64%),',
+        ],
+      ],
+      [
+        9186,
+        1,
+        [
+          '  --filament: linear-gradient(90deg, rgba(var(--ani-accent-rgb, 61, 175, 182), 0), #8ef4f8 20%, #e59e2c);',
+        ],
+      ],
+      [
+        9181,
+        1,
+        [
+          '  --wash: radial-gradient(60% 70% at 78% 50%, rgba(224, 152, 42, 0.22), rgba(var(--ani-accent-rgb, 61, 175, 182), 0.1) 55%, rgba(224, 152, 42, 0) 80%);',
+        ],
+      ],
+      [
+        9172,
+        1,
+        [
+          '  --halo: radial-gradient(closest-side, rgba(var(--ani-accent-rgb, 61, 175, 182), 0.16), rgba(255, 214, 140, 0));',
+        ],
+      ],
+      [
+        9071,
+        3,
+        [
+          '  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.24) !important;',
+          '  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.72) !important;',
+          '  color: color-mix(in srgb, var(--ani-accent, #3dafb6) 82%, white) !important;',
+        ],
+      ],
+      [9007, 1, ['  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.56) !important;']],
+      [
+        8953,
+        2,
+        [
+          '  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.22) !important;',
+          '  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.72) !important;',
+        ],
+      ],
+      [
+        8909,
+        1,
+        ['  box-shadow: 0 2px 8px rgba(var(--ani-accent-rgb, 61, 175, 182), 0.28) !important;'],
+      ],
+      [8907, 1, ['  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.36) !important;']],
+      [
+        8692,
+        3,
+        [
+          '  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.22) !important;',
+          '  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.72) !important;',
+          '  color: color-mix(in srgb, var(--ani-accent, #3dafb6) 82%, white) !important;',
+        ],
+      ],
+      [8466, 1, ['  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.22) !important;']],
+      [
+        8458,
+        2,
+        [
+          '  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.12) !important;',
+          '  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.42) !important;',
+        ],
+      ],
+      [
+        8417,
+        2,
+        [
+          '  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.28) !important;',
+          '  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.78) !important;',
+        ],
+      ],
+      [8394, 1, ['  color: color-mix(in srgb, var(--ani-accent, #3dafb6) 82%, white) !important;']],
+      [7965, 1, ['  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.65) !important;']],
+      [
+        7661,
+        2,
+        [
+          '  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.34) !important;',
+          '  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.72) !important;',
+        ],
+      ],
+      [
+        7419,
+        2,
+        [
+          '  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.28) !important;',
+          '  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.72) !important;',
+        ],
+      ],
+      [
+        7294,
+        2,
+        [
+          '  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.36) !important;',
+          '  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.85) !important;',
+        ],
+      ],
+      [
+        7289,
+        2,
+        [
+          '  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.36) !important;',
+          '  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.85) !important;',
+        ],
+      ],
+      [
+        7278,
+        2,
+        [
+          '  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.22) !important;',
+          '  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.56) !important;',
+        ],
+      ],
+      [
+        7215,
+        2,
+        [
+          '  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.22) !important;',
+          '  border: 1px solid rgba(var(--ani-accent-rgb, 61, 175, 182), 0.56) !important;',
+        ],
+      ],
+      [7119, 1, ['  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.14) !important;']],
+      [6329, 1, ['  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.28) !important;']],
+      [
+        6322,
+        2,
+        [
+          '  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.16) !important;',
+          '  border: 1px solid rgba(var(--ani-accent-rgb, 61, 175, 182), 0.45) !important;',
+        ],
+      ],
+      [
+        5981,
+        2,
+        [
+          '  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.22) !important;',
+          '  border: 1px solid rgba(var(--ani-accent-rgb, 61, 175, 182), 0.5) !important;',
+        ],
+      ],
+      [5622, 1, ['  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.12) !important;']],
+      [
+        5537,
+        2,
+        [
+          '  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.28) !important;',
+          '  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.72) !important;',
+        ],
+      ],
+      [
+        5503,
+        2,
+        [
+          '  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.85) !important;',
+          '  box-shadow: 0 0 0 1px rgba(var(--ani-accent-rgb, 61, 175, 182), 0.3), 0 8px 24px rgba(0, 0, 0, 0.42) !important;',
+        ],
+      ],
+      [5327, 1, ['  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.72) !important;']],
+      [
+        4711,
+        2,
+        [
+          '  border: 2px solid rgba(var(--ani-accent-rgb, 61, 175, 182), 0.85) !important;',
+          '  box-shadow: 0 0 18px rgba(var(--ani-accent-rgb, 61, 175, 182), 0.42), 0 8px 24px rgba(0, 0, 0, 0.52) !important;',
+        ],
+      ],
+      [
+        4681,
+        2,
+        [
+          '  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.22) !important;',
+          '  border: 1px solid rgba(var(--ani-accent-rgb, 61, 175, 182), 0.48) !important;',
+        ],
+      ],
+      [4595, 1, ['  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.42) !important;']],
+      [
+        4450,
+        2,
+        [
+          '  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.24) !important;',
+          '  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.65) !important;',
+        ],
+      ],
+      [4204, 1, ['  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.72) !important;']],
+      [
+        4169,
+        2,
+        [
+          '  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.24) !important;',
+          '  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.72) !important;',
+        ],
+      ],
+      [4097, 1, ['  border: 1px solid rgba(var(--ani-accent-rgb, 61, 175, 182), 0.72);']],
+      [
+        3968,
+        2,
+        [
+          '  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.28) !important;',
+          '  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.72) !important;',
+        ],
+      ],
+      [
+        3892,
+        2,
+        [
+          '  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.28);',
+          '  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.72);',
+        ],
+      ],
+      [
+        3825,
+        2,
+        [
+          '  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.24) !important;',
+          '  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.72) !important;',
+        ],
+      ],
+      [
+        3751,
+        2,
+        [
+          '  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.22);',
+          '  border: 1px solid rgba(var(--ani-accent-rgb, 61, 175, 182), 0.5);',
+        ],
+      ],
+      [
+        3639,
+        2,
+        [
+          '  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.24) !important;',
+          '  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.72) !important;',
+        ],
+      ],
+      [
+        3501,
+        2,
+        [
+          '  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.85) !important;',
+          '  box-shadow: 0 0 0 1px rgba(var(--ani-accent-rgb, 61, 175, 182), 0.3), 0 8px 24px rgba(0, 0, 0, 0.42) !important;',
+        ],
+      ],
+      [
+        3266,
+        2,
+        [
+          '  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.28) !important;',
+          '  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.72) !important;',
+        ],
+      ],
+      [
+        3222,
+        2,
+        [
+          '  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.4) !important;',
+          '  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.85) !important;',
+        ],
+      ],
+      [
+        3215,
+        2,
+        [
+          '  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.22) !important;',
+          '  border: 1px solid rgba(var(--ani-accent-rgb, 61, 175, 182), 0.52) !important;',
+        ],
+      ],
+      [
+        3129,
+        2,
+        [
+          '  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.35) !important;',
+          '  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.78) !important;',
+        ],
+      ],
+      [
+        2824,
+        2,
+        [
+          '  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.28) !important;',
+          '  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.68) !important;',
+        ],
+      ],
+      [2591, 1, ['  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.26) !important;']],
+      [
+        2493,
+        1,
+        [
+          '  box-shadow: inset 0 0 0 1px rgba(var(--ani-accent-rgb, 61, 175, 182), 0.65) !important;',
+        ],
+      ],
+      [2490, 1, ['  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.28) !important;']],
+      [2356, 1, ['  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.34) !important;']],
+      [
+        886,
+        1,
+        [
+          '.ani-share-link-row button { display: inline-flex; align-items: center; gap: 6px; flex: none; margin: 0 !important; height: 44px; padding: 0 16px !important; border: 0 !important; border-radius: 999px !important; background: var(--ani-accent, #3dafb6) !important; color: #082e3b !important; font-weight: 650; }',
+        ],
+      ],
+      [
+        883,
+        1,
+        [
+          '.ani-share-caption > span { flex: none; border: 1px solid #ffffff70; border-radius: 999px; padding: 5px 10px; background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.3); font: 13px/1.4 system-ui,sans-serif; }',
+        ],
+      ],
+      [
+        683,
+        1,
+        ['  background: var(--anime-primary-color, var(--ani-accent, #3dafb6)) !important;'],
+      ],
+      [
+        637,
+        1,
+        [
+          'body.ani-ambientlight-ui #BH_background :is(#blockContinueWatch,.history) .progress-bar > .progress { height: 100% !important; border-radius: inherit; background: var(--anime-primary-color,var(--ani-accent, #3dafb6)) !important; }',
+        ],
+      ],
+      [
+        554,
+        1,
+        [
+          ".ani-collection-filter-row button[aria-pressed='true'] { border-color: var(--ani-accent); color: var(--ani-accent); background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.12); }",
+        ],
+      ],
+      [
+        535,
+        1,
+        [
+          ".ani-week-expand::before,.ani-week-expand::after { content: ''; display: block; width: 100%; height: 1px; background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.31); }",
+        ],
+      ],
+      [
+        406,
+        1,
+        [
+          ".ani-background-picker button[aria-pressed='true'] { border-color: var(--ani-accent); background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.09); }",
+        ],
+      ],
+      [
+        400,
+        0,
+        [
+          "body.ani-ambientlight-ui.ani-theme-tinted[data-ani-background]:not([data-ani-background='image']):not([data-ani-background='off'])::before { opacity: .26; }",
+        ],
+      ],
+      [
+        289,
+        1,
+        [
+          'body.ani-ambientlight-ui #BH_background .plus_imagetool_box :is(.plus_button:hover,input:checked + label) { background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.17) !important; color: #baf5f7 !important; }',
+        ],
+      ],
+      [
+        273,
+        1,
+        [
+          'body.ani-ambientlight-ui #ani_video .vjs-menu-item.vjs-selected { background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.16) !important; color: #93edf0 !important; }',
+        ],
+      ],
+    ],
+  };
   const readResource = (name) => {
     const text = GM_getResourceText(name) || '';
     const changes = resourceChanges[name];
@@ -824,7 +1336,7 @@ body.ani-ambientlight-ui #BH_background .animate-theme-list:has(> [data-ani-regi
 .ani-bgm-toast > .ani-bgm-toast-icon {
   width: 17px !important;
   height: 17px !important;
-  color: #5ee2ea !important;
+  color: color-mix(in srgb, var(--ani-accent, #3dafb6) 82%, white) !important;
   flex: none;
 }
 
@@ -1190,7 +1702,7 @@ body #BH_background .ani-perm-btn.is-danger.is-armed {
 }
 #BH_background .ani-col-status-chip[data-status='watching'] {
   background: rgba(16, 62, 68, 0.9) !important;
-  border-color: rgba(94, 226, 234, 0.78) !important;
+  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.78) !important;
   color: #aef7fc !important;
 }
 #BH_background .ani-col-status-chip[data-status='completed'] {
@@ -2192,6 +2704,9 @@ body #BH_background .ani-danmu-search-capsule {
   border-radius: 999px !important;
   border: 1px solid var(--ani-filter-pill-border, rgba(255, 255, 255, 0.2)) !important;
   background: var(--ani-filter-pill-bg, rgba(48, 71, 93, 0.42)) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
   overflow: hidden !important;
 }
 body #BH_background .ani-danmu-search-capsule > .ani-danmu-search {
@@ -2201,6 +2716,9 @@ body #BH_background .ani-danmu-search-capsule > .ani-danmu-search {
   padding: 0 12px 0 16px !important;
   border: 0 !important;
   background: transparent !important;
+  background-color: transparent !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
   color: #f0f6fc !important;
   font-size: 13.5px !important;
   outline: none !important;
