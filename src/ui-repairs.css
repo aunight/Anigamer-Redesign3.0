@@ -7868,13 +7868,18 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep
   box-shadow: none !important;
   opacity: 0;
   pointer-events: none;
-  transition: opacity .16s ease;
+  transition: opacity .16s ease, color .16s ease, background-color .16s ease, border-color .16s ease;
   cursor: pointer;
 }
 #ani_video .ani-ep-play svg { width: 13px; height: 13px; }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep-row:is(:hover, :focus-within) > .ani-ep-play {
   opacity: 1;
   pointer-events: auto;
+}
+body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep-row:has(> [aria-expanded="false"]) > .ani-ep-play:is(:hover, :focus-visible) {
+  color: var(--ani-accent, #4cd3dc) !important;
+  background: color-mix(in srgb, var(--ani-accent, #4cd3dc) 22%, rgb(16 34 56 / 88%)) !important;
+  border-color: var(--ani-accent, #4cd3dc) !important;
 }
 body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep-row:has(> [aria-expanded="true"]) > .ani-ep-play {
   position: relative;
@@ -7902,6 +7907,12 @@ body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-ep
   border-radius: 50%;
   background: rgb(23 46 77 / 58%);
   backdrop-filter: blur(8px) saturate(135%);
+  transition: color .16s ease, background-color .16s ease, box-shadow .16s ease;
+}
+#ani_video .ani-ep-row:has(> [aria-expanded="true"]) > .ani-ep-play:is(:hover, :focus-visible) svg {
+  color: var(--ani-accent, #4cd3dc);
+  background: color-mix(in srgb, var(--ani-accent, #4cd3dc) 22%, rgb(16 34 56 / 88%));
+  box-shadow: 0 0 0 1px var(--ani-accent, #4cd3dc);
 }
 #ani_video .ani-ep-stats > :not(:empty) {
   display: inline-flex; align-items: center; gap: 5px;

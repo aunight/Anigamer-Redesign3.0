@@ -1951,4 +1951,8 @@ test('emoji-wrapped ACG staff/cast headers, Japanese kanji cast variants, and MV
   assert.match(castText, /蘿賽的母親/);
   assert.doesNotMatch(castText, /ビッラウラ/);
   assert.doesNotMatch(castText, /ロゼ母/);
+
+  const repairsCss = fs.readFileSync('src/ui-repairs.css', 'utf8');
+  assert.match(repairsCss, /\.ani-ep-row:has\(>\s*\[aria-expanded="false"\]\)\s*>\s*\.ani-ep-play:is\(:hover,\s*:focus-visible\)\s*\{[^}]*color:\s*var\(--ani-accent/);
+  assert.match(repairsCss, /\.ani-ep-row:has\(>\s*\[aria-expanded="true"\]\)\s*>\s*\.ani-ep-play:is\(:hover,\s*:focus-visible\)\s*svg\s*\{[^}]*color:\s*var\(--ani-accent/);
 });
