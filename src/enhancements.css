@@ -418,10 +418,11 @@ body:has(#ani_video) :is(.ani-enh-toast, .ani-bgm-toast) {
   --ani-toast-bottom: calc(108px + env(safe-area-inset-bottom));
   --ani-toast-height: 42px;
   inset: auto var(--ani-toast-edge) var(--ani-toast-bottom) auto !important;
-  width: min(152px, calc(100vw - 44px)) !important;
-  min-width: 0 !important;
+  width: auto !important;
+  min-width: min(152px, calc(100vw - 44px)) !important;
+  max-width: calc(100vw - 44px) !important;
   justify-content: center;
-  padding: 9px 10px !important;
+  padding: 9px 18px !important;
   font-size: 14px !important;
   pointer-events: none;
 }

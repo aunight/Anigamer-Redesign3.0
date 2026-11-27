@@ -13,16 +13,16 @@
 // @run-at       document-start
 // @inject-into  content
 // @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
-// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/84880cd64615f5e8ae70ccd1e04ba80e3e342e4c/src/studio-catalog.json
-// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/84880cd64615f5e8ae70ccd1e04ba80e3e342e4c/src/studio-profiles.json
-// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/84880cd64615f5e8ae70ccd1e04ba80e3e342e4c/src/studio-directory-icons.json
-// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/84880cd64615f5e8ae70ccd1e04ba80e3e342e4c/src/studio-logos.json
-// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/84880cd64615f5e8ae70ccd1e04ba80e3e342e4c/src/content.css
-// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/84880cd64615f5e8ae70ccd1e04ba80e3e342e4c/src/effects.css
-// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/84880cd64615f5e8ae70ccd1e04ba80e3e342e4c/src/settings-ui.css
-// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/84880cd64615f5e8ae70ccd1e04ba80e3e342e4c/src/hero-banner.css
-// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/84880cd64615f5e8ae70ccd1e04ba80e3e342e4c/src/home-dashboard.css
-// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/84880cd64615f5e8ae70ccd1e04ba80e3e342e4c/src/ui-repairs.css
+// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b392631b83ba59b72046962943db9e9ed9258a77/src/studio-catalog.json
+// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b392631b83ba59b72046962943db9e9ed9258a77/src/studio-profiles.json
+// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b392631b83ba59b72046962943db9e9ed9258a77/src/studio-directory-icons.json
+// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b392631b83ba59b72046962943db9e9ed9258a77/src/studio-logos.json
+// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b392631b83ba59b72046962943db9e9ed9258a77/src/content.css
+// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b392631b83ba59b72046962943db9e9ed9258a77/src/effects.css
+// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b392631b83ba59b72046962943db9e9ed9258a77/src/settings-ui.css
+// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b392631b83ba59b72046962943db9e9ed9258a77/src/hero-banner.css
+// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b392631b83ba59b72046962943db9e9ed9258a77/src/home-dashboard.css
+// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/b392631b83ba59b72046962943db9e9ed9258a77/src/ui-repairs.css
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -859,10 +859,11 @@ body:has(#ani_video) :is(.ani-enh-toast, .ani-bgm-toast) {
   --ani-toast-bottom: calc(108px + env(safe-area-inset-bottom));
   --ani-toast-height: 42px;
   inset: auto var(--ani-toast-edge) var(--ani-toast-bottom) auto !important;
-  width: min(152px, calc(100vw - 44px)) !important;
-  min-width: 0 !important;
+  width: auto !important;
+  min-width: min(152px, calc(100vw - 44px)) !important;
+  max-width: calc(100vw - 44px) !important;
   justify-content: center;
-  padding: 9px 10px !important;
+  padding: 9px 18px !important;
   font-size: 14px !important;
   pointer-events: none;
 }
@@ -10587,10 +10588,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
       }
 
       function mediaPlaylist(text, url) {
-        if (
-          !text.includes('#EXT-X-ENDLIST') ||
-          /#EXT-X-(?:DISCONTINUITY|BYTERANGE|MAP)\b/.test(text)
-        )
+        if (!text.includes('#EXT-X-ENDLIST') || /#EXT-X-(?:BYTERANGE|MAP)\b/.test(text))
           return null;
         let sequence = 0,
           length = 0,
@@ -10700,7 +10698,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           let peak = 0,
             energy = 0,
             side = 0;
-          for (let i = start; i < start + width; i += 4) {
+          for (let i = start; i < start + width; i += 8) {
             peak = Math.max(peak, Math.abs(left[i]), Math.abs(right[i]));
             energy += left[i] ** 2 + right[i] ** 2;
             side += (left[i] - right[i]) ** 2;
@@ -10717,8 +10715,9 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
       function findEnding(samples, duration) {
         // Look for sustained music between distinct pauses. Ambiguous sections are left alone.
         const onsetSearchSeconds = 20;
+        const activePeakMin = 0.045;
         const candidates = [];
-        for (const threshold of [0.012, 0.022, 0.035]) {
+        for (const threshold of [0.012, 0.022, 0.035, 0.055]) {
           let start = 0,
             quiet = 0;
           for (let i = 0; i <= samples.length; i++) {
@@ -10733,7 +10732,8 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
               if (length >= 52 && length <= 115 && duration - endTime <= 185) {
                 const section = samples.slice(start, end);
                 const stereo = section.filter((item) => item.stereo > 0.07).length / section.length;
-                const levels = section.filter((item) => item.peak >= 0.09).length / section.length;
+                const levels =
+                  section.filter((item) => item.peak >= activePeakMin).length / section.length;
                 if (stereo >= 0.45 && levels >= 0.68) {
                   candidates.push({
                     startTime: first.time,
@@ -10747,11 +10747,11 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           }
         }
         candidates.sort((a, b) => b.score - a.score);
-        const best = candidates[0];
+        let best = candidates[0];
         // Nearby onsets with the same skip target are usually the same song
         // found at different silence thresholds.
         if (
-          !best ||
+          best &&
           candidates.some(
             (other) =>
               best.score - other.score < 0.25 &&
@@ -10760,8 +10760,40 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           )
         )
           return null;
-        // Trim a quiet lead-in or score that briefly rises before the sustained song.
         const perSecond = Math.round(1 / step);
+        if (!best) {
+          // Fallback for seamless EDs without a preceding silence pause.
+          let runStart = -1;
+          for (let i = 0; i <= samples.length; i++) {
+            const s = samples[i];
+            const isMusic = s && s.peak >= activePeakMin && s.stereo > 0.07;
+            if (isMusic) {
+              if (runStart < 0) runStart = i;
+              continue;
+            }
+            if (runStart >= 0) {
+              const runLen = (i - runStart) * step;
+              const runEnd = samples[i - 1].time + step;
+              if (runLen >= 72 && runLen <= 105 && duration - runEnd <= 185) {
+                const section = samples.slice(runStart, i);
+                const stereo = section.filter((item) => item.stereo > 0.07).length / section.length;
+                const levels =
+                  section.filter((item) => item.peak >= activePeakMin).length / section.length;
+                if (stereo >= 0.65 && levels >= 0.75) {
+                  best = {
+                    startTime: samples[runStart].time,
+                    endTime: runEnd,
+                    score: stereo + levels,
+                  };
+                  break;
+                }
+              }
+              runStart = -1;
+            }
+          }
+          if (!best) return null;
+        }
+        // Trim a quiet lead-in or score that briefly rises before the sustained song.
         const onset = samples.findIndex((sample) => sample.time >= best.startTime);
         let startTime;
         for (
@@ -10774,7 +10806,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           for (let second = 0; second < 8; second++) {
             const first = index + second * perSecond;
             const secondSamples = samples.slice(first, first + perSecond);
-            const active = secondSamples.filter((sample) => sample.peak >= 0.09);
+            const active = secondSamples.filter((sample) => sample.peak >= activePeakMin);
             // Loud dialogue can precede the song without sharing its stereo profile.
             if (
               active.length < 0.75 * perSecond ||
@@ -10845,6 +10877,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
       }
 
       const malIdCache = new Map();
+      const skipCache = new Map();
 
       function parseAniSkipResponse(data, duration) {
         if (!data?.found || !Array.isArray(data.results)) return null;
@@ -10864,57 +10897,197 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
         return { startTime, endTime, hasFollowingScene, source: 'aniskip' };
       }
 
-      async function lookupAniSkip(video, signal) {
-        try {
-          const h1 =
-            document.querySelector('.anime_name h1, .anime-title h1, h1')?.textContent?.trim() ||
+      function parseAniSkipSegments(data, duration) {
+        if (!data?.found || !Array.isArray(data.results)) return { op: null, ed: null };
+        const ed = parseAniSkipResponse(data, duration);
+        const opHit =
+          data.results.find((r) => r?.skipType === 'op' && r?.interval) ||
+          data.results.find((r) => r?.skipType === 'mixed-op' && r?.interval);
+        let op = null;
+        if (opHit) {
+          const startTime = Number(opHit.interval.startTime);
+          const rawEnd = Number(opHit.interval.endTime);
+          const validDur = Number.isFinite(duration) && duration > 0;
+          if (
+            Number.isFinite(startTime) &&
+            Number.isFinite(rawEnd) &&
+            startTime >= 0 &&
+            rawEnd > startTime + 15 &&
+            (!validDur || (startTime < duration * 0.6 && rawEnd <= duration - 5))
+          ) {
+            op = {
+              startTime,
+              endTime: validDur ? Math.min(rawEnd, duration) : rawEnd,
+              skipType: opHit.skipType,
+              source: 'aniskip',
+            };
+          }
+        }
+        return { op, ed };
+      }
+
+      function readEpisodeAndTitle() {
+        const h1 =
+          document.querySelector('.anime_name h1, .anime-title h1, h1')?.textContent?.trim() || '';
+        const epFromTitle = h1.match(
+          /(?:\[\s*(\d+(?:\.\d+)?)\s*\]|\bEP\.?\s*(\d+(?:\.\d+)?))(?:\s*\[[^\]]+\])*\s*$/i,
+        );
+        const playingLink = document.querySelector('.season li.playing a');
+        let rawSeasonEp = '';
+        if (playingLink) {
+          rawSeasonEp =
+            playingLink
+              .querySelector(':scope > .ani-episode-original-label')
+              ?.textContent?.trim() ||
+            playingLink.querySelector(':scope > .ani-episode-frame')?.dataset?.label?.trim() ||
+            Array.from(playingLink.childNodes)
+              .filter((n) => n.nodeType === 3)
+              .map((n) => n.textContent || '')
+              .join('')
+              .trim() ||
+            playingLink.textContent?.trim() ||
             '';
-          const epFromTitle = h1.match(/\[(\d+(?:\.\d+)?)\]\s*$/)?.[1];
-          const epFromSeason = document
-            .querySelector('.season li.playing a')
-            ?.textContent?.trim()
-            ?.match(/^(\d+(?:\.\d+)?)$/)?.[1];
-          const episode = epFromTitle || epFromSeason;
-          const title = h1.replace(/\s*\[\d+(?:\.\d+)?\]\s*$/, '').trim();
-          if (!title || !episode) return null;
+        }
+        const epFromSeason = rawSeasonEp.match(/^(?:EP\.?\s*)?(\d+(?:\.\d+)?)$/i)?.[1];
+        const episode = epFromTitle?.[1] || epFromTitle?.[2] || epFromSeason || '';
+        const title = h1
+          .replace(
+            /(?:\s*(?:\[\s*(?:\d+(?:\.\d+)?|中文配音|中配|國語(?:配音)?|雙語|特別篇|OAD|OVA|電影|劇場版)\s*\]|EP\.?\s*\d+(?:\.\d+)?))+\s*$/i,
+            '',
+          )
+          .trim();
+        return { title, episode };
+      }
+
+      async function resolveSearchTitles(title, signal) {
+        const candidates = [];
+        const pushTitle = (t) => {
+          const clean = String(t || '').trim();
+          if (clean && !candidates.includes(clean)) candidates.push(clean);
+        };
+        const isMovie = /電影|劇場版/.test(
+          document.querySelector('.anime_name h1, .anime-title h1, h1')?.textContent || '',
+        );
+        const bgmLink = document.querySelector(
+          '#bgmtv a[href*="bgm.tv/subject/"], a#bgmtv[href*="bgm.tv/subject/"], .ani-bgm-work-link[href*="bgm.tv/subject/"]',
+        );
+        const bgmId = bgmLink?.getAttribute('href')?.match(/\/subject\/(\d+)/)?.[1];
+        if (bgmId) {
+          try {
+            const res = await fetch(`https://api.bgm.tv/v0/subjects/${bgmId}`, {
+              headers: { Accept: 'application/json' },
+              signal,
+            });
+            if (res.ok) {
+              const subject = await res.json();
+              pushTitle(subject?.name);
+              pushTitle(subject?.name_cn);
+            }
+          } catch (error) {
+            if (signal?.aborted) throw error;
+          }
+        }
+        if (!candidates.length) {
+          try {
+            const res = await fetch('https://api.bgm.tv/v0/search/subjects?limit=5', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+              body: JSON.stringify({ keyword: title, filter: { type: [2] } }),
+              signal,
+            });
+            if (res.ok) {
+              const json = await res.json();
+              const list = Array.isArray(json?.data) ? json.data : [];
+              const norm = (s) => {
+                const tw = globalThis.AniEnhancements?.traditionalTitle?.(s) ?? s;
+                return String(tw || '')
+                  .normalize('NFKC')
+                  .replace(/[\s\p{P}]/gu, '')
+                  .toLowerCase();
+              };
+              const target = norm(title);
+              const filtered = isMovie
+                ? list
+                : list.filter(
+                    (item) => !/劇場版|電影/.test(`${item?.name || ''} ${item?.name_cn || ''}`),
+                  );
+              const pool = filtered.length ? filtered : list;
+              const exact = pool.find(
+                (item) => norm(item?.name_cn) === target || norm(item?.name) === target,
+              );
+              if (exact) pushTitle(exact.name);
+              for (const item of pool) pushTitle(item?.name);
+            }
+          } catch (error) {
+            if (signal?.aborted) throw error;
+          }
+        }
+        pushTitle(title);
+        return candidates;
+      }
+
+      async function lookupSkipTimes(video, signal) {
+        try {
+          const { title, episode } = readEpisodeAndTitle();
+          if (!title || !episode) return { op: null, ed: null, idMal: null, found: false };
+
+          const cacheKey = `${title}#${episode}`;
+          if (skipCache.has(cacheKey)) {
+            const cached = skipCache.get(cacheKey);
+            const parsed = parseAniSkipSegments(cached.data, video?.duration);
+            return { ...parsed, idMal: cached.idMal, found: Boolean(parsed.op || parsed.ed) };
+          }
 
           let idMal = malIdCache.get(title);
           if (idMal === undefined) {
-            const res = await fetch('https://graphql.anilist.co', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-              body: JSON.stringify({
-                query: 'query($search:String){Media(search:$search,type:ANIME){idMal}}',
-                variables: { search: title },
-              }),
-              signal,
-            });
-            if (!res.ok) return null;
-            const json = await res.json();
-            idMal = json?.data?.Media?.idMal || null;
-            malIdCache.set(title, idMal);
+            const searchTitles = await resolveSearchTitles(title, signal);
+            for (const search of searchTitles) {
+              signal?.throwIfAborted?.();
+              const res = await fetch('https://graphql.anilist.co', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                body: JSON.stringify({
+                  query: 'query($search:String){Media(search:$search,type:ANIME){idMal}}',
+                  variables: { search },
+                }),
+                signal,
+              });
+              if (!res.ok) continue;
+              const json = await res.json();
+              idMal = json?.data?.Media?.idMal || null;
+              if (idMal) break;
+            }
+            malIdCache.set(title, idMal || null);
           }
-          if (!idMal) return null;
+          if (!idMal) return { op: null, ed: null, idMal: null, found: false };
 
-          const len =
-            Number.isFinite(video?.duration) && video.duration > 0
-              ? `&episodeLength=${Math.round(video.duration)}`
-              : '';
+          const epLen =
+            Number.isFinite(video?.duration) && video.duration > 0 ? Math.round(video.duration) : 0;
           const skipRes = await fetch(
-            `https://api.aniskip.com/v2/skip-times/${idMal}/${encodeURIComponent(episode)}?types=ed&types=mixed-ed${len}`,
+            `https://api.aniskip.com/v2/skip-times/${idMal}/${encodeURIComponent(episode)}?types=op&types=mixed-op&types=ed&types=mixed-ed&episodeLength=${epLen}`,
             { signal },
           );
-          if (!skipRes.ok) return null;
-          return parseAniSkipResponse(await skipRes.json(), video?.duration);
+          if (!skipRes.ok) {
+            const empty = { found: false, results: [] };
+            if (skipRes.status === 404) skipCache.set(cacheKey, { data: empty, idMal });
+            return { op: null, ed: null, idMal, found: false };
+          }
+          const data = await skipRes.json();
+          skipCache.set(cacheKey, { data, idMal });
+          const parsed = parseAniSkipSegments(data, video?.duration);
+          return { ...parsed, idMal, found: Boolean(parsed.op || parsed.ed) };
         } catch (error) {
           if (signal?.aborted) throw error;
-          return null;
+          return { op: null, ed: null, idMal: null, found: false };
         }
       }
 
-      async function analyze(video, signal, since) {
-        const aniSkipHit = await lookupAniSkip(video, signal);
-        if (aniSkipHit) return aniSkipHit;
+      async function lookupAniSkip(video, signal) {
+        const res = await lookupSkipTimes(video, signal);
+        return res.ed;
+      }
+
+      async function analyzeAudio(video, signal, since) {
         const contextType = globalThis.OfflineAudioContext || globalThis.webkitOfflineAudioContext;
         if (!contextType || !crypto.subtle) return null;
         const { variants, master } = streamUrls(since);
@@ -11009,7 +11182,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
         for (const url of candidates.values()) {
           try {
             const candidate = mediaPlaylist(await read(url.href, 'text'), url);
-            if (!candidate?.segments.length || Math.abs(candidate.duration - video.duration) > 1.5)
+            if (!candidate?.segments.length || Math.abs(candidate.duration - video.duration) > 3.5)
               continue;
             samples = await analyzeSegment(candidate.segments[0]);
             playlist = candidate;
@@ -11024,12 +11197,18 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
         for (let i = 1; i < playlist.segments.length; i++) {
           signal.throwIfAborted();
           samples.push(...(await analyzeSegment(playlist.segments[i])));
-          await new Promise((resolve) => setTimeout(resolve, 24));
+          await new Promise((resolve) => setTimeout(resolve, 60));
         }
         return findEnding(samples, video.duration);
       }
 
-      globalThis.AniEndingAudio = { analyze, streamUrls };
+      async function analyze(video, signal, since) {
+        const aniSkipHit = await lookupAniSkip(video, signal);
+        if (aniSkipHit) return aniSkipHit;
+        return analyzeAudio(video, signal, since);
+      }
+
+      globalThis.AniEndingAudio = { analyze, analyzeAudio, lookupSkipTimes, streamUrls };
     })();
 
     (() => {
@@ -12951,6 +13130,27 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
         ['52004', { startTime: 1336, duration: 1419.968, hasFollowingScene: false }],
       ]);
 
+      function activeIntroChapter(video, fallback) {
+        for (const track of Array.from(video.textTracks || [])) {
+          if (track.kind !== 'chapters') continue;
+          if (track.mode === 'disabled') track.mode = 'hidden';
+          for (const cue of Array.from(track.activeCues || [])) {
+            if (
+              /^(?:OP(?:\s*\d+)?|opening(?:\s*(?:theme|credits))?|intro|片頭(?:曲|字幕)?)$/i.test(
+                cue.text.trim(),
+              ) &&
+              cue.endTime <= video.duration + 0.1
+            )
+              return cue;
+          }
+        }
+        return fallback &&
+          video.currentTime >= fallback.startTime &&
+          video.currentTime < fallback.endTime
+          ? fallback
+          : null;
+      }
+
       function activeEndingChapter(video, fallback) {
         for (const track of Array.from(video.textTracks || [])) {
           if (track.kind !== 'chapters') continue;
@@ -12991,11 +13191,20 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
       }
 
       function installEpisodeEnding() {
-        let owner, overlay, skip, exitTimer, countdown, previewButton, finish, dismissedVideo;
+        let owner,
+          overlay,
+          skip,
+          skipIntro,
+          exitTimer,
+          countdown,
+          previewButton,
+          finish,
+          dismissedVideo;
         let nativeCountdownObserver;
         let analysis;
+        let apiLookup;
         let continuingEnding;
-        let dismissedCue;
+        let dismissedCue, dismissedIntroCue;
         let retryAnalysisAt = 0;
         let endingSourceDeadline = 0;
         let endingReadAttempts = 0;
@@ -13018,6 +13227,10 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
         function stopAnalysis() {
           analysis?.controller.abort();
           analysis = null;
+        }
+        function stopApiLookup() {
+          apiLookup?.controller.abort();
+          apiLookup = null;
         }
         const recommendationObservers = [];
         const skipSetting = '[data-ani-plus-skip-segments]';
@@ -13061,7 +13274,8 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           previewButton = null;
           overlay?.remove();
           skip?.remove();
-          owner = overlay = skip = null;
+          skipIntro?.remove();
+          owner = overlay = skip = skipIntro = null;
         }
         function dismiss(video, afterExit) {
           dismissedVideo = video;
@@ -13518,18 +13732,57 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
             endingSourceDeadline = 0;
             endingReadAttempts = 0;
             plusRestarted = false;
-            dismissedCue = null;
+            dismissedCue = dismissedIntroCue = null;
+            stopApiLookup();
             stopAnalysis();
             clear();
           }
           if (!player || video.ended || video.closest(NON_EPISODE_PLAYER_SELECTOR)) {
             skip?.remove();
             skip = null;
+            skipIntro?.remove();
+            skipIntro = null;
             syncAudioStatus(player, '');
             return;
           }
           const duration = video.duration;
           const now = performance.now();
+          const audioApi = globalThis.AniEndingAudio;
+          const hasSplitApi = Boolean(audioApi?.lookupSkipTimes && audioApi?.analyzeAudio);
+          if (
+            apiLookup &&
+            (apiLookup.video !== video ||
+              (Number.isFinite(duration) && Math.abs(apiLookup.duration - duration) >= 1))
+          ) {
+            stopApiLookup();
+          }
+          if (
+            hasSplitApi &&
+            !apiLookup &&
+            endingSkipEnabled() &&
+            Number.isFinite(duration) &&
+            duration >= 300 &&
+            video.readyState >= 1
+          ) {
+            const controller = new AbortController();
+            const task = { video, duration, controller, result: null, done: false };
+            apiLookup = task;
+            const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(15000)]);
+            void audioApi
+              .lookupSkipTimes(video, signal)
+              .catch(() => ({ op: null, ed: null, found: false }))
+              .then((res) => {
+                if (apiLookup !== task || !video.isConnected) return;
+                controller.abort();
+                task.result = res || { op: null, ed: null, found: false };
+                task.done = true;
+                nextPlusCheck = 0;
+                syncEnding(video);
+              });
+          }
+          const apiOp = apiLookup?.done ? apiLookup.result?.op : null;
+          const apiEd = apiLookup?.done ? apiLookup.result?.ed : null;
+
           if (
             now >= nextPlusCheck &&
             Number.isFinite(duration) &&
@@ -13542,10 +13795,10 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
             const staleProgress = Boolean(previousAudioProgress);
             if (endingSkipEnabled()) {
               const waiting = /^正在初始化/.test(progress || '');
-              if (waiting) {
+              if (waiting && !(apiOp && apiEd)) {
                 plusReadyAt ||= now;
                 if (!plusRestarted && now - plusReadyAt >= 8000) {
-                  const { master } = globalThis.AniEndingAudio?.streamUrls?.(sourceSince) || {};
+                  const { master } = audioApi?.streamUrls?.(sourceSince) || {};
                   if (master) {
                     plusRestarted = true;
                     const search = episodeSearch;
@@ -13565,7 +13818,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
                 }
               } else plusReadyAt = 0;
 
-              const initializing = waiting && now - plusReadyAt <= 25000;
+              const initializing = waiting && !(apiOp && apiEd) && now - plusReadyAt <= 25000;
               const plusWorking =
                 progress && !waiting && !/完成|未找到|失敗|錯誤|停止|無法/.test(progress);
               if (!staleProgress && (initializing || plusWorking)) {
@@ -13574,6 +13827,8 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
                   initializing ? '片頭片尾分析正在初始化' : progress,
                   'loading',
                 );
+              } else if (apiEd) {
+                syncAudioStatus(player, '已偵測到片尾曲', 'done');
               } else if (analysis && !analysis.controller.signal.aborted) {
                 syncAudioStatus(player, '正在分析片尾音訊…', 'loading');
               } else if (analysis?.interval) {
@@ -13583,6 +13838,8 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
                 statusPill.dataset.aniAudioFailure = analysis.error;
               } else if (analysis) {
                 syncAudioStatus(player, '未偵測到可跳過的片尾', 'done');
+              } else if (apiOp) {
+                syncAudioStatus(player, '已載入 AniSkip 片頭時間', 'done');
               } else if (!staleProgress && waiting) {
                 syncAudioStatus(player, '片頭音訊暫時無法載入', 'error');
               } else if (!staleProgress && progress) {
@@ -13605,30 +13862,34 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
                   hasFollowingScene: verified.hasFollowingScene,
                 }
               : null;
-          const allowAudioEstimate = !verified;
+          const allowAudioEstimate = !verified && !apiEd;
           function getEnding() {
             return activeEndingChapter(
               video,
-              verifiedInterval || (allowAudioEstimate ? analysis?.interval : null),
+              verifiedInterval || apiEd || (allowAudioEstimate ? analysis?.interval : null),
             );
           }
+          const inTailWindow =
+            Number.isFinite(duration) && video.currentTime >= Math.max(0, duration - 285);
           const ending = getEnding();
           if (
             allowAudioEstimate &&
+            (!hasSplitApi || (apiLookup?.done && inTailWindow)) &&
             !analysis &&
             performance.now() >= retryAnalysisAt &&
             endingSkipEnabled() &&
             Number.isFinite(duration) &&
             duration >= 300 &&
             video.currentTime > 0 &&
-            globalThis.AniEndingAudio
+            audioApi
           ) {
             const controller = new AbortController();
             const task = { video, duration, controller, interval: null };
             analysis = task;
             endingSourceDeadline ||= performance.now() + 30000;
             const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(45000)]);
-            void globalThis.AniEndingAudio.analyze(video, signal, sourceSince)
+            const runAnalyze = hasSplitApi ? audioApi.analyzeAudio : audioApi.analyze;
+            void runAnalyze(video, signal, sourceSince)
               .catch((error) => {
                 task.error =
                   /^(?:playlist|key|segment): (?:network|HTTP \d{3})$|^Audio analysis byte limit$|^Unsupported audio stream$|^Audio timing mismatch$/.test(
@@ -13666,6 +13927,45 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           ) {
             show(video, player);
           }
+
+          const intro = activeIntroChapter(video, apiOp);
+          const externalIntroPill = player.querySelector(
+            '.ani-skip-intro-pill:not(.ani-ending-skip, .ani-aniskip-intro)',
+          );
+          if (
+            !intro ||
+            !endingSkipEnabled() ||
+            overlay ||
+            externalIntroPill ||
+            dismissedIntroCue === intro
+          ) {
+            skipIntro?.remove();
+            skipIntro = null;
+          } else if (!skipIntro) {
+            skipIntro = document.createElement('div');
+            skipIntro.className = 'ani-skip-intro-pill ani-aniskip-intro';
+            const introBtn = action(skipIntro, '跳過片頭', () => {
+              const chapter = activeIntroChapter(
+                video,
+                apiLookup?.done ? apiLookup.result?.op : null,
+              );
+              if (chapter && endingSkipEnabled()) {
+                video.currentTime = chapter.endTime;
+                skipIntro?.remove();
+                skipIntro = null;
+              }
+            });
+            introBtn.className = 'ani-intro-action';
+            const introClose = action(skipIntro, '×', () => {
+              dismissedIntroCue = intro;
+              skipIntro?.remove();
+              skipIntro = null;
+            });
+            introClose.className = 'ani-skip-close';
+            introClose.setAttribute('aria-label', '關閉跳過片頭');
+            player.append(skipIntro);
+          }
+
           if (!hasFollowingScene || !endingSkipEnabled() || overlay) {
             skip?.remove();
             skip = null;
@@ -13706,8 +14006,10 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           'change',
           (event) => {
             if (!event.target.closest?.(skipSetting)) return;
-            if (!endingSkipEnabled() && analysis && !analysis.controller.signal.aborted)
-              stopAnalysis();
+            if (!endingSkipEnabled()) {
+              if (apiLookup && !apiLookup.controller.signal.aborted) stopApiLookup();
+              if (analysis && !analysis.controller.signal.aborted) stopAnalysis();
+            }
             requestAnimationFrame(() => syncEnding(document.querySelector(VIDEO_SELECTOR)));
           },
           true,
@@ -22157,7 +22459,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
                     if (
                       !leaf ||
                       leaf.closest(
-                        '.vjs-control-bar, .vjs-menu, .ani-DanmuMenu, .plus_imagetool_box, .app-download-toolbox, .ani-app-qr-popup',
+                        '.vjs-control-bar, .vjs-menu, .ani-DanmuMenu, .plus_imagetool_box, .app-download-toolbox, .ani-app-qr-popup, .ani-skip-intro-pill, .ani-ending-skip-group',
                       )
                     )
                       continue;
@@ -24911,7 +25213,18 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
                     'POST',
                     JSON.stringify({ keyword: cleanTitle, filter: { type: [2] } }),
                   );
-                  const firstId = s?.data?.[0]?.id;
+                  const list = Array.isArray(s?.data) ? s.data : [];
+                  const norm = (v) =>
+                    String(enhancement?.traditionalTitle?.(v) || v || '')
+                      .normalize('NFKC')
+                      .replace(/[\s\p{P}]/gu, '')
+                      .toLowerCase();
+                  const target = norm(cleanTitle);
+                  const picked =
+                    list.find(
+                      (item) => norm(item?.name_cn) === target || norm(item?.name) === target,
+                    ) || list[0];
+                  const firstId = picked?.id;
                   if (/^\d+$/.test(String(firstId || ''))) sid = String(firstId);
                 }
                 if (!sid) return;
