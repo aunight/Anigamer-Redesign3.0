@@ -1956,3 +1956,61 @@ test('emoji-wrapped ACG staff/cast headers, Japanese kanji cast variants, and MV
   assert.match(repairsCss, /\.ani-ep-row:has\(>\s*\[aria-expanded="false"\]\)\s*>\s*\.ani-ep-play:is\(:hover,\s*:focus-visible\)\s*\{[^}]*color:\s*var\(--ani-accent/);
   assert.match(repairsCss, /\.ani-ep-row:has\(>\s*\[aria-expanded="true"\]\)\s*>\s*\.ani-ep-play:is\(:hover,\s*:focus-visible\)\s*svg\s*\{[^}]*color:\s*var\(--ani-accent/);
 });
+
+test('upcoming episode never reuses previous episode poster and resolves 16:9 AniList banner via Japanese title', async t => {
+  const ep8Poster = 'https://p2.bahamut.com.tw/B/ep8-screenshot.jpg';
+  const portraitSeasonal = 'https://p2.bahamut.com.tw/B/ACG/c/78/0000151278.JPG';
+  const anilistBanner = 'https://s4.anilist.co/file/anilistcdn/media/anime/banner/211778-ZbXEhqfFkj62.jpg';
+  const future = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
+  const dom = bootEnhancements(`<head><meta property="og:image" content="${ep8Poster}"></head><div id="BH_background">
+    <div id="ani_video"><video poster="${ep8Poster}"></video></div>
+    <div class="anime_name"><h1>世界最強的魔女，就此開始 [8]</h1></div>
+    <section class="season"><ul><li class="playing"><a href="?sn=888">8</a></li></ul></section>
+  </div>`, '/animeVideo.php?sn=888', {
+    sharedStorage: {
+      aniEpTitlesCacheV5: {
+        '世界最強的魔女，就此開始': {
+          ts: Date.now(),
+          metadataVersion: 6,
+          lastEpisode: 8,
+          episodes: { 8: { name: '試著進行了傳送！' }, 9: { airdate: future } },
+        },
+      },
+    },
+    fetchImpl: async (url, opts) => {
+      const target = String(url);
+      if (target.includes('/seasonal.php')) {
+        return {
+          ok: true,
+          text: async () => `<div class="program-card"><div class="title-row"><h5 class="title">世界最強的魔女，就此開始</h5></div><div class="theme-img-bg" style="background-image: url(${portraitSeasonal});"></div></div>`,
+        };
+      }
+      if (target.includes('api.bgm.tv/v0/search/subjects')) {
+        return {
+          ok: true,
+          json: async () => ({ data: [{ name: '世界最強の魔女、始めました', name_cn: '世界最强的魔女，就此开始' }] }),
+        };
+      }
+      if (target.includes('graphql.anilist.co')) {
+        const body = JSON.parse(opts?.body || '{}');
+        if (body?.variables?.search === '世界最強の魔女、始めました') {
+          return { ok: true, json: async () => ({ data: { Media: { bannerImage: anilistBanner } } }) };
+        }
+        return { ok: false };
+      }
+      return { ok: false };
+    },
+  });
+  t.after(() => dom.window.close());
+  const { document } = dom.window;
+  await new Promise((r) => dom.window.setTimeout(r, 30));
+  const img = document.querySelector('.ani-upcoming-episode img');
+  assert.ok(img, 'upcoming episode img renders');
+  Object.defineProperty(img, 'naturalWidth', { configurable: true, get: () => img.src === portraitSeasonal ? 700 : 1900 });
+  Object.defineProperty(img, 'naturalHeight', { configurable: true, get: () => img.src === portraitSeasonal ? 1000 : 400 });
+  assert.equal(img.src, portraitSeasonal);
+  img.onload?.();
+  await new Promise((r) => dom.window.setTimeout(r, 40));
+  assert.notEqual(img.src, ep8Poster);
+  assert.equal(img.src, anilistBanner);
+});

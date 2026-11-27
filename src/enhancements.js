@@ -4646,52 +4646,81 @@
       image.src = source;
     };
     const isHttpsUrl = (url) => /^https:\/\//i.test(url || '');
-    const fallbackCovers = [
-      document.querySelector('#ani_video video')?.poster,
-      document.querySelector('meta[property="og:image"]')?.content,
-    ].filter(isHttpsUrl);
-    const fetchAniListBanner = async () => {
+    const normalizeTitle = (text) => traditionalTitle(String(text || '')).normalize('NFKC').replace(/[\s\p{P}]/gu, '');
+    const fetchJapaneseWorkTitle = async () => {
       try {
-        const res = await fetch('https://graphql.anilist.co', {
+        const res = await fetch('https://api.bgm.tv/v0/search/subjects?limit=3', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({
-            query: 'query($search:String){Media(search:$search,type:ANIME){bannerImage}}',
-            variables: { search: workTitle },
-          }),
+          body: JSON.stringify({ keyword: workTitle, filter: { type: [2] } }),
           signal: AbortSignal.timeout(5000),
         });
         if (!res.ok) return '';
         const json = await res.json();
-        const banner = json?.data?.Media?.bannerImage;
-        return isHttpsUrl(banner) ? banner : '';
+        const list = Array.isArray(json?.data) ? json.data : [];
+        const target = normalizeTitle(workTitle);
+        const exact = list.find((item) => normalizeTitle(item?.name_cn || '') === target || normalizeTitle(item?.name || '') === target);
+        return String((exact || list[0])?.name || '').trim();
       } catch {
         return '';
       }
     };
+    const fetchAniListArtwork = async () => {
+      const jpTitle = await fetchJapaneseWorkTitle();
+      const queries = [...new Set([jpTitle, workTitle].filter(Boolean))];
+      for (const search of queries) {
+        try {
+          const res = await fetch('https://graphql.anilist.co', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify({
+              query: 'query($search:String){Media(search:$search,type:ANIME){bannerImage trailer{id site}}}',
+              variables: { search },
+            }),
+            signal: AbortSignal.timeout(5000),
+          });
+          if (!res.ok) continue;
+          const json = await res.json();
+          const media = json?.data?.Media;
+          if (!media) continue;
+          const results = [];
+          if (isHttpsUrl(media.bannerImage)) results.push(media.bannerImage);
+          if (media.trailer?.site === 'youtube' && /^[A-Za-z0-9_-]{11}$/.test(media.trailer?.id || '')) {
+            results.push(`https://i.ytimg.com/vi/${media.trailer.id}/mqdefault.jpg`);
+          }
+          if (results.length) return results;
+        } catch {}
+      }
+      return [];
+    };
     const tryCoverChain = (sources) => {
       const list = [...new Set(sources.filter(isHttpsUrl))];
       let aniListTried = false;
+      let portraitFallback = '';
       const probe = (idx) => {
         if (idx >= list.length) {
           if (!aniListTried) {
             aniListTried = true;
-            void fetchAniListBanner().then((banner) => {
+            void fetchAniListArtwork().then((artworks) => {
               if (!preview.isConnected || preview.dataset.coverWork !== workTitle) return;
-              if (banner && !list.includes(banner)) {
-                list.push(banner);
+              const additions = artworks.filter((url) => isHttpsUrl(url) && !list.includes(url));
+              if (additions.length) {
+                list.push(...additions);
                 probe(idx);
+              } else if (portraitFallback) {
+                setCover(portraitFallback);
               } else {
                 setCover('');
               }
             });
             return;
           }
-          setCover('');
+          setCover(portraitFallback || '');
           return;
         }
         setCover(list[idx], (loaded, img) => {
           const isPortrait = loaded && img.naturalWidth > 0 && img.naturalHeight > 0 && img.naturalWidth < img.naturalHeight;
+          if (isPortrait && !portraitFallback) portraitFallback = list[idx];
           if (!loaded || isPortrait) {
             probe(idx + 1);
             return true;
@@ -4707,18 +4736,17 @@
       .then(html => {
         if (!preview.isConnected || preview.dataset.coverWork !== workTitle) return;
         if (!html) {
-          tryCoverChain(fallbackCovers);
+          tryCoverChain([]);
           return;
         }
         const page = new DOMParser().parseFromString(html, 'text/html');
-        const normalizeTitle = text => traditionalTitle(text).normalize('NFKC').replace(/[\s\p{P}]/gu, '');
         const work = [...page.querySelectorAll('.program-card')].find(card =>
           normalizeTitle(card.querySelector('.title-row .title')?.textContent || '') === normalizeTitle(workTitle));
         const style = work?.querySelector('.theme-img-bg')?.style.backgroundImage || '';
         const source = style.match(/^url\(["']?(https:\/\/[^"')]+)["']?\)$/i)?.[1];
-        tryCoverChain([source, ...fallbackCovers]);
+        tryCoverChain(source ? [source] : []);
       }).catch(() => {
-        if (preview.isConnected && preview.dataset.coverWork === workTitle) tryCoverChain(fallbackCovers);
+        if (preview.isConnected && preview.dataset.coverWork === workTitle) tryCoverChain([]);
       });
   };
 

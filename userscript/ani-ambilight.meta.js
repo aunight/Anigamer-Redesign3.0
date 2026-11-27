@@ -13,16 +13,16 @@
 // @run-at       document-start
 // @inject-into  content
 // @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
-// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2d8fce4f75b31f7fdf2062a0bca1ddad7406b194/src/studio-catalog.json
-// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2d8fce4f75b31f7fdf2062a0bca1ddad7406b194/src/studio-profiles.json
-// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2d8fce4f75b31f7fdf2062a0bca1ddad7406b194/src/studio-directory-icons.json
-// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2d8fce4f75b31f7fdf2062a0bca1ddad7406b194/src/studio-logos.json
-// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2d8fce4f75b31f7fdf2062a0bca1ddad7406b194/src/content.css
-// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2d8fce4f75b31f7fdf2062a0bca1ddad7406b194/src/effects.css
-// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2d8fce4f75b31f7fdf2062a0bca1ddad7406b194/src/settings-ui.css
-// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2d8fce4f75b31f7fdf2062a0bca1ddad7406b194/src/hero-banner.css
-// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2d8fce4f75b31f7fdf2062a0bca1ddad7406b194/src/home-dashboard.css
-// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2d8fce4f75b31f7fdf2062a0bca1ddad7406b194/src/ui-repairs.css
+// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/98e3642e6e780f7f3bd0335be3b0ef86584f09b2/src/studio-catalog.json
+// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/98e3642e6e780f7f3bd0335be3b0ef86584f09b2/src/studio-profiles.json
+// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/98e3642e6e780f7f3bd0335be3b0ef86584f09b2/src/studio-directory-icons.json
+// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/98e3642e6e780f7f3bd0335be3b0ef86584f09b2/src/studio-logos.json
+// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/98e3642e6e780f7f3bd0335be3b0ef86584f09b2/src/content.css
+// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/98e3642e6e780f7f3bd0335be3b0ef86584f09b2/src/effects.css
+// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/98e3642e6e780f7f3bd0335be3b0ef86584f09b2/src/settings-ui.css
+// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/98e3642e6e780f7f3bd0335be3b0ef86584f09b2/src/hero-banner.css
+// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/98e3642e6e780f7f3bd0335be3b0ef86584f09b2/src/home-dashboard.css
+// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/98e3642e6e780f7f3bd0335be3b0ef86584f09b2/src/ui-repairs.css
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue

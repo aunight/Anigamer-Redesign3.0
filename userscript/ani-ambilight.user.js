@@ -13,16 +13,16 @@
 // @run-at       document-start
 // @inject-into  content
 // @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
-// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2d8fce4f75b31f7fdf2062a0bca1ddad7406b194/src/studio-catalog.json
-// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2d8fce4f75b31f7fdf2062a0bca1ddad7406b194/src/studio-profiles.json
-// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2d8fce4f75b31f7fdf2062a0bca1ddad7406b194/src/studio-directory-icons.json
-// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2d8fce4f75b31f7fdf2062a0bca1ddad7406b194/src/studio-logos.json
-// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2d8fce4f75b31f7fdf2062a0bca1ddad7406b194/src/content.css
-// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2d8fce4f75b31f7fdf2062a0bca1ddad7406b194/src/effects.css
-// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2d8fce4f75b31f7fdf2062a0bca1ddad7406b194/src/settings-ui.css
-// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2d8fce4f75b31f7fdf2062a0bca1ddad7406b194/src/hero-banner.css
-// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2d8fce4f75b31f7fdf2062a0bca1ddad7406b194/src/home-dashboard.css
-// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/2d8fce4f75b31f7fdf2062a0bca1ddad7406b194/src/ui-repairs.css
+// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/98e3642e6e780f7f3bd0335be3b0ef86584f09b2/src/studio-catalog.json
+// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/98e3642e6e780f7f3bd0335be3b0ef86584f09b2/src/studio-profiles.json
+// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/98e3642e6e780f7f3bd0335be3b0ef86584f09b2/src/studio-directory-icons.json
+// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/98e3642e6e780f7f3bd0335be3b0ef86584f09b2/src/studio-logos.json
+// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/98e3642e6e780f7f3bd0335be3b0ef86584f09b2/src/content.css
+// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/98e3642e6e780f7f3bd0335be3b0ef86584f09b2/src/effects.css
+// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/98e3642e6e780f7f3bd0335be3b0ef86584f09b2/src/settings-ui.css
+// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/98e3642e6e780f7f3bd0335be3b0ef86584f09b2/src/hero-banner.css
+// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/98e3642e6e780f7f3bd0335be3b0ef86584f09b2/src/home-dashboard.css
+// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/98e3642e6e780f7f3bd0335be3b0ef86584f09b2/src/ui-repairs.css
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -402,7 +402,23 @@ Additional section icons: film, newspaper, comments.
   })();
 
   // 三、主題與設定介面樣式（於 document-start 預先注入以消除切換閃爍）
-  const resourceChanges = {};
+  const resourceChanges = {
+    ani_content_css: [
+      [7205, 1, ['  inset: auto 36% max(11%, 92px) 3%;']],
+      [
+        7203,
+        0,
+        [
+          '#ani_video:is(.ani-postplay-active, .ani-postplay-exiting) .vjs-control-bar {',
+          '  z-index: 35 !important;',
+          '  opacity: 1 !important;',
+          '  visibility: visible !important;',
+          '  pointer-events: auto !important;',
+          '}',
+        ],
+      ],
+    ],
+  };
   const readResource = (name) => {
     const text = GM_getResourceText(name) || '';
     const changes = resourceChanges[name];
@@ -10778,7 +10794,8 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
         const followingAudio = samples.filter(
           (sample) => sample.time >= endTime + 0.5 && sample.peak >= 0.022,
         );
-        return { startTime, endTime, hasFollowingScene: followingAudio.length * step >= 2 };
+        const hasFollowingScene = duration - endTime >= 25 && followingAudio.length * step >= 6;
+        return { startTime, endTime, hasFollowingScene };
       }
 
       async function readThroughExtension(url, format, signal) {
@@ -10843,7 +10860,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
         const endTime =
           Number.isFinite(duration) && duration > 0 ? Math.min(rawEnd, duration) : rawEnd;
         const hasFollowingScene =
-          Number.isFinite(duration) && duration > 0 ? duration - endTime >= 3 : false;
+          Number.isFinite(duration) && duration > 0 ? duration - endTime >= 25 : false;
         return { startTime, endTime, hasFollowingScene, source: 'aniskip' };
       }
 
@@ -13449,15 +13466,23 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
               frame.append(facts);
               if (!metadata && (!item.season || !item.genres)) {
                 const loadFacts = async () => {
-                  if (link.dataset.loadingFacts) return;
+                  if (link.dataset.loadingFacts || link.dataset.loadedFacts) return;
                   link.dataset.loadingFacts = 'true';
-                  const meta = await fetchRecommendationMetadata(href, item.videoSn).catch(
-                    () => null,
-                  );
-                  setFacts(meta);
+                  try {
+                    const meta = await fetchRecommendationMetadata(href, item.videoSn).catch(
+                      () => null,
+                    );
+                    if (meta && link.isConnected) {
+                      setFacts(meta);
+                      link.dataset.loadedFacts = 'true';
+                    }
+                  } finally {
+                    delete link.dataset.loadingFacts;
+                  }
                 };
-                link.addEventListener('pointerenter', loadFacts, { once: true });
-                link.addEventListener('focus', loadFacts, { once: true });
+                void loadFacts();
+                link.addEventListener('pointerenter', loadFacts);
+                link.addEventListener('focus', loadFacts);
               }
               link.append(label);
               cards.append(link);
@@ -34228,48 +34253,89 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           image.src = source;
         };
         const isHttpsUrl = (url) => /^https:\/\//i.test(url || '');
-        const fallbackCovers = [
-          document.querySelector('#ani_video video')?.poster,
-          document.querySelector('meta[property="og:image"]')?.content,
-        ].filter(isHttpsUrl);
-        const fetchAniListBanner = async () => {
+        const normalizeTitle = (text) =>
+          traditionalTitle(String(text || ''))
+            .normalize('NFKC')
+            .replace(/[\s\p{P}]/gu, '');
+        const fetchJapaneseWorkTitle = async () => {
           try {
-            const res = await fetch('https://graphql.anilist.co', {
+            const res = await fetch('https://api.bgm.tv/v0/search/subjects?limit=3', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-              body: JSON.stringify({
-                query: 'query($search:String){Media(search:$search,type:ANIME){bannerImage}}',
-                variables: { search: workTitle },
-              }),
+              body: JSON.stringify({ keyword: workTitle, filter: { type: [2] } }),
               signal: AbortSignal.timeout(5000),
             });
             if (!res.ok) return '';
             const json = await res.json();
-            const banner = json?.data?.Media?.bannerImage;
-            return isHttpsUrl(banner) ? banner : '';
+            const list = Array.isArray(json?.data) ? json.data : [];
+            const target = normalizeTitle(workTitle);
+            const exact = list.find(
+              (item) =>
+                normalizeTitle(item?.name_cn || '') === target ||
+                normalizeTitle(item?.name || '') === target,
+            );
+            return String((exact || list[0])?.name || '').trim();
           } catch {
             return '';
           }
         };
+        const fetchAniListArtwork = async () => {
+          const jpTitle = await fetchJapaneseWorkTitle();
+          const queries = [...new Set([jpTitle, workTitle].filter(Boolean))];
+          for (const search of queries) {
+            try {
+              const res = await fetch('https://graphql.anilist.co', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                body: JSON.stringify({
+                  query:
+                    'query($search:String){Media(search:$search,type:ANIME){bannerImage trailer{id site}}}',
+                  variables: { search },
+                }),
+                signal: AbortSignal.timeout(5000),
+              });
+              if (!res.ok) continue;
+              const json = await res.json();
+              const media = json?.data?.Media;
+              if (!media) continue;
+              const results = [];
+              if (isHttpsUrl(media.bannerImage)) results.push(media.bannerImage);
+              if (
+                media.trailer?.site === 'youtube' &&
+                /^[A-Za-z0-9_-]{11}$/.test(media.trailer?.id || '')
+              ) {
+                results.push(`https://i.ytimg.com/vi/${media.trailer.id}/mqdefault.jpg`);
+              }
+              if (results.length) return results;
+            } catch {}
+          }
+          return [];
+        };
         const tryCoverChain = (sources) => {
           const list = [...new Set(sources.filter(isHttpsUrl))];
           let aniListTried = false;
+          let portraitFallback = '';
           const probe = (idx) => {
             if (idx >= list.length) {
               if (!aniListTried) {
                 aniListTried = true;
-                void fetchAniListBanner().then((banner) => {
+                void fetchAniListArtwork().then((artworks) => {
                   if (!preview.isConnected || preview.dataset.coverWork !== workTitle) return;
-                  if (banner && !list.includes(banner)) {
-                    list.push(banner);
+                  const additions = artworks.filter(
+                    (url) => isHttpsUrl(url) && !list.includes(url),
+                  );
+                  if (additions.length) {
+                    list.push(...additions);
                     probe(idx);
+                  } else if (portraitFallback) {
+                    setCover(portraitFallback);
                   } else {
                     setCover('');
                   }
                 });
                 return;
               }
-              setCover('');
+              setCover(portraitFallback || '');
               return;
             }
             setCover(list[idx], (loaded, img) => {
@@ -34278,6 +34344,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
                 img.naturalWidth > 0 &&
                 img.naturalHeight > 0 &&
                 img.naturalWidth < img.naturalHeight;
+              if (isPortrait && !portraitFallback) portraitFallback = list[idx];
               if (!loaded || isPortrait) {
                 probe(idx + 1);
                 return true;
@@ -34293,14 +34360,10 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           .then((html) => {
             if (!preview.isConnected || preview.dataset.coverWork !== workTitle) return;
             if (!html) {
-              tryCoverChain(fallbackCovers);
+              tryCoverChain([]);
               return;
             }
             const page = new DOMParser().parseFromString(html, 'text/html');
-            const normalizeTitle = (text) =>
-              traditionalTitle(text)
-                .normalize('NFKC')
-                .replace(/[\s\p{P}]/gu, '');
             const work = [...page.querySelectorAll('.program-card')].find(
               (card) =>
                 normalizeTitle(card.querySelector('.title-row .title')?.textContent || '') ===
@@ -34308,11 +34371,10 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
             );
             const style = work?.querySelector('.theme-img-bg')?.style.backgroundImage || '';
             const source = style.match(/^url\(["']?(https:\/\/[^"')]+)["']?\)$/i)?.[1];
-            tryCoverChain([source, ...fallbackCovers]);
+            tryCoverChain(source ? [source] : []);
           })
           .catch(() => {
-            if (preview.isConnected && preview.dataset.coverWork === workTitle)
-              tryCoverChain(fallbackCovers);
+            if (preview.isConnected && preview.dataset.coverWork === workTitle) tryCoverChain([]);
           });
       };
 
