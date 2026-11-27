@@ -3,7 +3,7 @@
 [下載安裝包 (Releases)](https://github.com/aunight/Anigamer-Redesign3.0/releases/latest) · [Userscript 直接安裝](https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/userscript/ani-ambilight.user.js) · [附加腳本批次安裝](https://htmlpreview.github.io/?https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/main/docs/plugins.html) · [問題回報 (Issues)](https://github.com/aunight/Anigamer-Redesign3.0/issues)
 
 [![Release](https://img.shields.io/github/v/release/aunight/Anigamer-Redesign3.0?style=flat-square&label=Release&color=3b82f6)](https://github.com/aunight/Anigamer-Redesign3.0/releases/latest)
-![Version](https://img.shields.io/badge/Version-3.5.3-1e293b?style=flat-square)
+![Version](https://img.shields.io/badge/Version-3.6.0-1e293b?style=flat-square)
 ![Platform](https://img.shields.io/badge/Platform-Chrome%20%7C%20Firefox%20%7C%20Userscript-1e293b?style=flat-square)
 [![CI](https://img.shields.io/github/actions/workflow/status/aunight/Anigamer-Redesign3.0/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/aunight/Anigamer-Redesign3.0/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-MIT-2563eb?style=flat-square)](LICENSE)
@@ -23,9 +23,20 @@
 
 ---
 
+## v3.6.0 更新日誌
+
+- **片尾偵測與跨平台章節強化**：
+  - 串接 **Anime-Skip**（`api.anime-skip.com`）作為 AniSkip 缺漏時的第二層公開章節備援，自動比對片長並補齊 OP／ED 時間軸。
+  - 強化本地片尾音訊偵測（`ending-audio.js`）：支援前段高潮 BGM 無縫接片尾曲的立體聲／能量階躍偵測、曲中換氣／安靜橋段跨接、輕柔抒情片尾門檻調校，並保留純音訊偵測僅提供「跳過片尾」按鈕與正確處理片尾彩蛋。
+- **淺色模式視覺與深淺切換體驗**：
+  - 全面適配淺色模式下的集數大卡片（亮白霧面底色與深藍高對比標題／簡介）、排序／縮圖開關及高對比留言／抽屜／彈幕列表樣式。
+  - 深淺模式切換改以 GPU `View Transitions API` 240ms 平滑淡入淡出搭配轉場抑制，消除 1,100+ 元素同時重繪的卡頓與生硬閃切。
+- **介面設定整理與簡介預覽**：
+  - 精簡設定面板「透明度與光暈」與個別收合控制項，避免重繪卡頓與無效項；於 GitHub `README.md` 與 `docs/greasyfork.md` 補齊 26 張實機畫面預覽截圖。
+
 ## v3.5.3 更新日誌
 
-- **AniSkip 片頭／片尾與低 CPU 最佳化**：從 Bangumi 自動轉換繁體中文標題取得日文原名後查詢 AniList／AniSkip，補齊「跳過片頭」與「跳過片尾」API 支援；僅在 AniSkip 無 ED 資料且播放進入尾聲時才啟動音訊分析，並保留純音訊偵測僅提供「跳過片尾」按鈕不自動中斷或縮小高潮演出。
+- **片頭／片尾偵測**：查詢 AniSkip 等來源取得片頭和片尾時間，缺少片尾時間時分析尾段音訊。偵測到結尾的片尾曲時會縮小畫面並繼續播放。片尾後有彩蛋時，提供「跳過片尾」按鈕跳至彩蛋。
 - **跨 API 日文標題備援**：修正片庫原作分類（`fetchAniListWorkMetaBatch`）、作品簡介（`fetchWorkSynopsis`）、單集標題（`fetchEpisodeTitles`）與 Bangumi 製作團隊查詢直接以中文送查或誤選劇場版的問題，並維持所有畫面輸出轉為台灣繁體中文。
 - **播放器與介面細節**：修正快轉／倒轉按鈕層級高於控制列 Tooltip、通知 Toast 寬度與內距、續播尾聲工具列互動、集數提示框日期靠右對齊，以及即將更新縮圖優先選用 16:9 預告片而非誤用上一集封面。
 

@@ -408,13 +408,13 @@ body .ani-view-settings-panel section[data-settings-page] {
 }
 .ani-pill-btn:hover,
 .ani-settings-actions button:hover {
-  background: rgba(61, 175, 182, 0.22) !important;
-  border-color: rgba(76, 211, 220, 0.65) !important;
+  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.22) !important;
+  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.65) !important;
   color: #ffffff !important;
 }
 .ani-pill-btn.is-accent {
-  background: rgba(61, 175, 182, 0.22) !important;
-  border-color: rgba(76, 211, 220, 0.56) !important;
+  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.22) !important;
+  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.56) !important;
   color: #7ef0f6 !important;
 }
 .ani-pill-btn svg,

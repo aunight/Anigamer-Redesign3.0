@@ -85,3 +85,71 @@ test('late Plus toolbar buttons get tooltips and stay mounted across player upda
   originalButton.click();
   assert.equal(clicked, 1);
 });
+
+test('player settings toggle and drawer avoid backdrop-filter resize stalls and horizontal padding thrash', () => {
+  const repairsCss = fs.readFileSync('src/ui-repairs.css', 'utf8');
+  const contentJs = fs.readFileSync('src/content.js', 'utf8');
+
+  assert.match(
+    repairsCss,
+    /:is\(\.plus_imagetool_box,\s*\.ani-drawer-toggles\)\s+\.ani-player-settings-toggle\s*\{[^}]*display:\s*inline-grid\s*!important;[^}]*grid-template-columns:\s*17px\s+0fr\s+0px\s*!important;[^}]*backdrop-filter:\s*none\s*!important;/,
+  );
+  assert.match(
+    repairsCss,
+    /\.plus_imagetool_box\s+:is\(\.ani-tools-toggle-btn,\s*\.shortcut-button,\s*\.plus_button_box,\s*\.ani-player-settings-toggle\)\s*\{[^}]*backdrop-filter:\s*none\s*!important;/,
+  );
+  assert.match(
+    repairsCss,
+    /#BH_background\s+\.ani-player-settings-body\s*\{[^}]*padding:\s*0\s*!important;[^}]*contain:\s*layout style\s*!important;/,
+  );
+  assert.match(
+    contentJs,
+    /if \(panelEl\.dataset\.aniDecorated === '1' && panelEl\.dataset\.aniNeedsDecorate !== '1'\) return;/,
+  );
+});
+
+test('capture preview card restores 4 circular icon buttons and enlarges thumbnail even without episode-number caption text', async t => {
+  const dom = new JSDOM(`<div id="BH_background">
+    <div id="ani_video"><video></video></div>
+    <div class="anime-title"><div class="anime_name"><h1>世界最強的魔女，就此開始 [8]</h1></div></div>
+    <div class="image_tool">
+      <div class="plus_imagetool_box"></div>
+      <div class="cap-item">
+        <img src="data:image/png;base64,iVBORw0KGgo=" alt="capture" />
+        <div class="cap-actions">
+          <button type="button" title="播放"><i class="material-icons">play_arrow</i></button>
+          <button type="button" title="儲存"><i class="material-icons">save</i></button>
+          <button type="button" title="複製"><i class="material-icons">content_copy</i></button>
+          <button type="button" title="刪除"><i class="material-icons">delete</i></button>
+        </div>
+        <div class="cap-caption">12/02 21:00世界最強的魔女，就此開始</div>
+      </div>
+    </div>
+  </div>`, {
+    url: 'https://ani.gamer.com.tw/animeVideo.php?sn=123',
+    runScripts: 'outside-only',
+    pretendToBeVisual: true,
+  });
+  t.after(() => dom.window.close());
+  const w = dom.window;
+  w.matchMedia = () => ({ matches: false, addEventListener() {} });
+  for (const file of ['settings.js', 'content.js']) {
+    w.eval(fs.readFileSync('src/' + file, 'utf8'));
+  }
+  await new Promise(resolve => w.setTimeout(resolve, 60));
+
+  const card = w.document.querySelector('.image_tool .cap-item');
+  const actions = w.document.querySelector('.image_tool .cap-actions');
+  const btns = [...actions.querySelectorAll('.ani-plus-capture-btn')];
+  assert(card.classList.contains('ani-plus-capture-card'));
+  assert(actions.classList.contains('ani-plus-capture-actions'));
+  assert.equal(btns.length, 4);
+  assert.equal(btns.filter(b => b.querySelector('.ani-capture-glyph')).length, 4);
+  assert(btns[3].classList.contains('is-delete'));
+
+  const repairsCss = fs.readFileSync('src/ui-repairs.css', 'utf8');
+  assert.match(
+    repairsCss,
+    /#BH_background\s+\.image_tool\s+\.ani-plus-capture-card[^}]*width:\s*clamp\(340px,\s*30vw,\s*480px\)\s*!important;/,
+  );
+});

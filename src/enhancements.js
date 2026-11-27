@@ -4769,11 +4769,17 @@
     const tip = getEpTooltipNode();
     if (!season.dataset.aniEpTipWired) {
       season.dataset.aniEpTipWired = '1';
+      let activeLink = null;
+      const hideTip = () => {
+        activeLink = null;
+        tip.hidden = true;
+      };
       const showTip = (link) => {
+        activeLink = link;
         synopsisJobs.get(link)?.run();
         link.removeAttribute('title');
         if (link.closest('.ani-episode-cards')) {
-          tip.hidden = true;
+          hideTip();
           return;
         }
         const epTitle = link.dataset.aniEpTitle;
@@ -4785,7 +4791,9 @@
           ${airdate ? `<time class="ani-ep-tip-date" datetime="${escapeHtml(airdate.replaceAll('/', '-'))}">${escapeHtml(airdate)}</time>` : ''}
         `;
         tip.hidden = !epTitle && !synopsis && !airdate;
-        if (!tip.hidden) {
+        if (tip.hidden) {
+          activeLink = null;
+        } else {
           const rect = link.getBoundingClientRect();
           const box = tip.getBoundingClientRect();
           const left = Math.max(8, Math.min(innerWidth - box.width - 8, rect.left + (rect.width - box.width) / 2));
@@ -4798,11 +4806,10 @@
         if (!airdate && /^\d+$/.test(sn)) globalThis.aniGetEpisodeDetails?.(sn).then(data => {
           if (data?.date) {
             link.dataset.aniUploadDate = data.date;
-            if (link.matches(':hover') || link === document.activeElement) showTip(link);
+            if (activeLink === link && (link.matches(':hover') || link === document.activeElement)) showTip(link);
           }
         });
       };
-      const hideTip = () => { tip.hidden = true; };
       season.addEventListener('mouseover', (e) => {
         const a = e.target.closest('li a');
         if (a) showTip(a);
@@ -4815,8 +4822,16 @@
         const a = e.target.closest('li a');
         if (a && !a.contains(e.relatedTarget)) hideTip();
       });
+      season.addEventListener('mouseleave', hideTip);
+      season.addEventListener('pointerleave', hideTip);
       season.addEventListener('focusout', hideTip);
+      season.addEventListener('scroll', hideTip, { passive: true, capture: true });
+      document.addEventListener('pointermove', (e) => {
+        if (tip.hidden || !activeLink) return;
+        if (!activeLink.isConnected || !activeLink.contains(e.target)) hideTip();
+      }, { passive: true });
       window.addEventListener('scroll', hideTip, { passive: true });
+      window.addEventListener('blur', hideTip);
     }
 
     const cache = readJsonLocal(EP_TITLES_CACHE_KEY, {});

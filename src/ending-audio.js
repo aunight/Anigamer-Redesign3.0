@@ -133,6 +133,31 @@
   }
 
   function findEnding(samples, duration) {
+    const direct = findEndingInterval(samples, duration);
+    if (direct || samples.length < 16) return direct ?? null;
+    // Preserve the measured times while smoothing brief vocal and percussion dips.
+    const smoothed = samples.map((sample, index) => {
+      const window = samples.slice(Math.max(0, index - 8), index + 9);
+      const mean = key => window.reduce((sum, item) => sum + item[key], 0) / window.length;
+      return { time: sample.time, peak: mean('peak'), stereo: mean('stereo') };
+    });
+    const trend = findEndingInterval(smoothed, duration);
+    if (!trend) return null;
+    if (direct === null) {
+      // Resolve conflicting raw boundaries only for a tail song with a measured
+      // change in stereo width across its onset. A pause in the same music
+      // has essentially the same stereo width on both sides.
+      const width = (from, to) => {
+        const active = samples.filter(s => s.time >= from && s.time < to && s.peak >= 0.045);
+        return active.length >= 16 ? active.reduce((sum, s) => sum + s.stereo, 0) / active.length : NaN;
+      };
+      if (duration - trend.endTime > 20 ||
+          !(width(trend.startTime, trend.startTime + 8) - width(trend.startTime - 8, trend.startTime) > 0.04)) return null;
+    }
+    return trend;
+  }
+
+  function findEndingInterval(samples, duration) {
     // Look for sustained music between distinct pauses. Ambiguous sections are left alone.
     const onsetSearchSeconds = 20;
     const activePeakMin = 0.045;
@@ -154,7 +179,7 @@
             const stereo = section.filter(item => item.stereo > stereoMin).length / section.length;
             const levels = section.filter(item => item.peak >= activePeakMin).length / section.length;
             if (stereo >= 0.45 && levels >= 0.68) {
-              candidates.push({startTime: first.time, endTime, score: stereo + levels - Math.abs(length - 90) / 90});
+                candidates.push({startTime: first.time, endTime, threshold, score: stereo + levels - Math.abs(length - 90) / 90});
             }
           }
         }
@@ -172,12 +197,6 @@
     if (canonicalTail && best && !isCanonicalTailEd(best) && duration - best.endTime > 30) {
       best = canonicalTail;
     }
-    // Nearby onsets with the same skip target are usually the same song
-    // found at different silence thresholds.
-    if (best && candidates.some(other => best.score - other.score < 0.25 &&
-        !(isCanonicalTailEd(best) && duration - other.endTime > 30) &&
-        (Math.abs(best.endTime - other.endTime) > 2 ||
-          Math.abs(best.startTime - other.startTime) > onsetSearchSeconds))) return null;
     const perSecond = Math.round(1 / step);
     if (best && best.endTime - best.startTime < 72 && duration - best.endTime <= 20) {
       // A quiet mid-ED bridge may have split a ~90s tail ED into a shorter trailing fragment.
@@ -275,52 +294,60 @@
           gap = 0;
         }
       }
-      if (!best && samples.length >= Math.round(90 * perSecond)) {
-        // Fallback if a >1.5s mid-ED vocal/piano bridge split the 90s ED into <72s fragments.
-        const lastActiveIdx = samples.findLastIndex(s => s && s.peak >= activePeakMin && s.stereo > stereoMin);
-        if (lastActiveIdx >= 0) {
-          const tailEndIdx = lastActiveIdx + 1;
-          const tailEnd = samples[lastActiveIdx].time + step;
-          if (duration - tailEnd <= 20) {
-            let bestStartIdx = -1, bestScore = -1;
-            const win = 8 * perSecond;
-            const winStartMin = Math.max(0, tailEndIdx - Math.round(100 * perSecond));
-            const winStartMax = Math.max(0, tailEndIdx - Math.round(80 * perSecond));
-            for (let idx = winStartMin; idx <= winStartMax; idx += perSecond) {
-              const tailSec = samples.slice(idx, tailEndIdx);
-              if (tailSec.length < 75 * perSecond) continue;
-              const stereo = tailSec.filter(item => item.stereo > stereoMin).length / tailSec.length;
-              const levels = tailSec.filter(item => item.peak >= activePeakMin).length / tailSec.length;
-              if (stereo < 0.50 || levels < 0.72) continue;
-              const preWin = samples.slice(Math.max(0, idx - 16 * perSecond), idx);
-              const preStereo = preWin.length
-                ? preWin.filter(item => item.stereo > stereoMin).length / preWin.length
-                : 0;
-              let stereoJump = 0;
-              if (idx >= win && idx + win <= samples.length) {
-                let beforeS = 0, afterS = 0;
-                for (let k = 0; k < win; k++) {
-                  beforeS += samples[idx - win + k].stereo;
-                  afterS += samples[idx + k].stereo;
-                }
-                stereoJump = (afterS - beforeS) / win;
+    }
+    // A late song can be fragmented by quiet vocals or piano even when earlier BGM forms a clean candidate.
+    if ((!best || duration - best.endTime > 30) && samples.length >= 90 * perSecond) {
+      const lastActiveIdx = samples.findLastIndex(s => s && s.peak >= activePeakMin && s.stereo > stereoMin);
+      if (lastActiveIdx >= 0) {
+        const tailEndIdx = lastActiveIdx + 1;
+        const tailEnd = samples[lastActiveIdx].time + step;
+        if (duration - tailEnd <= 20) {
+          let bestStartIdx = -1, bestScore = -1;
+          const win = 8 * perSecond;
+          const winStartMin = Math.max(0, tailEndIdx - Math.round(100 * perSecond));
+          const winStartMax = Math.max(0, tailEndIdx - Math.round(80 * perSecond));
+          for (let idx = winStartMin; idx <= winStartMax; idx += perSecond) {
+            const tailSec = samples.slice(idx, tailEndIdx);
+            if (tailSec.length < 75 * perSecond) continue;
+            const stereo = tailSec.filter(item => item.stereo > stereoMin).length / tailSec.length;
+            const levels = tailSec.filter(item => item.peak >= activePeakMin).length / tailSec.length;
+            if (stereo < 0.50 || levels < 0.72) continue;
+            const preWin = samples.slice(Math.max(0, idx - 16 * perSecond), idx);
+            const preStereo = preWin.length
+              ? preWin.filter(item => item.stereo > stereoMin).length / preWin.length
+              : 0;
+            let stereoJump = 0;
+            if (idx >= win && idx + win <= samples.length) {
+              let beforeS = 0, afterS = 0;
+              for (let k = 0; k < win; k++) {
+                beforeS += samples[idx - win + k].stereo;
+                afterS += samples[idx + k].stereo;
               }
-              // Accept either a jump from mono dialogue OR a stereo-width jump from climax BGM.
-              if (preWin.length >= 8 * perSecond && stereo - preStereo < 0.08 && stereoJump < 0.05) continue;
-              const sc = stereo + levels + stereoJump * 2 - Math.abs(tailEnd - samples[idx].time - 90) / 90;
-              if (sc > bestScore) {
-                bestScore = sc;
-                bestStartIdx = idx;
-              }
+              stereoJump = (afterS - beforeS) / win;
             }
-            if (bestStartIdx >= 0) {
-              best = { startTime: samples[bestStartIdx].time, endTime: tailEnd, score: bestScore };
+            // Accept either a jump from mono dialogue OR a stereo-width jump from climax BGM.
+            if (stereoJump < 0.05 && (best || (preWin.length >= 8 * perSecond && stereo - preStereo < 0.08))) continue;
+            const sc = stereo + levels + stereoJump * 2 - Math.abs(tailEnd - samples[idx].time - 90) / 90;
+            if (sc > bestScore) {
+              bestScore = sc;
+              bestStartIdx = idx;
             }
+          }
+          if (bestStartIdx >= 0) {
+            best = { startTime: samples[bestStartIdx].time, endTime: tailEnd, score: bestScore };
           }
         }
       }
-      if (!best) return null;
     }
+    if (!best) return undefined;
+    // A stricter silence threshold can split the same song at an internal dip.
+    const truncatedEnding = other => other.threshold > best.threshold &&
+      Math.abs(best.startTime - other.startTime) <= 2 && best.endTime > other.endTime;
+    if (candidates.some(other => best.score - other.score < 0.25 &&
+        !(isCanonicalTailEd(best) && duration - other.endTime > 30) &&
+        !truncatedEnding(other) &&
+        (Math.abs(best.endTime - other.endTime) > 2 ||
+          Math.abs(best.startTime - other.startTime) > onsetSearchSeconds))) return null;
     // Trim a quiet lead-in or score that briefly rises before the sustained song.
     const onset = samples.findIndex(sample => sample.time >= best.startTime);
     const findStableStart = (windowSeconds, minStereoShare) => {
@@ -342,11 +369,28 @@
       }
       return undefined;
     };
-    const startTime = findStableStart(8, 0.5) ?? findStableStart(4, 0.25) ?? best.startTime;
+    const stableStart = findStableStart(8, 0.5) ?? findStableStart(4, 0.25);
+    let startTime = stableStart ?? best.startTime;
+    if (stableStart !== undefined && stableStart > best.startTime) {
+      // An opening verse or instrumental often has short centered passages.
+      // Keep it when the stereo music is already sustained across the lead-in.
+      for (let index = onset; samples[index]?.time < stableStart; index++) {
+        const window = samples.slice(index, index + 6 * perSecond);
+        const music = item => item.peak >= activePeakMin && item.stereo > stereoMin;
+        if (music(samples[index]) &&
+            window.filter(music).length >= 0.65 * window.length &&
+            window.slice(0, 2 * perSecond).filter(music).length >= perSecond &&
+            window.slice(2 * perSecond, 4 * perSecond).some(music) &&
+            window.slice(4 * perSecond).some(music)) {
+          startTime = samples[index].time;
+          break;
+        }
+      }
+    }
     const endTime = Math.min(best.endTime, duration);
     if (startTime === undefined || endTime - startTime < 48) return null;
     const followingAudio = samples.filter(sample => sample.time >= endTime + 0.5 && sample.peak >= 0.022);
-    const hasFollowingScene = (duration - endTime >= 25) && followingAudio.length * step >= 6;
+    const hasFollowingScene = followingAudio.length * step >= 6;
     return {startTime, endTime, hasFollowingScene};
   }
 
@@ -653,7 +697,7 @@
         signal.throwIfAborted();
         let response;
         try {
-          response = await fetch(url, {signal, credentials:'omit'});
+          response = await fetch(url, {signal, credentials:'omit', priority:'low'});
         } catch (error) {
           if (signal.aborted) throw error;
           if (attempt) break;
@@ -720,10 +764,11 @@
     }
     if (!playlist && failedRead) throw failedRead;
     if (!playlist) return undefined;
-    for (let i = 1; i < playlist.segments.length; i++) {
+    const batchSize = 2;
+    for (let i = 1; i < playlist.segments.length; i += batchSize) {
       signal.throwIfAborted();
-      samples.push(...(await analyzeSegment(playlist.segments[i])));
-      await new Promise(resolve => setTimeout(resolve, 60));
+      const batch = await Promise.all(playlist.segments.slice(i, i + batchSize).map(analyzeSegment));
+      for (const segmentSamples of batch) samples.push(...segmentSamples);
     }
     const detected = findEnding(samples, video.duration);
     if (!detected && samples.length) {

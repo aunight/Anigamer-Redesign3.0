@@ -461,23 +461,14 @@
     },
     {
       id: 'surfaces',
-      name: '透明度與按鈕',
-      description: '調整背景濃淡，讓光暈透出',
+      name: '透明度與光暈',
+      description: '調整面板不透明度與卡片光暈',
       keys: [
-        'controlStyle',
         'settingsOpacity',
+        'commentOpacity',
         'footerGlow',
         'cardGlowEnabled',
         'cardGlowIntensity',
-        'buttonOpacity',
-        'headerOpacity',
-        'headerTint',
-        'panelOpacity',
-        'panelTint',
-        'infoOpacity',
-        'relatedOpacity',
-        'newsOpacity',
-        'commentOpacity',
       ],
     },
     {
@@ -501,7 +492,7 @@
         'danmuAntiOverlap',
         'showComments',
         ...contentFields
-          .filter((f) => !f[0].startsWith('show'))
+          .filter((f) => !f[0].startsWith('show') && f[0] !== 'foldInfo')
           .map((f) => f[0]),
       ],
     },
@@ -609,13 +600,6 @@
         colorTheme: 'slate',
         accentHue: 185,
         accentStrength: 50,
-        headerOpacity: 0,
-        headerTint: 0,
-        panelOpacity: 0,
-        panelTint: 0,
-        infoOpacity: 80,
-        relatedOpacity: 85,
-        newsOpacity: 85,
         commentOpacity: 90,
         textSize: 16,
         textLeading: 175,
@@ -631,13 +615,6 @@
         colorTheme: 'neutral',
         accentHue: 40,
         accentStrength: 20,
-        headerOpacity: 0,
-        headerTint: 0,
-        panelOpacity: 0,
-        panelTint: 0,
-        infoOpacity: 85,
-        relatedOpacity: 90,
-        newsOpacity: 90,
         commentOpacity: 95,
         textSize: 16,
         textLeading: 175,
@@ -653,13 +630,6 @@
         colorTheme: 'paper',
         accentHue: 20,
         accentStrength: 55,
-        headerOpacity: 0,
-        headerTint: 0,
-        panelOpacity: 0,
-        panelTint: 0,
-        infoOpacity: 90,
-        relatedOpacity: 95,
-        newsOpacity: 95,
         commentOpacity: 100,
         textSize: 16,
         textLeading: 175,
@@ -675,13 +645,6 @@
         colorTheme: 'forest',
         accentHue: 145,
         accentStrength: 35,
-        headerOpacity: 0,
-        headerTint: 0,
-        panelOpacity: 0,
-        panelTint: 0,
-        infoOpacity: 85,
-        relatedOpacity: 90,
-        newsOpacity: 90,
         commentOpacity: 95,
         textSize: 16,
         textLeading: 175,
@@ -697,13 +660,6 @@
         colorTheme: 'violet',
         accentHue: 270,
         accentStrength: 45,
-        headerOpacity: 0,
-        headerTint: 0,
-        panelOpacity: 0,
-        panelTint: 0,
-        infoOpacity: 85,
-        relatedOpacity: 90,
-        newsOpacity: 90,
         commentOpacity: 95,
         textSize: 16,
         textLeading: 175,
@@ -719,13 +675,6 @@
         colorTheme: 'slate',
         accentHue: 210,
         accentStrength: 70,
-        headerOpacity: 85,
-        headerTint: 0,
-        panelOpacity: 95,
-        panelTint: 0,
-        infoOpacity: 100,
-        relatedOpacity: 100,
-        newsOpacity: 100,
         commentOpacity: 100,
         textSize: 18,
         textLeading: 190,
@@ -919,15 +868,14 @@
       themes: { colorTheme: '自訂配色' },
       light: { intensity: '亮度與色彩', blur: '畫面細節' },
       surfaces: {
-        headerOpacity: '頁首',
-        panelOpacity: '彈幕列表',
-        infoOpacity: '其他資訊區',
+        settingsOpacity: '透明度',
+        footerGlow: '光暈效果',
       },
       layout: { watchLayout: '分區重排', customWatchWidth: '寬度與間距' },
       content: {
         showDanmu: '顯示哪些資訊',
         focusMode: '快速整理頁面',
-        foldInfo: '個別收合按鈕',
+        foldRelated: '個別收合按鈕',
         episodeStyle: '集數與留言',
       },
       performance: { adaptiveQuality: '自動畫質', fps: '更新與同步' },
@@ -955,7 +903,7 @@
     ].map(([name, description, url, platform]) =>
       `<li><strong>${name}</strong><span>${description}</span><a class="ani-pill-btn ani-pill-sm" href="${url}" target="_blank" rel="noopener noreferrer">${platform === 'GitHub' ? githubIcon : greasyForkIcon}<span>${platform}</span></a></li>`
     ).join('');
-    const appVersion = globalThis.chrome?.runtime?.getManifest?.()?.version || globalThis.GM_info?.script?.version || '3.5.3';
+    const appVersion = globalThis.chrome?.runtime?.getManifest?.()?.version || globalThis.GM_info?.script?.version || '3.6.0';
     const creditCard =
       '<div class="ani-credit-card">'
       + '<div class="ani-credit-head">'
@@ -1035,7 +983,7 @@
         input.closest('.ani-setting-row').hidden =
           methodKeys[values.method] !== key;
     }
-    for (const key of ['foldInfo', 'foldRelated', 'foldNews']) {
+    for (const key of ['foldRelated', 'foldNews']) {
       const input = root.querySelector(`[data-setting="${key}"]`);
       if (input)
         input.closest('.ani-setting-row').hidden = Boolean(

@@ -2,7 +2,7 @@
 // @name         動畫瘋沉浸重製版 3.0｜Anigamer-Redesign 3.0
 // @namespace    https://ani.gamer.com.tw/ani-ambientlight
 // @author       秋夜
-// @version      3.5.3
+// @version      3.6.0
 // @description  動畫瘋環境光與沉浸重製介面：毛玻璃播放器、開場液態波紋、首頁足跡熱力圖＆天氣實況（靈感改作自 Hinataragi/anigamer-ambilight、jiuyang5354/bilibili-margin 與 GreatUI）。非官方。
 // @homepageURL  https://github.com/aunight/Anigamer-Redesign3.0
 // @supportURL   https://github.com/aunight/Anigamer-Redesign3.0/issues
@@ -13,16 +13,16 @@
 // @run-at       document-start
 // @inject-into  content
 // @require      https://cdn.jsdelivr.net/npm/opencc-js@1.4.2/dist/umd/cn2t.js
-// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/773a4dbdf212fcb0764a10ba9085aadc527953c1/src/studio-catalog.json
-// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/773a4dbdf212fcb0764a10ba9085aadc527953c1/src/studio-profiles.json
-// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/773a4dbdf212fcb0764a10ba9085aadc527953c1/src/studio-directory-icons.json
-// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/773a4dbdf212fcb0764a10ba9085aadc527953c1/src/studio-logos.json
-// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/773a4dbdf212fcb0764a10ba9085aadc527953c1/src/content.css
-// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/773a4dbdf212fcb0764a10ba9085aadc527953c1/src/effects.css
-// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/773a4dbdf212fcb0764a10ba9085aadc527953c1/src/settings-ui.css
-// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/773a4dbdf212fcb0764a10ba9085aadc527953c1/src/hero-banner.css
-// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/773a4dbdf212fcb0764a10ba9085aadc527953c1/src/home-dashboard.css
-// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/773a4dbdf212fcb0764a10ba9085aadc527953c1/src/ui-repairs.css
+// @resource     ani_catalog https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/ccd5e25ad28f965f3bd1b3a5c5dcd70a20223be0/src/studio-catalog.json
+// @resource     ani_profiles https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/ccd5e25ad28f965f3bd1b3a5c5dcd70a20223be0/src/studio-profiles.json
+// @resource     ani_directory_icons https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/ccd5e25ad28f965f3bd1b3a5c5dcd70a20223be0/src/studio-directory-icons.json
+// @resource     ani_logos https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/ccd5e25ad28f965f3bd1b3a5c5dcd70a20223be0/src/studio-logos.json
+// @resource     ani_content_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/ccd5e25ad28f965f3bd1b3a5c5dcd70a20223be0/src/content.css
+// @resource     ani_effects_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/ccd5e25ad28f965f3bd1b3a5c5dcd70a20223be0/src/effects.css
+// @resource     ani_settings_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/ccd5e25ad28f965f3bd1b3a5c5dcd70a20223be0/src/settings-ui.css
+// @resource     ani_hero_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/ccd5e25ad28f965f3bd1b3a5c5dcd70a20223be0/src/hero-banner.css
+// @resource     ani_dashboard_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/ccd5e25ad28f965f3bd1b3a5c5dcd70a20223be0/src/home-dashboard.css
+// @resource     ani_repairs_css https://raw.githubusercontent.com/aunight/Anigamer-Redesign3.0/ccd5e25ad28f965f3bd1b3a5c5dcd70a20223be0/src/ui-repairs.css
 // @noframes
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -404,6 +404,14 @@ Additional section icons: film, newspaper, comments.
   // 三、主題與設定介面樣式（於 document-start 預先注入以消除切換閃爍）
   const resourceChanges = {
     ani_content_css: [
+      [7477, 1, []],
+      [7310, 3, []],
+      [7306, 1, ['  .ani-postplay .ani-postplay-card-title[data-ani-marquee="true"] {']],
+      [7298, 1, ['.ani-postplay .ani-postplay-card-title > span {']],
+      [7211, 1, ['  inset: auto 36% max(11%, 92px) var(--ani-postplay-inset);']],
+      [7190, 13, []],
+      [7181, 4, ['  place-items: center;', '  padding: clamp(6px, 1vw, 12px);']],
+      [7107, 1, ['  --ani-postplay-inset: var(--ani-player-control-inset, 16px);']],
       [6673, 1, ['  background-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.1) !important;']],
       [
         6385,
@@ -543,6 +551,24 @@ Additional section icons: film, newspaper, comments.
         10501,
         2,
         [
+          'body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui #BH_background :is(#ani-info, #ani-tab-content-intro) {',
+          '  .ani-wiki-link {',
+          '    background: rgba(18, 38, 60, 0.06) !important;',
+          '    border-color: rgba(18, 38, 60, 0.16) !important;',
+          '    color: #24384e !important;',
+          '  }',
+          '  .ani-wiki-link:hover {',
+          '    background: rgba(20, 147, 156, 0.16) !important;',
+          '    border-color: rgba(20, 147, 156, 0.48) !important;',
+          '    color: #0b5e65 !important;',
+          '  }',
+          '  .ani-info-pill-svg {',
+          '    color: #0b5e65 !important;',
+          '  }',
+          '  svg:is(.ani-wiki-svg, .ani-yt-svg) {',
+          '    color: #24384e !important;',
+          '  }',
+          '}',
           '/* 淺色模式：播放器分集清單抽屜高對比適配 */',
           'body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .ani-player-episodes-drawer {',
           '  .ani-ep-drawer-panel {',
@@ -793,24 +819,6 @@ Additional section icons: film, newspaper, comments.
           '    background: rgba(20, 147, 156, 0.22) !important;',
           '    color: #08484e !important;',
           '  }',
-          '}',
-          'body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-ui #BH_background :is(#ani-info, #ani-tab-content-intro) {',
-          '  .ani-wiki-link {',
-          '    background: rgba(18, 38, 60, 0.06) !important;',
-          '    border-color: rgba(18, 38, 60, 0.16) !important;',
-          '    color: #24384e !important;',
-          '  }',
-          '  .ani-wiki-link:hover {',
-          '    background: rgba(20, 147, 156, 0.16) !important;',
-          '    border-color: rgba(20, 147, 156, 0.48) !important;',
-          '    color: #0b5e65 !important;',
-          '  }',
-          '  .ani-info-pill-svg {',
-          '    color: #0b5e65 !important;',
-          '  }',
-          '  svg:is(.ani-wiki-svg, .ani-yt-svg) {',
-          '    color: #24384e !important;',
-          '  }',
         ],
       ],
       [
@@ -913,6 +921,7 @@ Additional section icons: film, newspaper, comments.
           '  --halo: radial-gradient(closest-side, rgba(var(--ani-accent-rgb, 61, 175, 182), 0.16), rgba(255, 214, 140, 0));',
         ],
       ],
+      [9100, 1, ['  inset: calc(50% - 3px) auto auto calc(100% + 3px) !important;']],
       [
         9071,
         3,
@@ -1190,6 +1199,13 @@ Additional section icons: film, newspaper, comments.
         ],
       ],
       [
+        4688,
+        1,
+        [
+          'body.ani-ambientlight-page.ani-ambientlight-ui #BH_background #ani_video .vjs-control-bar .vjs-progress-control:is(:hover, :focus-within, :has(.vjs-sliding)) {',
+        ],
+      ],
+      [
         4681,
         2,
         [
@@ -1198,6 +1214,7 @@ Additional section icons: film, newspaper, comments.
         ],
       ],
       [4595, 1, ['  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.42) !important;']],
+      [4529, 2, ['  inset-block-end: calc(100% + 32px);']],
       [
         4450,
         2,
@@ -1219,6 +1236,24 @@ Additional section icons: film, newspaper, comments.
         [
           '  interpolate-size: allow-keywords;',
           '  transition: width 0.2s cubic-bezier(0.22, 1, 0.36, 1), padding 0.2s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.16s ease, color 0.16s ease !important;',
+        ],
+      ],
+      [
+        4331,
+        0,
+        [
+          'body.ani-ambientlight-page.ani-ambientlight-ui #BH_background .anime-title .anime_info_detail > .ani-info-views :is(.material-icons, .material-icons-round) {',
+          '  display: inline-grid !important;',
+          '  place-items: center;',
+          '  width: 14px !important;',
+          '  height: 14px !important;',
+          '  flex: none;',
+          '  margin: 0 !important;',
+          '  padding: 0 !important;',
+          '  font-size: 16px !important;',
+          '  line-height: 1 !important;',
+          '}',
+          '',
         ],
       ],
       [4204, 1, ['  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.72) !important;']],
@@ -1346,6 +1381,16 @@ Additional section icons: film, newspaper, comments.
       ],
       [2490, 1, ['  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.28) !important;']],
       [2356, 1, ['  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.34) !important;']],
+      [2240, 1, ['  padding: 22px var(--ani-player-control-inset) 14px !important;']],
+      [
+        2238,
+        0,
+        [
+          'body.ani-ambientlight-page.ani-ambientlight-ui #ani_video {',
+          '  --ani-player-control-inset: 22px;',
+          '}',
+        ],
+      ],
       [
         886,
         1,
@@ -4220,6 +4265,60 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
   html body.ani-ambientlight-page #BH_background .season ul.ani-ep-managed.ani-episode-cards { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
 }
 
+/* ── 淺色模式：集數大卡片與排序／簡介切換高對比適配 ── */
+body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li > a,
+body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li > .ani-upcoming-episode > .ani-upcoming-episode-card {
+  --ani-episode-glass: rgba(255, 255, 255, 0.92);
+  --ani-episode-border: rgba(18, 38, 60, 0.16);
+  --ani-card-glow-opacity: 0.16;
+  color: #142232 !important;
+}
+body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li > a > .ani-episode-card-glow,
+body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li > .ani-upcoming-episode .ani-episode-card-glow {
+  box-shadow: 0 4px 16px rgba(18, 38, 60, 0.08);
+}
+body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li.playing > a {
+  --ani-episode-glass: rgba(232, 248, 249, 0.96);
+  --ani-episode-border: #14939c;
+}
+body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li > a:is(:hover, :focus-visible) {
+  --ani-episode-border: #14939c;
+}
+body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-page #BH_background .season ul.ani-episode-cards .ani-episode-frame {
+  background: rgba(18, 38, 60, 0.07);
+}
+body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-page #BH_background .season ul.ani-episode-cards .ani-episode-card-heading {
+  color: #142232 !important;
+}
+body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-page #BH_background .season ul.ani-episode-cards .ani-episode-card-description,
+body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-page #BH_background .season ul.ani-episode-cards .ani-episode-card-synopsis {
+  color: #4b5e73 !important;
+}
+body:is(.ani-light-mode, .ani-theme-light).ani-ambientlight-page #BH_background .season ul.ani-episode-cards .ani-episode-card-date[data-label] {
+  background: rgba(18, 38, 60, 0.08);
+  color: #3c4e63;
+}
+body:is(.ani-light-mode, .ani-theme-light) #BH_background :is(.ani-ep-order, .ani-ep-layout-switch) {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-color: rgba(18, 38, 60, 0.18) !important;
+  color: #142232 !important;
+}
+body:is(.ani-light-mode, .ani-theme-light) #BH_background :is(.ani-ep-order, .ani-ep-layout-switch):is(:hover, :focus-visible) {
+  color: #0b757d !important;
+  border-color: rgba(20, 147, 156, 0.55) !important;
+}
+body:is(.ani-light-mode, .ani-theme-light) #BH_background .ani-ep-layout-switch::after {
+  background: radial-gradient(circle at 8px center, #ffffff 4px, transparent 4.5px), #8fa3b8;
+}
+body:is(.ani-light-mode, .ani-theme-light) #BH_background .ani-ep-layout-switch[aria-checked="true"]::after {
+  background: radial-gradient(circle at 20px center, #ffffff 4px, transparent 4.5px), #14939c;
+}
+html.ani-theme-vt::view-transition-old(root),
+html.ani-theme-vt::view-transition-new(root) {
+  animation-duration: 240ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 `,
   );
   const start = () => {
@@ -5252,7 +5351,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
         const appVersion =
           globalThis.chrome?.runtime?.getManifest?.()?.version ||
           globalThis.GM_info?.script?.version ||
-          '3.5.3';
+          '3.6.0';
         const creditCard =
           '<div class="ani-credit-card">' +
           '<div class="ani-credit-head">' +
@@ -11747,6 +11846,40 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
       }
 
       function findEnding(samples, duration) {
+        const direct = findEndingInterval(samples, duration);
+        if (direct || samples.length < 16) return direct ?? null;
+        // Preserve the measured times while smoothing brief vocal and percussion dips.
+        const smoothed = samples.map((sample, index) => {
+          const window = samples.slice(Math.max(0, index - 8), index + 9);
+          const mean = (key) => window.reduce((sum, item) => sum + item[key], 0) / window.length;
+          return { time: sample.time, peak: mean('peak'), stereo: mean('stereo') };
+        });
+        const trend = findEndingInterval(smoothed, duration);
+        if (!trend) return null;
+        if (direct === null) {
+          // Resolve conflicting raw boundaries only for a tail song with a measured
+          // change in stereo width across its onset. A pause in the same music
+          // has essentially the same stereo width on both sides.
+          const width = (from, to) => {
+            const active = samples.filter((s) => s.time >= from && s.time < to && s.peak >= 0.045);
+            return active.length >= 16
+              ? active.reduce((sum, s) => sum + s.stereo, 0) / active.length
+              : NaN;
+          };
+          if (
+            duration - trend.endTime > 20 ||
+            !(
+              width(trend.startTime, trend.startTime + 8) -
+                width(trend.startTime - 8, trend.startTime) >
+              0.04
+            )
+          )
+            return null;
+        }
+        return trend;
+      }
+
+      function findEndingInterval(samples, duration) {
         // Look for sustained music between distinct pauses. Ambiguous sections are left alone.
         const onsetSearchSeconds = 20;
         const activePeakMin = 0.045;
@@ -11774,6 +11907,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
                   candidates.push({
                     startTime: first.time,
                     endTime,
+                    threshold,
                     score: stereo + levels - Math.abs(length - 90) / 90,
                   });
                 }
@@ -11793,19 +11927,6 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
         if (canonicalTail && best && !isCanonicalTailEd(best) && duration - best.endTime > 30) {
           best = canonicalTail;
         }
-        // Nearby onsets with the same skip target are usually the same song
-        // found at different silence thresholds.
-        if (
-          best &&
-          candidates.some(
-            (other) =>
-              best.score - other.score < 0.25 &&
-              !(isCanonicalTailEd(best) && duration - other.endTime > 30) &&
-              (Math.abs(best.endTime - other.endTime) > 2 ||
-                Math.abs(best.startTime - other.startTime) > onsetSearchSeconds),
-          )
-        )
-          return null;
         const perSecond = Math.round(1 / step);
         if (best && best.endTime - best.startTime < 72 && duration - best.endTime <= 20) {
           // A quiet mid-ED bridge may have split a ~90s tail ED into a shorter trailing fragment.
@@ -11942,71 +12063,86 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
               gap = 0;
             }
           }
-          if (!best && samples.length >= Math.round(90 * perSecond)) {
-            // Fallback if a >1.5s mid-ED vocal/piano bridge split the 90s ED into <72s fragments.
-            const lastActiveIdx = samples.findLastIndex(
-              (s) => s && s.peak >= activePeakMin && s.stereo > stereoMin,
-            );
-            if (lastActiveIdx >= 0) {
-              const tailEndIdx = lastActiveIdx + 1;
-              const tailEnd = samples[lastActiveIdx].time + step;
-              if (duration - tailEnd <= 20) {
-                let bestStartIdx = -1,
-                  bestScore = -1;
-                const win = 8 * perSecond;
-                const winStartMin = Math.max(0, tailEndIdx - Math.round(100 * perSecond));
-                const winStartMax = Math.max(0, tailEndIdx - Math.round(80 * perSecond));
-                for (let idx = winStartMin; idx <= winStartMax; idx += perSecond) {
-                  const tailSec = samples.slice(idx, tailEndIdx);
-                  if (tailSec.length < 75 * perSecond) continue;
-                  const stereo =
-                    tailSec.filter((item) => item.stereo > stereoMin).length / tailSec.length;
-                  const levels =
-                    tailSec.filter((item) => item.peak >= activePeakMin).length / tailSec.length;
-                  if (stereo < 0.5 || levels < 0.72) continue;
-                  const preWin = samples.slice(Math.max(0, idx - 16 * perSecond), idx);
-                  const preStereo = preWin.length
-                    ? preWin.filter((item) => item.stereo > stereoMin).length / preWin.length
-                    : 0;
-                  let stereoJump = 0;
-                  if (idx >= win && idx + win <= samples.length) {
-                    let beforeS = 0,
-                      afterS = 0;
-                    for (let k = 0; k < win; k++) {
-                      beforeS += samples[idx - win + k].stereo;
-                      afterS += samples[idx + k].stereo;
-                    }
-                    stereoJump = (afterS - beforeS) / win;
+        }
+        // A late song can be fragmented by quiet vocals or piano even when earlier BGM forms a clean candidate.
+        if ((!best || duration - best.endTime > 30) && samples.length >= 90 * perSecond) {
+          const lastActiveIdx = samples.findLastIndex(
+            (s) => s && s.peak >= activePeakMin && s.stereo > stereoMin,
+          );
+          if (lastActiveIdx >= 0) {
+            const tailEndIdx = lastActiveIdx + 1;
+            const tailEnd = samples[lastActiveIdx].time + step;
+            if (duration - tailEnd <= 20) {
+              let bestStartIdx = -1,
+                bestScore = -1;
+              const win = 8 * perSecond;
+              const winStartMin = Math.max(0, tailEndIdx - Math.round(100 * perSecond));
+              const winStartMax = Math.max(0, tailEndIdx - Math.round(80 * perSecond));
+              for (let idx = winStartMin; idx <= winStartMax; idx += perSecond) {
+                const tailSec = samples.slice(idx, tailEndIdx);
+                if (tailSec.length < 75 * perSecond) continue;
+                const stereo =
+                  tailSec.filter((item) => item.stereo > stereoMin).length / tailSec.length;
+                const levels =
+                  tailSec.filter((item) => item.peak >= activePeakMin).length / tailSec.length;
+                if (stereo < 0.5 || levels < 0.72) continue;
+                const preWin = samples.slice(Math.max(0, idx - 16 * perSecond), idx);
+                const preStereo = preWin.length
+                  ? preWin.filter((item) => item.stereo > stereoMin).length / preWin.length
+                  : 0;
+                let stereoJump = 0;
+                if (idx >= win && idx + win <= samples.length) {
+                  let beforeS = 0,
+                    afterS = 0;
+                  for (let k = 0; k < win; k++) {
+                    beforeS += samples[idx - win + k].stereo;
+                    afterS += samples[idx + k].stereo;
                   }
-                  // Accept either a jump from mono dialogue OR a stereo-width jump from climax BGM.
-                  if (
-                    preWin.length >= 8 * perSecond &&
-                    stereo - preStereo < 0.08 &&
-                    stereoJump < 0.05
-                  )
-                    continue;
-                  const sc =
-                    stereo +
-                    levels +
-                    stereoJump * 2 -
-                    Math.abs(tailEnd - samples[idx].time - 90) / 90;
-                  if (sc > bestScore) {
-                    bestScore = sc;
-                    bestStartIdx = idx;
-                  }
+                  stereoJump = (afterS - beforeS) / win;
                 }
-                if (bestStartIdx >= 0) {
-                  best = {
-                    startTime: samples[bestStartIdx].time,
-                    endTime: tailEnd,
-                    score: bestScore,
-                  };
+                // Accept either a jump from mono dialogue OR a stereo-width jump from climax BGM.
+                if (
+                  stereoJump < 0.05 &&
+                  (best || (preWin.length >= 8 * perSecond && stereo - preStereo < 0.08))
+                )
+                  continue;
+                const sc =
+                  stereo +
+                  levels +
+                  stereoJump * 2 -
+                  Math.abs(tailEnd - samples[idx].time - 90) / 90;
+                if (sc > bestScore) {
+                  bestScore = sc;
+                  bestStartIdx = idx;
                 }
+              }
+              if (bestStartIdx >= 0) {
+                best = {
+                  startTime: samples[bestStartIdx].time,
+                  endTime: tailEnd,
+                  score: bestScore,
+                };
               }
             }
           }
-          if (!best) return null;
         }
+        if (!best) return undefined;
+        // A stricter silence threshold can split the same song at an internal dip.
+        const truncatedEnding = (other) =>
+          other.threshold > best.threshold &&
+          Math.abs(best.startTime - other.startTime) <= 2 &&
+          best.endTime > other.endTime;
+        if (
+          candidates.some(
+            (other) =>
+              best.score - other.score < 0.25 &&
+              !(isCanonicalTailEd(best) && duration - other.endTime > 30) &&
+              !truncatedEnding(other) &&
+              (Math.abs(best.endTime - other.endTime) > 2 ||
+                Math.abs(best.startTime - other.startTime) > onsetSearchSeconds),
+          )
+        )
+          return null;
         // Trim a quiet lead-in or score that briefly rises before the sustained song.
         const onset = samples.findIndex((sample) => sample.time >= best.startTime);
         const findStableStart = (windowSeconds, minStereoShare) => {
@@ -12036,13 +12172,32 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           }
           return undefined;
         };
-        const startTime = findStableStart(8, 0.5) ?? findStableStart(4, 0.25) ?? best.startTime;
+        const stableStart = findStableStart(8, 0.5) ?? findStableStart(4, 0.25);
+        let startTime = stableStart ?? best.startTime;
+        if (stableStart !== undefined && stableStart > best.startTime) {
+          // An opening verse or instrumental often has short centered passages.
+          // Keep it when the stereo music is already sustained across the lead-in.
+          for (let index = onset; samples[index]?.time < stableStart; index++) {
+            const window = samples.slice(index, index + 6 * perSecond);
+            const music = (item) => item.peak >= activePeakMin && item.stereo > stereoMin;
+            if (
+              music(samples[index]) &&
+              window.filter(music).length >= 0.65 * window.length &&
+              window.slice(0, 2 * perSecond).filter(music).length >= perSecond &&
+              window.slice(2 * perSecond, 4 * perSecond).some(music) &&
+              window.slice(4 * perSecond).some(music)
+            ) {
+              startTime = samples[index].time;
+              break;
+            }
+          }
+        }
         const endTime = Math.min(best.endTime, duration);
         if (startTime === undefined || endTime - startTime < 48) return null;
         const followingAudio = samples.filter(
           (sample) => sample.time >= endTime + 0.5 && sample.peak >= 0.022,
         );
-        const hasFollowingScene = duration - endTime >= 25 && followingAudio.length * step >= 6;
+        const hasFollowingScene = followingAudio.length * step >= 6;
         return { startTime, endTime, hasFollowingScene };
       }
 
@@ -12428,7 +12583,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
             signal.throwIfAborted();
             let response;
             try {
-              response = await fetch(url, { signal, credentials: 'omit' });
+              response = await fetch(url, { signal, credentials: 'omit', priority: 'low' });
             } catch (error) {
               if (signal.aborted) throw error;
               if (attempt) break;
@@ -12519,10 +12674,13 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
         }
         if (!playlist && failedRead) throw failedRead;
         if (!playlist) return undefined;
-        for (let i = 1; i < playlist.segments.length; i++) {
+        const batchSize = 2;
+        for (let i = 1; i < playlist.segments.length; i += batchSize) {
           signal.throwIfAborted();
-          samples.push(...(await analyzeSegment(playlist.segments[i])));
-          await new Promise((resolve) => setTimeout(resolve, 60));
+          const batch = await Promise.all(
+            playlist.segments.slice(i, i + batchSize).map(analyzeSegment),
+          );
+          for (const segmentSamples of batch) samples.push(...segmentSamples);
         }
         const detected = findEnding(samples, video.duration);
         if (!detected && samples.length) {
@@ -13338,7 +13496,10 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
         const hex = '#' + [R, G, B].map((v) => v.toString(16).padStart(2, '0')).join('');
         return { hex, rgb: `${R}, ${G}, ${B}` };
       }
-      function applyLightMode(isLight, { persist = false, syncSwitch = false } = {}) {
+      function applyLightMode(
+        isLight,
+        { persist = false, syncSwitch = false, animate = false } = {},
+      ) {
         const target = Boolean(isLight);
         const changed =
           document.documentElement.classList.contains('ani-light-mode') !== target ||
@@ -13346,12 +13507,26 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
             ? document.body.classList.contains('ani-light-mode') !== target ||
               document.body.classList.contains('ani-theme-light') !== target
             : false);
-        if (changed) {
+        const commitToggle = () => {
           withThemeTransitionSuppression(() => {
             document.documentElement.classList.toggle('ani-light-mode', target);
             document.body?.classList.toggle('ani-light-mode', target);
             document.body?.classList.toggle('ani-theme-light', target);
           });
+        };
+        if (changed) {
+          const reducedMotion =
+            typeof matchMedia === 'function' &&
+            matchMedia('(prefers-reduced-motion: reduce)').matches;
+          if (animate && !reducedMotion && typeof document.startViewTransition === 'function') {
+            document.documentElement.classList.add('ani-theme-vt');
+            const vt = document.startViewTransition(commitToggle);
+            Promise.resolve(vt?.finished).finally(() => {
+              document.documentElement.classList.remove('ani-theme-vt');
+            });
+          } else {
+            commitToggle();
+          }
         }
         if (persist) {
           try {
@@ -14644,8 +14819,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
         let sourceSince = 0;
         let episodeSearch = location.search;
         let plusReadyAt = 0,
-          nextPlusCheck = 0,
-          plusRestarted = false;
+          nextPlusCheck = 0;
         let statusPill,
           statusChangedAt = 0;
         let previousAudioProgress = '';
@@ -14790,14 +14964,6 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           const currentTitle = formatPlayerEpisodeTitle(
             document.querySelector('.anime_name h1')?.textContent || '',
           );
-          if (currentTitle) {
-            const title = document.createElement('span');
-            title.className = 'ani-postplay-current-title';
-            mountTitleTrack(title, currentTitle);
-            title.title = currentTitle;
-            previewDetails.append(title);
-          }
-          previewCard.append(previewDetails);
           const summary = document.createElement('div');
           summary.className = 'ani-postplay-summary';
           const actions = document.createElement('div');
@@ -14836,6 +15002,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
             ratingTab.focus({ preventScroll: true });
           }
           if (rating && ratingTab) {
+            previewCard.append(previewDetails);
             action(previewDetails, '作品評分', openRating).className = 'ani-postplay-rate';
           }
           const replayVideo = () =>
@@ -14846,6 +15013,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
             });
           previewButton = document.createElement('div');
           previewButton.className = 'ani-postplay-preview';
+          previewButton.title = currentTitle;
           player.append(previewButton);
           const continueEnding = () => {
             continuingEnding = video;
@@ -14944,21 +15112,34 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
             );
             const sidebar = document.querySelector('.ani-comment-recommendations');
             let entries = readCommentRecommendations(document);
-            if (!entries.length && sidebar) {
-              entries = [...sidebar.querySelectorAll('a[href*="animeRef.php"]')].map((link) => [
-                link.href,
-                {
-                  title: link.querySelector('strong')?.textContent || link.textContent.trim(),
-                  src: link.querySelector('img')?.src,
-                },
-              ]);
+            if (sidebar) {
+              const sidebarEntries = [...sidebar.querySelectorAll('a[href*="animeRef.php"]')].map(
+                (link) => [
+                  link.href,
+                  {
+                    title: link.querySelector('strong')?.textContent || link.textContent.trim(),
+                    src: link.querySelector('img')?.src,
+                  },
+                ],
+              );
+              entries.push(...sidebarEntries);
             }
             const pool = new Map();
             try {
-              for (const entry of JSON.parse(localStorage.getItem(recommendationPoolKey) || 'null')
-                ?.entries || [])
-                pool.set(...entry);
+              const cached = JSON.parse(localStorage.getItem(recommendationPoolKey) || 'null');
+              if (Date.now() - cached?.savedAt < 86400000) {
+                for (const entry of cached.entries || []) pool.set(...entry);
+              }
             } catch {}
+            let recent = [];
+            try {
+              const stored = JSON.parse(
+                localStorage.getItem(postplayRecommendationHistoryKey) || '[]',
+              );
+              if (Array.isArray(stored))
+                recent = stored.filter((id) => typeof id === 'string').slice(0, 6);
+            } catch {}
+            const animeId = (href) => new URL(href, location.href).searchParams.get('sn');
             let indexRequested = false;
             async function loadIndex() {
               indexRequested = true;
@@ -14967,7 +15148,11 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
                   credentials: 'include',
                   timeoutMs: 4000,
                 });
-                if (response.ok) return readRecommendationIndex((await response.json()).data);
+                if (response.ok) {
+                  const indexed = readRecommendationIndex((await response.json()).data);
+                  for (const [href, item] of indexed) pool.set(href, item);
+                  return indexed;
+                }
               } catch {}
               return [];
             }
@@ -14975,7 +15160,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
             const current = await currentDetails;
             const seen = new Set();
             const eligible = ([href, item]) => {
-              const id = new URL(href, location.href).searchParams.get('sn');
+              const id = animeId(href);
               const title = normalizeTitle(item.title);
               if (
                 seen.has(id) ||
@@ -14989,6 +15174,14 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
               return true;
             };
             const candidates = [...entries, ...pool].filter(eligible);
+            const repeated = candidates.filter(([href]) => recent.includes(animeId(href)));
+            const shuffle = (items) => {
+              for (let index = items.length - 1; index > 0; index--) {
+                const other = Math.floor(Math.random() * (index + 1));
+                [items[index], items[other]] = [items[other], items[index]];
+              }
+              return items;
+            };
             async function loadWideImage(urls) {
               for (const url of new Set(urls.filter(Boolean))) {
                 const image = new Image();
@@ -15037,11 +15230,24 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
                 );
               }
             }
-            await loadCards(candidates);
+            await loadCards(
+              shuffle(candidates.filter(([href]) => !recent.includes(animeId(href)))),
+            );
             if (picks.length < 3 && !indexRequested && overlay === panel && !panel.inert) {
-              await loadCards((await loadIndex()).filter(eligible));
+              await loadCards(shuffle((await loadIndex()).filter(eligible)));
+            }
+            if (picks.length < 3) {
+              repeated.sort(([a], [b]) => recent.indexOf(animeId(b)) - recent.indexOf(animeId(a)));
+              await loadCards(repeated);
             }
             if (overlay !== panel || panel.inert || !picks.length) return;
+            const displayed = picks.slice(0, 3);
+            try {
+              const history = [
+                ...new Set([...displayed.map(({ href }) => animeId(href)), ...recent]),
+              ].slice(0, 6);
+              localStorage.setItem(postplayRecommendationHistoryKey, JSON.stringify(history));
+            } catch {}
             const title = document.createElement('strong');
             title.innerHTML =
               '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linejoin="round" d="m9 3 1.9 5.6L16.5 11l-5.6 2.4L9 19l-2-5.6L1.5 11 7 8.6Z M19 2l1 3 3 1-3 1-1 3-1-3-3-1 3-1Z"/></svg>推薦動畫';
@@ -15067,7 +15273,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
                 });
             }
             setArt(picks[0].image);
-            for (const { href, item, image, metadata } of picks.slice(0, 3)) {
+            for (const { href, item, image, metadata } of displayed) {
               const link = document.createElement('a');
               link.className = 'ani-postplay-card';
               link.href = href;
@@ -15157,6 +15363,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           const player = video.closest('.video-js, #ani_video');
           if (episodeSearch !== location.search) {
             continuingEnding = null;
+            dismissedVideo = null;
             previousAudioProgress = readPlusAudioProgress();
             syncAudioStatus(null, '');
             episodeSearch = location.search;
@@ -15164,7 +15371,6 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
             plusReadyAt = nextPlusCheck = retryAnalysisAt = 0;
             endingSourceDeadline = 0;
             endingReadAttempts = 0;
-            plusRestarted = false;
             dismissedCue = dismissedIntroCue = null;
             stopApiLookup();
             stopAnalysis();
@@ -15180,6 +15386,11 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           }
           const duration = video.duration;
           const now = performance.now();
+          const verified = verifiedEndingChapters.get(new URLSearchParams(episodeSearch).get('sn'));
+          const verifiedInterval =
+            verified && Math.abs(verified.duration - duration) < 1
+              ? { ...verified, endTime: duration }
+              : null;
           const audioApi = globalThis.AniEndingAudio;
           const hasSplitApi = Boolean(audioApi?.lookupSkipTimes && audioApi?.analyzeAudio);
           if (
@@ -15230,25 +15441,6 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
               const waiting = /^正在初始化/.test(progress || '');
               if (waiting && !(apiOp && apiEd)) {
                 plusReadyAt ||= now;
-                if (!plusRestarted && now - plusReadyAt >= 8000) {
-                  const { master } = audioApi?.streamUrls?.(sourceSince) || {};
-                  if (master) {
-                    plusRestarted = true;
-                    const search = episodeSearch;
-                    window.dispatchEvent(
-                      new CustomEvent('video_m3u8_src', { detail: { src: master.href } }),
-                    );
-                    // Let Vue apply the source prop before Plus resets its readiness gate.
-                    requestAnimationFrame(() => {
-                      if (video.isConnected && location.search === search && endingSkipEnabled()) {
-                        window.postMessage(
-                          { name: 'video_initial_check', state: true },
-                          location.origin,
-                        );
-                      }
-                    });
-                  }
-                }
               } else plusReadyAt = 0;
 
               const initializing = waiting && !(apiOp && apiEd) && now - plusReadyAt <= 25000;
@@ -15284,18 +15476,9 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
               syncAudioStatus(player, '');
             }
           }
-          if (analysis && (analysis.video !== video || analysis.duration !== duration))
+          if (analysis && (analysis.video !== video || analysis.duration !== duration || apiEd))
             stopAnalysis();
-          const verified = verifiedEndingChapters.get(new URLSearchParams(episodeSearch).get('sn'));
-          const verifiedInterval =
-            verified && Math.abs(verified.duration - duration) < 1
-              ? {
-                  startTime: verified.startTime,
-                  endTime: duration,
-                  hasFollowingScene: verified.hasFollowingScene,
-                }
-              : null;
-          const allowAudioEstimate = !verified && !apiEd;
+          const allowAudioEstimate = !verifiedInterval && !apiEd;
           function getEnding() {
             return activeEndingChapter(
               video,
@@ -15305,14 +15488,17 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           const inTailWindow =
             Number.isFinite(duration) && video.currentTime >= Math.max(0, duration - 285);
           const ending = getEnding();
+          // Keep tail downloads off the startup path, while allowing a direct seek
+          // into the ending to start analysis immediately.
           if (
             allowAudioEstimate &&
-            (!hasSplitApi || (apiLookup?.done && inTailWindow)) &&
+            inTailWindow &&
             !analysis &&
             performance.now() >= retryAnalysisAt &&
             endingSkipEnabled() &&
             Number.isFinite(duration) &&
             duration >= 300 &&
+            video.readyState >= 2 &&
             video.currentTime > 0 &&
             audioApi
           ) {
@@ -15351,17 +15537,11 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
           }
           const hasFollowingScene =
             ending?.hasFollowingScene ?? (ending && ending.endTime < duration - 0.1);
-          const trustedEnding = Boolean(
-            ending &&
-              (verifiedInterval ||
-                ending.source === 'aniskip' ||
-                ending.source === 'animeskip' ||
-                (allowAudioEstimate && ending !== analysis?.interval)),
-          );
+          const skipEnabled = endingSkipEnabled();
           if (
             ending &&
             !hasFollowingScene &&
-            trustedEnding &&
+            skipEnabled &&
             !overlay &&
             dismissedVideo !== video &&
             !video.paused
@@ -15397,6 +15577,11 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
               }
             });
             introBtn.className = 'ani-intro-action';
+            skipIntro.addEventListener('click', (event) => {
+              if (event.target !== skipIntro) return;
+              event.stopPropagation();
+              introBtn.click();
+            });
             const introClose = action(skipIntro, '×', () => {
               dismissedIntroCue = intro;
               skipIntro?.remove();
@@ -15407,8 +15592,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
             player.append(skipIntro);
           }
 
-          const showEndingSkipPill = Boolean(ending && (hasFollowingScene || !trustedEnding));
-          if (!showEndingSkipPill || !endingSkipEnabled() || overlay) {
+          if (!hasFollowingScene || !skipEnabled || overlay) {
             skip?.remove();
             skip = null;
             return;
@@ -15422,20 +15606,12 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
             const chapter = getEnding();
             if (!chapter || !endingSkipEnabled()) return;
             const following = chapter.hasFollowingScene ?? chapter.endTime < duration - 0.1;
-            if (following) {
-              video.currentTime = chapter.endTime;
-            } else {
-              if (Number.isFinite(duration) && duration > 0) video.currentTime = duration;
-              if (!overlay && dismissedVideo !== video) show(video, player);
-            }
+            if (following) video.currentTime = chapter.endTime;
             skip?.remove();
             skip = null;
           });
           button.className = 'ani-ending-action';
-          button.setAttribute(
-            'aria-description',
-            hasFollowingScene ? '跳到彩蛋開頭' : '跳到片尾結束',
-          );
+          button.setAttribute('aria-description', '跳到彩蛋開頭');
           const close = action(pill, '×', () => {
             dismissedCue = ending;
             skip?.remove();
@@ -15540,6 +15716,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
       if (location.pathname.endsWith('/animeVideo.php')) installEpisodeEnding();
       const recommendationMetadataKey = 'ani-recommendation-metadata-v2';
       const recommendationPoolKey = 'ani-comment-recommendation-pool-v1';
+      const postplayRecommendationHistoryKey = 'ani-postplay-recommendation-history-v1';
       const recommendationSeason = (date) => {
         const match = String(date || '').match(/(\d{4})[/-](\d{1,2})/);
         const month = Number(match?.[2]);
@@ -24090,7 +24267,7 @@ html body.ani-ambientlight-page #BH_background .season ul.ani-episode-cards > li
             initialLight: savedLight,
             onToggle: (isLight) => {
               syncedAppearance = isLight ? 'light' : 'dark';
-              applyLightMode(isLight, { persist: true });
+              applyLightMode(isLight, { persist: true, animate: true });
               updateSetting('appearance', syncedAppearance);
             },
           });

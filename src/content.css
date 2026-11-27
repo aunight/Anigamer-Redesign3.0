@@ -512,7 +512,7 @@ body.ani-layout-nav .mainmenu .ani-nav-more-menu .ani-more-icon svg {
   display: block;
 }
 body.ani-ambientlight-ui .mainmenu .ani-nav-more-menu li > :is(a, .btn-title):hover {
-  background: rgba(61, 175, 182, 0.2) !important;
+  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.2) !important;
   color: var(--ani-accent, #3dafb6) !important;
 }
 body.ani-ambientlight-ui .big_banner {
@@ -2898,14 +2898,14 @@ body.ani-layout-comments #w-post-box .webview_commendlist {
   color: #e2eaf1;
 }
 .ani-settings-ranges output {
-  color: #3dafb6;
+  color: var(--ani-accent, #3dafb6);
   font-variant-numeric: tabular-nums;
 }
 .ani-settings-ranges input {
   grid-column: 1/-1;
   width: 100%;
   margin: 0;
-  accent-color: #3dafb6;
+  accent-color: var(--ani-accent, #3dafb6);
   cursor: pointer;
 }
 .ani-settings-option {
@@ -2920,7 +2920,7 @@ body.ani-layout-comments #w-post-box .webview_commendlist {
   height: 18px;
   flex: 0 0 18px;
   margin: 0;
-  accent-color: #3dafb6;
+  accent-color: var(--ani-accent, #3dafb6);
   cursor: pointer;
 }
 .ani-settings-tip {
@@ -2952,14 +2952,14 @@ body.ani-layout-comments #w-post-box .webview_commendlist {
   gap: 7px;
 }
 .ani-settings-range output {
-  color: #3dafb6;
+  color: var(--ani-accent, #3dafb6);
   font-variant-numeric: tabular-nums;
 }
 .ani-settings-range input {
   grid-column: 1/-1;
   width: 100%;
   margin: 0;
-  accent-color: #3dafb6;
+  accent-color: var(--ani-accent, #3dafb6);
 }
 .ani-settings-select {
   display: grid;
@@ -3011,7 +3011,7 @@ body.ani-ambientlight-ui .ani-view-settings-panel :is(select, button) {
 }
 .ani-view-settings-panel :focus-visible,
 .ani-view-settings:focus-visible {
-  outline: 2px solid #3dafb6;
+  outline: 2px solid var(--ani-accent, #3dafb6);
   outline-offset: 3px;
 }
 @media (min-width: 1536px) {
@@ -3514,7 +3514,7 @@ body.ani-ambientlight-ui .top_sky :is([id^='topBarMsg_'], .TOP-msg) .TOP-msglist
   background: rgba(255, 255, 255, 0.08) !important;
 }
 body.ani-ambientlight-ui .top_sky :is([id^='topBarMsg_'], .TOP-msg) .TOP-msglist > div.new {
-  background: rgba(61, 175, 182, 0.14) !important;
+  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.14) !important;
 }
 body.ani-ambientlight-ui .top_sky :is([id^='topBarMsg_'], .TOP-msg) .TOP-msgbtn {
   background: rgba(255, 255, 255, 0.04) !important;
@@ -3525,7 +3525,7 @@ body.ani-ambientlight-ui .top_sky :is([id^='topBarMsg_'], .TOP-msg) .TOP-msgbtn 
   background: transparent !important;
 }
 body.ani-ambientlight-ui .top_sky :is([id^='topBarMsg_'], .TOP-msg) .TOP-msgbtn a:hover {
-  background: rgba(61, 175, 182, 0.16) !important;
+  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.16) !important;
   color: var(--ani-accent, #3dafb6) !important;
 }
 body.ani-layout-watch #BH_background > .container-player:has(> section.player) {
@@ -4845,10 +4845,10 @@ body.ani-ambientlight-ui #BH_background
   color: var(--ani-accent) !important;
 }
 body.ani-ambientlight-ui #BH_background .btn-next:has(> p) {
-  background: rgba(61, 175, 182, 0.14) !important;
+  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.14) !important;
   backdrop-filter: blur(10px) saturate(140%) !important;
   -webkit-backdrop-filter: blur(10px) saturate(140%) !important;
-  border: 1px solid rgba(61, 175, 182, 0.34) !important;
+  border: 1px solid rgba(var(--ani-accent-rgb, 61, 175, 182), 0.34) !important;
   border-radius: 7px !important;
   color: var(--ani-accent) !important;
   transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease !important;
@@ -4959,7 +4959,7 @@ body.ani-ambientlight-ui #toast-container > .toast {
 }
 body.ani-ambientlight-ui #toast-container > .toast.toast-info {
   background-color: rgba(20, 48, 72, 0.82) !important;
-  border: 1px solid rgba(61, 175, 182, 0.42) !important;
+  border: 1px solid rgba(var(--ani-accent-rgb, 61, 175, 182), 0.42) !important;
 }
 body.ani-ambientlight-ui #toast-container > .toast.toast-success {
   background-color: rgba(22, 66, 48, 0.82) !important;
@@ -5434,12 +5434,12 @@ body.ani-ambientlight-page #BH_background .anime-btn-show-more::after {
 body.ani-ambientlight-page #BH_background .anime-btn-show-more:is(:hover, :focus-within)::before,
 body.ani-ambientlight-page #BH_background .anime-btn-show-more:is(:hover, :focus-within)::after {
   background: var(--ani-accent, #3dafb6) !important;
-  box-shadow: 0 0 8px #3dafb64d;
+  box-shadow: 0 0 8px rgba(var(--ani-accent-rgb, 61, 175, 182), 0.3);
 }
 
 @keyframes aniDividerBreath {
   0%, 100% { opacity: .3; box-shadow: 0 0 0 transparent; }
-  50% { opacity: 1; box-shadow: 0 0 10px 1px #3dafb680; }
+  50% { opacity: 1; box-shadow: 0 0 10px 1px rgba(var(--ani-accent-rgb, 61, 175, 182), 0.5); }
 }
 body.ani-ambientlight-page #BH_background .anime-btn-show-more::before,
 body.ani-ambientlight-page #BH_background .anime-btn-show-more::after {
@@ -6383,7 +6383,7 @@ body.ani-ambientlight-ui #BH_background .ani-poster-rail .theme-list-main:hover 
 }
 body.ani-ambientlight-ui #BH_background .ani-poster-rail .theme-list-main:hover {
   border-color: var(--ani-accent, #3dafb6) !important;
-  box-shadow: 0 3px 10px #0003, inset 0 0 0 1px #3dafb633 !important;
+  box-shadow: 0 3px 10px #0003, inset 0 0 0 1px rgba(var(--ani-accent-rgb, 61, 175, 182), 0.2) !important;
 }
 body.ani-ambientlight-ui #BH_background :is(.animate-theme-list,.old_list) .ani-poster-score {
   box-shadow: inset 0 1px 0 #ffffff38, 0 2px 8px #0003 !important;
@@ -6671,7 +6671,7 @@ body.ani-ambientlight-ui #BH_background #blockAnimePublisherChannel .trademark-l
 }
 body.ani-ambientlight-ui #BH_background #blockAnimePublisherChannel .trademark-logo:hover {
   border-color: var(--ani-accent, #3dafb6) !important;
-  background-color: #3dafb61a !important;
+  background-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.1) !important;
 }
 body.ani-ambientlight-ui #BH_background #blockAnimePublisherChannel .update-time {
   width: auto !important;
@@ -7105,7 +7105,7 @@ body.ani-catalog-page .ani-catalog-date-status {
 }
 
 #ani_video:is(.ani-postplay-active, .ani-postplay-exiting) {
-  --ani-postplay-inset: 3%;
+  --ani-postplay-inset: var(--ani-player-control-inset, 16px);
   --ani-postplay-width: 28%;
   --ani-postplay-top: 7%;
   --ani-postplay-preview-x: calc(100% - var(--ani-postplay-width) - var(--ani-postplay-inset));
@@ -7179,27 +7179,12 @@ body.ani-catalog-page .ani-catalog-date-status {
   position: absolute;
   inset: 100% 0 auto;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 8px;
-  padding: clamp(6px, 1vw, 12px) clamp(6px, 1vw, 12px) clamp(6px, 1vw, 12px) clamp(4px, 0.55vw, 8px);
+  place-items: center;
+  padding: clamp(6px, 1vw, 12px);
   border: 1px solid #ffffff29;
   border-radius: 0 0 12px 12px;
   background: linear-gradient(145deg, #35475b85, #17212bdd);
   backdrop-filter: blur(16px) saturate(135%);
-}
-.ani-postplay-preview-details > strong {
-  font-size: clamp(13px, 1.5vw, 22px);
-  font-weight: 600;
-}
-.ani-postplay-current-title {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: #cbddeb;
-  font-size: clamp(12px, 1.5cqw, 21px);
-  font-weight: 600;
 }
 #ani_video:is(.ani-postplay-active, .ani-postplay-exiting) .vjs-control-bar {
   z-index: 35 !important;
@@ -7209,7 +7194,7 @@ body.ani-catalog-page .ani-catalog-date-status {
 }
 .ani-postplay-summary {
   position: absolute;
-  inset: auto 36% max(11%, 92px) 3%;
+  inset: auto 36% max(11%, 92px) var(--ani-postplay-inset);
   min-width: 0;
   grid-template-columns: minmax(0, 1fr);
   display: grid;
@@ -7296,7 +7281,7 @@ body.ani-catalog-page .ani-catalog-date-status {
   font-size: clamp(10px, 1.35cqw, 17px);
   font-weight: 650;
 }
-.ani-postplay :is(.ani-postplay-card-title, .ani-postplay-current-title) > span {
+.ani-postplay .ani-postplay-card-title > span {
   display: inline-block;
   width: max-content;
 }
@@ -7304,12 +7289,9 @@ body.ani-catalog-page .ani-catalog-date-status {
   .ani-postplay [data-ani-marquee="true"] > span {
     animation: aniPostplayMarquee 7s ease-in-out infinite alternate;
   }
-  .ani-postplay :is(.ani-postplay-card-title, .ani-postplay-current-title)[data-ani-marquee="true"] {
+  .ani-postplay .ani-postplay-card-title[data-ani-marquee="true"] {
     mask-image: linear-gradient(to right, transparent, #000 10px, #000 calc(100% - 14px), transparent);
     -webkit-mask-image: linear-gradient(to right, transparent, #000 10px, #000 calc(100% - 14px), transparent);
-  }
-  .ani-postplay .ani-postplay-current-title[data-ani-marquee="true"] > span {
-    padding-inline: 4px 10px;
   }
   .ani-postplay-loading > span { animation: aniPostplayShimmer 1.4s linear infinite; }
 }
@@ -7475,7 +7457,6 @@ body.ani-catalog-page .ani-catalog-date-status {
 }
 .ani-postplay svg { width: 1em; height: 1em; flex: none; }
 #ani_video .ani-postplay-rate {
-  grid-column: 2;
   white-space: nowrap;
   font-size: clamp(9px, 1.1cqw, 14px);
 }

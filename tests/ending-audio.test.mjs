@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { runInNewContext } from 'node:vm';
+import { JSDOM } from 'jsdom';
 
 const source = readFileSync(new URL('../src/ending-audio.js', import.meta.url), 'utf8');
 const { findEnding, parseAniSkipResponse, parseAniSkipSegments, mediaPlaylist } = runInNewContext(
@@ -34,12 +35,38 @@ test('similar music candidates with different skip targets remain ambiguous', ()
   assert.equal(findEnding(samples, 240), null);
 });
 
+test('a quiet bridge near the ending of a song does not discard its shared onset', () => {
+  for (const start of [131, 138]) {
+    const end = start + 84;
+    const samples = sampleTail(time => {
+      if (time >= end + 2 && time < end + 10) return 0.1;
+      if (time < start || time >= end) return 0;
+      return time >= end - 12 && time < end - 11 ? 0.027 : 0.2;
+    });
+    const result = findEnding(samples, end + 19);
+    assert.equal(result?.startTime, start);
+    assert.equal(result.endTime, end);
+    assert.equal(result.hasFollowingScene, true);
+  }
+});
+
 test('centered dialogue before a sustained stereo song does not set the skip onset', () => {
   const samples = sampleTail(time => time >= 135 && time < 237 ? 0.2 : 0);
   for (const sample of samples) {
     if (sample.time < 150) sample.stereo = 0.02;
   }
   assert.equal(findEnding(samples, 240)?.startTime, 150);
+});
+
+test('brief centered passages in an opening verse do not delay the ending onset', () => {
+  for (const onset of [145, 151]) {
+    const samples = sampleTail(time => time >= onset && time < 239 ? 0.2 : 0);
+    for (const sample of samples) {
+      const elapsed = sample.time - onset;
+      if (elapsed >= 0 && elapsed < 12 && Math.floor(elapsed) % 3 === 2) sample.stereo = 0.02;
+    }
+    assert.equal(findEnding(samples, 240)?.startTime, onset);
+  }
 });
 
 test('widely separated onsets can still indicate different sections', () => {
@@ -363,4 +390,142 @@ test('detects ED from real sn=52896 climax-BGM-to-ED waveform profile', () => {
   assert.ok(result, 'detects sn=52896 ED');
   assert.ok(result.startTime >= 1325 && result.startTime <= 1335, `expected ~1329, got ${result.startTime}`);
   assert.ok(result.endTime >= 1418 && result.endTime <= 1420);
+});
+
+test('a fragmented tail ending can beat earlier stereo climax music at different episode lengths', () => {
+  for (const duration of [1387, 1523]) {
+    const startTime = duration - 96;
+    const endTime = duration - 7;
+    const samples = Array.from({ length: 240 * 8 }, (_, index) => {
+      const time = duration - 240 + index / 8;
+      const earlierBgm = time >= startTime - 116 && time < startTime - 37;
+      const ending = time >= startTime && time < endTime;
+      const vocalDip = ending && (time - startTime) % 23 >= 20.5;
+      return {
+        time,
+        peak: ending ? 0.18 + (index % 5) * 0.006 : earlierBgm ? 0.2 : 0.06,
+        stereo: ending && !vocalDip ? 0.24 + (index % 7) * 0.008 : earlierBgm ? 0.16 : 0.015,
+      };
+    });
+    const ending = findEnding(samples, duration);
+    assert.ok(ending && Math.abs(ending.startTime - startTime) <= 2, `expected ${startTime}, got ${ending?.startTime}`);
+    assert.equal(ending.endTime, endTime);
+  }
+});
+
+test('audio-detected endings shrink the player and leave post-credits scenes available', async t => {
+  const dom = new JSDOM(`<div id="BH_background"><div id="ani_video"><video></video></div></div>
+    <div data-ani-plus-skip-segments><input type="checkbox" checked></div>`, {
+    url: 'https://ani.gamer.com.tw/animeVideo.php?sn=99999',
+    runScripts: 'outside-only',
+    pretendToBeVisual: true,
+  });
+  t.after(() => dom.window.close());
+  const { window } = dom;
+  const { document } = window;
+  window.matchMedia = query => ({ matches: query === '(prefers-reduced-motion: reduce)', addEventListener() {} });
+  window.fetch = async () => ({ ok: false });
+  window.AbortSignal = AbortSignal;
+  window.AbortController = AbortController;
+  window.Image.prototype.decode = async () => {};
+  window.Math.random = () => 0;
+  Object.defineProperties(window.Image.prototype, {
+    naturalWidth: { value: 160 },
+    naturalHeight: { value: 90 },
+  });
+  window.localStorage.setItem('ani-comment-recommendation-pool-v1', JSON.stringify({
+    savedAt: Date.now(),
+    entries: [1, 2, 3, 4, 5, 6].map(id => [
+      `https://ani.gamer.com.tw/animeRef.php?sn=${id}`,
+      { title: `Anime ${id}`, wideCover: `https://example.com/${id}.jpg` },
+    ]),
+  }));
+  let finishLookup;
+  let lookup = new Promise(resolve => { finishLookup = resolve; });
+  const result = findEnding(sampleTail(time => time >= 148 && time < 234 ? 0.2 : 0), 240);
+  assert.ok(result);
+  const duration = 1460;
+  const offset = duration - 240;
+  let interval = { ...result, startTime: result.startTime + offset, endTime: result.endTime + offset };
+  let analysisCount = 0;
+  window.AniEndingAudio = {
+    lookupSkipTimes: () => lookup,
+    analyzeAudio: async () => { analysisCount++; return interval; },
+  };
+  for (const file of ['settings.js', 'content.js']) {
+    window.eval(readFileSync(new URL(`../src/${file}`, import.meta.url), 'utf8'));
+  }
+  const video = document.querySelector('video');
+  let playCount = 0;
+  video.play = async () => { playCount++; };
+  Object.defineProperties(video, {
+    duration: { value: duration },
+    paused: { value: false },
+    readyState: { value: 2 },
+  });
+  const seek = time => {
+    video.currentTime = time;
+    video.dispatchEvent(new window.Event('timeupdate'));
+  };
+  const skip = () => document.querySelector('.ani-ending-action');
+  const isShrunk = () => video.closest('#ani_video').classList.contains('ani-postplay-active');
+  seek(30);
+  assert.equal(analysisCount, 0, 'metadata gets the first chance during normal playback');
+  finishLookup({ op: null, ed: null });
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(analysisCount, 0, 'a metadata miss does not start media downloads during startup');
+  seek(duration - 280);
+  assert.equal(analysisCount, 1, 'the fallback starts before the ending');
+  await new Promise(resolve => setImmediate(resolve));
+  seek(interval.startTime - 0.1);
+  assert.equal(isShrunk(), false);
+  const setting = document.querySelector('input');
+  setting.checked = false;
+  seek(interval.startTime);
+  assert.equal(isShrunk(), false);
+  setting.checked = true;
+  seek(interval.startTime);
+  assert.equal(isShrunk(), true);
+  assert.equal(skip(), null);
+  assert.equal(video.currentTime, interval.startTime);
+  const shownRecommendations = () => [...document.querySelectorAll('.ani-postplay-recommendations a')]
+    .map(link => new URL(link.href).searchParams.get('sn'));
+  await new Promise(resolve => setImmediate(resolve));
+  assert.deepEqual(shownRecommendations(), ['2', '3', '4']);
+  const continueButton = [...document.querySelectorAll('.ani-postplay-actions button')]
+    .find(button => button.textContent === '繼續看片尾');
+  continueButton.click();
+  assert.equal(isShrunk(), false);
+  assert.equal(playCount, 1);
+  seek(interval.startTime + 1);
+  assert.equal(isShrunk(), false, 'continuing the ending stays in the normal player');
+
+  window.history.replaceState(null, '', '?sn=99998');
+  lookup = new Promise(() => {});
+  seek(interval.startTime);
+  assert.equal(analysisCount, 2, 'seeking into the tail starts audio even while metadata is pending');
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(isShrunk(), true);
+  await new Promise(resolve => setImmediate(resolve));
+  assert.deepEqual(shownRecommendations(), ['5', '6', '1']);
+
+  window.history.replaceState(null, '', '?sn=99997');
+  interval = { startTime: duration - 125, endTime: duration - 35, hasFollowingScene: true };
+  seek(interval.startTime);
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(isShrunk(), false);
+  assert.equal(skip()?.textContent, '跳過片尾');
+  skip().click();
+  assert.equal(video.currentTime, interval.endTime);
+  assert.equal(isShrunk(), false);
+
+  window.history.replaceState(null, '', '?sn=99996');
+  interval = { startTime: duration - 105, endTime: duration - 19, hasFollowingScene: true };
+  seek(interval.startTime);
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(isShrunk(), false, 'a short post-credits scene keeps the full player');
+  assert.equal(skip()?.textContent, '跳過片尾');
+  skip().click();
+  assert.equal(video.currentTime, interval.endTime);
+  assert.equal(skip(), null);
 });

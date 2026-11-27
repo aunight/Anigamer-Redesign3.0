@@ -100,10 +100,15 @@ panel.querySelector('[data-category="light"]').click();
 panel.querySelector('[data-reset-category]').click();
 assert.equal(panel.querySelector('[data-setting="method"]').value,w.AniAmbientSettings.defaults.method);
 assert.equal(panel.querySelector('[data-setting="blur"]').value,String(w.AniAmbientSettings.defaults.blur));
-change('textSize',18);change('headerOpacity',50);
+change('textSize',18);change('commentOpacity',50);
 panel.querySelector('[data-category="surfaces"]').click();panel.querySelector('[data-reset-category]').click();
-assert.equal(panel.querySelector('[data-setting="headerOpacity"]').value,String(w.AniAmbientSettings.defaults.headerOpacity));
+assert.equal(panel.querySelector('[data-setting="commentOpacity"]').value,String(w.AniAmbientSettings.defaults.commentOpacity));
 assert.equal(panel.querySelector('[data-setting="textSize"]').value,'18','Category reset preserves unrelated fields');
+assert.equal(panel.querySelector('[data-setting="headerOpacity"], [data-setting="panelOpacity"], [data-setting="foldInfo"]'), null, 'Removed dead controls are omitted from settings panel');
+change('accentHue', 300);
+assert.notEqual(w.document.body.style.getPropertyValue('--ani-accent'), '#3dafb6');
+assert.match(w.document.body.style.getPropertyValue('--ani-accent-rgb'), /^\d+, \d+, \d+$/);
+change('accentHue', w.AniAmbientSettings.defaults.accentHue);
 assert.equal(w.AniAmbientSettings.normalize({customFontName:'Name;url(test)'}).customFontName,'Nameurltest');
 await new Promise(resolve=>setTimeout(resolve,25));assert.ok(mutations<30,'Paused native player must remain idle');
 assert.equal(panel.querySelector('[data-setting="watchWidth"]').disabled,true);
@@ -180,7 +185,7 @@ const shelf=w.document.querySelector('.ani-episode-shelf'),episodeButton=shelf.q
 assert.equal(season.hidden,true);assert.equal(episodeButton.getAttribute('aria-expanded'),'false');
 episodeButton.click();assert.equal(season.hidden,false);assert.equal(episodeButton.getAttribute('aria-expanded'),'true');
 change('episodeStyle','wrap');assert.equal(shelf.querySelector('.ani-region-toggle'),null);assert.equal(season.hidden,false);
-for(const [flag,selector] of [['foldInfo','section.data'],['foldRelated','.old_list'],['foldNews','.theme-extend-block']]){
+for(const [flag,selector] of [['foldRelated','.old_list'],['foldNews','.theme-extend-block']]){
   change(flag,true);const target=w.document.querySelector(selector),button=w.document.querySelector('[aria-controls="'+target.id+'"]');
   assert.ok(button,`${flag} must provide a control`);
   if (flag === 'foldNews') {

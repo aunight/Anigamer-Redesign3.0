@@ -896,6 +896,12 @@ test('Phase 5: long-series episode grouping, Bangumi/AniList episode title toolt
   dW.body.classList.add('ani-hide-episode-description');
   ep33Link.dispatchEvent(new wW.MouseEvent('mouseover', { bubbles: true }));
   assert.equal(tip.querySelector('.ani-ep-tip-synopsis'), null);
+  ep33Link.dispatchEvent(new wW.MouseEvent('mouseout', { bubbles: true, relatedTarget: dW.body }));
+  assert.equal(tip.hidden, true);
+  ep33Link.dispatchEvent(new wW.MouseEvent('mouseover', { bubbles: true }));
+  assert.equal(tip.hidden, false);
+  dW.body.dispatchEvent(new wW.MouseEvent('pointermove', { bubbles: true }));
+  assert.equal(tip.hidden, true);
 
   // 5C: Off-shelf banner displayed on watch page & cached for /mygather.php
   const watchBanner = dW.querySelector('.ani-offshelf-banner');
@@ -2019,4 +2025,55 @@ test('upcoming episode never reuses previous episode poster and resolves 16:9 tr
   await new Promise((r) => dom.window.setTimeout(r, 40));
   assert.notEqual(img.src, ep8Poster);
   assert.equal(img.src, trailerThumb);
+});
+
+test('light mode preserves comment rounded corners and syncs high-contrast overrides across danmu, intro, rating, and drawer UI', () => {
+  const repairsCss = fs.readFileSync('src/ui-repairs.css', 'utf8');
+  const enhancementsCss = fs.readFileSync('src/enhancements.css', 'utf8');
+  const contentJs = fs.readFileSync('src/content.js', 'utf8');
+
+  assert.match(
+    repairsCss,
+    /body:is\(\.ani-light-mode,\s*\.ani-theme-light\)\.ani-ambientlight-ui\s+#BH_background\s+#w-post-box\s+\.main-container_wall-post\s*\{\s*background:\s*transparent\s*!important;/,
+  );
+  assert.match(
+    repairsCss,
+    /body:is\(\.ani-light-mode,\s*\.ani-theme-light\)\.ani-ambientlight-ui\s+#BH_background\s+#w-post-box\s+\.webview_commendlist\s*\{[^}]*border-radius:\s*16px\s*!important;[^}]*overflow:\s*clip\s*!important;/,
+  );
+  assert.match(
+    repairsCss,
+    /body:is\(\.ani-light-mode,\s*\.ani-theme-light\)\.ani-ambientlight-page\.ani-ambientlight-ui\s+#BH_background\s+section\.player\s+\.subtitle\s*\{[\s\S]*?\.ani-ring-center\s+strong[\s\S]*?\.ani-review-card/,
+  );
+  assert.match(
+    repairsCss,
+    /body:is\(\.ani-light-mode,\s*\.ani-theme-light\)\.ani-ambientlight-page\.ani-ambientlight-ui\s+#BH_background\s+#ani_video\s+\.ani-player-episodes-drawer\s*\{[\s\S]*?\.ani-ep-row[\s\S]*?\.ani-ep-name/,
+  );
+  assert.match(
+    enhancementsCss,
+    /body:is\(\.ani-light-mode,\s*\.ani-theme-light\)\.ani-ambientlight-ui\s+#BH_background\s+\.ani-danmu-search-capsule\s*>\s*\.ani-danmu-search\s*\{[^}]*color:\s*#142232\s*!important;/,
+  );
+  assert.match(
+    enhancementsCss,
+    /body:is\(\.ani-light-mode,\s*\.ani-theme-light\)\.ani-ambientlight-ui\s+#BH_background\s+\.ani-danmu-tools-bar\s+\.ani-danmu-count\s*\{[^}]*color:\s*#3c4e63\s*!important;/,
+  );
+  assert.match(
+    enhancementsCss,
+    /body:is\(\.ani-light-mode,\s*\.ani-theme-light\)\.ani-ambientlight-page\s+#BH_background\s+\.season\s+ul\.ani-episode-cards\s*>\s*li\s*>\s*a[\s\S]*?--ani-episode-glass:\s*rgba\(255,\s*255,\s*255,\s*0\.92\)/,
+  );
+  assert.match(
+    enhancementsCss,
+    /html\.ani-theme-vt::view-transition-new\(root\)\s*\{[^}]*animation-duration:\s*240ms;/,
+  );
+  assert.match(
+    contentJs,
+    /document\.body\?\.classList\.toggle\('ani-theme-light',\s*target\)/,
+  );
+  assert.match(
+    contentJs,
+    /document\.startViewTransition\(/,
+  );
+  assert.match(
+    contentJs,
+    /const resolvedThemeLight = document\.documentElement\.classList\.contains\('ani-light-mode'\);/,
+  );
 });

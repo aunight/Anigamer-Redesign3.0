@@ -592,16 +592,28 @@
     const hex = '#' + [R, G, B].map(v => v.toString(16).padStart(2, '0')).join('');
     return { hex, rgb: `${R}, ${G}, ${B}` };
   }
-  function applyLightMode(isLight, { persist = false, syncSwitch = false } = {}) {
+  function applyLightMode(isLight, { persist = false, syncSwitch = false, animate = false } = {}) {
     const target = Boolean(isLight);
     const changed = document.documentElement.classList.contains('ani-light-mode') !== target
       || (document.body ? document.body.classList.contains('ani-light-mode') !== target || document.body.classList.contains('ani-theme-light') !== target : false);
-    if (changed) {
+    const commitToggle = () => {
       withThemeTransitionSuppression(() => {
         document.documentElement.classList.toggle('ani-light-mode', target);
         document.body?.classList.toggle('ani-light-mode', target);
         document.body?.classList.toggle('ani-theme-light', target);
       });
+    };
+    if (changed) {
+      const reducedMotion = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (animate && !reducedMotion && typeof document.startViewTransition === 'function') {
+        document.documentElement.classList.add('ani-theme-vt');
+        const vt = document.startViewTransition(commitToggle);
+        Promise.resolve(vt?.finished).finally(() => {
+          document.documentElement.classList.remove('ani-theme-vt');
+        });
+      } else {
+        commitToggle();
+      }
     }
     if (persist) {
       try { localStorage.setItem('aniLightMode', target ? '1' : '0'); } catch {}
@@ -1703,7 +1715,7 @@
     let endingReadAttempts = 0;
     let sourceSince = 0;
     let episodeSearch = location.search;
-    let plusReadyAt = 0, nextPlusCheck = 0, plusRestarted = false;
+    let plusReadyAt = 0, nextPlusCheck = 0;
     let statusPill, statusChangedAt = 0;
     let previousAudioProgress = '';
     const readPlusAudioProgress = () => {
@@ -1823,14 +1835,6 @@
       const previewDetails = document.createElement('div');
       previewDetails.className = 'ani-postplay-preview-details';
       const currentTitle = formatPlayerEpisodeTitle(document.querySelector('.anime_name h1')?.textContent || '');
-      if (currentTitle) {
-        const title = document.createElement('span');
-        title.className = 'ani-postplay-current-title';
-        mountTitleTrack(title, currentTitle);
-        title.title = currentTitle;
-        previewDetails.append(title);
-      }
-      previewCard.append(previewDetails);
       const summary = document.createElement('div');
       summary.className = 'ani-postplay-summary';
       const actions = document.createElement('div');
@@ -1859,6 +1863,7 @@
         ratingTab.focus({ preventScroll: true });
       }
       if (rating && ratingTab) {
+        previewCard.append(previewDetails);
         action(previewDetails, '作品評分', openRating).className = 'ani-postplay-rate';
       }
       const replayVideo = () => dismiss(video, () => {
@@ -1868,6 +1873,7 @@
       });
       previewButton = document.createElement('div');
       previewButton.className = 'ani-postplay-preview';
+      previewButton.title = currentTitle;
       player.append(previewButton);
       const continueEnding = () => {
         continuingEnding = video;
@@ -1944,21 +1950,35 @@
         const currentTitle = normalizeTitle(document.querySelector('.anime-title h1, h1')?.textContent.replace(/\s*\[\d+\]\s*$/, ''));
         const sidebar = document.querySelector('.ani-comment-recommendations');
         let entries = readCommentRecommendations(document);
-        if (!entries.length && sidebar) {
-          entries = [...sidebar.querySelectorAll('a[href*="animeRef.php"]')].map(link => [
+        if (sidebar) {
+          const sidebarEntries = [...sidebar.querySelectorAll('a[href*="animeRef.php"]')].map(link => [
             link.href, {title: link.querySelector('strong')?.textContent || link.textContent.trim(), src: link.querySelector('img')?.src}
           ]);
+          entries.push(...sidebarEntries);
         }
         const pool = new Map();
         try {
-          for (const entry of JSON.parse(localStorage.getItem(recommendationPoolKey) || 'null')?.entries || []) pool.set(...entry);
+          const cached = JSON.parse(localStorage.getItem(recommendationPoolKey) || 'null');
+          if (Date.now() - cached?.savedAt < 86400000) {
+            for (const entry of cached.entries || []) pool.set(...entry);
+          }
         } catch {}
+        let recent = [];
+        try {
+          const stored = JSON.parse(localStorage.getItem(postplayRecommendationHistoryKey) || '[]');
+          if (Array.isArray(stored)) recent = stored.filter(id => typeof id === 'string').slice(0, 6);
+        } catch {}
+        const animeId = href => new URL(href, location.href).searchParams.get('sn');
         let indexRequested = false;
         async function loadIndex() {
           indexRequested = true;
           try {
             const response = await aniFetch('https://api.gamer.com.tw/anime/v1/index.php', {credentials:'include', timeoutMs:4000});
-            if (response.ok) return readRecommendationIndex((await response.json()).data);
+            if (response.ok) {
+              const indexed = readRecommendationIndex((await response.json()).data);
+              for (const [href, item] of indexed) pool.set(href, item);
+              return indexed;
+            }
           } catch {}
           return [];
         }
@@ -1966,7 +1986,7 @@
         const current = await currentDetails;
         const seen = new Set();
         const eligible = ([href, item]) => {
-          const id = new URL(href, location.href).searchParams.get('sn');
+          const id = animeId(href);
           const title = normalizeTitle(item.title);
           if (seen.has(id) || title === currentTitle || id === current?.animeSn ||
               String(item.videoSn) === currentSn || current?.episodeSns?.has(String(item.videoSn))) return false;
@@ -1974,6 +1994,14 @@
           return true;
         };
         const candidates = [...entries, ...pool].filter(eligible);
+        const repeated = candidates.filter(([href]) => recent.includes(animeId(href)));
+        const shuffle = items => {
+          for (let index = items.length - 1; index > 0; index--) {
+            const other = Math.floor(Math.random() * (index + 1));
+            [items[index], items[other]] = [items[other], items[index]];
+          }
+          return items;
+        };
         async function loadWideImage(urls) {
           for (const url of new Set(urls.filter(Boolean))) {
             const image = new Image();
@@ -2006,11 +2034,20 @@
             picks.push(...(await Promise.all(candidates.slice(offset, offset + 3).map(prepareCard))).filter(Boolean));
           }
         }
-        await loadCards(candidates);
+        await loadCards(shuffle(candidates.filter(([href]) => !recent.includes(animeId(href)))));
         if (picks.length < 3 && !indexRequested && overlay === panel && !panel.inert) {
-          await loadCards((await loadIndex()).filter(eligible));
+          await loadCards(shuffle((await loadIndex()).filter(eligible)));
+        }
+        if (picks.length < 3) {
+          repeated.sort(([a], [b]) => recent.indexOf(animeId(b)) - recent.indexOf(animeId(a)));
+          await loadCards(repeated);
         }
         if (overlay !== panel || panel.inert || !picks.length) return;
+        const displayed = picks.slice(0, 3);
+        try {
+          const history = [...new Set([...displayed.map(({href}) => animeId(href)), ...recent])].slice(0, 6);
+          localStorage.setItem(postplayRecommendationHistoryKey, JSON.stringify(history));
+        } catch {}
         const title = document.createElement('strong');
         title.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linejoin="round" d="m9 3 1.9 5.6L16.5 11l-5.6 2.4L9 19l-2-5.6L1.5 11 7 8.6Z M19 2l1 3 3 1-3 1-1 3-1-3-3-1 3-1Z"/></svg>推薦動畫';
         actions.before(title);
@@ -2031,7 +2068,7 @@
           if (!reducedMotion.matches) artFade = art.animate([{opacity: .55}, {opacity: 1}], {duration: 150, easing: 'ease-out'});
         }
         setArt(picks[0].image);
-        for (const {href, item, image, metadata} of picks.slice(0, 3)) {
+        for (const {href, item, image, metadata} of displayed) {
           const link = document.createElement('a');
           link.className = 'ani-postplay-card';
           link.href = href;
@@ -2115,6 +2152,7 @@
       const player = video.closest('.video-js, #ani_video');
       if (episodeSearch !== location.search) {
         continuingEnding = null;
+        dismissedVideo = null;
         previousAudioProgress = readPlusAudioProgress();
         syncAudioStatus(null, '');
         episodeSearch = location.search;
@@ -2122,7 +2160,6 @@
         plusReadyAt = nextPlusCheck = retryAnalysisAt = 0;
         endingSourceDeadline = 0;
         endingReadAttempts = 0;
-        plusRestarted = false;
         dismissedCue = dismissedIntroCue = null;
         stopApiLookup();
         stopAnalysis();
@@ -2138,6 +2175,10 @@
       }
       const duration = video.duration;
       const now = performance.now();
+      const verified = verifiedEndingChapters.get(new URLSearchParams(episodeSearch).get('sn'));
+      const verifiedInterval = verified && Math.abs(verified.duration - duration) < 1
+        ? { ...verified, endTime: duration }
+        : null;
       const audioApi = globalThis.AniEndingAudio;
       const hasSplitApi = Boolean(audioApi?.lookupSkipTimes && audioApi?.analyzeAudio);
       if (apiLookup && (apiLookup.video !== video || (Number.isFinite(duration) && Math.abs(apiLookup.duration - duration) >= 1))) {
@@ -2169,20 +2210,6 @@
           const waiting = /^正在初始化/.test(progress || '');
           if (waiting && !(apiOp && apiEd)) {
             plusReadyAt ||= now;
-            if (!plusRestarted && now - plusReadyAt >= 8000) {
-              const {master} = audioApi?.streamUrls?.(sourceSince) || {};
-              if (master) {
-                plusRestarted = true;
-                const search = episodeSearch;
-                window.dispatchEvent(new CustomEvent('video_m3u8_src', {detail:{src:master.href}}));
-                // Let Vue apply the source prop before Plus resets its readiness gate.
-                requestAnimationFrame(() => {
-                  if (video.isConnected && location.search === search && endingSkipEnabled()) {
-                    window.postMessage({name:'video_initial_check', state:true}, location.origin);
-                  }
-                });
-              }
-            }
           } else plusReadyAt = 0;
 
           const initializing = waiting && !(apiOp && apiEd) && now - plusReadyAt <= 25000;
@@ -2213,20 +2240,18 @@
           syncAudioStatus(player, '');
         }
       }
-      if (analysis && (analysis.video !== video || analysis.duration !== duration)) stopAnalysis();
-      const verified = verifiedEndingChapters.get(new URLSearchParams(episodeSearch).get('sn'));
-      const verifiedInterval = verified && Math.abs(verified.duration - duration) < 1
-        ? { startTime: verified.startTime, endTime: duration, hasFollowingScene: verified.hasFollowingScene }
-        : null;
-      const allowAudioEstimate = !verified && !apiEd;
+      if (analysis && (analysis.video !== video || analysis.duration !== duration || apiEd)) stopAnalysis();
+      const allowAudioEstimate = !verifiedInterval && !apiEd;
       function getEnding() {
         return activeEndingChapter(video, verifiedInterval || apiEd || (allowAudioEstimate ? analysis?.interval : null));
       }
       const inTailWindow = Number.isFinite(duration) && video.currentTime >= Math.max(0, duration - 285);
       const ending = getEnding();
-      if (allowAudioEstimate && (!hasSplitApi || ((apiLookup?.done) && inTailWindow)) && !analysis &&
+      // Keep tail downloads off the startup path, while allowing a direct seek
+      // into the ending to start analysis immediately.
+      if (allowAudioEstimate && inTailWindow && !analysis &&
           performance.now() >= retryAnalysisAt && endingSkipEnabled() && Number.isFinite(duration) && duration >= 300 &&
-          video.currentTime > 0 && audioApi) {
+          video.readyState >= 2 && video.currentTime > 0 && audioApi) {
         const controller = new AbortController();
         const task = {video, duration, controller, interval: null};
         analysis = task;
@@ -2253,8 +2278,8 @@
         });
       }
       const hasFollowingScene = ending?.hasFollowingScene ?? (ending && ending.endTime < duration - 0.1);
-      const trustedEnding = Boolean(ending && (verifiedInterval || ending.source === 'aniskip' || ending.source === 'animeskip' || (allowAudioEstimate && ending !== analysis?.interval)));
-      if (ending && !hasFollowingScene && trustedEnding && !overlay && dismissedVideo !== video && !video.paused) {
+      const skipEnabled = endingSkipEnabled();
+      if (ending && !hasFollowingScene && skipEnabled && !overlay && dismissedVideo !== video && !video.paused) {
         show(video, player);
       }
 
@@ -2275,6 +2300,11 @@
           }
         });
         introBtn.className = 'ani-intro-action';
+        skipIntro.addEventListener('click', event => {
+          if (event.target !== skipIntro) return;
+          event.stopPropagation();
+          introBtn.click();
+        });
         const introClose = action(skipIntro, '×', () => {
           dismissedIntroCue = intro;
           skipIntro?.remove();
@@ -2285,8 +2315,7 @@
         player.append(skipIntro);
       }
 
-      const showEndingSkipPill = Boolean(ending && (hasFollowingScene || !trustedEnding));
-      if (!showEndingSkipPill || !endingSkipEnabled() || overlay) {
+      if (!hasFollowingScene || !skipEnabled || overlay) {
         skip?.remove();
         skip = null;
         return;
@@ -2300,17 +2329,12 @@
         const chapter = getEnding();
         if (!chapter || !endingSkipEnabled()) return;
         const following = chapter.hasFollowingScene ?? (chapter.endTime < duration - 0.1);
-        if (following) {
-          video.currentTime = chapter.endTime;
-        } else {
-          if (Number.isFinite(duration) && duration > 0) video.currentTime = duration;
-          if (!overlay && dismissedVideo !== video) show(video, player);
-        }
+        if (following) video.currentTime = chapter.endTime;
         skip?.remove();
         skip = null;
       });
       button.className = 'ani-ending-action';
-      button.setAttribute('aria-description', hasFollowingScene ? '跳到彩蛋開頭' : '跳到片尾結束');
+      button.setAttribute('aria-description', '跳到彩蛋開頭');
       const close = action(pill, '×', () => {
         dismissedCue = ending;
         skip?.remove();
@@ -2386,6 +2410,7 @@
   if (location.pathname.endsWith('/animeVideo.php')) installEpisodeEnding();
   const recommendationMetadataKey = 'ani-recommendation-metadata-v2';
   const recommendationPoolKey = 'ani-comment-recommendation-pool-v1';
+  const postplayRecommendationHistoryKey = 'ani-postplay-recommendation-history-v1';
   const recommendationSeason = (date) => {
     const match = String(date || '').match(/(\d{4})[/-](\d{1,2})/);
     const month = Number(match?.[2]);
@@ -5400,14 +5425,24 @@
     ];
     for (const scope of captureRoots) {
       for (const box of scope.querySelectorAll('div, ul, nav')) {
-        if (box.closest('#ani_video, .plus_button_box, .ani-watch-tools, .anime-title, .subtitle, .ani-plus-dark-drawer, .data_acgbox, #acg_review, section.data, .ACG-box, .acg-score-user')) continue;
+        if (box.matches('.plus_imagetool_box, .ani-drawer-toggles, .ani-player-settings-drawer, .ani-unified-settings-grid, .ani-capture-moved, .ani-plus-capture-card')) continue;
+        if (box.closest('#ani_video, .plus_button_box, .plus_imagetool_box, .ani-watch-tools, .anime-title, .subtitle, .ani-plus-dark-drawer, .ani-player-settings-drawer, .data_acgbox, #acg_review, section.data, .ACG-box, .acg-score-user')) continue;
         const btns = [...box.children].filter(el => el.nodeType === 1 && !el.matches('img, video, canvas'));
         if (btns.length !== 4) continue;
+        if (!btns.every(el => el.matches('button, a, [role="button"], [title], [aria-label]') || el.querySelector('svg, i, img, [class*="icon" i], [class*="material" i]'))) continue;
         const card = box.parentElement;
         if (!card) continue;
-        const hasMedia = Boolean(card.querySelector('img, video, canvas'));
-        const hasCapText = /第\s*\d+(?:\.\d+)?\s*集\s*\d+\s*[:：]\s*\d+/.test(card.textContent || '');
-        if (!hasCapText) continue;
+        const outsideMedia = (el) => [...el.querySelectorAll('img, video, canvas')].filter(m => !box.contains(m));
+        const isCardCandidate = (el) => Boolean(el) && el !== scope && el !== plusToolBox && !el.matches('.image_tool, .plus_imagetool_box, .container-player, .ani-player-settings-drawer, .ani-capture-moved');
+        const previewCard = isCardCandidate(card) && outsideMedia(card).length > 0
+          ? card
+          : (isCardCandidate(card.parentElement) && outsideMedia(card.parentElement).length > 0 ? card.parentElement : null);
+        const hasMedia = Boolean(previewCard);
+        const hasCapText = /(?:第\s*\d+(?:\.\d+)?\s*集|\d{1,2}\/\d{1,2})?\s*\d{1,2}\s*[:：]\s*\d{2}/.test((previewCard || card).textContent || '');
+        if (!hasMedia && !hasCapText) continue;
+        if (previewCard && outsideMedia(previewCard).length === 1) {
+          previewCard.classList.add('ani-plus-capture-card');
+        }
         box.classList.add('ani-plus-capture-actions');
         btns.forEach((btn, idx) => {
           btn.classList.add('ani-plus-capture-btn');
@@ -8134,7 +8169,7 @@
         initialLight: savedLight,
         onToggle: (isLight) => {
           syncedAppearance = isLight ? 'light' : 'dark';
-          applyLightMode(isLight, { persist: true });
+          applyLightMode(isLight, { persist: true, animate: true });
           updateSetting('appearance', syncedAppearance);
         },
       });

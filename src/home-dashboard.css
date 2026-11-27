@@ -199,9 +199,9 @@ body.ani-ambientlight-ui #BH_background .ani-fp-cell {
   background: rgba(255, 255, 255, 0.08);
   transition: transform 0.14s ease, background-color 0.14s ease;
 }
-body.ani-ambientlight-ui #BH_background .ani-fp-cell[data-l='1'] { background: rgba(61, 175, 182, 0.3); }
-body.ani-ambientlight-ui #BH_background .ani-fp-cell[data-l='2'] { background: rgba(61, 175, 182, 0.54); }
-body.ani-ambientlight-ui #BH_background .ani-fp-cell[data-l='3'] { background: rgba(76, 211, 220, 0.78); }
+body.ani-ambientlight-ui #BH_background .ani-fp-cell[data-l='1'] { background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.3); }
+body.ani-ambientlight-ui #BH_background .ani-fp-cell[data-l='2'] { background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.54); }
+body.ani-ambientlight-ui #BH_background .ani-fp-cell[data-l='3'] { background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.78); }
 body.ani-ambientlight-ui #BH_background .ani-fp-cell[data-l='4'] { background: var(--ani-accent, #5ee2ea); }
 body.ani-ambientlight-ui #BH_background .ani-fp-cell.future { visibility: hidden; }
 body.ani-ambientlight-ui #BH_background .ani-fp-cell.today {
@@ -235,8 +235,8 @@ body.ani-ambientlight-ui #BH_background .ani-fp-sync-btn {
   transition: background-color 0.16s ease, border-color 0.16s ease;
 }
 body.ani-ambientlight-ui #BH_background .ani-fp-sync-btn:hover:not(:disabled) {
-  background: rgba(61, 175, 182, 0.26);
-  border-color: rgba(76, 211, 220, 0.72);
+  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.26);
+  border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.72);
   color: #ffffff;
 }
 body.ani-ambientlight-ui #BH_background .ani-fp-legend {
@@ -273,7 +273,7 @@ body.ani-ambientlight-ui #BH_background .ani-fp-tip {
   padding: 8px 11px;
   border-radius: 10px;
   background: rgba(10, 16, 26, 0.94);
-  border: 1px solid rgba(76, 211, 220, 0.45);
+  border: 1px solid rgba(var(--ani-accent-rgb, 61, 175, 182), 0.45);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
   font-size: 12px;
   line-height: 1.5;
@@ -345,8 +345,8 @@ body.ani-ambientlight-ui #BH_background .ani-fp-day-b {
   font-weight: 600;
   cursor: pointer;
 }
-body.ani-ambientlight-ui #BH_background .ani-fp-day-b[data-l='1'] { border-color: rgba(61, 175, 182, 0.45); }
-body.ani-ambientlight-ui #BH_background .ani-fp-day-b[data-l='2'] { border-color: rgba(61, 175, 182, 0.68); }
+body.ani-ambientlight-ui #BH_background .ani-fp-day-b[data-l='1'] { border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.45); }
+body.ani-ambientlight-ui #BH_background .ani-fp-day-b[data-l='2'] { border-color: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.68); }
 body.ani-ambientlight-ui #BH_background .ani-fp-day-b[data-l='3'],
 body.ani-ambientlight-ui #BH_background .ani-fp-day-b[data-l='4'] { border-color: var(--ani-accent, #5ee2ea); }
 body.ani-ambientlight-ui #BH_background .ani-fp-day-b[aria-pressed='true'],
@@ -381,7 +381,7 @@ body.ani-ambientlight-ui #BH_background .ani-wx-sky > svg {
 }
 body.ani-ambientlight-ui #BH_background .ani-wx-sky .s-off { fill: rgba(255, 255, 255, 0.045); }
 body.ani-ambientlight-ui #BH_background .ani-wx-sky .s-hz { fill: rgba(255, 255, 255, 0.18); }
-body.ani-ambientlight-ui #BH_background .ani-wx-sky .s-hill { fill: rgba(94, 226, 234, 0.24); }
+body.ani-ambientlight-ui #BH_background .ani-wx-sky .s-hill { fill: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.24); }
 body.ani-ambientlight-ui #BH_background .ani-wx-sky .s-sun { fill: #fbbf24; }
 body.ani-ambientlight-ui #BH_background .ani-wx-sky .s-ray { fill: rgba(251, 191, 36, 0.55); }
 body.ani-ambientlight-ui #BH_background .ani-wx-sky .s-moon { fill: #f8fafc; }
@@ -389,7 +389,7 @@ body.ani-ambientlight-ui #BH_background .ani-wx-sky .s-moonDark { fill: rgba(248
 body.ani-ambientlight-ui #BH_background .ani-wx-sky .s-star { fill: rgba(255, 255, 255, 0.72); }
 body.ani-ambientlight-ui #BH_background .ani-wx-sky .s-cloud { fill: rgba(226, 238, 248, 0.68); }
 body.ani-ambientlight-ui #BH_background .ani-wx-sky .s-cloudDark { fill: rgba(148, 174, 202, 0.72); }
-body.ani-ambientlight-ui #BH_background .ani-wx-sky .s-rain { fill: #5ee2ea; }
+body.ani-ambientlight-ui #BH_background .ani-wx-sky .s-rain { fill: color-mix(in srgb, var(--ani-accent, #3dafb6) 82%, white); }
 body.ani-ambientlight-ui #BH_background .ani-wx-sky .s-snow { fill: #ffffff; }
 body.ani-ambientlight-ui #BH_background .ani-wx-sky .s-bolt { fill: #fde047; }
 body.ani-ambientlight-ui #BH_background .ani-wx-sky .s-fog,
@@ -494,7 +494,7 @@ body.ani-ambientlight-ui #BH_background .ani-wx-glyph .i-sun { fill: #fbbf24; }
 body.ani-ambientlight-ui #BH_background .ani-wx-glyph .i-moon { fill: #f8fafc; }
 body.ani-ambientlight-ui #BH_background .ani-wx-glyph .i-cloud { fill: rgba(226, 238, 248, 0.85); }
 body.ani-ambientlight-ui #BH_background .ani-wx-glyph .i-cloudDark { fill: rgba(148, 174, 202, 0.88); }
-body.ani-ambientlight-ui #BH_background .ani-wx-glyph .i-rain { fill: #5ee2ea; }
+body.ani-ambientlight-ui #BH_background .ani-wx-glyph .i-rain { fill: color-mix(in srgb, var(--ani-accent, #3dafb6) 82%, white); }
 body.ani-ambientlight-ui #BH_background .ani-wx-glyph .i-bolt { fill: #fde047; }
 body.ani-ambientlight-ui #BH_background .ani-wx-glyph .i-snow { fill: #ffffff; }
 body.ani-ambientlight-ui #BH_background .ani-wx-glyph .i-fog,
@@ -532,7 +532,7 @@ body.ani-ambientlight-ui #BH_background .ani-wx-city-picker {
   padding: 10px;
   border-radius: 14px;
   background: rgba(12, 20, 32, 0.94);
-  border: 1px solid rgba(76, 211, 220, 0.45);
+  border: 1px solid rgba(var(--ani-accent-rgb, 61, 175, 182), 0.45);
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55);
 }
 body.ani-ambientlight-ui #BH_background .ani-wx-city-input {
@@ -565,7 +565,7 @@ body.ani-ambientlight-ui #BH_background .ani-wx-city-opt {
   font-size: 12.5px;
   cursor: pointer;
 }
-body.ani-ambientlight-ui #BH_background .ani-wx-city-opt:hover { background: rgba(61, 175, 182, 0.24); color: #ffffff; }
+body.ani-ambientlight-ui #BH_background .ani-wx-city-opt:hover { background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.24); color: #ffffff; }
 body.ani-ambientlight-ui #BH_background .ani-wx-city-opt small { color: rgba(206, 222, 238, 0.64); font-size: 11px; }
 
 body.ani-ambientlight-ui #BH_background .ani-wx-empty {
@@ -579,8 +579,8 @@ body.ani-ambientlight-ui #BH_background .ani-wx-recovery { display: flex; justif
 body.ani-ambientlight-ui #BH_background .ani-wx-retry {
   padding: 5px 14px;
   border-radius: 999px;
-  border: 1px solid rgba(76, 211, 220, 0.56);
-  background: rgba(61, 175, 182, 0.22);
+  border: 1px solid rgba(var(--ani-accent-rgb, 61, 175, 182), 0.56);
+  background: rgba(var(--ani-accent-rgb, 61, 175, 182), 0.22);
   color: #ffffff;
   font-size: 12px;
   cursor: pointer;
