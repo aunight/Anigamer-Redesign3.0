@@ -154,6 +154,16 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
     })();
     return true;
   }
+function pickBestBangumiSubject(list, query) {
+  if (!Array.isArray(list) || !list.length) return null;
+  const norm = (s) => String(s || '').normalize('NFKC').replace(/[\s\p{P}]/gu, '').toLowerCase();
+  const isMovie = /電影|劇場版/.test(String(query || ''));
+  const filtered = isMovie ? list : list.filter(item => !/劇場版|電影/.test(`${item?.name || ''} ${item?.name_cn || ''}`));
+  const pool = filtered.length ? filtered : list;
+  const target = norm(query);
+  return pool.find(item => norm(item?.name_cn) === target || norm(item?.name) === target) || pool[0];
+}
+
   if (message?.type === 'ani-fetch-bangumi-staff') {
     (async () => {
       try {
@@ -162,7 +172,7 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
         }
         let subjectId = /^\d+$/.test(String(message.id || '')) ? String(message.id) : '';
         if (!subjectId && message.title) {
-          const searchRes = await fetch('https://api.bgm.tv/v0/search/subjects', {
+          const searchRes = await fetch('https://api.bgm.tv/v0/search/subjects?limit=5', {
             method: 'POST',
             credentials: 'omit',
             headers: {
@@ -175,7 +185,8 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
           });
           if (searchRes.ok) {
             const searchJson = await searchRes.json();
-            const firstId = searchJson?.data?.[0]?.id;
+            const picked = pickBestBangumiSubject(searchJson?.data, message.title);
+            const firstId = picked?.id;
             if (/^\d+$/.test(String(firstId || ''))) subjectId = String(firstId);
           }
         }
@@ -658,7 +669,7 @@ async function fetchAniInfoPlusData(acgUrl, fallbackTitle) {
   // Fallback 2: Bangumi v0 search resolves Traditional Chinese -> exact Japanese title -> AniList + MAL
   if (cleanFallback && cleanFallback.length >= 2) {
     try {
-      const bgmRes = await fetch('https://api.bgm.tv/v0/search/subjects', {
+      const bgmRes = await fetch('https://api.bgm.tv/v0/search/subjects?limit=5', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -669,7 +680,8 @@ async function fetchAniInfoPlusData(acgUrl, fallbackTitle) {
       });
       if (bgmRes.ok) {
         const bgmData = await bgmRes.json();
-        const jpFromBgm = (bgmData?.data?.[0]?.name || '').trim();
+        const picked = pickBestBangumiSubject(bgmData?.data, cleanFallback);
+        const jpFromBgm = (picked?.name || '').trim();
         if (jpFromBgm) {
           aniListResults = await fetchFromAniList([
             jpFromBgm,
@@ -698,6 +710,37 @@ const ANILIST_SOURCE_MAP = {
 };
 
 const workMetaMemCache = new Map();
+const workMetaJpTitleCache = new Map();
+
+async function resolveBangumiJapaneseTitle(cleanTitle) {
+  if (!cleanTitle || cleanTitle.length < 2) return cleanTitle;
+  if (workMetaJpTitleCache.has(cleanTitle)) return workMetaJpTitleCache.get(cleanTitle);
+  let resolved = cleanTitle;
+  try {
+    const res = await fetch('https://api.bgm.tv/v0/search/subjects?limit=4', {
+      method: 'POST',
+      credentials: 'omit',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'User-Agent': 'aunight/Anigamer-Redesign3.0 (https://github.com/aunight/Anigamer-Redesign3.0)',
+      },
+      signal: AbortSignal.timeout(6000),
+      body: JSON.stringify({ keyword: cleanTitle, filter: { type: [2] } }),
+    });
+    if (res.ok) {
+      const json = await res.json();
+      const picked = pickBestBangumiSubject(json?.data, cleanTitle);
+      if (picked?.name) resolved = String(picked.name).trim();
+    }
+  } catch {}
+  workMetaJpTitleCache.set(cleanTitle, resolved);
+  if (workMetaJpTitleCache.size > 1000) {
+    const firstKey = workMetaJpTitleCache.keys().next().value;
+    if (firstKey) workMetaJpTitleCache.delete(firstKey);
+  }
+  return resolved;
+}
 
 async function fetchBahamutWorkOrigin(id) {
   const response = await fetch(`https://acg.gamer.com.tw/acgDetail.php?s=${id}`, {
@@ -725,10 +768,21 @@ async function fetchAniListWorkMetaBatch(titles) {
   }
   if (!toFetch.length) return items;
 
+  const cleanedEntries = toFetch.map((orig, idx) => ({ orig, cleaned: cleanSearch(orig) || orig, key: `m${idx}` }));
+  const queue = [...cleanedEntries];
+  await Promise.all(Array.from({ length: Math.min(4, queue.length) }, async () => {
+    while (queue.length) {
+      const item = queue.shift();
+      if (!item) break;
+      const hasHan = /[\u4e00-\u9fff]/.test(item.cleaned);
+      item.search = hasHan ? await resolveBangumiJapaneseTitle(item.cleaned) : item.cleaned;
+    }
+  }));
+
   const varDecls = [];
   const variables = {};
   const aliases = [];
-  const entries = toFetch.map((orig, idx) => ({ orig, search: cleanSearch(orig) || orig, key: `m${idx}` }));
+  const entries = cleanedEntries;
 
   for (const e of entries) {
     varDecls.push(`$${e.key}: String`);

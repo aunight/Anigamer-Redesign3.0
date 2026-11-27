@@ -88,3 +88,66 @@ test('merges continuous sequel numbering while skipping sequels that restart at 
   assert.equal(result[3].name, '第三集');
   assert.equal(result[3].description, '第三集描述');
 });
+
+test('fetchWorkSynopsis and fetchEpisodeTitles fall back from Chinese title to Bangumi Japanese title for AniList', async () => {
+  const synopsisHosts = [];
+  const synopsisResult = await fetchWorkSynopsis({ title: '世界最強的魔女，就此開始', year: 2026 }, async (url, opts) => {
+    const parsed = new URL(url);
+    synopsisHosts.push(parsed.hostname);
+    if (parsed.hostname === 'graphql.anilist.co') {
+      const s = JSON.parse(opts.body).variables.search;
+      if (s === '世界最強の魔女、始めました') {
+        return {
+          ok: true,
+          json: async () => ({
+            data: {
+              Page: {
+                media: [{
+                  title: { native: '世界最強の魔女、始めました' },
+                  synonyms: [],
+                  startDate: { year: 2026 },
+                  format: 'TV',
+                  description: '測試作品簡介。',
+                }],
+              },
+            },
+          }),
+        };
+      }
+      return { ok: true, json: async () => ({ data: { Page: { media: [] } } }) };
+    }
+    if (parsed.hostname === 'api.bgm.tv') {
+      return {
+        ok: true,
+        json: async () => ({
+          data: [{ id: 646154, name: '世界最強の魔女、始めました', name_cn: '世界最強的魔女，就此開始', date: '2026-10-07', summary: '' }],
+        }),
+      };
+    }
+    return { ok: false };
+  });
+  assert.deepEqual(synopsisResult, { summary: '測試作品簡介。', source: 'AniList' });
+  assert.deepEqual(synopsisHosts, ['graphql.anilist.co', 'api.bgm.tv', 'graphql.anilist.co']);
+
+  const epQueries = [];
+  const epResult = await fetchEpisodeTitles('世界最強的魔女，就此開始', async (url, opts) => {
+    const parsed = new URL(url);
+    if (parsed.pathname.endsWith('/search/subjects')) {
+      return { ok: true, json: async () => ({ data: [{ id: 646154, name: '世界最強の魔女、始めました', name_cn: '世界最強的魔女，就此開始' }] }) };
+    }
+    if (parsed.pathname === '/v0/episodes') {
+      return { ok: true, json: async () => ({ data: [] }) };
+    }
+    if (parsed.hostname === 'graphql.anilist.co') {
+      const s = JSON.parse(opts.body).variables.search;
+      epQueries.push(s);
+      if (s === '世界最強の魔女、始めました') {
+        return { ok: true, json: async () => ({ data: { Page: { media: [{ streamingEpisodes: [{ title: 'Episode 1 - Awakening' }] }] } } }) };
+      }
+      return { ok: true, json: async () => ({ data: { Page: { media: [] } } }) };
+    }
+    return { ok: false };
+  });
+  assert.equal(epResult[1]?.name, 'Awakening');
+  assert.equal(epQueries.includes('世界最強の魔女、始めました'), true);
+});

@@ -2204,6 +2204,8 @@ body #BH_background .ani-ep-range-trigger:is(:hover, [aria-expanded='true']) {
   font-family: var(--ani-font, system-ui, sans-serif) !important;
   position: fixed;
   z-index: 99999;
+  display: flex;
+  flex-direction: column;
   max-width: min(320px, calc(100vw - 16px));
   padding: 12px 16px;
   border-radius: 10px;
@@ -2223,6 +2225,7 @@ body #BH_background .ani-ep-range-trigger:is(:hover, [aria-expanded='true']) {
 }
 #ani-ep-tooltip .ani-ep-tip-date {
   display: inline-flex;
+  align-self: flex-end;
   align-items: center;
   gap: 6px;
   padding: 3px 8px;

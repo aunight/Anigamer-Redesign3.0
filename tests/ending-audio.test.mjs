@@ -4,9 +4,9 @@ import test from 'node:test';
 import { runInNewContext } from 'node:vm';
 
 const source = readFileSync(new URL('../src/ending-audio.js', import.meta.url), 'utf8');
-const { findEnding, parseAniSkipResponse } = runInNewContext(
-  source.replace('globalThis.AniEndingAudio = {analyze, streamUrls};', 'return { findEnding, parseAniSkipResponse };'),
-  { location: { pathname: '/' } },
+const { findEnding, parseAniSkipResponse, parseAniSkipSegments, mediaPlaylist } = runInNewContext(
+  source.replace('globalThis.AniEndingAudio = {analyze, analyzeAudio, lookupSkipTimes, streamUrls};', 'return { findEnding, parseAniSkipResponse, parseAniSkipSegments, mediaPlaylist };'),
+  { location: { pathname: '/' }, URL },
 );
 
 function sampleTail(peakAt) {
@@ -88,5 +88,115 @@ test('parseAniSkipResponse extracts ED interval and detects post-credits scene',
     source: 'aniskip',
   });
 
+  const shortPreview = parseAniSkipResponse({
+    found: true,
+    results: [{ skipType: 'ed', interval: { startTime: 1315, endTime: 1405 } }],
+  }, 1420);
+  assert.equal(shortPreview?.hasFollowingScene, false);
+
   assert.equal(parseAniSkipResponse({ found: false, results: [] }, 1420), null);
+});
+
+test('parseAniSkipSegments extracts OP and ED segments independently', () => {
+  const opOnly = parseAniSkipSegments({
+    found: true,
+    results: [{ skipType: 'op', interval: { startTime: 7.8, endTime: 98.5 } }],
+  }, 1420);
+  assert.deepEqual({ ...opOnly.op }, {
+    startTime: 7.8,
+    endTime: 98.5,
+    skipType: 'op',
+    source: 'aniskip',
+  });
+  assert.equal(opOnly.ed, null);
+
+  const both = parseAniSkipSegments({
+    found: true,
+    results: [
+      { skipType: 'mixed-op', interval: { startTime: 45, endTime: 135 } },
+      { skipType: 'ed', interval: { startTime: 1300, endTime: 1390 } },
+    ],
+  }, 1420);
+  assert.equal(both.op?.endTime, 135);
+  assert.equal(both.ed?.hasFollowingScene, true);
+});
+
+test('findEnding detects soft ballad EDs and seamless-onset EDs, and mediaPlaylist allows discontinuity', () => {
+  const ballad = sampleTail(time => (time >= 140 && time < 230 ? 0.06 : 0));
+  const balladResult = findEnding(ballad, 240);
+  assert.equal(balladResult?.startTime, 140);
+  assert.equal(balladResult?.endTime, 230);
+
+  const seamless = sampleTail(time => (time >= 135 && time < 225 ? 0.08 : 0.04));
+  for (const s of seamless) {
+    if (s.time < 135 || s.time >= 225) s.stereo = 0.02;
+  }
+  const seamlessResult = findEnding(seamless, 240);
+  assert.equal(seamlessResult?.startTime, 135);
+  assert.equal(seamlessResult?.endTime, 225);
+
+  const playlist = mediaPlaylist([
+    '#EXTM3U',
+    '#EXT-X-DISCONTINUITY',
+    '#EXTINF:10.0,',
+    'seg0.ts',
+    '#EXTINF:10.0,',
+    'seg1.ts',
+    '#EXT-X-ENDLIST',
+  ].join('\n'), 'https://bahamut.akamaized.net/test/chunklist.m3u8');
+  assert.equal(playlist?.segments.length, 2);
+});
+
+test('lookupSkipTimes resolves Japanese title via Bangumi before querying AniList and AniSkip', async () => {
+  const requests = [];
+  const doc = {
+    querySelector: (sel) => {
+      if (sel.includes('h1')) return { textContent: '世界最強的魔女，就此開始 [8]' };
+      return null;
+    },
+  };
+  const { lookupSkipTimes } = runInNewContext(
+    source.replace('globalThis.AniEndingAudio = {analyze, analyzeAudio, lookupSkipTimes, streamUrls};', 'return { lookupSkipTimes };'),
+    {
+      location: { pathname: '/animeVideo.php' },
+      window: { addEventListener: () => {} },
+      document: doc,
+      URL,
+      fetch: async (url, opts) => {
+        requests.push({ url, body: opts?.body ? JSON.parse(opts.body) : null });
+        if (url.includes('api.bgm.tv/v0/search/subjects')) {
+          return {
+            ok: true,
+            json: async () => ({
+              data: [{ id: 646154, name: '世界最強の魔女、始めました', name_cn: '世界最强的魔女，就此开始' }],
+            }),
+          };
+        }
+        if (url.includes('graphql.anilist.co')) {
+          const s = JSON.parse(opts.body).variables.search;
+          if (s === '世界最強の魔女、始めました') {
+            return { ok: true, json: async () => ({ data: { Media: { idMal: 64084 } } }) };
+          }
+          return { ok: false, status: 404, json: async () => ({ data: { Media: null } }) };
+        }
+        if (url.includes('api.aniskip.com/v2/skip-times/64084/8')) {
+          return {
+            ok: true,
+            json: async () => ({
+              found: true,
+              results: [{ skipType: 'op', interval: { startTime: 7.8, endTime: 98.5 } }],
+            }),
+          };
+        }
+        return { ok: false, status: 404 };
+      },
+    },
+  );
+  const res = await lookupSkipTimes({ duration: 1419.989 }, new AbortController().signal);
+  assert.equal(res.idMal, 64084);
+  assert.equal(res.found, true);
+  assert.equal(res.op?.startTime, 7.8);
+  assert.equal(res.op?.endTime, 98.5);
+  assert.equal(res.ed, null);
+  assert.equal(requests.some(r => r.url.includes('api.aniskip.com') && r.url.includes('types=op') && r.url.includes('types=ed')), true);
 });

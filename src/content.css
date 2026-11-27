@@ -7201,9 +7201,15 @@ body.ani-catalog-page .ani-catalog-date-status {
   font-size: clamp(12px, 1.5cqw, 21px);
   font-weight: 600;
 }
+#ani_video:is(.ani-postplay-active, .ani-postplay-exiting) .vjs-control-bar {
+  z-index: 35 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
 .ani-postplay-summary {
   position: absolute;
-  inset: auto 36% 5% 3%;
+  inset: auto 36% max(11%, 92px) 3%;
   min-width: 0;
   grid-template-columns: minmax(0, 1fr);
   display: grid;

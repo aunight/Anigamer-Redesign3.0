@@ -71,7 +71,7 @@ async function fetchWorkSynopsis({ id, title, nativeTitle, year, movie }, reques
   const search = String(nativeTitle || bangumiTitle || title || '').trim().slice(0, 240);
   if (search.length < 2) return {};
   const normalize = name => String(name || '').normalize('NFKC').replace(/[\s\p{P}]/gu, '').toLowerCase();
-  try {
+  const queryAniList = async (term) => {
     const response = await request('https://graphql.anilist.co', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -86,14 +86,48 @@ async function fetchWorkSynopsis({ id, title, nativeTitle, year, movie }, reques
             description(asHtml: false)
           } }
         }`,
-        variables: { search },
+        variables: { search: term },
       }),
     });
     const data = response.ok ? await response.json() : null;
-    const exact = normalize(search);
-    const matches = (data?.data?.Page?.media || []).filter(work =>
+    const media = Array.isArray(data?.data?.Page?.media) ? data.data.Page.media : [];
+    const exact = normalize(term);
+    const matches = media.filter(work =>
       (!year || Number(year) === work.startDate?.year) && (!movie || work.format === 'MOVIE') &&
       [...Object.values(work.title || {}), ...(work.synonyms || [])].some(name => normalize(name) === exact));
+    return { media, matches };
+  };
+  try {
+    let { media, matches } = await queryAniList(search);
+    if (matches.length !== 1 && !media.length && !bangumiTitle && !nativeTitle && title) {
+      try {
+        const bgmRes = await request('https://api.bgm.tv/v0/search/subjects?limit=5', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'User-Agent': 'aunight/Anigamer-Redesign3.0 (https://github.com/aunight/Anigamer-Redesign3.0)',
+          },
+          signal: AbortSignal.timeout(8000),
+          body: JSON.stringify({ keyword: String(title).trim(), filter: { type: [2] } }),
+        });
+        if (bgmRes.ok) {
+          const bgmJson = await bgmRes.json();
+          const list = Array.isArray(bgmJson?.data) ? bgmJson.data : [];
+          const normTitle = normalize(title);
+          const pick = list.find(item => (!year || Number((item?.date || '').slice(0, 4)) === Number(year)) &&
+              (normalize(item?.name_cn) === normTitle || normalize(item?.name) === normTitle))
+            || list.find(item => !year || Number((item?.date || '').slice(0, 4)) === Number(year))
+            || list[0];
+          if (pick?.summary) {
+            const bgmSummary = await translateWorkSynopsis(pick.summary, request);
+            if (bgmSummary) return { summary: bgmSummary, source: 'Bangumi' };
+          }
+          if (pick?.name && normalize(pick.name) !== normTitle) {
+            ({ media, matches } = await queryAniList(String(pick.name).trim().slice(0, 240)));
+          }
+        }
+      } catch {}
+    }
     if (matches.length !== 1) return {};
     const summary = await translateWorkSynopsis(matches[0].description, request);
     return summary ? { summary, source: 'AniList' } : {};
@@ -208,6 +242,7 @@ async function fetchEpisodeTitles(rawTitle, request = fetch, acgUrl = '', lastEp
     } catch {}
   }
   const candidates = [...new Set([nativeTitle, cleanTitle].filter(s => s.length >= 2))];
+  const resolvedJpTitles = [];
   let episodes = {};
 
   for (const kw of candidates) {
@@ -237,6 +272,7 @@ async function fetchEpisodeTitles(rawTitle, request = fetch, acgUrl = '', lastEp
         }
       }
       if (!subject && !nativeTitle && kw === cleanTitle && !strippedSeason) subject = sJson?.data?.[0];
+      if (subject?.name && !resolvedJpTitles.includes(subject.name)) resolvedJpTitles.push(subject.name);
       const subjectId = subject?.id;
       if (!subjectId) continue;
 
@@ -270,7 +306,7 @@ async function fetchEpisodeTitles(rawTitle, request = fetch, acgUrl = '', lastEp
     } catch {}
   }
 
-  for (const kw of candidates) {
+  for (const kw of [...new Set([nativeTitle, ...resolvedJpTitles, cleanTitle].filter(s => s.length >= 2))]) {
     try {
       const res = await request('https://graphql.anilist.co', {
         method: 'POST',

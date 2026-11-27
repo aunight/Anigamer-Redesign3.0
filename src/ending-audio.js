@@ -44,7 +44,7 @@
   }
 
   function mediaPlaylist(text, url) {
-    if (!text.includes('#EXT-X-ENDLIST') || /#EXT-X-(?:DISCONTINUITY|BYTERANGE|MAP)\b/.test(text)) return null;
+    if (!text.includes('#EXT-X-ENDLIST') || /#EXT-X-(?:BYTERANGE|MAP)\b/.test(text)) return null;
     let sequence = 0, length = 0, duration = 0, key = null;
     const segments = [];
     const resolve = path => {
@@ -122,7 +122,7 @@
     const samples = [];
     for (let start = 0; start + width <= left.length; start += width) {
       let peak = 0, energy = 0, side = 0;
-      for (let i = start; i < start + width; i += 4) {
+      for (let i = start; i < start + width; i += 8) {
         peak = Math.max(peak, Math.abs(left[i]), Math.abs(right[i]));
         energy += left[i] ** 2 + right[i] ** 2;
         side += (left[i] - right[i]) ** 2;
@@ -135,8 +135,9 @@
   function findEnding(samples, duration) {
     // Look for sustained music between distinct pauses. Ambiguous sections are left alone.
     const onsetSearchSeconds = 20;
+    const activePeakMin = 0.045;
     const candidates = [];
-    for (const threshold of [0.012, 0.022, 0.035]) {
+    for (const threshold of [0.012, 0.022, 0.035, 0.055]) {
       let start = 0, quiet = 0;
       for (let i = 0; i <= samples.length; i++) {
         const sample = samples[i];
@@ -150,7 +151,7 @@
           if (length >= 52 && length <= 115 && duration - endTime <= 185) {
             const section = samples.slice(start, end);
             const stereo = section.filter(item => item.stereo > 0.07).length / section.length;
-            const levels = section.filter(item => item.peak >= 0.09).length / section.length;
+            const levels = section.filter(item => item.peak >= activePeakMin).length / section.length;
             if (stereo >= 0.45 && levels >= 0.68) {
               candidates.push({startTime: first.time, endTime, score: stereo + levels - Math.abs(length - 90) / 90});
             }
@@ -160,14 +161,41 @@
       }
     }
     candidates.sort((a, b) => b.score - a.score);
-    const best = candidates[0];
+    let best = candidates[0];
     // Nearby onsets with the same skip target are usually the same song
     // found at different silence thresholds.
-    if (!best || candidates.some(other => best.score - other.score < 0.25 &&
+    if (best && candidates.some(other => best.score - other.score < 0.25 &&
         (Math.abs(best.endTime - other.endTime) > 2 ||
           Math.abs(best.startTime - other.startTime) > onsetSearchSeconds))) return null;
-    // Trim a quiet lead-in or score that briefly rises before the sustained song.
     const perSecond = Math.round(1 / step);
+    if (!best) {
+      // Fallback for seamless EDs without a preceding silence pause.
+      let runStart = -1;
+      for (let i = 0; i <= samples.length; i++) {
+        const s = samples[i];
+        const isMusic = s && s.peak >= activePeakMin && s.stereo > 0.07;
+        if (isMusic) {
+          if (runStart < 0) runStart = i;
+          continue;
+        }
+        if (runStart >= 0) {
+          const runLen = (i - runStart) * step;
+          const runEnd = samples[i - 1].time + step;
+          if (runLen >= 72 && runLen <= 105 && duration - runEnd <= 185) {
+            const section = samples.slice(runStart, i);
+            const stereo = section.filter(item => item.stereo > 0.07).length / section.length;
+            const levels = section.filter(item => item.peak >= activePeakMin).length / section.length;
+            if (stereo >= 0.65 && levels >= 0.75) {
+              best = { startTime: samples[runStart].time, endTime: runEnd, score: stereo + levels };
+              break;
+            }
+          }
+          runStart = -1;
+        }
+      }
+      if (!best) return null;
+    }
+    // Trim a quiet lead-in or score that briefly rises before the sustained song.
     const onset = samples.findIndex(sample => sample.time >= best.startTime);
     let startTime;
     for (let index = onset; index < onset + onsetSearchSeconds * perSecond && index + 8 * perSecond <= samples.length; index++) {
@@ -176,7 +204,7 @@
       for (let second = 0; second < 8; second++) {
         const first = index + second * perSecond;
         const secondSamples = samples.slice(first, first + perSecond);
-        const active = secondSamples.filter(sample => sample.peak >= 0.09);
+        const active = secondSamples.filter(sample => sample.peak >= activePeakMin);
         // Loud dialogue can precede the song without sharing its stereo profile.
         if (active.length < 0.75 * perSecond ||
             active.filter(sample => sample.stereo > 0.07).length < 0.5 * perSecond) {
@@ -192,7 +220,8 @@
     const endTime = Math.min(best.endTime, duration);
     if (startTime === undefined || endTime - startTime < 48) return null;
     const followingAudio = samples.filter(sample => sample.time >= endTime + 0.5 && sample.peak >= 0.022);
-    return {startTime, endTime, hasFollowingScene: followingAudio.length * step >= 2};
+    const hasFollowingScene = (duration - endTime >= 25) && followingAudio.length * step >= 6;
+    return {startTime, endTime, hasFollowingScene};
   }
 
   async function readThroughExtension(url, format, signal) {
@@ -226,6 +255,7 @@
   }
 
   const malIdCache = new Map();
+  const skipCache = new Map();
 
   function parseAniSkipResponse(data, duration) {
     if (!data?.found || !Array.isArray(data.results)) return null;
@@ -237,53 +267,168 @@
     if (!Number.isFinite(startTime) || !Number.isFinite(rawEnd) || rawEnd <= startTime + 15) return null;
     if (Number.isFinite(duration) && duration > 0 && startTime >= duration - 5) return null;
     const endTime = Number.isFinite(duration) && duration > 0 ? Math.min(rawEnd, duration) : rawEnd;
-    const hasFollowingScene = Number.isFinite(duration) && duration > 0 ? (duration - endTime >= 3) : false;
+    const hasFollowingScene = Number.isFinite(duration) && duration > 0 ? (duration - endTime >= 25) : false;
     return { startTime, endTime, hasFollowingScene, source: 'aniskip' };
   }
 
-  async function lookupAniSkip(video, signal) {
+  function parseAniSkipSegments(data, duration) {
+    if (!data?.found || !Array.isArray(data.results)) return { op: null, ed: null };
+    const ed = parseAniSkipResponse(data, duration);
+    const opHit = data.results.find(r => r?.skipType === 'op' && r?.interval)
+      || data.results.find(r => r?.skipType === 'mixed-op' && r?.interval);
+    let op = null;
+    if (opHit) {
+      const startTime = Number(opHit.interval.startTime);
+      const rawEnd = Number(opHit.interval.endTime);
+      const validDur = Number.isFinite(duration) && duration > 0;
+      if (Number.isFinite(startTime) && Number.isFinite(rawEnd) && startTime >= 0 && rawEnd > startTime + 15 &&
+          (!validDur || (startTime < duration * 0.6 && rawEnd <= duration - 5))) {
+        op = {
+          startTime,
+          endTime: validDur ? Math.min(rawEnd, duration) : rawEnd,
+          skipType: opHit.skipType,
+          source: 'aniskip',
+        };
+      }
+    }
+    return { op, ed };
+  }
+
+  function readEpisodeAndTitle() {
+    const h1 = document.querySelector('.anime_name h1, .anime-title h1, h1')?.textContent?.trim() || '';
+    const epFromTitle = h1.match(/(?:\[\s*(\d+(?:\.\d+)?)\s*\]|\bEP\.?\s*(\d+(?:\.\d+)?))(?:\s*\[[^\]]+\])*\s*$/i);
+    const playingLink = document.querySelector('.season li.playing a');
+    let rawSeasonEp = '';
+    if (playingLink) {
+      rawSeasonEp = playingLink.querySelector(':scope > .ani-episode-original-label')?.textContent?.trim()
+        || playingLink.querySelector(':scope > .ani-episode-frame')?.dataset?.label?.trim()
+        || Array.from(playingLink.childNodes).filter(n => n.nodeType === 3).map(n => n.textContent || '').join('').trim()
+        || playingLink.textContent?.trim()
+        || '';
+    }
+    const epFromSeason = rawSeasonEp.match(/^(?:EP\.?\s*)?(\d+(?:\.\d+)?)$/i)?.[1];
+    const episode = epFromTitle?.[1] || epFromTitle?.[2] || epFromSeason || '';
+    const title = h1
+      .replace(/(?:\s*(?:\[\s*(?:\d+(?:\.\d+)?|中文配音|中配|國語(?:配音)?|雙語|特別篇|OAD|OVA|電影|劇場版)\s*\]|EP\.?\s*\d+(?:\.\d+)?))+\s*$/i, '')
+      .trim();
+    return { title, episode };
+  }
+
+  async function resolveSearchTitles(title, signal) {
+    const candidates = [];
+    const pushTitle = (t) => {
+      const clean = String(t || '').trim();
+      if (clean && !candidates.includes(clean)) candidates.push(clean);
+    };
+    const isMovie = /電影|劇場版/.test(document.querySelector('.anime_name h1, .anime-title h1, h1')?.textContent || '');
+    const bgmLink = document.querySelector('#bgmtv a[href*="bgm.tv/subject/"], a#bgmtv[href*="bgm.tv/subject/"], .ani-bgm-work-link[href*="bgm.tv/subject/"]');
+    const bgmId = bgmLink?.getAttribute('href')?.match(/\/subject\/(\d+)/)?.[1];
+    if (bgmId) {
+      try {
+        const res = await fetch(`https://api.bgm.tv/v0/subjects/${bgmId}`, {
+          headers: { Accept: 'application/json' },
+          signal,
+        });
+        if (res.ok) {
+          const subject = await res.json();
+          pushTitle(subject?.name);
+          pushTitle(subject?.name_cn);
+        }
+      } catch (error) {
+        if (signal?.aborted) throw error;
+      }
+    }
+    if (!candidates.length) {
+      try {
+        const res = await fetch('https://api.bgm.tv/v0/search/subjects?limit=5', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ keyword: title, filter: { type: [2] } }),
+          signal,
+        });
+        if (res.ok) {
+          const json = await res.json();
+          const list = Array.isArray(json?.data) ? json.data : [];
+          const norm = (s) => {
+            const tw = globalThis.AniEnhancements?.traditionalTitle?.(s) ?? s;
+            return String(tw || '').normalize('NFKC').replace(/[\s\p{P}]/gu, '').toLowerCase();
+          };
+          const target = norm(title);
+          const filtered = isMovie ? list : list.filter(item => !/劇場版|電影/.test(`${item?.name || ''} ${item?.name_cn || ''}`));
+          const pool = filtered.length ? filtered : list;
+          const exact = pool.find(item => norm(item?.name_cn) === target || norm(item?.name) === target);
+          if (exact) pushTitle(exact.name);
+          for (const item of pool) pushTitle(item?.name);
+        }
+      } catch (error) {
+        if (signal?.aborted) throw error;
+      }
+    }
+    pushTitle(title);
+    return candidates;
+  }
+
+  async function lookupSkipTimes(video, signal) {
     try {
-      const h1 = document.querySelector('.anime_name h1, .anime-title h1, h1')?.textContent?.trim() || '';
-      const epFromTitle = h1.match(/\[(\d+(?:\.\d+)?)\]\s*$/)?.[1];
-      const epFromSeason = document.querySelector('.season li.playing a')?.textContent?.trim()?.match(/^(\d+(?:\.\d+)?)$/)?.[1];
-      const episode = epFromTitle || epFromSeason;
-      const title = h1.replace(/\s*\[\d+(?:\.\d+)?\]\s*$/, '').trim();
-      if (!title || !episode) return null;
+      const { title, episode } = readEpisodeAndTitle();
+      if (!title || !episode) return { op: null, ed: null, idMal: null, found: false };
+
+      const cacheKey = `${title}#${episode}`;
+      if (skipCache.has(cacheKey)) {
+        const cached = skipCache.get(cacheKey);
+        const parsed = parseAniSkipSegments(cached.data, video?.duration);
+        return { ...parsed, idMal: cached.idMal, found: Boolean(parsed.op || parsed.ed) };
+      }
 
       let idMal = malIdCache.get(title);
       if (idMal === undefined) {
-        const res = await fetch('https://graphql.anilist.co', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({
-            query: 'query($search:String){Media(search:$search,type:ANIME){idMal}}',
-            variables: { search: title },
-          }),
-          signal,
-        });
-        if (!res.ok) return null;
-        const json = await res.json();
-        idMal = json?.data?.Media?.idMal || null;
-        malIdCache.set(title, idMal);
+        const searchTitles = await resolveSearchTitles(title, signal);
+        for (const search of searchTitles) {
+          signal?.throwIfAborted?.();
+          const res = await fetch('https://graphql.anilist.co', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify({
+              query: 'query($search:String){Media(search:$search,type:ANIME){idMal}}',
+              variables: { search },
+            }),
+            signal,
+          });
+          if (!res.ok) continue;
+          const json = await res.json();
+          idMal = json?.data?.Media?.idMal || null;
+          if (idMal) break;
+        }
+        malIdCache.set(title, idMal || null);
       }
-      if (!idMal) return null;
+      if (!idMal) return { op: null, ed: null, idMal: null, found: false };
 
-      const len = Number.isFinite(video?.duration) && video.duration > 0 ? `&episodeLength=${Math.round(video.duration)}` : '';
+      const epLen = Number.isFinite(video?.duration) && video.duration > 0 ? Math.round(video.duration) : 0;
       const skipRes = await fetch(
-        `https://api.aniskip.com/v2/skip-times/${idMal}/${encodeURIComponent(episode)}?types=ed&types=mixed-ed${len}`,
+        `https://api.aniskip.com/v2/skip-times/${idMal}/${encodeURIComponent(episode)}?types=op&types=mixed-op&types=ed&types=mixed-ed&episodeLength=${epLen}`,
         { signal },
       );
-      if (!skipRes.ok) return null;
-      return parseAniSkipResponse(await skipRes.json(), video?.duration);
+      if (!skipRes.ok) {
+        const empty = { found: false, results: [] };
+        if (skipRes.status === 404) skipCache.set(cacheKey, { data: empty, idMal });
+        return { op: null, ed: null, idMal, found: false };
+      }
+      const data = await skipRes.json();
+      skipCache.set(cacheKey, { data, idMal });
+      const parsed = parseAniSkipSegments(data, video?.duration);
+      return { ...parsed, idMal, found: Boolean(parsed.op || parsed.ed) };
     } catch (error) {
       if (signal?.aborted) throw error;
-      return null;
+      return { op: null, ed: null, idMal: null, found: false };
     }
   }
 
-  async function analyze(video, signal, since) {
-    const aniSkipHit = await lookupAniSkip(video, signal);
-    if (aniSkipHit) return aniSkipHit;
+  async function lookupAniSkip(video, signal) {
+    const res = await lookupSkipTimes(video, signal);
+    return res.ed;
+  }
+
+  async function analyzeAudio(video, signal, since) {
     const contextType = globalThis.OfflineAudioContext || globalThis.webkitOfflineAudioContext;
     if (!contextType || !crypto.subtle) return null;
     const {variants, master} = streamUrls(since);
@@ -355,7 +500,7 @@
     for (const url of candidates.values()) {
       try {
         const candidate = mediaPlaylist(await read(url.href, 'text'), url);
-        if (!candidate?.segments.length || Math.abs(candidate.duration - video.duration) > 1.5) continue;
+        if (!candidate?.segments.length || Math.abs(candidate.duration - video.duration) > 3.5) continue;
         samples = await analyzeSegment(candidate.segments[0]);
         playlist = candidate;
         break;
@@ -369,10 +514,16 @@
     for (let i = 1; i < playlist.segments.length; i++) {
       signal.throwIfAborted();
       samples.push(...(await analyzeSegment(playlist.segments[i])));
-      await new Promise(resolve => setTimeout(resolve, 24));
+      await new Promise(resolve => setTimeout(resolve, 60));
     }
     return findEnding(samples, video.duration);
   }
 
-  globalThis.AniEndingAudio = {analyze, streamUrls};
+  async function analyze(video, signal, since) {
+    const aniSkipHit = await lookupAniSkip(video, signal);
+    if (aniSkipHit) return aniSkipHit;
+    return analyzeAudio(video, signal, since);
+  }
+
+  globalThis.AniEndingAudio = {analyze, analyzeAudio, lookupSkipTimes, streamUrls};
 })();

@@ -1594,6 +1594,19 @@
     ['52004', { startTime: 1336, duration: 1419.968, hasFollowingScene: false }],
   ]);
 
+  function activeIntroChapter(video, fallback) {
+    for (const track of Array.from(video.textTracks || [])) {
+      if (track.kind !== 'chapters') continue;
+      if (track.mode === 'disabled') track.mode = 'hidden';
+      for (const cue of Array.from(track.activeCues || [])) {
+        if (/^(?:OP(?:\s*\d+)?|opening(?:\s*(?:theme|credits))?|intro|片頭(?:曲|字幕)?)$/i.test(cue.text.trim()) &&
+            cue.endTime <= video.duration + 0.1) return cue;
+      }
+    }
+    return fallback && video.currentTime >= fallback.startTime && video.currentTime < fallback.endTime
+      ? fallback : null;
+  }
+
   function activeEndingChapter(video, fallback) {
     for (const track of Array.from(video.textTracks || [])) {
       if (track.kind !== 'chapters') continue;
@@ -1622,11 +1635,12 @@
   }
 
   function installEpisodeEnding() {
-    let owner, overlay, skip, exitTimer, countdown, previewButton, finish, dismissedVideo;
+    let owner, overlay, skip, skipIntro, exitTimer, countdown, previewButton, finish, dismissedVideo;
     let nativeCountdownObserver;
     let analysis;
+    let apiLookup;
     let continuingEnding;
-    let dismissedCue;
+    let dismissedCue, dismissedIntroCue;
     let retryAnalysisAt = 0;
     let endingSourceDeadline = 0;
     let endingReadAttempts = 0;
@@ -1642,6 +1656,10 @@
     function stopAnalysis() {
       analysis?.controller.abort();
       analysis = null;
+    }
+    function stopApiLookup() {
+      apiLookup?.controller.abort();
+      apiLookup = null;
     }
     const recommendationObservers = [];
     const skipSetting = '[data-ani-plus-skip-segments]';
@@ -1681,7 +1699,8 @@
       previewButton = null;
       overlay?.remove();
       skip?.remove();
-      owner = overlay = skip = null;
+      skipIntro?.remove();
+      owner = overlay = skip = skipIntro = null;
     }
     function dismiss(video, afterExit) {
       dismissedVideo = video;
@@ -1999,13 +2018,21 @@
           frame.append(facts);
           if (!metadata && (!item.season || !item.genres)) {
             const loadFacts = async () => {
-              if (link.dataset.loadingFacts) return;
+              if (link.dataset.loadingFacts || link.dataset.loadedFacts) return;
               link.dataset.loadingFacts = 'true';
-              const meta = await fetchRecommendationMetadata(href, item.videoSn).catch(() => null);
-              setFacts(meta);
+              try {
+                const meta = await fetchRecommendationMetadata(href, item.videoSn).catch(() => null);
+                if (meta && link.isConnected) {
+                  setFacts(meta);
+                  link.dataset.loadedFacts = 'true';
+                }
+              } finally {
+                delete link.dataset.loadingFacts;
+              }
             };
-            link.addEventListener('pointerenter', loadFacts, {once:true});
-            link.addEventListener('focus', loadFacts, {once:true});
+            void loadFacts();
+            link.addEventListener('pointerenter', loadFacts);
+            link.addEventListener('focus', loadFacts);
           }
           link.append(label);
           cards.append(link);
@@ -2039,18 +2066,43 @@
         endingSourceDeadline = 0;
         endingReadAttempts = 0;
         plusRestarted = false;
-        dismissedCue = null;
+        dismissedCue = dismissedIntroCue = null;
+        stopApiLookup();
         stopAnalysis();
         clear();
       }
       if (!player || video.ended || video.closest(NON_EPISODE_PLAYER_SELECTOR)) {
         skip?.remove();
         skip = null;
+        skipIntro?.remove();
+        skipIntro = null;
         syncAudioStatus(player, '');
         return;
       }
       const duration = video.duration;
       const now = performance.now();
+      const audioApi = globalThis.AniEndingAudio;
+      const hasSplitApi = Boolean(audioApi?.lookupSkipTimes && audioApi?.analyzeAudio);
+      if (apiLookup && (apiLookup.video !== video || (Number.isFinite(duration) && Math.abs(apiLookup.duration - duration) >= 1))) {
+        stopApiLookup();
+      }
+      if (hasSplitApi && !apiLookup && endingSkipEnabled() && Number.isFinite(duration) && duration >= 300 && video.readyState >= 1) {
+        const controller = new AbortController();
+        const task = { video, duration, controller, result: null, done: false };
+        apiLookup = task;
+        const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(15000)]);
+        void audioApi.lookupSkipTimes(video, signal).catch(() => ({ op: null, ed: null, found: false })).then(res => {
+          if (apiLookup !== task || !video.isConnected) return;
+          controller.abort();
+          task.result = res || { op: null, ed: null, found: false };
+          task.done = true;
+          nextPlusCheck = 0;
+          syncEnding(video);
+        });
+      }
+      const apiOp = apiLookup?.done ? apiLookup.result?.op : null;
+      const apiEd = apiLookup?.done ? apiLookup.result?.ed : null;
+
       if (now >= nextPlusCheck && Number.isFinite(duration) && duration >= 300 && video.readyState >= 2) {
         nextPlusCheck = now + 1000;
         const progress = readPlusAudioProgress();
@@ -2058,10 +2110,10 @@
         const staleProgress = Boolean(previousAudioProgress);
         if (endingSkipEnabled()) {
           const waiting = /^正在初始化/.test(progress || '');
-          if (waiting) {
+          if (waiting && !(apiOp && apiEd)) {
             plusReadyAt ||= now;
             if (!plusRestarted && now - plusReadyAt >= 8000) {
-              const {master} = globalThis.AniEndingAudio?.streamUrls?.(sourceSince) || {};
+              const {master} = audioApi?.streamUrls?.(sourceSince) || {};
               if (master) {
                 plusRestarted = true;
                 const search = episodeSearch;
@@ -2076,10 +2128,12 @@
             }
           } else plusReadyAt = 0;
 
-          const initializing = waiting && now - plusReadyAt <= 25000;
+          const initializing = waiting && !(apiOp && apiEd) && now - plusReadyAt <= 25000;
           const plusWorking = progress && !waiting && !/完成|未找到|失敗|錯誤|停止|無法/.test(progress);
           if (!staleProgress && (initializing || plusWorking)) {
             syncAudioStatus(player, initializing ? '片頭片尾分析正在初始化' : progress, 'loading');
+          } else if (apiEd) {
+            syncAudioStatus(player, '已偵測到片尾曲', 'done');
           } else if (analysis && !analysis.controller.signal.aborted) {
             syncAudioStatus(player, '正在分析片尾音訊…', 'loading');
           } else if (analysis?.interval) {
@@ -2089,6 +2143,8 @@
             statusPill.dataset.aniAudioFailure = analysis.error;
           } else if (analysis) {
             syncAudioStatus(player, '未偵測到可跳過的片尾', 'done');
+          } else if (apiOp) {
+            syncAudioStatus(player, '已載入 AniSkip 片頭時間', 'done');
           } else if (!staleProgress && waiting) {
             syncAudioStatus(player, '片頭音訊暫時無法載入', 'error');
           } else if (!staleProgress && progress) {
@@ -2105,19 +2161,22 @@
       const verifiedInterval = verified && Math.abs(verified.duration - duration) < 1
         ? { startTime: verified.startTime, endTime: duration, hasFollowingScene: verified.hasFollowingScene }
         : null;
-      const allowAudioEstimate = !verified;
+      const allowAudioEstimate = !verified && !apiEd;
       function getEnding() {
-        return activeEndingChapter(video, verifiedInterval || (allowAudioEstimate ? analysis?.interval : null));
+        return activeEndingChapter(video, verifiedInterval || apiEd || (allowAudioEstimate ? analysis?.interval : null));
       }
+      const inTailWindow = Number.isFinite(duration) && video.currentTime >= Math.max(0, duration - 285);
       const ending = getEnding();
-      if (allowAudioEstimate && !analysis && performance.now() >= retryAnalysisAt && endingSkipEnabled() && Number.isFinite(duration) && duration >= 300 &&
-          video.currentTime > 0 && globalThis.AniEndingAudio) {
+      if (allowAudioEstimate && (!hasSplitApi || ((apiLookup?.done) && inTailWindow)) && !analysis &&
+          performance.now() >= retryAnalysisAt && endingSkipEnabled() && Number.isFinite(duration) && duration >= 300 &&
+          video.currentTime > 0 && audioApi) {
         const controller = new AbortController();
         const task = {video, duration, controller, interval: null};
         analysis = task;
         endingSourceDeadline ||= performance.now() + 30000;
         const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(45000)]);
-        void globalThis.AniEndingAudio.analyze(video, signal, sourceSince).catch(error => {
+        const runAnalyze = hasSplitApi ? audioApi.analyzeAudio : audioApi.analyze;
+        void runAnalyze(video, signal, sourceSince).catch(error => {
           task.error = /^(?:playlist|key|segment): (?:network|HTTP \d{3})$|^Audio analysis byte limit$|^Unsupported audio stream$|^Audio timing mismatch$/.test(error?.message || '')
             ? error.message : error?.name || 'unknown';
           return null;
@@ -2137,10 +2196,40 @@
         });
       }
       const hasFollowingScene = ending?.hasFollowingScene ?? (ending && ending.endTime < duration - 0.1);
-      if (ending && !hasFollowingScene && !overlay && dismissedVideo !== video && !video.paused) {
+      const trustedEnding = Boolean(ending && (verifiedInterval || ending.source === 'aniskip' || (allowAudioEstimate && ending !== analysis?.interval)));
+      if (ending && !hasFollowingScene && trustedEnding && !overlay && dismissedVideo !== video && !video.paused) {
         show(video, player);
       }
-      if (!hasFollowingScene || !endingSkipEnabled() || overlay) {
+
+      const intro = activeIntroChapter(video, apiOp);
+      const externalIntroPill = player.querySelector('.ani-skip-intro-pill:not(.ani-ending-skip, .ani-aniskip-intro)');
+      if (!intro || !endingSkipEnabled() || overlay || externalIntroPill || dismissedIntroCue === intro) {
+        skipIntro?.remove();
+        skipIntro = null;
+      } else if (!skipIntro) {
+        skipIntro = document.createElement('div');
+        skipIntro.className = 'ani-skip-intro-pill ani-aniskip-intro';
+        const introBtn = action(skipIntro, '跳過片頭', () => {
+          const chapter = activeIntroChapter(video, apiLookup?.done ? apiLookup.result?.op : null);
+          if (chapter && endingSkipEnabled()) {
+            video.currentTime = chapter.endTime;
+            skipIntro?.remove();
+            skipIntro = null;
+          }
+        });
+        introBtn.className = 'ani-intro-action';
+        const introClose = action(skipIntro, '×', () => {
+          dismissedIntroCue = intro;
+          skipIntro?.remove();
+          skipIntro = null;
+        });
+        introClose.className = 'ani-skip-close';
+        introClose.setAttribute('aria-label', '關閉跳過片頭');
+        player.append(skipIntro);
+      }
+
+      const showEndingSkipPill = Boolean(ending && (hasFollowingScene || !trustedEnding));
+      if (!showEndingSkipPill || !endingSkipEnabled() || overlay) {
         skip?.remove();
         skip = null;
         return;
@@ -2152,15 +2241,19 @@
       pill.className = 'ani-ending-skip ani-skip-intro-pill';
       const button = action(pill, '跳過片尾', () => {
         const chapter = getEnding();
-        if (chapter && endingSkipEnabled() &&
-            (chapter.hasFollowingScene ?? chapter.endTime < duration - 0.1)) {
+        if (!chapter || !endingSkipEnabled()) return;
+        const following = chapter.hasFollowingScene ?? (chapter.endTime < duration - 0.1);
+        if (following) {
           video.currentTime = chapter.endTime;
-          skip?.remove();
-          skip = null;
+        } else {
+          if (Number.isFinite(duration) && duration > 0) video.currentTime = duration;
+          if (!overlay && dismissedVideo !== video) show(video, player);
         }
+        skip?.remove();
+        skip = null;
       });
       button.className = 'ani-ending-action';
-      button.setAttribute('aria-description', '跳到彩蛋開頭');
+      button.setAttribute('aria-description', hasFollowingScene ? '跳到彩蛋開頭' : '跳到片尾結束');
       const close = action(pill, '×', () => {
         dismissedCue = ending;
         skip?.remove();
@@ -2175,7 +2268,10 @@
     document.addEventListener('playing', event => syncEnding(event.target), true);
     document.addEventListener('change', event => {
       if (!event.target.closest?.(skipSetting)) return;
-      if (!endingSkipEnabled() && analysis && !analysis.controller.signal.aborted) stopAnalysis();
+      if (!endingSkipEnabled()) {
+        if (apiLookup && !apiLookup.controller.signal.aborted) stopApiLookup();
+        if (analysis && !analysis.controller.signal.aborted) stopAnalysis();
+      }
       requestAnimationFrame(() => syncEnding(document.querySelector(VIDEO_SELECTOR)));
     }, true);
     document.addEventListener('ended', event => {
@@ -7861,7 +7957,7 @@
               const val = (textNode.nodeValue || '').trim();
               if (!/(?:跳過|略過)(?:片頭|片尾)|按此跳過/.test(val)) continue;
               const leaf = textNode.parentElement;
-              if (!leaf || leaf.closest('.vjs-control-bar, .vjs-menu, .ani-DanmuMenu, .plus_imagetool_box, .app-download-toolbox, .ani-app-qr-popup')) continue;
+              if (!leaf || leaf.closest('.vjs-control-bar, .vjs-menu, .ani-DanmuMenu, .plus_imagetool_box, .app-download-toolbox, .ani-app-qr-popup, .ani-skip-intro-pill, .ani-ending-skip-group')) continue;
               if (badQrBox(leaf)) continue;
               let box = leaf;
               while (
@@ -9699,7 +9795,11 @@
             let sid = id;
             if (!sid && cleanTitle) {
               const s = await gmJson('https://api.bgm.tv/v0/search/subjects', 'POST', JSON.stringify({ keyword: cleanTitle, filter: { type: [2] } }));
-              const firstId = s?.data?.[0]?.id;
+              const list = Array.isArray(s?.data) ? s.data : [];
+              const norm = (v) => String(enhancement?.traditionalTitle?.(v) || v || '').normalize('NFKC').replace(/[\s\p{P}]/gu, '').toLowerCase();
+              const target = norm(cleanTitle);
+              const picked = list.find(item => norm(item?.name_cn) === target || norm(item?.name) === target) || list[0];
+              const firstId = picked?.id;
               if (/^\d+$/.test(String(firstId || ''))) sid = String(firstId);
             }
             if (!sid) return;
