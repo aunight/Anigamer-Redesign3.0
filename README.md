@@ -106,13 +106,13 @@
 | --- | --- |
 | ![即時環境光](docs/screenshots/02-ambilight-player.jpg) | ![單集大卡片](docs/screenshots/03-episode-cards.jpg) |
 
-| 全螢幕抬頭與快轉控制列 | 全螢幕快速選集抽屜 |
+| 全螢幕抬頭與快轉控制列 | 快速選集抽屜 |
 | --- | --- |
-| ![全螢幕抬頭與快轉控制列](docs/screenshots/04-fullscreen-hud-1.jpg) | ![全螢幕快速選集抽屜](docs/screenshots/05-fullscreen-hud-2.jpg) |
+| ![全螢幕抬頭與快轉控制列](docs/screenshots/04-fullscreen-hud-1.jpg) | ![快速選集抽屜](docs/screenshots/05-fullscreen-hud-2.jpg) |
 
-| 懸浮子母畫面（Mini Player） | 長篇集數折疊與下架提醒 |
+| 懸浮子母畫面（Mini Player） | 長篇集數折疊 |
 | --- | --- |
-| ![懸浮子母畫面](docs/screenshots/06-floating-pip.jpg) | ![長篇集數折疊與下架提醒](docs/screenshots/07-episode-grouping-1.jpg) |
+| ![懸浮子母畫面](docs/screenshots/06-floating-pip.jpg) | ![長篇集數折疊](docs/screenshots/07-episode-grouping-1.jpg) |
 
 <details>
 <summary>展開更多下架提醒與側邊欄截圖</summary>
